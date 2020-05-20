@@ -10,4 +10,5 @@ case class RsdKernelConfig(
                           sub_mem_tag: Int = 0
                           ){
   require(kernel_size.length == 2)
+  if (less_mem_size) {require(deltaw_factor == 1)}
 }

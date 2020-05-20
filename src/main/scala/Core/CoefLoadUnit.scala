@@ -22,15 +22,15 @@ case class CoefLoadUnit(
     )
   }
 
-  val local_mem_application = ApplyMem(init_addr, cfg.hComplexConfig.getComplexWidth)
+  val local_mem_manager = ApplyMem(init_addr, cfg.hComplexConfig.getComplexWidth)
 
   // allocate the address of registers
-  val bank_num: Int = 1 << log2Up(freq_num)
-  val row_num: Int = 1 << log2Up(cfg.radius_factor)
-  val col_num: Int = 1 << log2Up(cfg.depth_factor)
+  val bank_num = freq_num
+  val row_num = cfg.radius_factor
+  val col_num = cfg.depth_factor
 
-  val (transfer_done_addr, transfer_done) = local_mem_application.allocateReg(Bool())
-  val int_reg_array_map = local_mem_application.allocateRegArray(
+  val (transfer_done_addr, transfer_done) = local_mem_manager.allocateReg(Bool())
+  val int_reg_array_map = local_mem_manager.allocateRegArray(
     Vector.fill(bank_num, row_num)(Vec(HComplex(cfg.hComplexConfig), col_num)).flatten
   )
   val int_reg_array = int_reg_array_map.values.toVector

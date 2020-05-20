@@ -12,7 +12,8 @@ object RsdKernelGenMain extends App{
   )
   val rsd_cfg = RsdKernelConfig(
     hComplexConfig = h_cfg,
-    deltaw_factor = 1,
+    less_mem_size = false,
+    deltaw_factor = 2,
     depth_factor = 50,
     radius_factor = 50
   )
@@ -21,6 +22,7 @@ object RsdKernelGenMain extends App{
     targetDirectory = "rtl"
   ).generateVerilog(
 //    RsdKernelGen(rsd_cfg)
-    CoefLoadUnit(rsd_cfg, 1, 0, axi_config)
-  ).printPruned()
+//    CoefLoadUnit(rsd_cfg, 1, 0, axi_config)
+    ImpLoadUnit(rsd_cfg, 0, axi_config)
+  )//.printPruned()
 }

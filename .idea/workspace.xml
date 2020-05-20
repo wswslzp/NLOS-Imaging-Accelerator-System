@@ -1,7 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="121ae936-f113-420a-817d-99f7724d9214" name="Default Changelist" comment="" />
+    <list default="true" id="121ae936-f113-420a-817d-99f7724d9214" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rtl/CoefLoadUnit.v" beforeDir="false" afterPath="$PROJECT_DIR$/rtl/CoefLoadUnit.v" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Config/RsdKernelConfig.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Config/RsdKernelConfig.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Core/CoefLoadUnit.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Core/CoefLoadUnit.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Core/ImpLoadUnit.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Core/ImpLoadUnit.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/RsdKernelGenMain.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/RsdKernelGenMain.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Util/AXI4Load.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Util/AXI4Load.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Util/package.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Util/package.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Config/RsdKernelConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Config/RsdKernelConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$1$$anonfun$apply$mcVI$sp$1$$anonfun$apply$mcVI$sp$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$1$$anonfun$apply$mcVI$sp$1$$anonfun$apply$mcVI$sp$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$1$$anonfun$apply$mcVI$sp$1$$anonfun$apply$mcVI$sp$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$1$$anonfun$apply$mcVI$sp$1$$anonfun$apply$mcVI$sp$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$1$$anonfun$apply$mcVI$sp$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$1$$anonfun$apply$mcVI$sp$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$3$$anonfun$apply$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$3$$anonfun$apply$4.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit$$anonfun$4.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Core/CoefLoadUnit.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/FFT2d.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Core/FFT2d.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/ImpLoadUnit$$anon$1$$anonfun$1$$anonfun$apply$1$$anonfun$apply$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/ImpLoadUnit$$anon$1$$anonfun$1$$anonfun$apply$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/ImpLoadUnit$$anon$1$$anonfun$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/ImpLoadUnit$$anon$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Core/ImpLoadUnit$$anon$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/ImpLoadUnit$$anonfun$2$$anonfun$apply$3.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/ImpLoadUnit$$anonfun$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Core/ImpLoadUnit.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Core/ImpLoadUnit.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/RsdKernelGenMain$$anonfun$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/RsdKernelGenMain$$anonfun$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/RsdKernelGenMain$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/RsdKernelGenMain$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Util/AXI4WLoad$$anon$1$$anonfun$2$$anonfun$apply$mcV$sp$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Util/AXI4WLoad$$anon$1$$anonfun$2$$anonfun$apply$mcV$sp$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Util/AXI4WLoad$class.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Util/AXI4WLoad$class.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Util/AXI4WLoad.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Util/AXI4WLoad.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package$$anon$1$$anonfun$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package$$anon$1$$anonfun$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package$$anon$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package$$anon$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package$$anonfun$countLtUInt$1$$anonfun$apply$mcV$sp$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package$$anonfun$countLtUInt$1$$anonfun$apply$mcV$sp$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package$$anonfun$countLtUInt$1$$anonfun$apply$mcV$sp$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package$$anonfun$countLtUInt$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package$$anonfun$countLtUInt$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/Util/package.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.11/nlos_system_2.11-1.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.11/nlos_system_2.11-1.0.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/streams/compile/_global/_global/compileOutputs/previous" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/_global/_global/compileOutputs/previous" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/streams/compile/_global/_global/compileSourceFileInputs/previous" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/_global/_global/compileSourceFileInputs/previous" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/streams/compile/compile/_global/streams/out" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/compile/_global/streams/out" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/streams/compile/compileIncSetup/_global/streams/inc_compile_2.11.zip" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/compileIncSetup/_global/streams/inc_compile_2.11.zip" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/streams/compile/compileIncremental/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/compileIncremental/_global/streams/export" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/streams/compile/packageBin/_global/streams/inputs" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/packageBin/_global/streams/inputs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/streams/compile/packageBin/_global/streams/out" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/packageBin/_global/streams/out" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -22,10 +69,14 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="1" />
   </component>
   <component name="ProjectId" id="1bo34BkZxnpK7KfwHyCYnsEFJdk" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -33,6 +84,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../spinalhdl/spinal_lib/1.3.8" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />

@@ -22,7 +22,7 @@ trait AXI4WLoad {
     Axi4WriteOnly(
       axi_config
     )
-  )
+  ).setName("axi4")
 
   def awReady(set: Bool): Unit = data_in.aw.ready := set
 
@@ -46,7 +46,7 @@ trait AXI4WLoad {
       awsize_r := data_in.aw.size
       awid_r := data_in.aw.id
     }
-  }
+  }.setName("aw_area")
 
   val addr_reg_map: ListBuffer[(Range, Data)] = ListBuffer[(Range, Data)]()
 
@@ -57,9 +57,9 @@ trait AXI4WLoad {
     addr_reg_pairs.foreach(addr_reg_map.append(_))
   }
 
-  val addr_mem_map: ListBuffer[(Range, Mem[Data])] = ListBuffer[(Range, Mem[Data])]()
+  val addr_mem_map: ListBuffer[(Range, Mem[_])] = ListBuffer[(Range, Mem[_])]()
 
-  def arrangeMemAddr(addr_mem_pair: (Range, Mem[Data])*): Unit = {
+  def arrangeMemAddr[T <: Data](addr_mem_pair: (Range, Mem[T])*): Unit = {
     addr_mem_map.appendAll(addr_mem_pair)
   }
 
@@ -120,6 +120,6 @@ trait AXI4WLoad {
     data_in.b.valid := data_in.w.valid
     data_in.b.id := aw_area.awid_r
     data_in.b.resp := Axi4.resp.OKAY
-  }
+  }.setName("b_area")
 
 }

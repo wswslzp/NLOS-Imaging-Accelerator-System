@@ -3,7 +3,7 @@ import spinal.lib._
 
 package object Util {
 
-  def countUpFrom(cond: Bool, range: Range, name: String = "") = new Area {
+  def countUpFrom(cond: Bool, range: Range, name: String = "", step: Int=1) = new Area {
     // cond is a one-cycle impulse, when the cond is active, counter inside will
     // count up from cond's falling edge to a specific number(0 until x)
     // useful tool for scheduling the task.
@@ -16,7 +16,9 @@ package object Util {
     }
     val cond_period: Bool = cond | cond_period_minus_1
     when(cond_period) {
-      cnt.increment()
+      // TODO: the counter in spinal lib is not support step increment
+      // DO NOT USE delta factor
+      for(_ <- 0 until step) {cnt.increment()}
     }/*.otherwise{
     cnt.clear()
   }*/

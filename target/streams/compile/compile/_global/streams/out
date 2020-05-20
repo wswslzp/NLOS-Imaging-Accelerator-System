@@ -1,4 +1,4 @@
-[warn] /mnt/d/lzp/NSOL/nlos_system/src/main/scala/Util/ApplyMem.scala:30:17: non-variable type argument spinal.core.Data in type pattern spinal.core.Vec[spinal.core.Data] is unchecked since it is eliminated by erasure
-[warn]       case vec: Vec[Data] => ret += allocateRegVec(vec)
-[warn]                 ^
+[warn] /mnt/d/lzp/NSOL/nlos_system/src/main/scala/Util/AXI4Load.scala:107:55: non-variable type argument spinal.core.Data in type pattern spinal.core.Mem[spinal.core.Data] is unchecked since it is eliminated by erasure
+[warn]       addr_mem_map foreach { case (range: Range, mem: Mem[Data]) =>
+[warn]                                                       ^
 [warn] one warning found
