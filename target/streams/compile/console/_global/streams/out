@@ -1,0 +1,33 @@
+[0m[[0m[0mdebug[0m] [0m[0mWaiting for threads to exit or System.exit to be called.[0m
+[0m[[0m[0mdebug[0m] [0m[0mGetting org.scala-sbt:compiler-bridge_2.11:1.3.4:compile for Scala 2.11.12[0m
+[0m[[0m[0mdebug[0m] [0m[0mWaiting for thread run-main-0 to terminate.[0m
+[0m[[0m[0mdebug[0m] [0m[0mGetting org.scala-sbt:compiler-bridge_2.11:1.3.4:compile for Scala 2.11.12[0m
+[0m[[0m[0minfo[0m] [0m[0mStarting scala interpreter...[0m
+[0m[[0m[33mwarn[0m] [0m[0mRun canceled.[0m
+[0m[[0m[0mdebug[0m] [0m[0mInterrupting thread Thread-1[0m
+[0m[[0m[31merror[0m] [0m[0m(run-main-0) java.lang.InterruptedException[0m
+[0m[[0m[0mdebug[0m] [0m[0m	Interrupted Thread-1[0m
+[0m[[0m[0mdebug[0m] [0m[0mInterrupting thread run-main-0[0m
+[0m[[0m[0mdebug[0m] [0m[0m	Interrupted run-main-0[0m
+[0m[[0m[31merror[0m] [0m[0mjava.lang.InterruptedException[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/java.util.concurrent.SynchronousQueue.take(SynchronousQueue.java:924)[0m
+[0m[[0m[31merror[0m] [0m[0m	at scala.tools.nsc.interpreter.SplashLoop.line(InteractiveReader.scala:121)[0m
+[0m[[0m[31merror[0m] [0m[0m	at scala.tools.nsc.interpreter.ILoop$$anonfun$process$1$$anonfun$startup$1$1.apply(ILoop.scala:980)[0m
+[0m[[0m[31merror[0m] [0m[0m	at scala.tools.nsc.interpreter.ILoop$$anonfun$process$1.apply$mcZ$sp(ILoop.scala:990)[0m
+[0m[[0m[31merror[0m] [0m[0m	at scala.tools.nsc.interpreter.ILoop$$anonfun$process$1.apply(ILoop.scala:891)[0m
+[0m[[0m[31merror[0m] [0m[0m	at scala.tools.nsc.interpreter.ILoop$$anonfun$process$1.apply(ILoop.scala:891)[0m
+[0m[[0m[31merror[0m] [0m[0m	at scala.reflect.internal.util.ScalaClassLoader$.savingContextLoader(ScalaClassLoader.scala:97)[0m
+[0m[[0m[31merror[0m] [0m[0m	at scala.tools.nsc.interpreter.ILoop.process(ILoop.scala:891)[0m
+[0m[[0m[31merror[0m] [0m[0m	at xsbt.ConsoleInterface.run(ConsoleInterface.scala:75)[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/java.lang.reflect.Method.invoke(Method.java:566)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.internal.inc.AnalyzingCompiler.call(AnalyzingCompiler.scala:248)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.internal.inc.AnalyzingCompiler.console(AnalyzingCompiler.scala:210)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.Console.console0$1(Console.scala:48)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.Console.$anonfun$apply$2(Console.scala:51)[0m
+[0m[[0m[31merror[0m] [0m[0m	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.util.InterfaceUtil$$anon$1.get(InterfaceUtil.scala:10)[0m
+[0m[[0m[31merror[0m] [0m[0m	at sbt.TrapExit$App.run(TrapExit.scala:257)[0m
+[0m[[0m[31merror[0m] [0m[0m	at java.base/java.lang.Thread.run(Thread.java:834)[0m

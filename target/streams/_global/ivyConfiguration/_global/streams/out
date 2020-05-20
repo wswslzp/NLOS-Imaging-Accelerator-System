@@ -1,0 +1,2 @@
+[0m[[0m[33mwarn[0m] [0m[0minsecure HTTP request is deprecated 'http://maven.aliyun.com/nexus/content/groups/public'; switch to HTTPS or opt-in as ("aliyun" at "http://maven.aliyun.com/nexus/content/groups/public").withAllowInsecureProtocol(true)[0m
+[0m[[0m[33mwarn[0m] [0m[0minsecure HTTP request is deprecated 'http://jcenter.bintray.com'; switch to HTTPS or opt-in as ("jcenter" at "http://jcenter.bintray.com").withAllowInsecureProtocol(true)[0m
