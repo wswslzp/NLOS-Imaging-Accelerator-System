@@ -6,12 +6,14 @@ import Config._
 import Util._
 import spinal.lib.bus.amba4.axi.{Axi4, Axi4Config, Axi4WriteOnly}
 
-case class CoefLoadUnit(
-                         cfg: RsdKernelConfig,
-                         freq_num: Int,
-                         init_addr: Int,
-                         override val axi_config: Axi4Config
-                       ) extends Component with AXI4WLoad {
+case class CoefLoadUnit
+(
+   cfg: RsdKernelConfig,
+   freq_num: Int,
+   init_addr: Int,
+   override val axi_config: Axi4Config
+) extends Component with AXI4WLoad
+{
   override val word_bit_count: Int = cfg.hComplexConfig.getComplexWidth
   awReady(True)
   wReady(True)
@@ -43,6 +45,7 @@ case class CoefLoadUnit(
     int_reg_array_map
   )
 
+  printAddrRange
   loadData()
 
   // output coef

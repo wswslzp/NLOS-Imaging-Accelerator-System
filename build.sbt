@@ -1,7 +1,7 @@
 name := "nlos_system"
 version := "1.0"
 scalaVersion := "2.11.12"
-val spinalVersion = "1.4.0"
+val spinalVersion = "1.4.1"
 
 libraryDependencies ++= Seq(
   "org.scalatest" % "scalatest_2.11" % "2.2.1",

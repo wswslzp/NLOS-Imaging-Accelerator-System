@@ -12,7 +12,7 @@ import scala.collection.mutable.ListBuffer
 // arrange the address range and call the loadData() function
 // finally call the awReady() and the wReady() to set when the ready
 // signal is valid.
-trait AXI4WLoad {
+trait AXI4WLoad extends Nameable {
   // a abstract config of axi4
   val axi_config: Axi4Config
   val word_bit_count: Int
@@ -24,7 +24,7 @@ trait AXI4WLoad {
     )
   ).setName("axi4")
 
-  def awReady(set: Bool): Unit = data_in.aw.ready := set
+  protected def awReady(set: Bool): Unit = data_in.aw.ready := set
 
   val aw_area = new Area {
     //    data_in.aw.ready := True
@@ -50,22 +50,22 @@ trait AXI4WLoad {
 
   val addr_reg_map: ListBuffer[(Range, Data)] = ListBuffer[(Range, Data)]()
 
-  def arrangeRegAddr(addr_reg_pair: (Range, Data)*): Unit = {
+  protected def arrangeRegAddr(addr_reg_pair: (Range, Data)*): Unit = {
     addr_reg_map.appendAll(addr_reg_pair)
   }
-  def arrangeRegAddr(addr_reg_pairs: Map[Range, Data]): Unit = {
+  protected def arrangeRegAddr(addr_reg_pairs: Map[Range, Data]): Unit = {
     addr_reg_pairs.foreach(addr_reg_map.append(_))
   }
 
   val addr_mem_map: ListBuffer[(Range, Mem[_])] = ListBuffer[(Range, Mem[_])]()
 
-  def arrangeMemAddr[T <: Data](addr_mem_pair: (Range, Mem[T])*): Unit = {
+  protected def arrangeMemAddr[T <: Data](addr_mem_pair: (Range, Mem[T])*): Unit = {
     addr_mem_map.appendAll(addr_mem_pair)
   }
 
-  def wReady(set: Bool): Unit = data_in.w.ready := set
+  protected def wReady(set: Bool): Unit = data_in.w.ready := set
 
-  def loadData() = new Area {
+  protected def loadData() = new Area {
     val current_addr: UInt = Reg( UInt(axi_config.addressWidth bit) ) init 0
     when(data_in.w.valid) {
       // The burst assumption is INCR, len default to 16
@@ -121,5 +121,19 @@ trait AXI4WLoad {
     data_in.b.id := aw_area.awid_r
     data_in.b.resp := Axi4.resp.OKAY
   }.setName("b_area")
+
+  protected def printAddrRange: Unit = {
+    import java.io._
+    var s = ""
+    val file = new PrintWriter(new File(s"${super.getName()}_addr.txt"))
+    addr_reg_map foreach {
+      pair => s += s"${pair._2.getName()}:\t\t ${pair._1.head} -> ${pair._1.last}\n"
+    }
+    addr_mem_map foreach {
+      pair => s += s"${pair._2.getName()}:\t\t ${pair._1.head} -> ${pair._1.last}\n"
+    }
+    file.write(s)
+    file.close()
+  }
 
 }

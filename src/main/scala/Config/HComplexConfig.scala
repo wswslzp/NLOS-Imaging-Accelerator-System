@@ -2,12 +2,14 @@ package Config
 
 import spinal.core._
 
-case class HComplexConfig(
-                         intw: Int,
-                         fracw: Int,
-                         useGauss: Boolean = true,
-                         real_high: Boolean = false
-                         ) {
+case class HComplexConfig
+(
+  intw: Int,
+  fracw: Int,
+  useGauss: Boolean = true,
+  real_high: Boolean = false
+)
+{
   def getDataWidth: Int = intw + fracw
   def getComplexWidth: Int = (intw + fracw) * 2
   def getDataRange: Range = getComplexWidth-1 downto 0

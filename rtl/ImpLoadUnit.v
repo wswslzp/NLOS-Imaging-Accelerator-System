@@ -1,5 +1,5 @@
 // Generator : SpinalHDL v1.4.0    git head : ecb5a80b713566f417ea3ea061f9969e73770a7f
-// Date      : 20/05/2020, 23:05:50
+// Date      : 21/05/2020, 11:11:29
 // Component : ImpLoadUnit
 
 
@@ -586,7 +586,8 @@ module ImpLoadUnit (
   reg        [7:0]    aw_area_awlen_r;
   reg        [2:0]    aw_area_awsize_r;
   reg        [3:0]    aw_area_awid_r;
-  reg                 transfer_done;
+  wire                transfer_done;
+  reg                 transfer_done_1_;
   reg        [31:0]   load_data_area_current_addr;
   reg        [31:0]   Axi4Incr_result;
   wire       [19:0]   Axi4Incr_highCat;
@@ -858,7 +859,7 @@ module ImpLoadUnit (
   assign _zz_304_ = aw_area_awaddr_r[11 : 0];
   assign _zz_305_ = _zz_304_;
   assign _zz_306_ = {11'd0, Axi4Incr_sizeValue};
-  assign _zz_307_ = transfer_done;
+  assign _zz_307_ = transfer_done_1_;
   assign _zz_308_ = (load_data_area_current_addr - 32'h0);
   assign _zz_309_ = _zz_308_[5:0];
   assign _zz_310_ = (load_data_area_current_addr - 32'h00000040);
@@ -1565,10 +1566,10 @@ module ImpLoadUnit (
     endcase
   end
 
-  assign io_impulse_out_valid = transfer_done;
+  assign io_impulse_out_valid = transfer_done_1_;
   always @ (*) begin
     current_mem_addr_willIncrement = 1'b0;
-    if((transfer_done || _zz_2_))begin
+    if((transfer_done_1_ || _zz_2_))begin
       current_mem_addr_willIncrement = 1'b1;
       current_mem_addr_willIncrement = 1'b1;
     end
@@ -1992,7 +1993,7 @@ module ImpLoadUnit (
       aw_area_awid_r <= axi4_aw_payload_id;
     end
     if(axi4_w_valid)begin
-      transfer_done <= (((32'h00000c80 <= load_data_area_current_addr) && (load_data_area_current_addr < 32'h00000c80)) ? axi4_w_payload_data_regNext[0] : _zz_307_[0]);
+      transfer_done_1_ <= (((32'h00000c80 <= load_data_area_current_addr) && (load_data_area_current_addr < 32'h00000c80)) ? axi4_w_payload_data_regNext[0] : _zz_307_[0]);
     end
   end
 
@@ -2006,7 +2007,7 @@ module ImpLoadUnit (
         load_data_area_current_addr <= Axi4Incr_result;
       end
       current_mem_addr_value <= current_mem_addr_valueNext;
-      if(transfer_done)begin
+      if(transfer_done_1_)begin
         _zz_2_ <= 1'b1;
       end else begin
         if(current_mem_addr_willOverflow)begin

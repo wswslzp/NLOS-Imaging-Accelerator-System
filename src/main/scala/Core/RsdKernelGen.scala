@@ -6,6 +6,7 @@ import Config.{RsdKernelConfig, HComplexConfig}
 import Util.HComplex
 
 case class RsdKernelGen(config: RsdKernelConfig) extends Component {
+  implicit val use_synthesizable_mul = false // variable to control the multiplication
   val io = new Bundle {
     val ring_impulse = slave (
       Flow(Vec(Vec(HComplex(config.hComplexConfig), config.deltaw_factor), config.radius_factor))

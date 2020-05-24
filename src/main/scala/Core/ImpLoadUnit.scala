@@ -39,14 +39,15 @@ case class ImpLoadUnit(
 
   val int_ram_array_map = Vector.fill(radius_num)(
     local_mem_manager.allocateRam(
-      Mem(Bits(cfg.hComplexConfig.getComplexWidth bit), BigInt(mem_size))
+      Mem(Bits(cfg.hComplexConfig.getComplexWidth bit), BigInt(mem_size)).setWeakName("int_ram_array")
     )
   )
-  val transfer_done_map = local_mem_manager.allocateReg(Bool)
+  val transfer_done_map = local_mem_manager.allocateReg(Bool().setWeakName("transfer_done"))
 
   int_ram_array_map foreach (arrangeMemAddr(_))
   arrangeRegAddr(transfer_done_map)
 
+  printAddrRange
   loadData()
 
   // output the impulse

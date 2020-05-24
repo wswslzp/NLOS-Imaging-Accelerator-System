@@ -2,6 +2,7 @@ package Core
 
 import spinal.core._
 import spinal.lib.{master, slave}
+import Util.MulUnit
 
 case class PwMatMul(
                    width: Int,

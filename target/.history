@@ -80,3 +80,4 @@ runMain RsdKernelGenMain
 compile
 runMain RsdKernelGenMain
 help
+compile

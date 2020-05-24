@@ -21,8 +21,8 @@ object RsdKernelGenMain extends App{
     mode = Verilog,
     targetDirectory = "rtl"
   ).generateVerilog(
-//    RsdKernelGen(rsd_cfg)
+    RsdKernelGen(rsd_cfg)
 //    CoefLoadUnit(rsd_cfg, 1, 0, axi_config)
-    ImpLoadUnit(rsd_cfg, 0, axi_config)
+//    ImpLoadUnit(rsd_cfg, 0, axi_config)
   )//.printPruned()
 }
