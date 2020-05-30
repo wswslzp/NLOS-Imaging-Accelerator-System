@@ -12,17 +12,24 @@ case class HComplex(config:HComplexConfig) extends Bundle {
   val real, imag = SFix(( config.intw - 1) exp, -config.fracw exp)
   val q_format = SQ(config.getDataWidth, config.fracw)
 
+  def conj: HComplex = {
+    val ret = HComplex(this.config)
+    ret.real := this.real
+    ret.imag.assignFromBits(( -this.imag.asBits.asSInt ).asBits)
+    ret
+  }
+
   def +(that: HComplex): HComplex = {
-    require(this.config == that.config)
-    val result = HComplex(this.config)
+//    require(this.config == that.config)
+    val result = HComplex(this.config + that.config)
     result.real := this.real + that.real
     result.imag := this.imag + that.imag
     result
   }
 
   def -(that: HComplex): HComplex = {
-    require(this.config == that.config)
-    val result = HComplex(this.config)
+//    require(this.config == that.config)
+    val result = HComplex(this.config + that.config)
     result.real := this.real - that.real
     result.imag := this.imag - that.imag
     result
@@ -43,50 +50,54 @@ case class HComplex(config:HComplexConfig) extends Bundle {
   }
 
   def *(that: HComplex)(implicit use_synthesizable_mul: Boolean = true): HComplex = {
-    require(this.config == that.config)
+    val result = HComplex(this.config * that.config)
     if (!use_synthesizable_mul) {
-      val result = HComplex(this.config)
       if(config.useGauss) {
         val k1 = ( (this.real + this.imag) * that.real ).fixTo(q_format)
         val k2 = ( (that.imag - that.real) * this.real ).fixTo(q_format)
         val k3 = ( (that.real + that.imag) * this.imag ).fixTo(q_format)
         result.real := k1 - k3
         result.imag := k1 + k2
-        result
       }else{
         result.real := ( this.real * that.real - this.imag * that.imag ).fixTo(q_format)
         result.imag := ( this.real * that.imag + this.imag * that.real ).fixTo(q_format)
-        result
       }
     }
     else {
-      val result = HComplex(this.config)
       if(config.useGauss) {
         val k1 = MulUnit(this.real + this.imag, that.real).fixTo(q_format)
         val k2 = MulUnit(that.imag - that.real, this.real).fixTo(q_format)
         val k3 = MulUnit(that.real + that.imag, this.imag).fixTo(q_format)
         result.real := k1 - k3
         result.imag := k1 + k2
-        result
       }else{
         result.real := (MulUnit(this.real, that.real) - MulUnit(this.imag, that.imag)).fixTo(q_format)
         result.imag := (MulUnit(this.real, that.imag) + MulUnit(this.imag, that.real)).fixTo(q_format)
-        result
       }
     }
+    result
   }
 
   def /(that: SFix): HComplex = {
     // complex number divide by the real number
     val ret = HComplex(this.config)
-    ret.real := DivUnit(this.real, that)
-    ret.imag := DivUnit(this.imag, that)
+    val real = this.real.fixTo(that.sq)
+    val imag = this.imag.fixTo(that.sq)
+    ret.real := DivUnit(real, that)
+    ret.imag := DivUnit(imag, that)
     ret
   }
 
   def :=(that: HComplex): Unit = {
-    this.real := that.real
-    this.imag := that.imag
+    //TODO: When this has a high accuracy than that, thing goes wrong!!
+    //that could not fix to a high range.
+    if (this.real.sq.fraction < that.real.sq.fraction) {
+      this.real := that.real.fixTo(this.real.sq)
+      this.imag := that.imag.fixTo(this.imag.sq)
+    } else {
+      this.real := that.real
+      this.imag := that.imag
+    }
   }
 
   def :=(that: Bits): Unit = {
@@ -107,5 +118,40 @@ object HComplex {
       tmp.real.assignFromBits(bits(dw-1 downto 0))
       tmp
     }
+  }
+}
+
+object HC {
+  def apply(that: UFix): HComplex = {
+    val ret = HComplex(
+      config = HComplexConfig(intw = that.maxExp, fracw = -that.minExp)
+    )
+    ret.real.assignFromBits(that.asBits)
+    ret.imag := 0
+    ret
+  }
+  def apply(that: SFix): HComplex = {
+    val ret = HComplex(
+      config = HComplexConfig(intw = that.maxExp + 1, fracw = -that.minExp)
+    )
+    ret.real := that
+    ret.imag := 0
+    ret
+  }
+  def apply(that: SInt): HComplex = {
+    val ret = HComplex(
+      config = HComplexConfig(intw = that.getBitsWidth, fracw = 0)
+    )
+    ret.real.raw := that
+    ret.imag := 0
+    ret
+  }
+  def apply(that: UInt): HComplex = {
+    val ret = HComplex(
+      config = HComplexConfig(intw = that.getBitsWidth - 1, fracw = 0)
+    )
+    ret.real.assignFromBits(that.asBits)
+    ret.imag := 0
+    ret
   }
 }

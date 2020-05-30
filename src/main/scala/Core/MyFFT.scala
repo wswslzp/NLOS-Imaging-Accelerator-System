@@ -1,13 +1,13 @@
 package Core
 import spinal.core._
 import spinal.lib._
-import Config.HComplexConfig
+import Config._
 import Util._
 
-case class MyFFT(length: Int, cfg: HComplexConfig) extends Component {
+case class MyFFT(length: Int, cfg: HComplexConfig, use_pipeline: Boolean = true) extends Component {
   implicit val use_synthesizable_mul = false
   val io = new Bundle {
-    val data_in = in( Flow( Vec(HComplex(cfg), length) ) )
+    val data_in: Flow[Vec[HComplex]] = in( Flow( Vec(HComplex(cfg), length) ) )
     val data_out = out ( Flow( Vec(HComplex(cfg), length) ) )
   }
 
@@ -23,8 +23,6 @@ case class MyFFT(length: Int, cfg: HComplexConfig) extends Component {
     dat_bin.zipWithIndex.foreach{case(c, i) =>
       ret += c.toString.toInt << i
     }
-    val s = s"dat = ${dat}, width = ${width}, dat_bin = ${dat_bin.toString.reverse}, ret = ${ret.toString}"
-    SpinalInfo(s)
     ret
   }
 
@@ -34,40 +32,39 @@ case class MyFFT(length: Int, cfg: HComplexConfig) extends Component {
     data_reorder(bitReverse(idx, log2Up(length))) := dat
   }
 
-  private def countUpFrom(cond: Bool, range: Range, name: String = "", step: Int=1) = new Area {
-    // cond is a one-cycle impulse, when the cond is active, counter inside will
-    // count up from cond's falling edge to a specific number(0 until x)
-    // useful tool for scheduling the task.
-    val cnt: Counter = Counter(range)
-    val cond_period_minus_1: Bool = Reg(Bool()) init(False)
-    when(cond) {
-      cond_period_minus_1 := True
-    }.elsewhen(cnt.willOverflow) {
-      cond_period_minus_1 := False
-    }
-    val cond_period: Bool = cond | cond_period_minus_1
-    when(cond_period) {
-      // TODO: the counter in spinal lib is not support step increment
-      // DO NOT USE delta factor
-      for(_ <- 0 until step) {cnt.increment()}
-    }/*.otherwise{
-    cnt.clear()
-  }*/
-  }.setWeakName(name)
-
-  val data_mid: Vec[HComplex] = Reg(cloneOf(data_in))
-//  val current_level = Reg(UInt(log2Up(log2Up(length + 1)) bit)) init 0
-  val current_level = countUpFrom(
-    RegNext(io.data_in.valid), 0 until log2Up(length)+1, "current_level"
-  ).cnt
-
   val LL =  (1 to log2Up(length)).map(1 << _)//.map(U(_))
   val rr =  LL.map(length / _)
   val LL2 =  LL.map(_ / 2)
 
-  when(current_level === 0) {
-    data_mid := data_reorder
-  } otherwise {
+  if (use_pipeline) {
+    val data_mid =  Reg(Vec(cloneOf(data_in), log2Up(length)+1)).setWeakName("data_mid")
+    data_mid(0) := data_reorder
+    for {
+      level <- 1 to log2Up(length)
+      l = LL(level-1)
+      r = rr(level-1)
+      l2 = LL2(level-1)
+      k <- 0 until r
+      j <- 0 until l2
+    } {
+      val tmp = twiddle_factor_table(l2 - 1 + j) * data_mid(level-1)(k*l + j + l2)
+      data_mid(level)(k*l + j + l2) := (data_mid(level-1)(k*l + j) - tmp) >> U(1)
+      data_mid(level)(k*l + j) := (data_mid(level-1)(k*l + j) + tmp) >> U(1)
+    }
+
+    io.data_out.valid := Delay(io.data_in.valid, log2Up(length)+2)
+    io.data_out.payload := data_mid(log2Up(length))
+  }
+
+  else {
+    val current_level = countUpFrom(
+      RegNext(io.data_in.valid), 0 until log2Up(length)+1, "current_level"
+    ).cnt
+    val data_mid = Reg(cloneOf(data_in)).setWeakName("data_mid")
+
+    when(current_level === 0) {
+      data_mid := data_reorder
+    } otherwise {
       for {
         q <- 0 until log2Up(length)
         l = LL(q)
@@ -83,11 +80,32 @@ case class MyFFT(length: Int, cfg: HComplexConfig) extends Component {
           data_mid(k*l + j) := (data_mid(k*l + j) + tmp) >> U(1)
         }
       }
-  }
+    }
+    io.data_out.valid := RegNext(current_level.willOverflow)
+    io.data_out.payload := data_mid
 
-//  io.data_out.valid := current_level.willOverflow
-  io.data_out.valid := RegNext(current_level.willOverflow)
-  io.data_out.payload := data_mid
+  }
 
 }
 
+object MyFFT {
+  def fft(input: Flow[Vec[HComplex]]): Flow[Vec[HComplex]] = {
+    // support for any points FFT
+    val cfg = input.payload(0).config
+    val length = input.payload.length
+    val points = 1 << log2Up(length)
+    val add0_input = Flow(Vec(HComplex(cfg), points))
+    add0_input.valid := input.valid
+    add0_input.payload.zipWithIndex.foreach { case (dat, i) =>
+      if (i < length) {
+        dat := input.payload(i)
+      } else {
+        dat := 0
+      }
+    }
+    val fft_core = MyFFT(points, cfg)
+    fft_core.io.data_in <> input
+    fft_core.io.data_out
+  }
+  //def fft_latency(length: Int): Int = log2Up(length) + 2
+}

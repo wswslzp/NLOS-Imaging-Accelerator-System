@@ -1,28 +1,37 @@
 package Core
 
-import Config.FFTConfig
-import Util.Conjugate
+import Config._
+import Util._
 import spinal.core._
+import spinal.lib._
 
-case class IFFT2d(fft_config:FFTConfig) extends Component {
+case class IFFT2d(cfg:FFTConfig) extends Component {
+  import FFT2d.fft2
   val io = new Bundle {
-    val next_in = in Bool()
-    val line_in = in(Vec(UInt(fft_config.data_width bit), fft_config.fft_point))
-    val next_out = out Bool()
-    val line_out = out(Vec(UInt(fft_config.data_width bit), fft_config.fft_point))
+    val line_in = slave(
+      Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point))
+    )
+    val line_out= master(
+      Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point))
+    )
   }
 
-  val fft2d_core = FFT2d(fft_config)
-  fft2d_core.io.next <> io.next_in
-  fft2d_core.io.next_out <> io.next_out
+  val int_line_in_conj: Flow[Vec[HComplex]] = io.line_in.translateWith(Vec( io.line_in.payload.map(_.conj) ))
+  val int_line_out = fft2(int_line_in_conj, cfg.row)
+  val int_line_out_conj: Flow[Vec[HComplex]] = int_line_out.translateWith(Vec( int_line_out.payload.map(_.conj) ))
 
-  // conjugate all the input & output
-  fft2d_core.io.line_in <> Vec(
-    io.line_in
-      .map(Conjugate(_, fft_config.data_width-1 downto fft_config.data_width/2))
-  )
-  io.line_out <> Vec(
-    fft2d_core.io.line_out
-      .map(Conjugate(_, fft_config.data_width-1 downto fft_config.data_width/2))
-  )
+  io.line_out <-< int_line_out_conj
+}
+
+object IFFT2d {
+  def ifft2(input: Flow[Vec[HComplex]], row: Int): Flow[Vec[HComplex]] = {
+    val hcfg = input.payload(0).config
+    val length = input.payload.length
+    val cfg = FFTConfig(
+      hComplexConfig = hcfg, point = length, row = row
+    )
+    val ifft2_core = IFFT2d(cfg)
+    ifft2_core.io.line_in << input
+    ifft2_core.io.line_out
+  }
 }

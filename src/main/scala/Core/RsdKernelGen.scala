@@ -5,6 +5,7 @@ import spinal.lib._
 import Config.{RsdKernelConfig, HComplexConfig}
 import Util.HComplex
 
+//TODO: due to the modification of the algorithm, this module may need to change
 case class RsdKernelGen(config: RsdKernelConfig) extends Component {
   implicit val use_synthesizable_mul = false // variable to control the multiplication
   val io = new Bundle {

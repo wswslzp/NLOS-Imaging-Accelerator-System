@@ -81,3 +81,32 @@ compile
 runMain RsdKernelGenMain
 help
 compile
+runMain MyFFTMain
+compile
+runMain MyFFTMain
+compile
+runMain MyFFTMain
+compile
+runMain MyFFTMain
+compile
+runMain MyFFTMain
+runMain FFTMain
+runMain MyFFTMain
+runMain FFTMain
+compile
+runMain FFTMain
+compile
+runMain CoefGenCoreMain
+compile
+runMain CoefGenCoreMain
+compile
+runMain CoefGenCoreMain
+runMain FFTMain
+compile
+runMain FFTMain
+compile
+runMain CoefGenArrayMain
+runMain CoefGenCoreMain
+runMain CoefGenArrayMain
+compile
+runMain Util.LzcMain

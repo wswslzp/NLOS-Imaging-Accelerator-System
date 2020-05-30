@@ -1,7 +1,5 @@
-[0m[[0m[33mwarn[0m] [0m[0m/mnt/d/lzp/NSOL/nlos_system/src/main/scala/Util/AXI4Load.scala:107:55: non-variable type argument spinal.core.Data in type pattern spinal.core.Mem[spinal.core.Data] is unchecked since it is eliminated by erasure[0m
-[0m[[0m[33mwarn[0m] [0m[0m      addr_mem_map foreach { case (range: Range, mem: Mem[Data]) =>[0m
-[0m[[0m[33mwarn[0m] [0m[0m                                                      ^[0m
-[0m[[0m[33mwarn[0m] [0m[0m/mnt/d/lzp/NSOL/nlos_system/src/main/scala/Util/ApplyMem.scala:34:17: non-variable type argument spinal.core.Data in type pattern spinal.core.Vec[spinal.core.Data] is unchecked since it is eliminated by erasure[0m
-[0m[[0m[33mwarn[0m] [0m[0m      case vec: Vec[Data] => ret += allocateRegVec(vec)[0m
-[0m[[0m[33mwarn[0m] [0m[0m                ^[0m
-[0m[[0m[33mwarn[0m] [0m[0mtwo warnings found[0m
+[0m[[0m[31merror[0m] [0m[0m/mnt/d/lzp/NSOL/nlos_system/src/main/scala/CoefGenCoreMain.scala:17:16: not enough arguments for method apply: (wave_cfg: Config.HComplexConfig, distance_cfg: Config.HComplexConfig, timeshift_cfg: Config.HComplexConfig, coef_cfg: Config.HComplexConfig, expfunc_point: Int, expfunc_range: (Double, Double), pipeline_lv: Int)Core.CoefGenCore in object CoefGenCore.[0m
+[0m[[0m[31merror[0m] [0m[0mUnspecified value parameter expfunc_range.[0m
+[0m[[0m[31merror[0m] [0m[0m    CoefGenCore([0m
+[0m[[0m[31merror[0m] [0m[0m               ^[0m
+[0m[[0m[31merror[0m] [0m[0mone error found[0m

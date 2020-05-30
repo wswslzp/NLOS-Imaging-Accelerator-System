@@ -1,3 +1,4 @@
+import Config.HComplexConfig
 import spinal.core._
 import spinal.lib._
 
@@ -79,6 +80,71 @@ package object Util {
       result := (U(0, 16 bit) @@ data(real_range) ) | ( (~data(imag_range) + U(1)).resized @@ U(0, 16 bit) )
       result
     }
+  }
+
+  def expfunclut(cfg: HComplexConfig, point: Int, data_range: (Double, Double)): Vector[HComplex] = {
+    val ret = Vector.fill(point)(HComplex(cfg))
+    val range = (1 to point).toVector.map { p =>
+      val idx = data_range._1 + (data_range._2 - data_range._1) * (p.asInstanceOf[Double] / point)
+//      SpinalInfo(idx.toString)
+      idx
+    }
+    val output_cos_range = range.map { dat =>
+      val cos_v = Math.cos(2 * Math.PI * dat)
+      SpinalInfo(s"cos($dat) = ${cos_v.toString}")
+      cos_v
+    }.map(SF(_, cfg.intw-1 exp, -cfg.fracw exp))
+    val output_sin_range = range.map { dat =>
+      val sin_v = scala.math.sin(2 * scala.math.Pi * dat)
+      SpinalInfo(s"sin($dat) = ${sin_v.toString}")
+      sin_v
+    }.map(SF(_, cfg.intw-1 exp, -cfg.fracw exp))
+    for(i <- 0 until point) {
+      ret(i).real := output_cos_range(i)
+      ret(i).imag := output_sin_range(i)
+    }
+    ret
+  }
+
+  // resource-consuming!!
+  def linearInterpolate(x: SFix, x1: SFix, x2: SFix, y1: HComplex, y2: HComplex): HComplex = {
+    val xd = x1 - x2
+    val yd = y1 - y2
+    val k = yd / xd
+    k * HC(x - x1) + y1
+  }
+
+  // No resource reuse, multiple and gates are duplicated
+  def countLeadingZeros(x: BitVector): UInt = {
+    val dw = x.getBitsWidth
+    val ret = UInt(log2Up(dw)+1 bit).setWeakName("ret")
+    val ld = (1 << log2Up(dw)) - dw
+    val x_tmp = ( x ## B(ld bit, default -> True) ).setWeakName("x_tmp")
+    val dw_t = x_tmp.getBitsWidth
+    val all_zeros = Bits(ret.getBitsWidth bit).setAllTo(~x_tmp.orR).asUInt.setWeakName("all_zeros")
+    val all_left_zeros = Bits(ret.getBitsWidth bit).setAllTo(~x_tmp(dw_t-1 downto dw_t/2).orR).asUInt.setWeakName("all_left_zeros")
+
+    if (dw == 1) {
+      U(~x(0))
+    } else {
+      val whole_bit_count = U(dw_t, ret.getBitsWidth bit).setWeakName("whole_bit_count")
+      val left_bit_count = U(dw_t/2, ret.getBitsWidth bit).setWeakName("left_bit_count")
+      val left_all_zeros_count = ( all_left_zeros & (
+        left_bit_count + countLeadingZeros( x_tmp(dw_t/2-1 downto 0) ).resized
+      ) ).setWeakName("left_all_zeros_count")
+      val left_non_all_zeros_count = ( ~all_left_zeros & (
+        countLeadingZeros( x_tmp(dw_t-1 downto dw_t/2) ).resized
+      ) ).setWeakName("left_non_all_zeros_count")
+      val non_zeros_lzc = ( left_all_zeros_count + left_non_all_zeros_count ).setWeakName("non_zeros_lzc").resized
+      ret := ( ( all_zeros & whole_bit_count ) + ( ~all_zeros & non_zeros_lzc ) ).resized
+      ret
+    }
+
+  }
+
+  def countLeadingZeros(x: Seq[Bool]): UInt = {
+    require(x.nonEmpty)
+    countLeadingZeros(B(x))
   }
 
 }
