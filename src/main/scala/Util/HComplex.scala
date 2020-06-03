@@ -5,7 +5,13 @@ import scala.language.postfixOps
 import Config._
 import Util._
 
-case class HComplex(config:HComplexConfig) extends Bundle {
+class Synthesizable(var flag: Boolean)
+object Synthesizable {
+  implicit var synthesizable = new Synthesizable(true)
+  def setSimulation(x: Boolean): Unit = synthesizable.flag = !x
+}
+
+case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/{
   import MyUFix.toMyUFix
   import MySFix.toMySFix
   val dw = config.intw + config.fracw
@@ -49,49 +55,73 @@ case class HComplex(config:HComplexConfig) extends Bundle {
     ret
   }
 
-  def *(that: HComplex)(implicit use_synthesizable_mul: Boolean = true): HComplex = {
+  def *(that: HComplex)(implicit use_synthesizable_mul: Synthesizable): HComplex = {
     val result = HComplex(this.config * that.config)
-    if (!use_synthesizable_mul) {
+    if (!use_synthesizable_mul.flag) {
       if(config.useGauss) {
-        val k1 = ( (this.real + this.imag) * that.real ).fixTo(q_format)
-        val k2 = ( (that.imag - that.real) * this.real ).fixTo(q_format)
-        val k3 = ( (that.real + that.imag) * this.imag ).fixTo(q_format)
-        result.real := k1 - k3
-        result.imag := k1 + k2
+        val k1 = ( (this.real + this.imag) * that.real )//.fixTo(q_format)
+        val k2 = ( (that.imag - that.real) * this.real )//.fixTo(q_format)
+        val k3 = ( (that.real + that.imag) * this.imag )//.fixTo(q_format)
+        result.real := ( k1 - k3 ).fixTo(result.real.sq)
+        result.imag := ( k1 + k2 ).fixTo(result.imag.sq)
       }else{
-        result.real := ( this.real * that.real - this.imag * that.imag ).fixTo(q_format)
-        result.imag := ( this.real * that.imag + this.imag * that.real ).fixTo(q_format)
+        result.real := ( this.real * that.real - this.imag * that.imag ).fixTo(result.real.sq)
+        result.imag := ( this.real * that.imag + this.imag * that.real ).fixTo(result.imag.sq)
       }
     }
     else {
       if(config.useGauss) {
-        val k1 = MulUnit(this.real + this.imag, that.real).fixTo(q_format)
-        val k2 = MulUnit(that.imag - that.real, this.real).fixTo(q_format)
-        val k3 = MulUnit(that.real + that.imag, this.imag).fixTo(q_format)
-        result.real := k1 - k3
-        result.imag := k1 + k2
+        val k1 = MulUnit(this.real + this.imag, that.real)//.fixTo(q_format)
+        val k2 = MulUnit(that.imag - that.real, this.real)//.fixTo(q_format)
+        val k3 = MulUnit(that.real + that.imag, this.imag)//.fixTo(q_format)
+        result.real := ( k1 - k3 ).fixTo(result.real.sq)
+        result.imag := ( k1 + k2 ).fixTo(result.imag.sq)
       }else{
-        result.real := (MulUnit(this.real, that.real) - MulUnit(this.imag, that.imag)).fixTo(q_format)
-        result.imag := (MulUnit(this.real, that.imag) + MulUnit(this.imag, that.real)).fixTo(q_format)
+        result.real := (MulUnit(this.real, that.real) - MulUnit(this.imag, that.imag)).fixTo(result.real.sq)
+        result.imag := (MulUnit(this.real, that.imag) + MulUnit(this.imag, that.real)).fixTo(result.imag.sq)
       }
     }
     result
   }
 
-  def /(that: SFix): HComplex = {
+  def /(that: SFix)(implicit use_synthesizable_div: Synthesizable): HComplex = {
     // complex number divide by the real number
-    val ret = HComplex(this.config)
-    val real = this.real.fixTo(that.sq)
-    val imag = this.imag.fixTo(that.sq)
-    ret.real := DivUnit(real, that)
-    ret.imag := DivUnit(imag, that)
+    val ret_config = this.config + that.sq
+    val ret = HComplex(ret_config)
+    val real = this.real//.fixTo(ret_config.sq)
+    val imag = this.imag//.fixTo(ret_config.sq)
+    if (use_synthesizable_div.flag) {
+      ret.real := DivUnit(real, that).fixTo(ret.real.sq)
+      ret.imag := DivUnit(imag, that).fixTo(ret.imag.sq)
+    }
+    else {
+      val sq_tmp = SQ(
+        Math.max(this.config.getDataWidth, that.bitCount),
+        Math.max(this.config.fracw, -that.minExp)
+      )
+      val ia_real = real.fixTo(sq_tmp)
+      val ia_imag = imag.fixTo(sq_tmp)
+      val ib = that.fixTo(sq_tmp)
+      when(that.asBits.asUInt === U(0, that.bitCount bit)) {
+        // When the divisor is zero, we set the value to the maximum
+        // avoid popping up error signal.
+        ret.real.assignFromBits(B(ret.config.getDataWidth bit, default -> true))
+        ret.imag.assignFromBits(B(ret.config.getDataWidth bit, default -> true))
+      }.otherwise {
+        // the quotient is a signed integer
+        // discard the remainder.
+        // TODO: the remainder cannot be discarded.
+        ret.real := ia_real / ib
+        ret.imag := ia_imag / ib
+      }
+    }
     ret
   }
 
   def :=(that: HComplex): Unit = {
-    //TODO: When this has a high accuracy than that, thing goes wrong!!
-    //that could not fix to a high range.
     if (this.real.sq.fraction < that.real.sq.fraction) {
+      SpinalInfo(s"this.sq = ${this.real.sq.toString()}")
+      SpinalInfo(s"that.sq = ${that.real.sq.toString()}, that's name is ${that.getName()}")
       this.real := that.real.fixTo(this.real.sq)
       this.imag := that.imag.fixTo(this.imag.sq)
     } else {

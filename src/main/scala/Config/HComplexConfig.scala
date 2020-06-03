@@ -27,12 +27,23 @@ case class HComplexConfig
   def getDataMaxValue: Double = math.pow(2, intw-1) - math.pow(2, -fracw)
   def getDataMinValue: Double = -math.pow(2, intw)
   def getDataValueRange: Vector[Double] = (1 to getDataWidth).map(_.toDouble).map(_ / math.pow(2, intw-1)).toVector
+  def sq: QFormat = SQ(intw + fracw, fracw)
+  def minExp: ExpNumber = -fracw exp
+  def maxExp: ExpNumber = ( intw-1 ) exp
 
   def +(that: HComplexConfig): HComplexConfig = {
     require(this.useGauss == that.useGauss && this.real_high == that.real_high)
     HComplexConfig(
       intw = Math.max(this.intw, that.intw),
       fracw = Math.max(this.fracw, that.fracw),
+      useGauss, real_high
+    )
+  }
+
+  def +(that: QFormat): HComplexConfig = {
+    HComplexConfig(
+      intw = Math.max(this.intw, that.width - that.fraction),
+      fracw = Math.max(this.fracw, that.fraction),
       useGauss, real_high
     )
   }
@@ -46,7 +57,19 @@ case class HComplexConfig
     )
   }
 
+  def *(that: QFormat): HComplexConfig = {
+    HComplexConfig(
+      intw = this.intw + that.width - that.fraction,
+      fracw = this.fracw + that.fraction
+    )
+  }
+
   def ==(that: HComplexConfig): Boolean = {
     (that.intw == this.intw) && (that.fracw == this.fracw) && (that.useGauss == this.useGauss) && (that.real_high == this.real_high)
+  }
+
+  override def toString: String = {
+    val s = s"intw: $intw\nfracw: $fracw\nuse_guass: $useGauss\nreal_high: $real_high\n"
+    s
   }
 }

@@ -8,12 +8,16 @@ object CoefGenArrayMain extends App{
 
   val wave_cfg = HComplexConfig(8, 8)
   val distance_cfg = HComplexConfig(8, 8)
-  val timeshift_cfg = HComplexConfig(0, 16)
-  val coef_cfg = HComplexConfig(8, 8)
+  val timeshift_cfg = HComplexConfig(-4, 20)
+  val coef_cfg = HComplexConfig(-4, 20)
+
+  Synthesizable.setSimulation(true)
 
   SpinalConfig(
     mode = Verilog,
-    targetDirectory = "rtl"
+//    targetDirectory = "tb/CoefGenCore_tb/rtl",
+    targetDirectory = "rtl",
+    headerWithDate = true
   ).generate(
     CoefGenArray(
       wave_cfg = wave_cfg,
@@ -23,8 +27,6 @@ object CoefGenArrayMain extends App{
         hComplexConfig = coef_cfg,
         deltaw_factor = 1, depth_factor = 1, radius_factor = 1
       ),
-      expfunc_point = 128,
-      expfunc_range = (-5d, 5d),
       freq_num = 1
     )
   )//.printPruned()

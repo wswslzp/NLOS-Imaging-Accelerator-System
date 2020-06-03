@@ -1,1 +1,1 @@
-["CoefGenArrayMain","FFTMain","IFFT2dMain","MyFFTMain","PwMatMulMain","PwMatMulTest","RsdKernelGenMain","Util.LzcMain"]
+["CoefGenArrayMain","ExpFuncMain","FFTMain","IFFT2dMain","MyFFTMain","PwMatMulMain","PwMatMulTest","RsdKernelGenMain","Util.LzcMain"]

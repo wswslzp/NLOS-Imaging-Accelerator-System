@@ -82,36 +82,47 @@ package object Util {
     }
   }
 
-  def expfunclut(cfg: HComplexConfig, point: Int, data_range: (Double, Double)): Vector[HComplex] = {
-    val ret = Vector.fill(point)(HComplex(cfg))
+  def expfunclut(cfg: HComplexConfig, point: Int, data_range: (Double, Double)): (Vector[SFix], Vector[HComplex]) = {
+    // TODO: utilize the periodicity to simplify the LUT
+    val func_table = Vector.fill(point)(HComplex(cfg))
     val range = (1 to point).toVector.map { p =>
       val idx = data_range._1 + (data_range._2 - data_range._1) * (p.asInstanceOf[Double] / point)
-//      SpinalInfo(idx.toString)
       idx
+    }
+    val indx_table = range.map { dat =>
+      SF(dat, cfg.intw-1 exp, -cfg.fracw exp)
     }
     val output_cos_range = range.map { dat =>
       val cos_v = Math.cos(2 * Math.PI * dat)
-      SpinalInfo(s"cos($dat) = ${cos_v.toString}")
+      SpinalInfo(s"cos($dat) = $cos_v")
       cos_v
     }.map(SF(_, cfg.intw-1 exp, -cfg.fracw exp))
     val output_sin_range = range.map { dat =>
       val sin_v = scala.math.sin(2 * scala.math.Pi * dat)
-      SpinalInfo(s"sin($dat) = ${sin_v.toString}")
+      SpinalInfo(s"sin($dat) = $sin_v")
       sin_v
     }.map(SF(_, cfg.intw-1 exp, -cfg.fracw exp))
     for(i <- 0 until point) {
-      ret(i).real := output_cos_range(i)
-      ret(i).imag := output_sin_range(i)
+      func_table(i).real := output_cos_range(i)
+      func_table(i).imag := output_sin_range(i)
     }
-    ret
+    indx_table -> func_table
+  }
+
+  def expfunclutInPeriod(cfg: HComplexConfig, sample_point: Int, period: Double): (Vector[SFix], Vector[HComplex]) = {
+    val data_range = (0d, period)
+    expfunclut(cfg, sample_point, data_range)
   }
 
   // resource-consuming!!
   def linearInterpolate(x: SFix, x1: SFix, x2: SFix, y1: HComplex, y2: HComplex): HComplex = {
-    val xd = x1 - x2
-    val yd = y1 - y2
-    val k = yd / xd
-    k * HC(x - x1) + y1
+    val xd = ( x1 - x2 ).setWeakName("xd")
+    val yd = ( y1 - y2 ).setWeakName("yd")
+    SpinalInfo(s"xd.width = ${xd.bitCount}; yd.width = ${yd.real.bitCount}")
+    // TODO: The division here for simulation should be modified
+    val k = ( yd / xd ).setWeakName("k")
+    val deltax = HC(x - x1).setWeakName("deltax")
+    k * deltax + y1
   }
 
   // No resource reuse, multiple and gates are duplicated

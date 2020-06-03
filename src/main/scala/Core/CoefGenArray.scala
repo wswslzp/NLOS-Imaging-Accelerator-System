@@ -15,9 +15,7 @@ case class CoefGenArray
   freq_num: Int,
   wave_cfg: HComplexConfig,
   distance_cfg: HComplexConfig,
-  timeshift_cfg: HComplexConfig,
-  expfunc_point: Int,
-  expfunc_range: (Double, Double)
+  timeshift_cfg: HComplexConfig
 ) extends Component {
 
   val io = new Bundle {
@@ -51,10 +49,7 @@ case class CoefGenArray
       wave_cfg = wave_cfg,
       distance_cfg = distance_cfg,
       timeshift_cfg = timeshift_cfg,
-      coef_cfg = cfg.hComplexConfig,
-      expfunc_point = expfunc_point,
-      expfunc_range = expfunc_range,
-      pipeline_lv = 6
+      coef_cfg = cfg.hComplexConfig
     )
     core.io.wave := wave_front(r)(d)
     core.io.distance := distance(f)(d)

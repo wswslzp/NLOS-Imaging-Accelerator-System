@@ -8,7 +8,7 @@ case class MulUnit(
   val io = new Bundle {
     val a = in Bits(width bit)
     val b = in Bits(width bit)
-    val c = out Bits(width bit)
+    val c = out Bits(width * 2 bit)
   }
 
   noIoPrefix()
@@ -26,7 +26,6 @@ object MulUnit {
     mul_unit.io.c.asUInt
   }
   def apply(a: UFix, b: UFix): UFix = {
-//    require(a.getBitsWidth == b.getBitsWidth)
     import Util.MyUFix._
     val uq_res = UQ(
       Math.max(a.getBitsWidth, b.getBitsWidth),
@@ -34,15 +33,14 @@ object MulUnit {
     )
     val ia = a.fixTo(uq_res)
     val ib = b.fixTo(uq_res)
-    val mul_unit = MulUnit(ia.getBitsWidth)
+    val mul_unit = MulUnit(ia.bitCount)
     mul_unit.io.a := ia.asBits
     mul_unit.io.b := ib.asBits
-    val ret = cloneOf(ia)
+    val ret = UFix(2 * ia.maxExp exp, 2 * ia.minExp exp)
     ret.assignFromBits(mul_unit.io.c)
     ret
   }
   def apply(a: SFix, b: SFix): SFix = {
-//    require(a.bitCount == b.bitCount)
     import Util.MySFix._
     val sq_res = SQ(
       Math.max(a.bitCount, b.bitCount),
@@ -53,7 +51,7 @@ object MulUnit {
     val mul_unit = MulUnit(ia.bitCount)
     mul_unit.io.a := ia.asBits
     mul_unit.io.b := ib.asBits
-    val ret = cloneOf(ia)
+    val ret = SFix(2 * ia.maxExp-1 exp, 2 * ia.minExp exp)
     ret.assignFromBits(mul_unit.io.c)
     ret
   }

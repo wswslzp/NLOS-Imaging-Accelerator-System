@@ -7,6 +7,10 @@ import scala.collection.mutable
 trait Pipeline {
   private var pipeline_switches = mutable.Map[Int, Boolean]()
 
+  // TODO: This method has some problems
+  //       When user call stage(), this method set the pipeline level dynamically,
+  //       but the openAllStage() method could not actually control the stage.
+  //       The Generator Framework may help.
   def setPipelineLevel(l: Int): Unit = { pipeline_switches += l -> true }
   def deleteStage(lv: Int): Unit = { pipeline_switches(lv) = false }
   def openAllStage(): Unit = pipeline_switches.keys.foreach { key =>
@@ -15,6 +19,7 @@ trait Pipeline {
   def closeAllStage(): Unit = pipeline_switches.keys.foreach { key =>
     pipeline_switches(key) = false
   }
+  def getStagesCount: Int = pipeline_switches.size
 
   def stage[T <: Data](dat_prestage: T, level: Int): T = {
     // stage the input data, record the current pipeline level

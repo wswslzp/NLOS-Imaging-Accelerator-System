@@ -5,21 +5,19 @@ import spinal.lib._
 
 // TODO: do a universal function's LUT with linear interpolation ability.
 
-//abstract class LutWithLP extends Component {
-//  import scala.language.reflectiveCalls
-//  type I = {
-//    def +()
-//  }
-//}
+// I => T, V => R
 
-//case class LutWithLP[I <: Data, V <: Data]
+abstract class LutWithLP
+
+//case class LutWithLP[I, V, T <: Data with Num[T], R <: Data with Num[R]]
 //(
 //  indx_table: Vector[I], // 1d lut
-//  func_table: Vector[V]
+//  func_table: Vector[V],
+//  indx_type:  HardType[T],
+//  func_type:  HardType[R]
 //) extends Component
 //{
-//  val io = new Bundle {
-//    val dat_in = in ()
-//  }
+//  // To use the Num trait, HComplex should implement all the operator defined in it.
+//
 //}
 
