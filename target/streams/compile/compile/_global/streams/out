@@ -1,9 +1,8 @@
-[0m[[0m[31merror[0m] [0m[0m/mnt/d/lzp/NSOL/nlos_system/src/main/scala/ExpFuncMain.scala:12:5: inferred type arguments [Core.ExpFunc] do not conform to method generateVerilog's type parameter bounds [T <: spinal.core.Component][0m
-[0m[[0m[31merror[0m] [0m[0m  ).generateVerilog([0m
-[0m[[0m[31merror[0m] [0m[0m    ^[0m
-[0m[[0m[31merror[0m] [0m[0m/mnt/d/lzp/NSOL/nlos_system/src/main/scala/ExpFuncMain.scala:13:12: type mismatch;[0m
-[0m[[0m[31merror[0m] [0m[0m found   : Core.ExpFunc[0m
-[0m[[0m[31merror[0m] [0m[0m required: T[0m
-[0m[[0m[31merror[0m] [0m[0m    ExpFunc(cfg, 128, 2 * Math.PI)[0m
-[0m[[0m[31merror[0m] [0m[0m           ^[0m
-[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m
+[0m[[0m[33mwarn[0m] [0m[0m/mnt/d/lzp/NSOL/nlos_system/src/main/scala/Util/AXI4Load.scala:110:55: non-variable type argument spinal.core.Data in type pattern spinal.core.Mem[spinal.core.Data] is unchecked since it is eliminated by erasure[0m
+[0m[[0m[33mwarn[0m] [0m[0m      addr_mem_map foreach { case (range: Range, mem: Mem[Data]) =>[0m
+[0m[[0m[33mwarn[0m] [0m[0m                                                      ^[0m
+[0m[[0m[33mwarn[0m] [0m[0m/mnt/d/lzp/NSOL/nlos_system/src/main/scala/Util/AXI4Load.scala:110:28: match may not be exhaustive.[0m
+[0m[[0m[33mwarn[0m] [0m[0mIt would fail on the following input: (_, _)[0m
+[0m[[0m[33mwarn[0m] [0m[0m      addr_mem_map foreach { case (range: Range, mem: Mem[Data]) =>[0m
+[0m[[0m[33mwarn[0m] [0m[0m                           ^[0m
+[0m[[0m[33mwarn[0m] [0m[0mtwo warnings found[0m

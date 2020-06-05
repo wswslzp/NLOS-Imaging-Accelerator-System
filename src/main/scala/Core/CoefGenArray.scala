@@ -13,23 +13,20 @@ case class CoefGenArray
 (
   cfg: RsdKernelConfig,
   freq_num: Int,
-  wave_cfg: HComplexConfig,
-  distance_cfg: HComplexConfig,
-  timeshift_cfg: HComplexConfig
 ) extends Component {
 
   val io = new Bundle {
     val wave_front = slave ( Flow(
-      Vec(Vec(SFix(wave_cfg.intw-1 exp, -wave_cfg.fracw exp), cfg.depth_factor), cfg.radius_factor)
+      Vec(Vec(SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp), cfg.depth_factor), cfg.radius_factor)
     ) )
     val distance = slave(Flow(
-      Vec(Vec(SFix(distance_cfg.intw-1 exp, -distance_cfg.fracw exp), cfg.depth_factor), freq_num)
+      Vec(Vec(SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp), cfg.depth_factor), freq_num)
     ))
     val timeshift = slave(Flow(
-      Vec(Vec(HComplex(timeshift_cfg), cfg.depth_factor), freq_num)
+      Vec(Vec(HComplex(cfg.timeshift_cfg), cfg.depth_factor), freq_num)
     ))
     val coef = master(Flow(
-      Vec(Vec(Vec(HComplex(cfg.hComplexConfig), cfg.depth_factor), cfg.radius_factor), freq_num)
+      Vec(Vec(Vec(HComplex(cfg.coef_cfg), cfg.depth_factor), cfg.radius_factor), freq_num)
     ))
   }
 
@@ -37,20 +34,12 @@ case class CoefGenArray
   val distance = io.distance.toReg()
   val timeshift = io.timeshift.toReg()
 
-  // TODO: how many points is the size of expfunc lut?
-  // TODO: What range is appropriate?
-
   for {
     f <- 0 until freq_num
     r <- 0 until cfg.radius_factor
     d <- 0 until cfg.depth_factor
   } {
-    val core = CoefGenCore(
-      wave_cfg = wave_cfg,
-      distance_cfg = distance_cfg,
-      timeshift_cfg = timeshift_cfg,
-      coef_cfg = cfg.hComplexConfig
-    )
+    val core = CoefGenCore(cfg)
     core.io.wave := wave_front(r)(d)
     core.io.distance := distance(f)(d)
     core.io.timeshift := timeshift(f)(d)

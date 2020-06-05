@@ -2,7 +2,11 @@ package Config
 
 case class RsdKernelConfig
 (
-  hComplexConfig: HComplexConfig,
+  wave_cfg: HComplexConfig,
+  distance_cfg: HComplexConfig,
+  timeshift_cfg: HComplexConfig,
+  coef_cfg: HComplexConfig,
+  imp_cfg: HComplexConfig,
   deltaw_factor: Int,
   depth_factor: Int,
   radius_factor: Int,
@@ -12,4 +16,6 @@ case class RsdKernelConfig
 ){
   require(kernel_size.length == 2)
   if (less_mem_size) {require(deltaw_factor == 1)}
+
+  def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg
 }

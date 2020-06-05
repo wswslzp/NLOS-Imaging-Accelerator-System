@@ -15,7 +15,7 @@ case class ImpLoadUnit(
                         init_addr: Int,
                         override val axi_config: Axi4Config
                       ) extends Component with AXI4WLoad{
-  override val word_bit_count: Int = cfg.hComplexConfig.getComplexWidth
+  override val word_bit_count: Int = cfg.imp_cfg.getComplexWidth
 
   awReady(True)
   wReady(True)
@@ -23,13 +23,13 @@ case class ImpLoadUnit(
   val io = new Bundle {
     val impulse_out = master (
       Flow(
-        Vec(Vec(HComplex(cfg.hComplexConfig), cfg.deltaw_factor), cfg.radius_factor)
+        Vec(Vec(HComplex(cfg.imp_cfg), cfg.deltaw_factor), cfg.radius_factor)
       )
     )
   }
 
   // the number of sample radius should be the power of 2
-  val local_mem_manager = ApplyMem(init_addr, cfg.hComplexConfig.getComplexWidth)
+  val local_mem_manager = ApplyMem(init_addr, cfg.imp_cfg.getComplexWidth)
   val radius_num = cfg.radius_factor
   val mem_size   = if(cfg.less_mem_size) {
     1 << log2Up(cfg.kernel_size.product)
@@ -37,22 +37,23 @@ case class ImpLoadUnit(
     1 << log2Up(cfg.kernel_size(1)/2) // only store the data on the radius
   }
 
-  val int_ram_array_map = Vector.fill(radius_num)(
+  val int_ram_array_map: Vector[(Range, Mem[Bits])] = Vector.fill(radius_num)(
     local_mem_manager.allocateRam(
-      Mem(Bits(cfg.hComplexConfig.getComplexWidth bit), BigInt(mem_size)).setWeakName("int_ram_array")
+      Mem(Bits(cfg.imp_cfg.getComplexWidth bit), BigInt(mem_size)).setWeakName("int_ram_array")
     )
   )
-  val transfer_done_map = local_mem_manager.allocateReg(Bool().setWeakName("transfer_done"))
+  val ( transfer_done_map , tranfer_done_reg) = local_mem_manager.allocateReg(Bool().setWeakName("transfer_done"))
 
   int_ram_array_map foreach (arrangeMemAddr(_))
-  arrangeRegAddr(transfer_done_map)
+//  arrangeRegAddr(transfer_done_map)
+  arrangeRegMapAddr(transfer_done_map)
 
   printAddrRange
   loadData()
 
   // output the impulse
   val int_ram_array: Vector[Mem[Bits]] = int_ram_array_map.map(_._2)
-  val transfer_done = transfer_done_map._2
+  val transfer_done = tranfer_done_reg
 
   io.impulse_out.valid := transfer_done
   val output_imp = new Area {

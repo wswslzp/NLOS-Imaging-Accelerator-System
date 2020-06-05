@@ -2,47 +2,44 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="121ae936-f113-420a-817d-99f7724d9214" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/scala/Core/ExpFunc.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/ExpFuncMain.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/scala/CoefLoadUnitMain.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rtl/CoefGenArray.v" beforeDir="false" afterPath="$PROJECT_DIR$/rtl/CoefGenArray.v" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/CoefGenArrayMain.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/CoefGenArrayMain.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Config/HComplexConfig.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Config/HComplexConfig.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Config/RsdKernelConfig.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Config/RsdKernelConfig.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/Core/CoefGenArray.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Core/CoefGenArray.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/Core/CoefGenCore.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Core/CoefGenCore.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Util/DivUnit.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Util/DivUnit.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Util/HComplex.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Util/HComplex.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Util/LutWithLP.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Util/LutWithLP.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Util/MulUnit.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Util/MulUnit.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Util/MyFix.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Util/MyFix.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Util/Pipeline.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Util/Pipeline.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Core/CoefLoadUnit.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Core/CoefLoadUnit.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Core/ImpLoadUnit.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Core/ImpLoadUnit.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Core/RsdKernelGen.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Core/RsdKernelGen.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/RsdKernelGenMain.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/RsdKernelGenMain.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Util/AXI4Load.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Util/AXI4Load.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Util/ApplyMem.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Util/ApplyMem.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/Util/package.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Util/package.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/.history" beforeDir="false" afterPath="$PROJECT_DIR$/target/.history" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/CoefGenArrayMain$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/CoefGenArrayMain$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Config/HComplexConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Config/HComplexConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/CoefGenArrayMain.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/CoefGenArrayMain.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Config/RsdKernelConfig$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Config/RsdKernelConfig$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Config/RsdKernelConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Config/RsdKernelConfig.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenArray$$anon$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenArray$$anon$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenArray$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenArray$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenArray.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenArray.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenCore$$anon$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenCore$$anon$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenCore$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenCore$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenCore.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefGenCore.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/MyFFT.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/MyFFT.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefLoadUnit$$anon$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefLoadUnit$$anon$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefLoadUnit.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/CoefLoadUnit.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/ImpLoadUnit$$anon$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/ImpLoadUnit$$anon$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/ImpLoadUnit$$anon$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/ImpLoadUnit$$anon$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/ImpLoadUnit.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/ImpLoadUnit.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/RsdKernelGen$$anon$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/RsdKernelGen$$anon$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Core/RsdKernelGen.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Core/RsdKernelGen.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/DivUnit$$anon$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/DivUnit$$anon$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/DivUnit$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/DivUnit$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/DivUnit.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/DivUnit.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/HC$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/HC$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/HComplex$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/HComplex$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/HComplex.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/HComplex.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MulUnit$$anon$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MulUnit$$anon$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MulUnit$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MulUnit$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MySFix$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MySFix$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MySFix.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MySFix.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MyUFix$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MyUFix$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MyUFix.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/MyUFix.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/Pipeline.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/Pipeline.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/RsdKernelGenMain$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/RsdKernelGenMain$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/AXI4WLoad$$anon$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/AXI4WLoad$$anon$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/AXI4WLoad$$anon$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/AXI4WLoad$$anon$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/AXI4WLoad.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/AXI4WLoad.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/ApplyMem$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/ApplyMem$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/ApplyMem.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/ApplyMem.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/package$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/package$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.12/classes/Util/package.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/classes/Util/package.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.12/nlos_system_2.12-1.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.12/nlos_system_2.12-1.0.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/streams/compile/_global/_global/compileOutputs/previous" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/_global/_global/compileOutputs/previous" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/streams/compile/_global/_global/compileSourceFileInputs/previous" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/_global/_global/compileSourceFileInputs/previous" afterDir="false" />
@@ -53,6 +50,7 @@
       <change beforePath="$PROJECT_DIR$/target/streams/compile/compileIncremental/_global/streams/out" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/compileIncremental/_global/streams/out" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/streams/compile/packageBin/_global/streams/inputs" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/packageBin/_global/streams/inputs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/streams/compile/packageBin/_global/streams/out" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/packageBin/_global/streams/out" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/toplevel_addr.txt" beforeDir="false" afterPath="$PROJECT_DIR$/toplevel_addr.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -177,10 +175,10 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="2610" y="273" key="#com.intellij.codeInsight.editorActions.RestoreReferencesDialog" timestamp="1590759307830">
+    <state x="2610" y="273" key="#com.intellij.codeInsight.editorActions.RestoreReferencesDialog" timestamp="1591263179410">
       <screen x="1920" y="-1" width="1920" height="1040" />
     </state>
-    <state x="2610" y="273" key="#com.intellij.codeInsight.editorActions.RestoreReferencesDialog/0.0.1920.1040/1920.-1.1920.1040@1920.-1.1920.1040" timestamp="1590759307830" />
+    <state x="2610" y="273" key="#com.intellij.codeInsight.editorActions.RestoreReferencesDialog/0.0.1920.1040/1920.-1.1920.1040@1920.-1.1920.1040" timestamp="1591263179410" />
     <state x="2334" y="173" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1590756622251">
       <screen x="1920" y="-1" width="1920" height="1040" />
     </state>

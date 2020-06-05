@@ -7,16 +7,17 @@ import Util.HComplex
 
 //TODO: due to the modification of the algorithm, this module may need to change
 case class RsdKernelGen(config: RsdKernelConfig) extends Component {
-  implicit val use_synthesizable_mul = false // variable to control the multiplication
+//  implicit val use_synthesizable_mul = false // variable to control the multiplication
+  val kernel_cfg = config.coef_cfg * config.imp_cfg
   val io = new Bundle {
     val ring_impulse = slave (
-      Flow(Vec(Vec(HComplex(config.hComplexConfig), config.deltaw_factor), config.radius_factor))
+      Flow(Vec(Vec(HComplex(config.imp_cfg), config.deltaw_factor), config.radius_factor))
     )
     val coef         = slave (
-      Flow(Vec(Vec(HComplex(config.hComplexConfig), config.depth_factor), config.radius_factor))
+      Flow(Vec(Vec(HComplex(config.coef_cfg), config.depth_factor), config.radius_factor))
     )
     val kernel       = master(
-      Flow(Vec(Vec( HComplex(config.hComplexConfig), config.deltaw_factor ), config.depth_factor))
+      Flow(Vec(Vec( HComplex(kernel_cfg), config.deltaw_factor ), config.depth_factor))
     )
   }
 
@@ -30,18 +31,18 @@ case class RsdKernelGen(config: RsdKernelConfig) extends Component {
 
   // store the middle results
   val mid_result_r = Vector.fill(config.radius_factor, config.depth_factor, config.deltaw_factor)(
-    Reg(HComplex(config.hComplexConfig))
+    Reg(HComplex(kernel_cfg))
   )
 
   // build the array of the rsd kernel generator
-  val dw = config.hComplexConfig.getComplexWidth
+  val dw = kernel_cfg.getComplexWidth
   for {
     radius <- 0 until config.radius_factor
     depth  <- 0 until config.depth_factor
     impulse = ring_impulse_r(radius)
     coef = coef_r(radius)(depth)
     last_input = if (radius==0) {
-      List.fill(config.deltaw_factor)(HComplex(config.hComplexConfig, B(0, dw bit)))
+      List.fill(config.deltaw_factor)(HComplex(kernel_cfg, B(0, dw bit)))
     } else {
       mid_result_r(radius-1)(depth)
     }

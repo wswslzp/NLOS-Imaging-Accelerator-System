@@ -4,21 +4,17 @@ import spinal.lib._
 import Config.{HComplexConfig, RsdKernelConfig}
 import Util._
 
-// TODO: Overall code is a mess, may cut the exp_func code part off.
 case class CoefGenCore
 (
-  wave_cfg: HComplexConfig,
-  distance_cfg: HComplexConfig,
-  timeshift_cfg: HComplexConfig,
-  coef_cfg: HComplexConfig
+  cfg: RsdKernelConfig
 ) extends Component with Pipeline {
   import Util.MySFix._
 
   val io = new Bundle {
-    val wave = in SFix(wave_cfg.intw-1 exp, -wave_cfg.fracw exp)// these two data are real
-    val distance = in SFix(distance_cfg.intw-1 exp, -distance_cfg.fracw exp)
-    val timeshift = in ( HComplex(timeshift_cfg) )
-    val coef = out (HComplex(coef_cfg))
+    val wave = in SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp)// these two data are real
+    val distance = in SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp)
+    val timeshift = in ( HComplex(cfg.timeshift_cfg) )
+    val coef = out (HComplex(cfg.coef_cfg))
   }
 
   openAllStage()

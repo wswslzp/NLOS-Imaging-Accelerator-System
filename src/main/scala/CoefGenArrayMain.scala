@@ -10,6 +10,11 @@ object CoefGenArrayMain extends App{
   val distance_cfg = HComplexConfig(8, 8)
   val timeshift_cfg = HComplexConfig(-4, 20)
   val coef_cfg = HComplexConfig(-4, 20)
+  val imp_cfg = HComplexConfig(5, 11)
+
+  val rsd_cfg = RsdKernelConfig(
+    wave_cfg, distance_cfg,timeshift_cfg, coef_cfg, imp_cfg, 1, 50, 50
+  )
 
   Synthesizable.setSimulation(true)
 
@@ -20,13 +25,7 @@ object CoefGenArrayMain extends App{
     headerWithDate = true
   ).generate(
     CoefGenArray(
-      wave_cfg = wave_cfg,
-      distance_cfg = distance_cfg,
-      timeshift_cfg = timeshift_cfg,
-      cfg = RsdKernelConfig(
-        hComplexConfig = coef_cfg,
-        deltaw_factor = 1, depth_factor = 1, radius_factor = 1
-      ),
+      rsd_cfg,
       freq_num = 1
     )
   )//.printPruned()

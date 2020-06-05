@@ -15,53 +15,69 @@ case class CoefLoadUnit
    override val axi_config: Axi4Config
 ) extends Component with AXI4WLoad
 {
-  override val word_bit_count: Int = cfg.hComplexConfig.getComplexWidth
+  override val word_bit_count: Int = cfg.coef_cfg.getComplexWidth
   awReady(True)
   wReady(True)
 
   val io = new Bundle {
-    val coef_out = master (
-      Flow(Vec(Vec(Vec(HComplex(cfg.hComplexConfig), cfg.depth_factor), cfg.radius_factor), freq_num))
+    val wave = master (
+      Flow(
+        Vec(Vec(SFix(cfg.wave_cfg.maxExp, cfg.wave_cfg.minExp), cfg.depth_factor), cfg.radius_factor)
+      )
+    )
+    val distance = master (
+      Flow(
+        Vec(Vec(SFix(cfg.distance_cfg.maxExp, cfg.distance_cfg.minExp), cfg.depth_factor), freq_num)
+      )
+    )
+    val timeshift = master(
+      Flow(
+        Vec(Vec(HComplex(cfg.timeshift_cfg), cfg.depth_factor), freq_num)
+      )
     )
   }
 
-  val local_mem_manager = ApplyMem(init_addr, cfg.hComplexConfig.getComplexWidth)
+  val local_mem_manager = ApplyMem(init_addr, cfg.coef_cfg.getComplexWidth)
 
   // allocate the address of registers
-  val bank_num = freq_num
-  val row_num = cfg.radius_factor
-  val col_num = cfg.depth_factor
-
   val (transfer_done_addr, transfer_done) = local_mem_manager.allocateReg(Bool())
-  val int_reg_array_map = local_mem_manager.allocateRegArray(
-    Vector.fill(bank_num, row_num)(Vec(HComplex(cfg.hComplexConfig), col_num)).flatten
+  val (wave_addr_map, wave_regs) = local_mem_manager.allocateRegArray(
+    Vector.fill(cfg.radius_factor * cfg.depth_factor)(SFix(cfg.wave_cfg.maxExp, cfg.wave_cfg.minExp))
   )
-  val int_reg_array = int_reg_array_map.values.toVector
+//  SpinalInfo(s"wave_regs.width = ${wave_addr_map.values.toVector.head.getBitsWidth}")
+  val (distance_addr_map, distance_regs) = local_mem_manager.allocateRegArray(
+    Vector.fill(freq_num * cfg.depth_factor)(SFix(cfg.distance_cfg.maxExp, cfg.distance_cfg.minExp))
+  )
+//  SpinalInfo(s"distance_regs.width = ${distance_addr_map.values.toVector.head.getBitsWidth}")
+  val (timeshift_addr_map, timeshift_regs) = local_mem_manager.allocateRegArray(
+    Vector.fill(freq_num * cfg.depth_factor)(HComplex(cfg.timeshift_cfg))
+  )
+//  SpinalInfo(s"timeshift_regs.width = ${timeshift_addr_map.values.toVector.head.getBitsWidth}")
 
   // arrange the address
-  arrangeRegAddr(
-    transfer_done_addr -> transfer_done
-  )
-  arrangeRegAddr(
-    int_reg_array_map
+  arrangeRegMapAddr(
+    wave_addr_map,
+    distance_addr_map,
+    timeshift_addr_map
   )
 
   printAddrRange
   loadData()
 
-  // output coef
-  io.coef_out.valid := transfer_done
+  // output the wave, distance and the timeshift to the CoefGenArray
   for {
-    freq   <- 0 until freq_num
-    radius <- 0 until cfg.radius_factor
-    depth  <- 0 until cfg.depth_factor
-    row_addr = freq * row_num + radius
-    // tmp = int_reg_array(row_addr)(depth)
-    tmp_reg = int_reg_array(row_addr).asInstanceOf[Vec[HComplex]]
+    f <- 0 until freq_num// 69
+    r <- 0 until cfg.radius_factor // 70
+    d <- 0 until cfg.depth_factor // 51
   } {
-    //io.coef_out.payload(freq)(radius)(depth) := tmp_reg
-    io.coef_out.payload(freq)(radius)(depth) := tmp_reg(depth)
+    io.wave.payload(r)(d) := wave_regs(r * cfg.depth_factor + d).asInstanceOf[SFix]
+    io.distance.payload(f)(d) := distance_regs(f * cfg.depth_factor + d).asInstanceOf[SFix]
+    io.timeshift.payload(f)(d) := timeshift_regs(f * cfg.depth_factor + d).asInstanceOf[HComplex]
   }
 
+  // when all data is transferred, master set the transfer_done signal high longer than N cycles.
+  io.wave.valid := transfer_done
+  io.distance.valid := transfer_done
+  io.timeshift.valid := transfer_done
 }
 

@@ -83,7 +83,6 @@ package object Util {
   }
 
   def expfunclut(cfg: HComplexConfig, point: Int, data_range: (Double, Double)): (Vector[SFix], Vector[HComplex]) = {
-    // TODO: utilize the periodicity to simplify the LUT
     val func_table = Vector.fill(point)(HComplex(cfg))
     val range = (1 to point).toVector.map { p =>
       val idx = data_range._1 + (data_range._2 - data_range._1) * (p.asInstanceOf[Double] / point)
@@ -119,7 +118,6 @@ package object Util {
     val xd = ( x1 - x2 ).setWeakName("xd")
     val yd = ( y1 - y2 ).setWeakName("yd")
     SpinalInfo(s"xd.width = ${xd.bitCount}; yd.width = ${yd.real.bitCount}")
-    // TODO: The division here for simulation should be modified
     val k = ( yd / xd ).setWeakName("k")
     val deltax = HC(x - x1).setWeakName("deltax")
     k * deltax + y1

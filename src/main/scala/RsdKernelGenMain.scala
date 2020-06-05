@@ -11,18 +11,17 @@ object RsdKernelGenMain extends App{
     useProt = false
   )
   val rsd_cfg = RsdKernelConfig(
-    hComplexConfig = h_cfg,
-    less_mem_size = false,
-    deltaw_factor = 2,
-    depth_factor = 50,
-    radius_factor = 50
+    wave_cfg = HComplexConfig(8, 8),
+    distance_cfg = HComplexConfig(8, 8),
+    timeshift_cfg = HComplexConfig(-4, 20),
+    coef_cfg = HComplexConfig(-4, 20),
+    imp_cfg = HComplexConfig(5, 11),
+    1, 51, 70
   )
   SpinalConfig(
     mode = Verilog,
     targetDirectory = "rtl"
   ).generateVerilog(
     RsdKernelGen(rsd_cfg)
-//    CoefLoadUnit(rsd_cfg, 1, 0, axi_config)
-//    ImpLoadUnit(rsd_cfg, 0, axi_config)
-  )//.printPruned()
+  )
 }

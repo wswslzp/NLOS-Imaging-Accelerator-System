@@ -126,3 +126,9 @@ compile
 runMain ExpFuncMain
 compile
 runMain CoefGenArrayMain
+compile
+runMain CoefLoadUnitMain
+compile
+runMain Util.ApplyMemMain
+ls
+runMain Util.ApplyMemMain

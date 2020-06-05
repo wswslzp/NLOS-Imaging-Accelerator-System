@@ -53,8 +53,10 @@ trait AXI4WLoad extends Nameable {
   protected def arrangeRegAddr(addr_reg_pair: (Range, Data)*): Unit = {
     addr_reg_map.appendAll(addr_reg_pair)
   }
-  protected def arrangeRegAddr(addr_reg_pairs: Map[Range, Data]): Unit = {
-    addr_reg_pairs.foreach(addr_reg_map.append(_))
+  protected def arrangeRegMapAddr(addr_reg_pairs: Map[Range, Data]*): Unit = {
+    addr_reg_pairs.foreach { map=>
+      map.foreach(addr_reg_map.append(_))
+    }
   }
 
   val addr_mem_map: ListBuffer[(Range, Mem[_])] = ListBuffer[(Range, Mem[_])]()
@@ -66,46 +68,48 @@ trait AXI4WLoad extends Nameable {
   protected def wReady(set: Bool): Unit = data_in.w.ready := set
 
   protected def loadData() = new Area {
+    val wvalid = RegNext(data_in.w.valid)
     val current_addr: UInt = Reg( UInt(axi_config.addressWidth bit) ) init 0
-    when(data_in.w.valid) {
+    val incr = Axi4.incr(aw_area.awaddr_r, data_in.aw.burst, aw_area.awlen_r, aw_area.awsize_r, byte_per_word)
+
+    when(wvalid) {
       // The burst assumption is INCR, len default to 16
-      current_addr := Axi4.incr(aw_area.awaddr_r, data_in.aw.burst, aw_area.awlen_r, aw_area.awsize_r, byte_per_word)
-      val wdata_r = RegNext(data_in.w.data)
+      current_addr := current_addr + incr
+
+      val wdata_r = RegNext(data_in.w.data).setWeakName("wdata_r")
 
       // write the input data into the register file
-      // TODO: This block has not been verified yet.
+      // TODO: has been verified partially
       // No support for bit mask yet
+      // the reg's width must be less than the data bus width
       addr_reg_map foreach { case (range, reg) =>
-        val addr_hit = (range.head <= current_addr) && (current_addr < range.last)
+        SpinalInfo(s"reg.name = ${reg.getName()}, reg.width = ${reg.getBitsWidth}")
+        val addr_hit = (range.head <= current_addr) && (current_addr < range.last) || ( current_addr === range.head )
+        addr_hit.setWeakName("addr_hit")
         reg match {
           case _: Bool => {
-            SpinalInfo("match a bool")
+            SpinalInfo(s"${reg.getName()} match a bool")
             // default behavior: assign the last bit of data
             reg := addr_hit ? wdata_r(0) | reg.asBits(0)
           }
           case _: BitVector => {
-            SpinalInfo("match the bit vector")
-            val r = reg.asInstanceOf[BitVector]
-            // default behavior: A address represent a word
-            r := addr_hit ? wdata_r | r.asBits
-          }
-          case _: Vec[Data]@unchecked => { // Data is erased
-            SpinalInfo("match Vec")
-            val r = reg.asInstanceOf[Vec[Data]]
-            // default behavior: A address of a register represent a word
-            // WARNING: fanout maybe too large, restrict the size of the vector.
-            val local_addr = ( current_addr - range.head ).resize(log2Up(r.getBitsWidth/word_bit_count))
-            r(local_addr).assignFromBits(
-              addr_hit ? wdata_r.asBits | r(local_addr).asBits
+            require(
+              reg.getBitsWidth < axi_config.dataWidth,
+              s"the reg's width ${reg.getBitsWidth} is larger than data bus width ${axi_config.dataWidth}"
             )
+            SpinalInfo(s"${reg.getName()} match the bit vector")
+            // default behavior: low range of the wdata will assign to reg
+            val tmp_data = (addr_hit ? wdata_r | reg.asBits.resized).resize(reg.getBitsWidth)
+            reg.assignFromBits(tmp_data)
           }
-          case _ => SpinalError("Type wrong")
+          case _ => SpinalError(s"reg: ${reg.getName()} has the wrong type--${reg.toString()}, other than Bool or BitVector")
         }
       }
 
       // write the input data into the memory
       addr_mem_map foreach { case (range: Range, mem: Mem[Data]) =>
-        val addr_hit = (range.head <= current_addr) && (current_addr < range.last)
+        val addr_hit = (range.head <= current_addr) && (current_addr < range.last) || ( current_addr === range.head )
+        addr_hit.setWeakName("addr_hit")
         mem.write(
           address = ( current_addr - range.head ).resize(mem.addressWidth bit),
           data = data_in.w.data,
