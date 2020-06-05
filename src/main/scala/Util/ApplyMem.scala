@@ -13,45 +13,84 @@ case class ApplyMem(init_addr: Int, word_count: Int) {
   private val addr_range_record = mutable.Map.empty[Range, String]
   private val countWordsNum = (d: Int) => Math.ceil(d.toDouble / word_count).toInt
 
-  def allocateBaseReg[T <: BaseType](data_type: T, name: String): (Range, T) = {
-    val regs = if (data_type.isReg) {
-      data_type.setWeakName(name)
-    } else { Reg(data_type).setWeakName(name) }
-    val width = regs.getBitsWidth
-    // TODO: the address's increment (width / word_count) ??
+  def allocateBaseReg[T <: BaseType](data_type: T, name: String): (Map[Range, T], T) = {
+
+    require(!data_type.isInput, s"$data_type is input port")
+    val nameReg = (reg: T, name: String) => {
+      if (name.isEmpty) reg
+      else reg.setWeakName(name)
+    }
+    val ret_map = mutable.Map[Range, T]()
+
+    // add reg to data if the data is not a reg
+    val ret_reg = if (data_type.isReg) {
+//      data_type.setWeakName(name)
+      nameReg(data_type, name)
+    } else {
+//      Reg(data_type).setWeakName(name)
+      nameReg(Reg(data_type), name)
+    }
+
+    // get the bit width of the data
+    val width = ret_reg.getBitsWidth
+
+    // count the total word num of the data
     val words_num_per_word = countWordsNum(width)
-    val addr_range = acc_addr until acc_addr + words_num_per_word// width/word_count + 1
-    addr_range_record += addr_range -> regs.getName()
-    acc_addr += words_num_per_word
-    addr_range -> regs
+
+    // determine the address range according to the word num of the data
+    if (words_num_per_word > 1) {
+      require(width % word_count == 0, s"multi-word data width($width bit) must align with the word_count($word_count bit)")
+      val reg = ret_reg.asInstanceOf[BitVector]
+      for {
+        wn <- 0 until words_num_per_word
+      } {
+        // get the address of the reg
+        val addr_range = acc_addr until acc_addr + 1
+        acc_addr += 1
+
+        // get the slice of the ret_reg and arrange the address for it
+        val reg_slice_range = (wn + 1)*word_count-1 downto wn*word_count
+        val reg_slice = reg(reg_slice_range).asInstanceOf[T]
+        ret_map += addr_range -> reg_slice
+
+        // record the address range
+        addr_range_record += addr_range -> reg_slice.getName()
+      }
+    }
+    else {
+      val addr_range = acc_addr until acc_addr + 1// width/word_count + 1
+      ret_map += addr_range -> ret_reg
+      addr_range_record += addr_range -> ret_reg.getName()
+      acc_addr += words_num_per_word
+    }
+
+    ret_map.toMap -> ret_reg
   }
 
-  def allocateBaseReg[T <: BaseType](dataType: T): (Range, T) = allocateBaseReg(dataType, "")
+  def allocateBaseReg[T <: BaseType](dataType: T): (Map[Range, T], T) = allocateBaseReg(dataType, "")
 
-  // TODO: need verification
   def allocateMultiReg[T <: MultiData](data_type: T, name: String): (Map[Range, BaseType], T) = {
     // MultiData has elements with different data type inside
     // arrange the address in the order of the elements' definition in the Bundle
     var ret_regaddr_map: mutable.Map[Range, BaseType] = mutable.Map[Range, BaseType]()
     val ret_multidata = if (data_type.isReg) { data_type.setWeakName(name) } else { Reg(data_type).setWeakName(name) }
+
     // extract all the elements inside, elements may be baseType or MultiData!!
     val elements = ret_multidata.elements.map(_._2).toVector
-    elements.foreach(println(_))
     elements.foreach {
+
       case baseType: BaseType => {
         // if the element is base type, then arrange a address for it
-        SpinalInfo(s"${baseType.getName()} match BaseType")
-        val addr_reg_pair = allocateBaseReg(baseType/*.asInstanceOf[R]*/, name)
-        SpinalInfo(s"${baseType.getName()}'s addr_reg_pair = ${addr_reg_pair.toString()}")
-        ret_regaddr_map += addr_reg_pair
+        val addr_reg_pair = allocateBaseReg(baseType, name)
+        ret_regaddr_map ++= addr_reg_pair._1
       }
+
       case multiData: MultiData => {
         // if not, just recursively do it
-        SpinalInfo(s"${multiData.getName()} match MultiData")
         val addr_reg_pair = allocateMultiReg(multiData, name)._1
-        SpinalInfo(s"${multiData.getName()}'s addr_reg_pair = ${addr_reg_pair.toString()}")
         ret_regaddr_map ++= addr_reg_pair
       }
+
       case _ => SpinalError("Incorrect type")
     }
     ret_regaddr_map.toMap -> ret_multidata
@@ -63,8 +102,8 @@ case class ApplyMem(init_addr: Int, word_count: Int) {
     val ret_map = mutable.Map[Range, BaseType]()
     data match {
       case baseType: BaseType => {
-        val m: (Range, BaseType) = allocateBaseReg(baseType, name)
-        ret_map += m
+        val m = allocateBaseReg(baseType, name)
+        ret_map ++= m._1
         ret_map.toMap -> m._2.asInstanceOf[T]
       }
       case multiData: MultiData => {
@@ -76,14 +115,18 @@ case class ApplyMem(init_addr: Int, word_count: Int) {
   }
 
   def allocateRegArray[T <: Data](reg_array: Seq[T], name: String):( Map[Range, T] , Seq[T]) = {
-    val ret_seq = reg_array.map(Reg(_))
-    val ret_addr_regs = mutable.Map.empty[Range, Data]
-    reg_array foreach {
-      case baseType: BaseType => ret_addr_regs += allocateBaseReg(baseType, name) // Enum, Bool, Bits, UInt, SInt
-      case multiData: MultiData => ret_addr_regs ++= allocateMultiReg(multiData, name)._1 // Vec, Bundle, UFix, SFix
-      case _ => SpinalError("Incorrect type")
+    val ret_map = mutable.Map[Range, T]()
+    val ret_reg = mutable.ListBuffer[T]()
+    reg_array.zipWithIndex.foreach { case (reg, idx) =>
+      val (reg_map, reg_inst) = if(!name.isEmpty) {
+        allocateReg(reg, s"${name}_$idx")
+      } else {
+        allocateReg(reg)
+      }
+      ret_map ++= reg_map.map(p => p._1 -> p._2.asInstanceOf[T])
+      ret_reg.append(reg_inst)
     }
-    ret_addr_regs.map(p => p._1 -> p._2.asInstanceOf[T]).toMap -> ret_seq
+    ret_map.toMap -> ret_reg
   }
 
   def allocateRegArray[T <: Data](reg_array: Seq[T]):( Map[Range, T] , Seq[T]) = allocateRegArray(reg_array, "")
@@ -112,26 +155,35 @@ object ApplyMemMain extends App {
     import spinal.lib._
     import spinal.lib.graphic._
     override val word_bit_count: Int = 32
-    val b = out ( HComplex(HComplexConfig(8, 8)) )
+    val b = out ( HComplex(HComplexConfig(16, 16)) )
     val vb = out ( Rgb(8, 8, 8) )
+    val c = out (Bits(128 bit))
+    val d = out (Vec(HComplex(8, 8), 32))
 
     awReady(True)
     wReady(True)
 
     val a = HComplex(b.config)
     val va = cloneOf(vb)
+    val vd = Vector.fill(32)(HComplex(8, 8))
     val local_mem_manager = ApplyMem(0, a.config.getDataWidth)
 
     val (a_map, a_reg) = local_mem_manager.allocateReg(a, "a")
     val (va_map, va_reg) = local_mem_manager.allocateReg(va, "va")
+    val (c_map, c_reg) = local_mem_manager.allocateReg(cloneOf(c), "c")
+    val (d_map, d_reg) = local_mem_manager.allocateRegArray(vd, "d")
 
     println(local_mem_manager.addrRange)
 
-    arrangeRegMapAddr(a_map, va_map)
+    arrangeRegMapAddr(a_map, va_map, c_map, d_map)
     loadData()
 
+    c := c_reg
     b := a_reg
     vb <> va_reg
+    d_reg.zipWithIndex.foreach { case(dat, idx) =>
+      d(idx) := dat
+    }
   }
 
   val axi_cfg = Axi4Config(32, 32, 4)

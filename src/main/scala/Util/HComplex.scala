@@ -136,6 +136,10 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
 }
 
 object HComplex {
+  def apply(intw: Int, fracw: Int): HComplex = {
+    HComplex(HComplexConfig(8, 8))
+  }
+
   def apply(config: HComplexConfig, bits: Bits): HComplex = {
     val tmp = new HComplex(config)
     val dw = config.intw + config.fracw
@@ -152,6 +156,13 @@ object HComplex {
 }
 
 object HC {
+  def apply(real: Double, imag: Double): HComplex = {
+    val ret = HComplex(16, 16)
+    ret.real := real
+    ret.imag := imag
+    ret
+  }
+
   def apply(that: UFix): HComplex = {
     val ret = HComplex(
       config = HComplexConfig(intw = that.maxExp, fracw = -that.minExp)

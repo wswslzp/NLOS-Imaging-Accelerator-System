@@ -10,7 +10,7 @@ object CoefLoadUnitMain extends App{
     timeshift_cfg = HComplexConfig(-4, 20),
     coef_cfg = HComplexConfig(-4, 20),
     imp_cfg = HComplexConfig(5, 11),
-    1, 51, 70
+    1, 2, 2
   )
   val axi_cfg: Axi4Config = Axi4Config(
     addressWidth = 32, dataWidth = 32,
@@ -20,6 +20,6 @@ object CoefLoadUnitMain extends App{
   SpinalConfig(
     targetDirectory = "rtl"
   ).generateVerilog(
-    CoefLoadUnit(rsd_cfg, 69, 0, axi_cfg)
+    CoefLoadUnit(rsd_cfg, 2, 0, axi_cfg)
   )
 }

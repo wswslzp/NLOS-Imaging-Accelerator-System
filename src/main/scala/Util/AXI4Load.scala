@@ -79,25 +79,22 @@ trait AXI4WLoad extends Nameable {
       val wdata_r = RegNext(data_in.w.data).setWeakName("wdata_r")
 
       // write the input data into the register file
-      // TODO: has been verified partially
       // No support for bit mask yet
       // the reg's width must be less than the data bus width
+      // TODO: addr_hit incur the high fanout of the current_addr, damage the timing!!
       addr_reg_map foreach { case (range, reg) =>
-        SpinalInfo(s"reg.name = ${reg.getName()}, reg.width = ${reg.getBitsWidth}")
-        val addr_hit = (range.head <= current_addr) && (current_addr < range.last) || ( current_addr === range.head )
+        val addr_hit = (range.head <= current_addr) && (current_addr <= range.last)
         addr_hit.setWeakName("addr_hit")
         reg match {
           case _: Bool => {
-            SpinalInfo(s"${reg.getName()} match a bool")
             // default behavior: assign the last bit of data
             reg := addr_hit ? wdata_r(0) | reg.asBits(0)
           }
           case _: BitVector => {
             require(
-              reg.getBitsWidth < axi_config.dataWidth,
+              reg.getBitsWidth <= axi_config.dataWidth,
               s"the reg's width ${reg.getBitsWidth} is larger than data bus width ${axi_config.dataWidth}"
             )
-            SpinalInfo(s"${reg.getName()} match the bit vector")
             // default behavior: low range of the wdata will assign to reg
             val tmp_data = (addr_hit ? wdata_r | reg.asBits.resized).resize(reg.getBitsWidth)
             reg.assignFromBits(tmp_data)
@@ -108,7 +105,7 @@ trait AXI4WLoad extends Nameable {
 
       // write the input data into the memory
       addr_mem_map foreach { case (range: Range, mem: Mem[Data]) =>
-        val addr_hit = (range.head <= current_addr) && (current_addr < range.last) || ( current_addr === range.head )
+        val addr_hit = (range.head <= current_addr) && (current_addr <= range.last)
         addr_hit.setWeakName("addr_hit")
         mem.write(
           address = ( current_addr - range.head ).resize(mem.addressWidth bit),

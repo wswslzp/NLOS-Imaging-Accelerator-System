@@ -1,7 +1,7 @@
-[0m[[0m[33mwarn[0m] [0m[0m/mnt/d/lzp/NSOL/nlos_system/src/main/scala/Util/AXI4Load.scala:110:55: non-variable type argument spinal.core.Data in type pattern spinal.core.Mem[spinal.core.Data] is unchecked since it is eliminated by erasure[0m
+[0m[[0m[33mwarn[0m] [0m[0m/mnt/d/lzp/NSOL/nlos_system/src/main/scala/Util/AXI4Load.scala:107:55: non-variable type argument spinal.core.Data in type pattern spinal.core.Mem[spinal.core.Data] is unchecked since it is eliminated by erasure[0m
 [0m[[0m[33mwarn[0m] [0m[0m      addr_mem_map foreach { case (range: Range, mem: Mem[Data]) =>[0m
 [0m[[0m[33mwarn[0m] [0m[0m                                                      ^[0m
-[0m[[0m[33mwarn[0m] [0m[0m/mnt/d/lzp/NSOL/nlos_system/src/main/scala/Util/AXI4Load.scala:110:28: match may not be exhaustive.[0m
+[0m[[0m[33mwarn[0m] [0m[0m/mnt/d/lzp/NSOL/nlos_system/src/main/scala/Util/AXI4Load.scala:107:28: match may not be exhaustive.[0m
 [0m[[0m[33mwarn[0m] [0m[0mIt would fail on the following input: (_, _)[0m
 [0m[[0m[33mwarn[0m] [0m[0m      addr_mem_map foreach { case (range: Range, mem: Mem[Data]) =>[0m
 [0m[[0m[33mwarn[0m] [0m[0m                           ^[0m
