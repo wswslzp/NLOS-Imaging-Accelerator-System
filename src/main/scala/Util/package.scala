@@ -123,6 +123,33 @@ package object Util {
     k * deltax + y1
   }
 
+  def simpleCountLeadingZeros(x: BitVector): UInt = {
+    // This is the simple version of counting leading zeros of bit vector
+    // whose pattern has leading continuous zeros and trailing continuous ones, like 00001111.
+    // The hardware structure is composed of an adder tree.
+    val x_inv = ~x.asBits
+    val dw = x_inv.getBitsWidth
+    val ret = UInt(log2Up(dw)+1 bit).setWeakName("ret")
+    val xbits_padding = (0 until x_inv.getBitsWidth).toVector.map(x_inv(_).asUInt(ret.getWidth bit)) ++ Vector.fill(( 1<<log2Up(dw) )-dw)(U(0, ret.getWidth bit))
+    val adder_tree = Vector.fill(xbits_padding.length-1)(UInt(log2Up(dw)+1 bit))
+    var bg = 0 // bg(L-1)
+    for(level <- 0 until log2Up(xbits_padding.length)) {
+      if (level == 0) {
+        for (idx <- 0 until xbits_padding.length/2) {
+          adder_tree(idx) := xbits_padding(2*idx) + xbits_padding(2*idx + 1)
+        }
+      }
+      else {
+        val incr = xbits_padding.length / (1 << level) // incr(L-1)
+        for (idx <- 0 until incr/2) {
+          adder_tree(bg + incr + idx) := adder_tree(bg + 2*idx) + adder_tree(bg + 2*idx + 1)
+        }
+        bg += incr
+      }
+    }
+    adder_tree.last
+  }
+
   // No resource reuse, multiple and gates are duplicated
   def countLeadingZeros(x: BitVector): UInt = {
     val dw = x.getBitsWidth

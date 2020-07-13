@@ -133,3 +133,11 @@ runMain Util.ApplyMemMain
 ls
 runMain Util.ApplyMemMain
 runMain CoefLoadUnitMain
+runMain Util.ApplyMemMain
+compile
+runMain Util.PipelineGenApp
+runMain FFTMain
+compile
+runMain Util.LzcMain
+compile
+runMain Util.LzcMain

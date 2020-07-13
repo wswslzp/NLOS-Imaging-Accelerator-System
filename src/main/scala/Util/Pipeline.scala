@@ -3,6 +3,7 @@ package Util
 import spinal.core._
 
 import scala.collection.mutable
+import spinal.lib.generator._
 
 trait Pipeline {
   private var pipeline_switches = mutable.Map[Int, Boolean]()

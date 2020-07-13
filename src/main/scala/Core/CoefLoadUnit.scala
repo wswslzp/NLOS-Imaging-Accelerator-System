@@ -6,7 +6,6 @@ import Config._
 import Util._
 import spinal.lib.bus.amba4.axi.{Axi4, Axi4Config, Axi4WriteOnly}
 
-// TODO: Coef now compute in the chip
 case class CoefLoadUnit
 (
    cfg: RsdKernelConfig,
@@ -44,15 +43,12 @@ case class CoefLoadUnit
   val (wave_addr_map, wave_regs) = local_mem_manager.allocateRegArray(
     Vector.fill(cfg.radius_factor * cfg.depth_factor)(SFix(cfg.wave_cfg.maxExp, cfg.wave_cfg.minExp))
   )
-//  SpinalInfo(s"wave_regs.width = ${wave_addr_map.values.toVector.head.getBitsWidth}")
   val (distance_addr_map, distance_regs) = local_mem_manager.allocateRegArray(
     Vector.fill(freq_num * cfg.depth_factor)(SFix(cfg.distance_cfg.maxExp, cfg.distance_cfg.minExp))
   )
-//  SpinalInfo(s"distance_regs.width = ${distance_addr_map.values.toVector.head.getBitsWidth}")
   val (timeshift_addr_map, timeshift_regs) = local_mem_manager.allocateRegArray(
     Vector.fill(freq_num * cfg.depth_factor)(HComplex(cfg.timeshift_cfg))
   )
-//  SpinalInfo(s"timeshift_regs.width = ${timeshift_addr_map.values.toVector.head.getBitsWidth}")
 
   // arrange the address
   arrangeRegMapAddr(
@@ -66,15 +62,6 @@ case class CoefLoadUnit
   loadData()
 
   // output the wave, distance and the timeshift to the CoefGenArray
-//  for {
-//    f <- 0 until freq_num// 69
-//    r <- 0 until cfg.radius_factor // 70
-//    d <- 0 until cfg.depth_factor // 51
-//  } {
-//    io.wave.payload(r)(d) := wave_regs(r * cfg.depth_factor + d).asInstanceOf[SFix]
-//    io.distance.payload(f)(d) := distance_regs(f * cfg.depth_factor + d).asInstanceOf[SFix]
-//    io.timeshift.payload(f)(d) := timeshift_regs(f * cfg.depth_factor + d).asInstanceOf[HComplex]
-//  }
   for ( d <- 0 until cfg.depth_factor ) {
     for (r <- 0 until cfg.radius_factor) {
       io.wave.payload(r)(d) := wave_regs(r * cfg.depth_factor + d)

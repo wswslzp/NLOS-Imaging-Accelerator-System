@@ -6,7 +6,7 @@ object LzcMain extends App{
     val a = in Bits(20 bit)
     val a_lzc = out UInt(20 bit)
 
-    a_lzc := countLeadingZeros(a).resized
+    a_lzc := simpleCountLeadingZeros(a).resized
   }
   SpinalConfig(
     mode = Verilog,

@@ -17,9 +17,17 @@ object CoefLoadUnitMain extends App{
     idWidth = 4, useRegion = false, useLock = false, useCache = false, useQos = false,
     useProt = false
   )
+  var init_addr = 0
+  SpinalConfig(
+    targetDirectory = "rtl"
+  ).generateVerilog {
+    val coef_load_unit = CoefLoadUnit(rsd_cfg, 2, init_addr, axi_cfg)
+    init_addr += coef_load_unit.local_mem_manager.finalAddr
+    coef_load_unit
+  }
   SpinalConfig(
     targetDirectory = "rtl"
   ).generateVerilog(
-    CoefLoadUnit(rsd_cfg, 2, 0, axi_cfg)
+    ImpLoadUnit(rsd_cfg, init_addr, axi_cfg)
   )
 }

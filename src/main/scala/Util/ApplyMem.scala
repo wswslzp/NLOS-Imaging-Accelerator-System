@@ -24,10 +24,8 @@ case class ApplyMem(init_addr: Int, word_count: Int) {
 
     // add reg to data if the data is not a reg
     val ret_reg = if (data_type.isReg) {
-//      data_type.setWeakName(name)
       nameReg(data_type, name)
     } else {
-//      Reg(data_type).setWeakName(name)
       nameReg(Reg(data_type), name)
     }
 
@@ -159,6 +157,7 @@ object ApplyMemMain extends App {
     val vb = out ( Rgb(8, 8, 8) )
     val c = out (Bits(128 bit))
     val d = out (Vec(HComplex(8, 8), 32))
+    val e = out Bool
 
     awReady(True)
     wReady(True)
@@ -184,6 +183,18 @@ object ApplyMemMain extends App {
     d_reg.zipWithIndex.foreach { case(dat, idx) =>
       d(idx) := dat
     }
+
+    val awvalid_r = Delay(data_in.aw.valid, 8)
+    e := awvalid_r
+
+    try {
+      println(
+        s"the lat is ${LatencyAnalysis(data_in.aw.valid, awvalid_r)}"
+      )
+    } catch {
+      case e: Exception => println("no path")
+    }
+
   }
 
   val axi_cfg = Axi4Config(32, 32, 4)

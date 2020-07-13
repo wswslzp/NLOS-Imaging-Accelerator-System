@@ -31,7 +31,7 @@ case class ImpLoadUnit(
   // the number of sample radius should be the power of 2
   val local_mem_manager = ApplyMem(init_addr, cfg.imp_cfg.getComplexWidth)
   val radius_num = cfg.radius_factor
-  val mem_size   = if(cfg.less_mem_size) {
+  val mem_size   = if(!cfg.less_mem_size) {
     1 << log2Up(cfg.kernel_size.product)
   } else {
     1 << log2Up(cfg.kernel_size(1)/2) // only store the data on the radius
@@ -56,6 +56,8 @@ case class ImpLoadUnit(
   val transfer_done = tranfer_done_reg
 
   io.impulse_out.valid := transfer_done
+  // TODO: The Impulse should not be output in radius's parallel way!!!
+  //   use the accumulative delay along the radius dimension
   val output_imp = new Area {
     if (cfg.less_mem_size) {
       val virtual_mem_addr = countUpFrom(transfer_done, 0 until cfg.kernel_size.product).cnt

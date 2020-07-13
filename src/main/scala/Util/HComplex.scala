@@ -120,8 +120,8 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
 
   def :=(that: HComplex): Unit = {
     if (this.real.sq.fraction < that.real.sq.fraction) {
-      SpinalInfo(s"this.sq = ${this.real.sq.toString()}")
-      SpinalInfo(s"that.sq = ${that.real.sq.toString()}, that's name is ${that.getName()}")
+//      SpinalInfo(s"this.sq = ${this.real.sq.toString()}")
+//      SpinalInfo(s"that.sq = ${that.real.sq.toString()}, that's name is ${that.getName()}")
       this.real := that.real.fixTo(this.real.sq)
       this.imag := that.imag.fixTo(this.imag.sq)
     } else {

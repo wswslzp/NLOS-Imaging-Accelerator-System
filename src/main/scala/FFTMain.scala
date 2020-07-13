@@ -1,7 +1,7 @@
 import Config._
 import Core.FFT2d
 import spinal.core._
-import spinal.lib._
+import Util.Synthesizable._
 
 import scala.language.postfixOps
 
@@ -11,8 +11,9 @@ object FFTMain extends App{
     point = 128,
     row = 128
   )
+  setSimulation(true)
   val config = SpinalConfig(
-    targetDirectory = "../fft/fft2d/rtl"
+    targetDirectory = "../NLOS_RTL",headerWithDate = true
   )
   SpinalVerilog(config)(
     FFT2d(fft_config)
