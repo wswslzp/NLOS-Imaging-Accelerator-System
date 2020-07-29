@@ -93,12 +93,12 @@ package object Util {
     }
     val output_cos_range = range.map { dat =>
       val cos_v = Math.cos(2 * Math.PI * dat)
-      SpinalInfo(s"cos($dat) = $cos_v")
+//      SpinalInfo(s"cos($dat) = $cos_v")
       cos_v
     }.map(SF(_, cfg.intw-1 exp, -cfg.fracw exp))
     val output_sin_range = range.map { dat =>
       val sin_v = scala.math.sin(2 * scala.math.Pi * dat)
-      SpinalInfo(s"sin($dat) = $sin_v")
+//      SpinalInfo(s"sin($dat) = $sin_v")
       sin_v
     }.map(SF(_, cfg.intw-1 exp, -cfg.fracw exp))
     for(i <- 0 until point) {
@@ -117,7 +117,7 @@ package object Util {
   def linearInterpolate(x: SFix, x1: SFix, x2: SFix, y1: HComplex, y2: HComplex): HComplex = {
     val xd = ( x1 - x2 ).setWeakName("xd")
     val yd = ( y1 - y2 ).setWeakName("yd")
-    SpinalInfo(s"xd.width = ${xd.bitCount}; yd.width = ${yd.real.bitCount}")
+//    SpinalInfo(s"xd.width = ${xd.bitCount}; yd.width = ${yd.real.bitCount}")
     val k = ( yd / xd ).setWeakName("k")
     val deltax = HC(x - x1).setWeakName("deltax")
     k * deltax + y1

@@ -1,8 +1,15 @@
-[0m[[0m[33mwarn[0m] [0m[0m/mnt/d/lzp/NLOS/nlos_system/src/main/scala/Util/AXI4Load.scala:108:55: non-variable type argument spinal.core.Data in type pattern spinal.core.Mem[spinal.core.Data] is unchecked since it is eliminated by erasure[0m
-[0m[[0m[33mwarn[0m] [0m[0m      addr_mem_map foreach { case (range: Range, mem: Mem[Data]) =>[0m
-[0m[[0m[33mwarn[0m] [0m[0m                                                      ^[0m
-[0m[[0m[33mwarn[0m] [0m[0m/mnt/d/lzp/NLOS/nlos_system/src/main/scala/Util/AXI4Load.scala:108:28: match may not be exhaustive.[0m
-[0m[[0m[33mwarn[0m] [0m[0mIt would fail on the following input: (_, _)[0m
-[0m[[0m[33mwarn[0m] [0m[0m      addr_mem_map foreach { case (range: Range, mem: Mem[Data]) =>[0m
-[0m[[0m[33mwarn[0m] [0m[0m                           ^[0m
-[0m[[0m[33mwarn[0m] [0m[0mtwo warnings found[0m
+[0m[[0m[31merror[0m] [0m[0m/mnt/d/lzp/NLOS/nlos_system/src/main/scala/Core/ImpLoadUnit.scala:86:32: type mismatch;[0m
+[0m[[0m[31merror[0m] [0m[0m found   : Int[0m
+[0m[[0m[31merror[0m] [0m[0m required: ?{def apply: ?}[0m
+[0m[[0m[31merror[0m] [0m[0mNote that implicit conversions are not applicable because they are ambiguous:[0m
+[0m[[0m[31merror[0m] [0m[0m both method IntToSInt in package core of type (that: Int)spinal.core.SInt[0m
+[0m[[0m[31merror[0m] [0m[0m and method IntToBits in package core of type (that: Int)spinal.core.Bits[0m
+[0m[[0m[31merror[0m] [0m[0m are possible conversion functions from Int to ?{def apply: ?}[0m
+[0m[[0m[31merror[0m] [0m[0m        io.impulse_out.payload(radius)(0) := ram(address.resize(ram.addressWidth))[0m
+[0m[[0m[31merror[0m] [0m[0m                               ^[0m
+[0m[[0m[31merror[0m] [0m[0m/mnt/d/lzp/NLOS/nlos_system/src/main/scala/Core/ImpLoadUnit.scala:86:9: reference to io is ambiguous;[0m
+[0m[[0m[31merror[0m] [0m[0mit is both defined in class ImpLoadUnit and imported subsequently by [0m
+[0m[[0m[31merror[0m] [0m[0mimport spinal.lib._[0m
+[0m[[0m[31merror[0m] [0m[0m        io.impulse_out.payload(radius)(0) := ram(address.resize(ram.addressWidth))[0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m

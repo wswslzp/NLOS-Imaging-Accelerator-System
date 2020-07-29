@@ -1,0 +1,9 @@
+[0m[[0m[0mdebug[0m] [0m[0mThe Core.ImpLoadUnit$ has the following regular definitions changed:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	UsedName(true_mem_addr,[Default]), UsedName(output_imp,[Default]), UsedName(addr_fifo,[Default]).[0m
+[0m[[0m[0mdebug[0m] [0m[0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0m[0mdebug[0m] [0m[0mFiles invalidated by inheriting from (external) Core.ImpLoadUnit$: Set(); now invalidating by inheritance (internally).[0m
+[0m[[0m[0mdebug[0m] [0m[0mGetting direct dependencies of all classes transitively invalidated by inheritance.[0m
+[0m[[0m[0mdebug[0m] [0m[0mGetting classes that directly depend on (external) Core.ImpLoadUnit$.[0m
+[0m[[0m[0mdebug[0m] [0m[0mNone of the modified names appears in source file of ImpLoadUnitMain. This dependency is not being considered for invalidation.[0m
+[0m[[0m[0mdebug[0m] [0m[0mNone of the modified names appears in source file of CoefLoadUnitMain. This dependency is not being considered for invalidation.[0m
+[0m[[0m[0mdebug[0m] [0m[0mNo changes[0m

@@ -26,7 +26,7 @@ case class ExpFunc
   val lut_point: Int = pfunc_tb.length
   val idx_comp: Vector[Bool] = pindx_tb.map(indx < _)
   val idx_comp_vec: Bits = B(idx_comp.reverse)
-  val lzc_t: UInt = stage( countLeadingZeros(idx_comp_vec) , 0)
+  val lzc_t: UInt = stage( simpleCountLeadingZeros(idx_comp_vec) , 0)
   val lzc: UInt = lzc_t.resize(log2Up(lut_point))
 
   val exp_func_value = HComplex(cfg)
@@ -40,14 +40,15 @@ case class ExpFunc
     x2.assignFromBits(x2_t.asBits)
     val y1 = pfunc_tb(position).setWeakName("y1")
     val y2 = pfunc_tb(lzc).setWeakName("y2")
-    exp_func_value := stage( linearInterpolate(indx,x1,x2, y1, y2).setWeakName("pre_exp_indx"), 3 )
+    val indx_r = stage(indx, 1)
+    exp_func_value := stage( linearInterpolate(indx_r,x1,x2, y1, y2).setWeakName("pre_exp_indx"), 2 )
   } elsewhen(lzc_t.msb === True) {
-    exp_func_value := stage( pfunc_tb.last, 3 )
+    exp_func_value := stage( pfunc_tb.last, 1 to 2 )
   } otherwise {
-    exp_func_value := stage( pfunc_tb.head, 3 )
+    exp_func_value := stage( pfunc_tb.head, 1 to 2 )
   }
 
-  io.data_out := stage(exp_func_value, 1)
+  io.data_out := exp_func_value
 
 }
 

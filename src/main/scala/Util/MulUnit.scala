@@ -9,10 +9,25 @@ case class MulUnit(
     val a = in Bits(width bit)
     val b = in Bits(width bit)
     val c = out Bits(width * 2 bit)
+    val tc = in Bool()
+  }
+
+  addGenerics(
+    "A_width" -> width,
+    "B_width" -> width
+  )
+
+  setDefinitionName("DW02_mult")
+
+  afterElaboration {
+    io.a.setName("A")
+    io.b.setName("B")
+    io.c.setName("PRODUCT")
+    io.tc.setName("TC")
   }
 
   noIoPrefix()
-  addRTLPath("rtl/core.MulUnit.v")
+  //addRTLPath("rtl/core.MulUnit.v")
 }
 
 object MulUnit {
@@ -23,6 +38,7 @@ object MulUnit {
     val mul_unit = MulUnit(width)
     mul_unit.io.a <> ia.asBits
     mul_unit.io.b <> ib.asBits
+    mul_unit.io.tc := False
     mul_unit.io.c.asUInt
   }
   def apply(a: UFix, b: UFix): UFix = {
@@ -36,6 +52,7 @@ object MulUnit {
     val mul_unit = MulUnit(ia.bitCount)
     mul_unit.io.a := ia.asBits
     mul_unit.io.b := ib.asBits
+    mul_unit.io.tc := False
     val ret = UFix(2 * ia.maxExp exp, 2 * ia.minExp exp)
     ret.assignFromBits(mul_unit.io.c)
     ret
@@ -51,6 +68,7 @@ object MulUnit {
     val mul_unit = MulUnit(ia.bitCount)
     mul_unit.io.a := ia.asBits
     mul_unit.io.b := ib.asBits
+    mul_unit.io.tc := True
     val ret = SFix(2 * ia.maxExp-1 exp, 2 * ia.minExp exp)
     ret.assignFromBits(mul_unit.io.c)
     ret

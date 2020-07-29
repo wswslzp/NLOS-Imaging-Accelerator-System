@@ -9,6 +9,7 @@ class Synthesizable(var flag: Boolean)
 object Synthesizable {
   implicit var synthesizable = new Synthesizable(true)
   def setSimulation(x: Boolean): Unit = synthesizable.flag = !x
+  def apply(flag: Boolean): Unit = {synthesizable.flag = flag}
 }
 
 case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/{

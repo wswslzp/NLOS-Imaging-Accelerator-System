@@ -12,7 +12,7 @@ import Util._
 case class CoefGenArray
 (
   cfg: RsdKernelConfig,
-  freq_num: Int,
+  freq_num: Int
 ) extends Component {
 
   val io = new Bundle {

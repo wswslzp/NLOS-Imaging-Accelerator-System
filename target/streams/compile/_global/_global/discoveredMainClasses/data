@@ -1,1 +1,1 @@
-["CoefGenArrayMain","CoefLoadUnitMain","ExpFuncMain","FFTMain","IFFT2dMain","MyFFTMain","PwMatMulMain","PwMatMulTest","RsdKernelGenMain","Util.ApplyMemMain","Util.LzcMain","Util.PipelineGenApp"]
+["Util.ApplyMemMain","Util.LzcMain","Util.PipelineGenApp"]

@@ -5,6 +5,8 @@ import Util._
 import spinal.core._
 import spinal.lib._
 
+// TODO: the area of this module is too large to implement for a 128x128 fft2d on silicon,
+//  so reworking is needed to serialize the module to reduce the area and coordinate with other modules.
 case class FFT2d(cfg: FFTConfig) extends Component {
   import MyFFT.fft
   val io = new Bundle {

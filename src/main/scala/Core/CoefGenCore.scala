@@ -19,15 +19,16 @@ case class CoefGenCore
 
   openAllStage()
 
-  val wave = stage(io.wave, 0)
-  val distance = stage(io.distance, 0)
-  val timeshift = stage(io.timeshift, 0 to 4)
+  val wave = stage(io.wave, 0) //A
+  val distance = stage(io.distance, 0) //B
+  val timeshift = stage(io.timeshift, 0 to 4) //C
 
   val wd_prod = stage(wave * distance, 1)
 
   val exp_wd_prod = ExpFunc(wd_prod).setWeakName("exp_wd_prod") // with 2 stage pipeline inside.
+  exp_wd_prod.setWeakName("exp_wd_prod")
 
-  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 3) , 4)
+  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 3) , 4) // D
 
   io.coef := stage( exp_wd_prod_divw * timeshift , 5)
 }

@@ -3,11 +3,27 @@ package Util
 import spinal.core._
 
 case class DivUnit(width: Int) extends BlackBox {
+
+  addGenerics(
+    "a_width" -> width*2,
+    "b_width" -> width,
+    "tc_mode" -> 1,
+    "rem_mode" -> 1
+  )
+
   val io = new Bundle {
     val a = in Bits(2 * width bit) // a serve as the divisor
     val b = in Bits(width bit)// b serve as the dividend
-    val q = out Bits(width bit) // q = a / b
+    val q = out Bits(2 * width bit) // q = a / b
     val r = out Bits(width bit) // r = a % b
+    val divide_by_0 = out Bool()
+  }
+
+  // instantiate the design ware ip
+  this.setDefinitionName("DW_div")
+  afterElaboration {
+    io.q.setName("quotient")
+    io.r.setName("remainder")
   }
 
   noIoPrefix()
@@ -32,7 +48,7 @@ object DivUnit {
 //    val quotient = div_unit.io.q
 //    val remainder = div_unit.io.r
     val ret = UFix(ia.maxExp exp, ia.minExp exp)
-    ret.assignFromBits(div_unit.io.q)
+    ret.assignFromBits(div_unit.io.q(ia.bitCount downto 0))
     ret
   }
   def apply(a: SFix, b: SFix): SFix = {
@@ -47,7 +63,7 @@ object DivUnit {
     div_unit.io.a := ia.asBits ## B(ia.bitCount bit, default -> false)
     div_unit.io.b := ib.asBits
     val ret = SFix(ia.maxExp-1 exp, ia.minExp exp)
-    ret.assignFromBits(div_unit.io.q)
+    ret.assignFromBits(div_unit.io.q(ia.bitCount downto 0))
     ret
   }
 

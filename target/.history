@@ -141,3 +141,45 @@ compile
 runMain Util.LzcMain
 compile
 runMain Util.LzcMain
+compile
+runMain ExpFuncMain
+compile
+runMain CoefGenArrayMain
+runMain ExpFuncMain
+runMain CoefGenArrayMain
+vi bu
+exit
+compile
+package -help
+help package
+compile
+runMain FFTMain
+resolver
+libraryDependencies
+runMain CoefGenArrayMain
+libraryDependencies
+runMain CoefGenArrayMain
+runMain FFTMain
+runMain CoefGenArrayMain
+reload
+ls
+runMain FFTMain
+runMain CoefGenArrayMain
+compile
+runMain CoefGenArrayMain
+runMain ExpFuncMain
+compile
+test:compile
+test:runMain PRsdGenCoreMain
+test:compile
+compile
+test:compile
+test:runMain PRsdGenCoreMain
+ls
+compile
+test:compile
+test:runMain ImpLoadUnitMain
+test:compile
+test:runMain HistoryTest
+compile
+test:runMain ImpLoadUnitMain
