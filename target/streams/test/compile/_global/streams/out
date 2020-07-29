@@ -1,4 +1,0 @@
-[0m[[0m[31merror[0m] [0m[0m/mnt/d/lzp/NLOS/nlos_system/src/test/scala/PwMatMulTest.scala:15:24: not found: value SimConfig[0m
-[0m[[0m[31merror[0m] [0m[0m  val bench_compiled = SimConfig[0m
-[0m[[0m[31merror[0m] [0m[0m                       ^[0m
-[0m[[0m[31merror[0m] [0m[0mone error found[0m
