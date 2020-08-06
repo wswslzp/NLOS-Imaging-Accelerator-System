@@ -4,14 +4,18 @@ import spinal.lib._
 import Config._
 import Util._
 
-case class MyFFT(length: Int, cfg: HComplexConfig, use_pipeline: Boolean = true) extends Component {
-  implicit val use_synthesizable_mul = false
+case class MyFFT(length: Int, cfg: HComplexConfig, use_pipeline: Boolean = true, serial: Boolean = false) extends Component {
   val io = new Bundle {
     val data_in: Flow[Vec[HComplex]] = in( Flow( Vec(HComplex(cfg), length) ) )
     val data_out = out ( Flow( Vec(HComplex(cfg), length) ) )
   }
 
-  val data_in: Vec[HComplex] = io.data_in.toReg()
+  val data_in = if (serial) {
+    io.data_in.payload
+  } else {
+    io.data_in.toReg()
+  }
+//  val data_in: Vec[HComplex] = io.data_in.toReg()
 
   val twiddle_factor_table: Vec[HComplex] = TwiddleFactorTable.getw(length, cfg)
 
@@ -89,7 +93,7 @@ case class MyFFT(length: Int, cfg: HComplexConfig, use_pipeline: Boolean = true)
 }
 
 object MyFFT {
-  def fft(input: Flow[Vec[HComplex]]): Flow[Vec[HComplex]] = {
+  def fft(input: Flow[Vec[HComplex]], use_pipeline: Boolean = true): Flow[Vec[HComplex]] = {
     // support for any points FFT
     val cfg = input.payload(0).config
     val length = input.payload.length
@@ -103,9 +107,32 @@ object MyFFT {
         dat := 0
       }
     }
-    val fft_core = MyFFT(points, cfg)
+    val fft_core = MyFFT(points, cfg, use_pipeline)
     fft_core.io.data_in <> input
     fft_core.io.data_out
+  }
+
+  def fft(input: Flow[HComplex], length: Int, use_pipeline: Boolean): Flow[Vec[HComplex]] = {
+    val sdata_in = Vec( History(input.payload, length, input.valid).reverse ).setWeakName("sdata_in")
+    val fft_input_flow = Flow(cloneOf(sdata_in)).setWeakName("fft_input_flow")
+    fft_input_flow.payload := sdata_in
+    fft_input_flow.valid := countUpFrom(input.valid, 0 until length).cnt.willOverflow
+    fft(fft_input_flow, use_pipeline).setWeakName("sdata_out")
+  }
+
+  def sfft(input: Flow[HComplex], length: Int): Flow[HComplex] = {
+    val sdata_in = Vec( History(input.payload, length, input.valid).reverse ).setWeakName("sdata_in")
+    val fft_input_flow = Flow(cloneOf(sdata_in)).setWeakName("fft_input_flow")
+    fft_input_flow.payload := sdata_in
+    fft_input_flow.valid := Delay(input.valid, length)
+//    fft_input_flow.valid := countUpFrom(input.valid, 0 until length).cnt.willOverflow
+    val sdata_out = fft(fft_input_flow, false).setWeakName("sdata_out")
+    val sdata_out_regs_addr_area = countUpFrom(RegNext( sdata_out.valid ), 0 until length, name = "sdata_out_regs_addr_area")
+    val sdata_out_regs = sdata_out.toReg().setWeakName("sdata_out_regs")
+    val output = Flow(HComplex(sdata_out.payload(0).config)).setWeakName("output")
+    output.payload := sdata_out_regs(sdata_out_regs_addr_area.cnt.value)
+    output.valid := sdata_out_regs_addr_area.cond_period
+    output
   }
   //def fft_latency(length: Int): Int = log2Up(length) + 2
 }

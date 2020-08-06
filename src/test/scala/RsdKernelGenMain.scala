@@ -3,6 +3,7 @@ import spinal.lib._
 import spinal.lib.bus.amba4.axi._
 import Core._
 import Config._
+import Core.RsdGenCoreArray.RsdKernelGen
 import Util._
 
 object RsdKernelGenMain extends App{

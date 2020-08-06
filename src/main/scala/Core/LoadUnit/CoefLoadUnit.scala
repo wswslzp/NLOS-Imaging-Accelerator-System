@@ -1,11 +1,13 @@
-package Core
+package Core.LoadUnit
 
-import spinal.core._
-import spinal.lib._
-import Config._
+import Config.RsdKernelConfig
 import Util._
-import spinal.lib.bus.amba4.axi.{Axi4, Axi4Config, Axi4WriteOnly}
+import spinal.core._
+import spinal.lib.bus.amba4.axi.Axi4Config
+import spinal.lib._
 
+//TODO: This module is too large and contains too much thing that needs to
+//  separate into many single modules.
 case class CoefLoadUnit
 (
    cfg: RsdKernelConfig,
@@ -62,7 +64,7 @@ case class CoefLoadUnit
   loadData()
 
   // output the wave, distance and the timeshift to the CoefGenArray
-  for ( d <- 0 until cfg.depth_factor ) {
+  for ( d <- 0 until cfg.depth_factor) {
     for (r <- 0 until cfg.radius_factor) {
       io.wave.payload(r)(d) := wave_regs(r * cfg.depth_factor + d)
     }
@@ -77,4 +79,3 @@ case class CoefLoadUnit
   io.distance.valid := transfer_done
   io.timeshift.valid := transfer_done
 }
-

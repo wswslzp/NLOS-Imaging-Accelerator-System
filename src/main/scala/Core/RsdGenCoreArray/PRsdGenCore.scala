@@ -1,9 +1,8 @@
-package Core
+package Core.RsdGenCoreArray
 
+import Config.RsdKernelConfig
+import Util.HComplex
 import spinal.core._
-import spinal.lib._
-import Config._
-import Util._
 
 // Partial RSD kernel generator core
 case class PRsdGenCore(cfg: RsdKernelConfig) extends Component {
@@ -26,4 +25,3 @@ case class PRsdGenCore(cfg: RsdKernelConfig) extends Component {
   io.rsd_next := RegNext( io.rsd_prev ) + delta_rsd_kernel_val
 
 }
-

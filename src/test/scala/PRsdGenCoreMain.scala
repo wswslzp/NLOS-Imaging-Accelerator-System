@@ -1,7 +1,8 @@
 import spinal.core._
 import spinal.lib._
-import Core.PRsdGenCore
 import Config._
+import Core.RsdGenCoreArray
+import Core.RsdGenCoreArray.PRsdGenCore
 import Util._
 
 object PRsdGenCoreMain extends App {
@@ -21,6 +22,6 @@ object PRsdGenCoreMain extends App {
     targetDirectory = "../NLOS_RTL",
     headerWithDate = true
   ).generateVerilog(
-    PRsdGenCore(rsd_cfg)
+    RsdGenCoreArray.PRsdGenCore(rsd_cfg)
   )
 }

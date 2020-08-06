@@ -1,14 +1,13 @@
-package Core
-import spinal.core._
-import spinal.lib._
-import Config.{HComplexConfig, RsdKernelConfig}
+package Core.RsdGenCoreArray
+
+import Config._
 import Util._
+import spinal.core._
 
 case class CoefGenCore
 (
   cfg: RsdKernelConfig
 ) extends Component with Pipeline {
-  import Util.MySFix._
 
   val io = new Bundle {
     val wave = in SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp)// these two data are real

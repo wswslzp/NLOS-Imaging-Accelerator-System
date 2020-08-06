@@ -1,12 +1,10 @@
-package Core
+package Core.LoadUnit
 
-// TODO: Need to modify the load logic
-
-import spinal.core._
 import Config.RsdKernelConfig
-import Util.{AXI4WLoad, ApplyMem, HComplex, countUpFrom}
-import spinal.lib.bus.amba4.axi.{Axi4Config, Axi4WriteOnly}
-import spinal.lib.{Counter, Flow, master, slave}
+import Util._
+import spinal.core._
+import spinal.lib.bus.amba4.axi.Axi4Config
+import spinal.lib._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -23,7 +21,8 @@ case class ImpLoadUnit(
   val io = new Bundle {
     val impulse_out = master (
       Flow(
-        Vec(Vec(HComplex(cfg.imp_cfg), cfg.deltaw_factor), cfg.radius_factor)
+//        Vec(Vec(HComplex(cfg.imp_cfg), cfg.deltaw_factor), cfg.radius_factor)
+        Vec(HComplex(cfg.imp_cfg), cfg.radius_factor)
       )
     )
   }
@@ -81,7 +80,7 @@ case class ImpLoadUnit(
         // It's OK to have negative address result because we don't care about the data when effective results
         // haven't been reached.
         val address: UInt = line_mem_addr_map(addr_fifo(radius))
-        io.impulse_out.payload(radius)(0) := ram(address.resize(ram.addressWidth))
+        io.impulse_out.payload(radius) := ram(address.resize(ram.addressWidth))
       }
   }
 
@@ -95,7 +94,7 @@ case class ImpLoadUnit(
       xs = (x + cfg.kernel_size(0)/2) % cfg.kernel_size(0)
       ys = (y + cfg.kernel_size(1)/2) % cfg.kernel_size(1)
       idxs = xs * cfg.kernel_size(0) + ys
-      d_tmp = math.min(math.sqrt((x*x+y*y)/2).toInt, cfg.kernel_size(1)/2-1 )
+      d_tmp = Math.min(Math.sqrt((x*x+y*y)/2).toInt, cfg.kernel_size(1)/2-1 )
     } {
 //      addr_lut(idx) = U(d_tmp)
       addr_lut(idxs) = U(d_tmp)

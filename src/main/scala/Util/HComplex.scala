@@ -7,7 +7,7 @@ import Util._
 
 class Synthesizable(var flag: Boolean)
 object Synthesizable {
-  implicit var synthesizable = new Synthesizable(true)
+  implicit var synthesizable = new Synthesizable(false)
   def setSimulation(x: Boolean): Unit = synthesizable.flag = !x
   def apply(flag: Boolean): Unit = {synthesizable.flag = flag}
 }

@@ -1,10 +1,10 @@
-package Core
+package Core.RsdGenCoreArray
 
+import Config._
+import Util.MySFix._
+import Util._
 import spinal.core._
 import spinal.lib._
-import Config._
-import Util._
-import MySFix._
 
 case class ExpFunc
 (

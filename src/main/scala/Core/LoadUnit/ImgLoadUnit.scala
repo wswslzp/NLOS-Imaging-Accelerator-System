@@ -1,4 +1,4 @@
-package Core
+package Core.LoadUnit
 
 import Util.AXI4WLoad
 import spinal.core._

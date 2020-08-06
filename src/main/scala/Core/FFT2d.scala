@@ -54,6 +54,19 @@ object FFT2d {
     fft2d_core.io.line_in <> input
     fft2d_core.io.line_out
   }
+
+  def fft2(input: Flow[HComplex], row: Int, point: Int): Flow[Vec[HComplex]] = {
+    val hcfg = input.payload.config
+    val fft2_in_flow = Flow(Vec(HComplex(hcfg), point))
+    val data_in_row = History(input.payload, point, input.valid)
+    fft2_in_flow.payload := data_in_row
+    fft2_in_flow.valid := Delay(input.valid, point)
+    val fft_config = FFTConfig(hcfg, point, row)
+    val fft2d_core = FFT2d(fft_config)
+    fft2d_core.io.line_in <> fft2_in_flow
+    fft2d_core.io.line_out
+
+  }
 }
 
 //case class FFT2d(config:FFTConfig) extends Component {

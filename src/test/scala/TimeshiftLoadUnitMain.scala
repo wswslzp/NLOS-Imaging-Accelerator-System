@@ -1,11 +1,12 @@
 import spinal.core._
-import spinal.lib.bus.amba4.axi._
+import spinal.lib._
 import Core._
-import Config._
-import Core.LoadUnit.ImpLoadUnit
 import Util._
+import Config._
+import Core.LoadUnit._
+import spinal.lib.bus.amba4.axi.Axi4Config
 
-object ImpLoadUnitMain extends App {
+object TimeshiftLoadUnitMain extends App{
   val wave_cfg = HComplexConfig(8, 8)
   val distance_cfg = HComplexConfig(8, 8)
   val timeshift_cfg = HComplexConfig(-4, 20)
@@ -26,11 +27,12 @@ object ImpLoadUnitMain extends App {
     targetDirectory = "../NLOS_RTL",
     headerWithDate = true
   ).generateVerilog(
-    ImpLoadUnit(
+    TimeshiftLoadUnit(
       cfg = rsd_cfg,
       init_addr = 0,
       axi_config = axi_cfg
     )
   )
+
 
 }

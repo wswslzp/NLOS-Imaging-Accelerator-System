@@ -1,12 +1,11 @@
 import spinal.core._
 import spinal.lib._
-import spinal.lib.bus.amba4.axi._
 import Core._
 import Util._
 import Config._
-import Core.LoadUnit.{CoefLoadUnit, ImpLoadUnit}
+import spinal.lib.bus.amba4.axi.Axi4Config
 
-object CoefLoadUnitMain extends App{
+object RsdGenCoreArrayMain extends App{
   val rsd_cfg = RsdKernelConfig(
     wave_cfg = HComplexConfig(8, 8),
     distance_cfg = HComplexConfig(8, 8),
@@ -21,16 +20,13 @@ object CoefLoadUnitMain extends App{
     useProt = false
   )
   var init_addr = 0
+
   SpinalConfig(
-    targetDirectory = "rtl"
-  ).generateVerilog {
-    val coef_load_unit = CoefLoadUnit(rsd_cfg, 2, init_addr, axi_cfg)
-    init_addr += coef_load_unit.local_mem_manager.finalAddr
-    coef_load_unit
-  }
-  SpinalConfig(
-    targetDirectory = "rtl"
+    targetDirectory = "../NLOS_RTL"
   ).generateVerilog(
-    ImpLoadUnit(rsd_cfg, init_addr, axi_cfg)
+    RsdGenCoreArray.RsdGenCoreArray(
+      rsd_cfg, init_addr, axi_cfg
+    )
   )
+
 }

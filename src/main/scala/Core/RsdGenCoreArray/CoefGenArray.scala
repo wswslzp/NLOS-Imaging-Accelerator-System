@@ -1,13 +1,9 @@
-package Core
+package Core.RsdGenCoreArray
 
-import spinal.core._
-import spinal.lib._
 import Config._
 import Util._
-
-// The fixed point configuration is different.
-// A(wave_front) and B(distance) is fine in Q8.8, but C(timeshift) is too small to fit in Q8.8, instead in Q-4.20.
-// D is fine in Q8.8 whereas the output coefs is too small, fits in Q0.16~Q-4.20
+import spinal.core._
+import spinal.lib._
 
 case class CoefGenArray
 (

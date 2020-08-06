@@ -11,6 +11,13 @@ object HistoryTest extends App {
       d + i
     }.toVector
 
+    val int_mem = Mem(UInt(8 bit), 32L)
+
+
+    when(dati === 10) {
+      int_mem(dati.resize(log2Up(32))) := his_1.last.resize(8)
+    }
+
     dato := his_1.reduce(_ | _).resized
   }
 

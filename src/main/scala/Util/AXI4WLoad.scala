@@ -118,6 +118,10 @@ trait AXI4WLoad extends Nameable {
   }.setWeakName("load_data_area")
 
   // unknown usage
+//  protected def setResponse(resp: => Bits = Axi4.resp.OKAY): Unit = {
+//    data_in.b.resp := resp
+//  }
+
   val b_area = new Area {
     data_in.b.valid := data_in.w.valid
     data_in.b.id := aw_area.awid_r

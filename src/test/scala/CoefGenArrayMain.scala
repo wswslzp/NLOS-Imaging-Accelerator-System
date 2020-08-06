@@ -3,6 +3,7 @@ import spinal.lib._
 import Core._
 import Util._
 import Config._
+import Core.RsdGenCoreArray.CoefGenArray
 
 object CoefGenArrayMain extends App{
 
