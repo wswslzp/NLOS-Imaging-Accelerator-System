@@ -69,7 +69,7 @@ trait AXI4WLoad extends Nameable {
 
   // TODO: partially verified
   protected def loadData() = new Area {
-    val wvalid = RegNext(data_in.w.valid)
+    val wvalid = RegNext(data_in.w.valid) init False
     val current_addr: UInt = Reg( UInt(axi_config.addressWidth bit) ) init 0
     val incr = Axi4.incr(aw_area.awaddr_r, data_in.aw.burst, aw_area.awlen_r, aw_area.awsize_r, byte_per_word)
 

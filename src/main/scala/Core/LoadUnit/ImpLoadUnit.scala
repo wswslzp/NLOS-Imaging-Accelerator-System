@@ -15,14 +15,16 @@ case class ImpLoadUnit(
                       ) extends Component with AXI4WLoad{
   override val word_bit_count: Int = cfg.imp_cfg.getComplexWidth
 
+  val row_num: Int = cfg.kernel_size(0)
+  val col_num: Int = cfg.kernel_size(1)
+
   awReady(True)
   wReady(True)
 
   val io = new Bundle {
     val impulse_out = master (
       Flow(
-//        Vec(Vec(HComplex(cfg.imp_cfg), cfg.deltaw_factor), cfg.radius_factor)
-        Vec(HComplex(cfg.imp_cfg), cfg.radius_factor)
+        Vec(Vec(HComplex(cfg.imp_cfg), cfg.radius_factor), col_num)
       )
     )
   }
@@ -30,11 +32,7 @@ case class ImpLoadUnit(
   // the number of sample radius should be the power of 2
   val local_mem_manager = ApplyMem(init_addr, cfg.imp_cfg.getComplexWidth)
   val radius_num = cfg.radius_factor
-  val mem_size   = if(!cfg.less_mem_size) {
-    1 << log2Up(cfg.kernel_size.product)
-  } else {
-    1 << log2Up(cfg.kernel_size(1)/2) // only store the data on the radius
-  }
+  val mem_size = 1 << log2Up(col_num / 2)
 
   // Apply for memories stored the impulse, with the ram amount same as radius_name
   val int_ram_array_map: Vector[(Range, Mem[Bits])] = Vector.fill(radius_num)(
@@ -58,35 +56,42 @@ case class ImpLoadUnit(
   io.impulse_out.valid := imp_push_start
 
   val output_imp = new Area {
-      // Now, when the outside bus write a impulse start signal into imp_push_start register,
-      // the virtual memory address that iterate from the left top of the image to the bottom right,
-      // start counting up from 0 to the end.
-      val virtual_mem_addr = countUpFrom(imp_push_start, 0 until cfg.kernel_size.product).cnt
-      virtual_mem_addr.setName("current_line_idx")
+    // Now, when the outside bus write a impulse start signal into imp_push_start register,
+    // the virtual memory address that iterate from the left top of the image to the bottom right,
+    // start counting up from 0 to the end.
+    // TODO: Now the impulse loader output a row per cycle. So the row address of the impulse changes
+    //  per cycle, and the virtual address = row address * point_num + col_address is output parallel
+    //  for a row, and shift out for each radius.
 
-      val addr_fifo: Vec[UInt] = spinal.lib.History(virtual_mem_addr.value, radius_num)
+    val virtual_imp_row_addr = countUpFrom(imp_push_start, 0 until row_num).cnt
+    virtual_imp_row_addr.setWeakName("current_imp_row_addr")
+    val virtual_imp_addr = (0 until col_num).map(virtual_imp_row_addr * col_num + _)
 
-      // The line_mem_addr_map maps the virtual address to the true memory address of int_ram_array.
-      // The true memory address is access the correct pixel in the internal SRAM array
-      // but the address used to access the memory at the same time is not identical.
-      val line_mem_addr_map = Vec( buildAddrMap )
-      for {
-        radius <- 0 until cfg.radius_factor
-        ram = int_ram_array(radius)
-      } {
-        // Due to the pipeline data pattern of the RSD kernel generation core array, the data
-        // popped out from the io.impulse_out.payload comes from consecutive position of the whole image
-        // in the same cycle, and the latter output ports have former address.
-        // It's OK to have negative address result because we don't care about the data when effective results
-        // haven't been reached.
-        val address: UInt = line_mem_addr_map(addr_fifo(radius))
-        io.impulse_out.payload(radius) := ram(address.resize(ram.addressWidth))
-      }
+    val virtual_imp_addr_fifo = virtual_imp_addr.map(
+      spinal.lib.History(_, radius_num)
+    )
+
+    // The line_mem_addr_map maps the virtual address to the true memory address of int_ram_array.
+    // The true memory address is access the correct pixel in the internal register array
+    // but the address used to access the memory at the same time is not identical.
+    val line_mem_addr_map = Vec( buildAddrMap )
+    for {
+      col <- 0 until col_num
+      radius <- 0 until cfg.radius_factor
+      ram = int_ram_array(radius)
+    } {
+      // Due to the pipeline data pattern of the RSD kernel generation core array, the data
+      // popped out from the io.impulse_out.payload comes from consecutive position of the whole image
+      // in the same cycle, and the latter output ports have former address.
+      // It's OK to have negative address result because we don't care about the data when effective results
+      // haven't been reached.
+      val address: UInt = line_mem_addr_map(virtual_imp_addr_fifo(col)(radius))
+      io.impulse_out.payload(col)(radius) := ram(address.resize(ram.addressWidth))
+    }
   }
 
   private def buildAddrMap: ArrayBuffer[UInt] = {
     val addr_lut = ArrayBuffer.fill(1 << log2Up(cfg.kernel_size.product))(U(0))
-//    val R = math.sqrt(cfg.kernel_size.map(_ / 2).map(math.pow(_, 2)).sum)
     for {
       idx <- 0 until 1 << log2Up(cfg.kernel_size.product)
       x = idx / cfg.kernel_size(0) - cfg.kernel_size(0)/2
@@ -96,7 +101,6 @@ case class ImpLoadUnit(
       idxs = xs * cfg.kernel_size(0) + ys
       d_tmp = Math.min(Math.sqrt((x*x+y*y)/2).toInt, cfg.kernel_size(1)/2-1 )
     } {
-//      addr_lut(idx) = U(d_tmp)
       addr_lut(idxs) = U(d_tmp)
     }
     addr_lut

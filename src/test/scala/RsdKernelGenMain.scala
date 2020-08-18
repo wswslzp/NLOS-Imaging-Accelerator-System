@@ -19,7 +19,7 @@ object RsdKernelGenMain extends App{
     timeshift_cfg = HComplexConfig(-4, 20),
     coef_cfg = HComplexConfig(-4, 20),
     imp_cfg = HComplexConfig(5, 11),
-    1, 51, 70
+    1, 51
   )
   SpinalConfig(
     mode = Verilog,

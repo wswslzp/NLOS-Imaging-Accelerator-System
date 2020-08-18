@@ -7,7 +7,7 @@ case class RsdKernelConfig
   timeshift_cfg: HComplexConfig,
   coef_cfg: HComplexConfig,
   imp_cfg: HComplexConfig,
-  deltaw_factor: Int,
+//  point_facotr: Int,
   depth_factor: Int,
   radius_factor: Int,
   kernel_size: List[Int] = 128 :: 128 :: Nil,
@@ -15,7 +15,5 @@ case class RsdKernelConfig
   sub_mem_tag: Int = 0
 ){
   require(kernel_size.length == 2)
-  if (less_mem_size) {require(deltaw_factor == 1)}
-
   def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg
 }

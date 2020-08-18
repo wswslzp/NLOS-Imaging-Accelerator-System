@@ -12,7 +12,7 @@ object RsdGenCoreArrayMain extends App{
     timeshift_cfg = HComplexConfig(-4, 20),
     coef_cfg = HComplexConfig(-4, 20),
     imp_cfg = HComplexConfig(5, 11),
-    1, 2, 2
+    1, 2
   )
   val axi_cfg: Axi4Config = Axi4Config(
     addressWidth = 32, dataWidth = 32,

@@ -13,7 +13,7 @@ object PRsdGenCoreMain extends App {
   val imp_cfg = HComplexConfig(5, 11)
 
   val rsd_cfg = RsdKernelConfig(
-    wave_cfg, distance_cfg,timeshift_cfg, coef_cfg, imp_cfg, 1, 2, 2
+    wave_cfg, distance_cfg,timeshift_cfg, coef_cfg, imp_cfg, 1, 2
   )
 
   Synthesizable(false)

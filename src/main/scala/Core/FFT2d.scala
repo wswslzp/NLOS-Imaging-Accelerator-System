@@ -38,7 +38,7 @@ case class FFT2d(cfg: FFTConfig) extends Component {
   fft_col_in.payload.zipWithIndex.foreach { case(dat, idx) =>
     dat := img_reg_array(idx)(col_addr)
   }
-  fft_col_in.valid := RegNext( col_addr_area.cond_period )
+  fft_col_in.valid := RegNext( col_addr_area.cond_period ) init False
 
   val fft_col_out: Flow[Vec[HComplex]] = fft(fft_col_in).setName("fft_col_in")
   fft_col_out >-> io.line_out

@@ -3,6 +3,7 @@ import spinal.lib._
 
 object HistoryTest extends App {
   case class HT() extends Component {
+    val dati_valid = in Bool()
     val dati = in UInt(32 bit)
     val dato = out UInt(33 bit)
 

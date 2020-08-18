@@ -19,22 +19,22 @@ case class DistanceLoadUnit(
     val data_enable = out Bool // The signal's high active indicates that this transaction is done and data is loaded.
 
     val distance = master (Flow(
-      Vec(SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp), cfg.depth_factor)
+      SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp)
     ))
   }
   wReady(io.ready_for_store)
   awReady(io.ready_for_store)
 
   val local_mem_manager = ApplyMem(init_addr, word_bit_count)
-  val (distance_reg_addr_map, distance_regs) = local_mem_manager.allocateRegArray(
-    Vector.fill(cfg.depth_factor)(SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp))
+  val (distance_reg_addr_map, distance_reg) = local_mem_manager.allocateReg(
+    SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp)
   )
   val (transfer_done_map, transfer_done_reg) = local_mem_manager.allocateReg(Bool())
 
   arrangeRegMapAddr( distance_reg_addr_map , transfer_done_map)
   loadData()
 
-
-  io.distance.payload := Vec(distance_regs)
+  io.distance.payload := distance_reg
+  io.distance.valid := transfer_done_reg
 
 }

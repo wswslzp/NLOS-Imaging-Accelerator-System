@@ -3,6 +3,9 @@ import spinal.lib._
 import Core._
 import Util._
 import Config._
+import spinal.lib.cpu._
+import riscv._
+import impl._
 
 object SFTest extends App{
   case class SFT() extends Component {
@@ -13,6 +16,9 @@ object SFTest extends App{
 
     val in3 = Vec(slave(Stream(Bits(8 bits))), 3)
     val out1 = master(Stream(Bits(8 bit)))
+
+    implicit val config = RiscvCoreConfig()
+    val cpu = new RiscvCore()
 
     out1 <> StreamArbiterFactory.roundRobin.on(in3)
   }

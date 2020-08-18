@@ -8,14 +8,16 @@ package object Util {
     // cond is a one-cycle impulse, when the cond is active, counter inside will
     // count up from cond's falling edge to a specific number(0 until x)
     // useful tool for scheduling the task.
-    val cnt: Counter = Counter(range)
+    val cnt: Counter = Counter(range).setName(name + "_cnt")
     val cond_period_minus_1: Bool = Reg(Bool()) init(False)
+    cond_period_minus_1.setName(name + "_cond_period_minus_1")
     when(cond) {
       cond_period_minus_1 := True
     }.elsewhen(cnt.willOverflow) {
       cond_period_minus_1 := False
     }
     val cond_period: Bool = cond | cond_period_minus_1
+    cond_period.setName(name + "_cond_period")
     when(cond_period) {
       // TODO: the counter in spinal lib is not support step increment
       // DO NOT USE delta factor
@@ -23,6 +25,14 @@ package object Util {
     }/*.otherwise{
     cnt.clear()
   }*/
+  }
+
+  def countUpInside(cond: Bool, length: Int) = new Area {
+    val cnt = Counter(0, length-1).setName("count_up_inside_cnt")
+    when(cond) {
+      cnt.increment()
+    }
+    val last = cnt.willOverflow
   }
 
   def countLtUInt(cond: Bool, stop: UInt): UInt =  {
@@ -34,6 +44,8 @@ package object Util {
       } otherwise {
         cnt := 0
       }
+    } otherwise {
+      cnt := 0
     }
     cnt
   }

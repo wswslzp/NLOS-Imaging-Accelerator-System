@@ -1,6 +1,7 @@
 package Util
 import spinal.core._
 import spinal.lib._
+import spinal.core.sim._
 
 case class MyUFix(width: Int) {
   val bit_vec = UInt(width bit)

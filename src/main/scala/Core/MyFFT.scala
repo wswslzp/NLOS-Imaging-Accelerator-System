@@ -62,8 +62,9 @@ case class MyFFT(length: Int, cfg: HComplexConfig, use_pipeline: Boolean = true,
 
   else {
     val current_level = countUpFrom(
-      RegNext(io.data_in.valid), 0 until log2Up(length)+1, "current_level"
+      RegNext(io.data_in.valid, init = False), 0 until log2Up(length)+1, "current_level"
     ).cnt
+    current_level.setName("current_level")
     val data_mid = Reg(cloneOf(data_in)).setWeakName("data_mid")
 
     when(current_level === 0) {
@@ -85,7 +86,7 @@ case class MyFFT(length: Int, cfg: HComplexConfig, use_pipeline: Boolean = true,
         }
       }
     }
-    io.data_out.valid := RegNext(current_level.willOverflow)
+    io.data_out.valid := RegNext(current_level.willOverflow, init = False)
     io.data_out.payload := data_mid
 
   }
@@ -124,12 +125,12 @@ object MyFFT {
     val sdata_in = Vec( History(input.payload, length, input.valid).reverse ).setWeakName("sdata_in")
     val fft_input_flow = Flow(cloneOf(sdata_in)).setWeakName("fft_input_flow")
     fft_input_flow.payload := sdata_in
-    fft_input_flow.valid := Delay(input.valid, length)
+    fft_input_flow.valid := countUpInside(input.valid, length).last
 //    fft_input_flow.valid := countUpFrom(input.valid, 0 until length).cnt.willOverflow
-    val sdata_out = fft(fft_input_flow, false).setWeakName("sdata_out")
-    val sdata_out_regs_addr_area = countUpFrom(RegNext( sdata_out.valid ), 0 until length, name = "sdata_out_regs_addr_area")
-    val sdata_out_regs = sdata_out.toReg().setWeakName("sdata_out_regs")
-    val output = Flow(HComplex(sdata_out.payload(0).config)).setWeakName("output")
+    val sdata_out = fft(fft_input_flow, false).setName("sdata_out")
+    val sdata_out_regs_addr_area = countUpFrom(RegNext( sdata_out.valid , init = False), 0 until length, name = "sdata_out_regs_addr_area")
+    val sdata_out_regs = sdata_out.toReg().setName("sdata_out_regs")
+    val output = Flow(HComplex(sdata_out.payload(0).config)).setName("output")
     output.payload := sdata_out_regs(sdata_out_regs_addr_area.cnt.value)
     output.valid := sdata_out_regs_addr_area.cond_period
     output
