@@ -1,8 +1,9 @@
-package Core
-import spinal.core._
-import spinal.lib._
+package Core.FFT2d
+
 import Config._
 import Util._
+import spinal.core._
+import spinal.lib._
 
 case class MyFFT(length: Int, cfg: HComplexConfig, use_pipeline: Boolean = true, serial: Boolean = false) extends Component {
   val io = new Bundle {

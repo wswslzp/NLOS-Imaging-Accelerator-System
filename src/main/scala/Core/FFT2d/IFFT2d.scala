@@ -1,4 +1,4 @@
-package Core
+package Core.FFT2d
 
 import Config._
 import Util._

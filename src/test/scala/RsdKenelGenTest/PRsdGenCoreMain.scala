@@ -1,9 +1,9 @@
-import spinal.core._
-import spinal.lib._
+package RsdKenelGenTest
+
 import Config._
-import Core.RsdGenCoreArray
-import Core.RsdGenCoreArray.PRsdGenCore
+import Core._
 import Util._
+import spinal.core._
 
 object PRsdGenCoreMain extends App {
   val wave_cfg = HComplexConfig(8, 8)

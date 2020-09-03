@@ -1,9 +1,8 @@
-import spinal.core._
-import spinal.lib._
-import Core._
-import Util._
+package RsdKenelGenTest
+
 import Config._
-import Core.LoadUnit._
+import Core.LoadUnit.TimeshiftLoadUnit
+import spinal.core._
 import spinal.lib.bus.amba4.axi.Axi4Config
 
 object TimeshiftLoadUnitMain extends App{

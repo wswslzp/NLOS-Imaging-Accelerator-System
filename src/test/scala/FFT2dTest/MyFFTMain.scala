@@ -1,14 +1,16 @@
+package FFT2dTest
+
+import Core.FFT2d.MyFFT
+import Util._
+import breeze._
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
-import Core._
-import Util._
-import Config._
-import breeze._
-import scala.collection.mutable._
+
+import scala.collection.mutable.Queue
 
 object MyFFTMain extends App{
-  val length = 128
+  val length = 32
 
   case class SFFT(length: Int) extends Component {
     val data_in = slave(Flow(HComplex(8, 8)))
@@ -32,7 +34,7 @@ object MyFFTMain extends App{
       SimTimeout(1000)
 
       // generate the test vector
-      val test_vector_x = DenseVector.rangeF(0, 10, step = (10/length))(0 until length)
+      val test_vector_x = DenseVector.rangeF(0, length).map(_ / length)
       val noise = Gaussian(0, 1)
       val test_vector_y: DenseVector[Double] = test_vector_x.map( d =>
         Math.cos(d) + 0.4 * Math.sin(3*d) + d/10 + noise.sample()
@@ -71,9 +73,9 @@ object MyFFTMain extends App{
 
       // scoreboard
       driver.join()
-      dut.clockDomain.waitSampling(20)
-      println(s"real_output: ${output_real_queue.toString()}")
-      println(s"imag_output: ${output_imag_queue.toString()}")
+      dut.clockDomain.waitSampling(100)
+      println(s"real_output: ${output_real_queue.length}")
+      println(s"imag_output: ${output_imag_queue.length}")
       println(s"true_result: ${fft_sind.toString()}")
       import scala.util.control._
       val loop = new Breaks

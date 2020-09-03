@@ -1,11 +1,8 @@
+package FFT2dTest
+
 import spinal.core._
 import spinal.lib._
-import Core._
-import Util._
-import Config._
-import spinal.lib.cpu._
-import riscv._
-import impl._
+import spinal.lib.cpu.riscv.impl.{RiscvCore, RiscvCoreConfig}
 
 object SFTest extends App{
   case class SFT() extends Component {
@@ -25,7 +22,8 @@ object SFTest extends App{
 
   SpinalConfig(
     targetDirectory = "tb/SFT_tb/rtl",
-    oneFilePerComponent = true
+    oneFilePerComponent = true,
+    defaultConfigForClockDomains = ClockDomainConfig(resetActiveLevel = LOW)
   ).generateVerilog(
     SFT()
   )

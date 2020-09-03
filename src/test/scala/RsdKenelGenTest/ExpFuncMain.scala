@@ -1,9 +1,9 @@
-import spinal.core._
-import spinal.lib._
-import Core._
-import Util._
+package RsdKenelGenTest
+
 import Config._
 import Core.RsdGenCoreArray.ExpFunc
+import Util._
+import spinal.core._
 
 object ExpFuncMain extends App{
   val cfg = HComplexConfig(

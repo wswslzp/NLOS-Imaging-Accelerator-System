@@ -1,8 +1,8 @@
-import spinal.core._
-import spinal.lib._
-import Core._
-import Util._
+package FFT2dTest
+
 import Config._
+import Core.FFT2d._
+import spinal.core._
 
 object IFFT2dMain extends App{
   val fft_config = FFTConfig(

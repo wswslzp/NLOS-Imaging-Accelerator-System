@@ -1,10 +1,9 @@
-import spinal.core._
-import spinal.lib._
-import spinal.lib.bus.amba4.axi._
-import Core._
+package RsdKenelGenTest
+
 import Config._
 import Core.RsdGenCoreArray.RsdKernelGen
-import Util._
+import spinal.core._
+import spinal.lib.bus.amba4.axi.Axi4Config
 
 object RsdKernelGenMain extends App{
   val h_cfg = HComplexConfig(8, 8)

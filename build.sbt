@@ -14,3 +14,4 @@ libraryDependencies ++= Seq(
 )
 
 fork := true
+javaOptions := Seq("-Xmx16G")
