@@ -5,8 +5,9 @@ import Util._
 import spinal.core._
 import spinal.lib._
 
-// TODO: the area of this module is too large to implement for a 128x128 fft2d on silicon,
-//  so reworking is needed to serialize the module to reduce the area and coordinate with other modules.
+//TODO: The output image is the transpose matrix of the true fft2d result,
+//  i.e. the input line_in is the row of the input image but the output line_out
+//  is the col of the output image!
 case class FFT2d(cfg: FFTConfig) extends Component {
   import MyFFT.fft
   val io = new Bundle {
@@ -19,7 +20,8 @@ case class FFT2d(cfg: FFTConfig) extends Component {
   }
 
   // do the row fft
-  val fft_row: Flow[Vec[HComplex]] = fft(io.line_in).setName("fft_row")
+  val fft_row: Flow[Vec[HComplex]] = fft(io.line_in)
+  fft_row.setName("fft_row")
 
   // declare a reg array, and push the data into it
   val img_reg_array = Reg(
@@ -40,7 +42,8 @@ case class FFT2d(cfg: FFTConfig) extends Component {
   }
   fft_col_in.valid := RegNext( col_addr_area.cond_period ) init False
 
-  val fft_col_out: Flow[Vec[HComplex]] = fft(fft_col_in).setName("fft_col_in")
+  val fft_col_out: Flow[Vec[HComplex]] = fft(fft_col_in)
+  fft_col_out.setName("fft_col_out")
   fft_col_out >-> io.line_out
 
 }
@@ -56,11 +59,13 @@ object FFT2d {
   }
 
   def fft2(input: Flow[HComplex], row: Int, point: Int): Flow[Vec[HComplex]] = {
+    // The valid of input should be active during all the cycles of effective value.
     val hcfg = input.payload.config
     val fft2_in_flow = Flow(Vec(HComplex(hcfg), point))
-    val data_in_row = History(input.payload, point, input.valid)
+    val data_in_row = Vec( History(input.payload, point, input.valid).reverse )
     fft2_in_flow.payload := data_in_row
-    fft2_in_flow.valid := Delay(input.valid, point)
+    //TODO: The valid signal may cause problem here!
+    fft2_in_flow.valid := countUpInside(input.valid, point).last
     val fft_config = FFTConfig(hcfg, point, row)
     val fft2d_core = FFT2d(fft_config)
     fft2d_core.io.line_in <> fft2_in_flow

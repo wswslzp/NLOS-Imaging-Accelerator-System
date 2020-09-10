@@ -1,7 +1,8 @@
 package FFT2dTest
 
+import Util._
 import Config._
-import Core.FFT2d.FFT2d
+import Core.FFT2d._
 import breeze._
 import org.bytedeco.javacpp.indexer._
 import org.bytedeco.opencv.global.opencv_core._
@@ -10,6 +11,9 @@ import org.bytedeco.opencv.global.opencv_imgproc._
 import org.bytedeco.opencv.opencv_core._
 import spinal.core.sim._
 import Sim.SimFix._
+import breeze.math.Complex
+import spinal.core._
+import spinal.lib._
 
 object FFTMain extends App{
   val fft_config = FFTConfig(
@@ -52,35 +56,67 @@ object FFTMain extends App{
     fft_out
   }
 
+  case class SFFT2d(cfg: FFTConfig) extends Component {
+    import FFT2d._
+    val io = new Bundle {
+      val shit = in Bool
+      val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
+      val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
+      val shiit = out Bool
+    }
+
+    io.shiit := io.shit
+    io.line_out <> fft2(io.line_in, cfg.row, cfg.point)
+  }
+
+  case class FFT2IFFT_2d(cfg: FFTConfig) extends Component {
+    import FFT2d._
+    import IFFT2d._
+    val io = new Bundle {
+      val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
+      val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
+    }
+
+    io.line_out <> ifft2(
+      fft2(io.line_in, cfg.row, cfg.point), cfg.point
+    )
+  }
+
   SimConfig
     .withWave
     .allOptimisation
     .workspacePath("tb/FFT2d_tb")
-    .compile(FFT2d(fft_config))
-    .doSim("FFT2d_tb") {dut =>
+    .compile(FFT2IFFT_2d(fft_config))
+    .doSim("FFT2IFFT2d_tb") {dut =>
       import linalg._
       val fft2_in = load_image("tb/FFT2d_tb/data/test.jpg")
-      val true_res = fft2d_func(fft2_in)
+      write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
+      val true_res: DenseMatrix[Complex] = fft2d_func(fft2_in)
+      val true_res_abs = true_res.map(_.abs)
 
       dut.io.line_in.valid #= false
       dut.clockDomain.doStimulus(2)
+      //NOTE: after doStimulus(), test bench must wait a clock cycle!!
+      // otherwise the bench will fail.
+      dut.clockDomain.waitSampling()
 
       dut.io.line_in.valid #= true
       for (i <- 0 until fft_config.row) {
         for (j <- 0 until fft_config.point) {
-          dut.io.line_in.payload(j).real #= fft2_in(i, j)
-          dut.io.line_in.payload(j).imag #= 0
+          dut.io.line_in.payload.real #= fft2_in(i, j)
+          dut.io.line_in.payload.imag #= 0
+          dut.clockDomain.waitSampling()
         }
-        dut.clockDomain.waitSampling()
       }
+//      println("input success")
       dut.io.line_in.valid #= false
 
       val fft2_out = DenseMatrix.zeros[Double](fft_config.row, fft_config.point)
       var row_addr = 0
-      println("shit")
+      var flag = false
       dut.clockDomain onSamplings {
         if (dut.io.line_out.valid.toBoolean) {
-          println(s"current row is $row_addr")
+//          println(s"current row is $row_addr")
           val row = linalg.DenseVector.fill(fft_config.point)(0d)
           for (i <- 0 until fft_config.point) {
             val oreal = dut.io.line_out.payload(i).real.toDouble
@@ -91,15 +127,23 @@ object FFTMain extends App{
           row_addr += 1
         }
 
-        if (row_addr == fft_config.row) {
+        if (row_addr == fft_config.row && !flag) {
+          flag = true
           println("The output image has been collected.")
-          println(s"The true result: ${true_res(0 to 9, 0 to 9).toString()}\nThe output: ${fft2_out(0 to 9, 0 to 9).toString()}")
-          write_image(fft2_out.asInstanceOf[linalg.DenseMatrix[Double]], "tb/FFT2d_tb/fft_hw.jpg") // TODO: Why the fft2_out is DenseMat[Nothing]
-          simSuccess()
+          val out_img = fft2_out//.t
+//          println(s"The true result: ${true_res_abs(0 to 2, 0 to 2).toString()}\nThe output: ${out_img(0 to 2, 0 to 2).toString()}")
+          println(s"The output: ${out_img(0 to 2, 0 to 2).toString()}\nThe input: ${fft2_in(0 to 2, 0 to 2).toString()}")
+          write_image(out_img, "tb/FFT2d_tb/fft_hw.jpg")
         }
       }
 
-      dut.clockDomain.waitSampling(1000)
+      fork {
+        waitUntil(row_addr == fft_config.row)
+        dut.clockDomain.waitSampling(10)
+        simSuccess()
+      }
+
+      dut.clockDomain.waitSampling(100000)
     }
 
 }

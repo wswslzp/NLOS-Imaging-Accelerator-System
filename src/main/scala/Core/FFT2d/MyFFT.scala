@@ -57,7 +57,7 @@ case class MyFFT(length: Int, cfg: HComplexConfig, use_pipeline: Boolean = true,
       data_mid(level)(k*l + j) := (data_mid(level-1)(k*l + j) + tmp) >> U(1)
     }
 
-    io.data_out.valid := Delay(io.data_in.valid, log2Up(length)+2)
+    io.data_out.valid := Delay(io.data_in.valid, log2Up(length)+2, init = False)
     io.data_out.payload := data_mid(log2Up(length))
   }
 
