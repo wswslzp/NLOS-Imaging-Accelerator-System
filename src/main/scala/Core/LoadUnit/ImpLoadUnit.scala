@@ -18,26 +18,33 @@ case class ImpLoadUnit(
   val row_num: Int = cfg.kernel_size(0)
   val col_num: Int = cfg.kernel_size(1)
 
+  // the number of sample radius should be the power of 2
+  val local_mem_manager = ApplyMem(init_addr, cfg.imp_cfg.getComplexWidth)
+  val radius_num = cfg.radius_factor
+  //  val mem_size = 1 << log2Up(col_num / 2)
+  val Rlength = 1 << log2Up(
+    Math.sqrt(
+      Math.pow(row_num/2, 2) + Math.pow(col_num/2, 2)
+    ).toInt
+  )
+
   awReady(True)
   wReady(True)
 
   val io = new Bundle {
+    val ready_for_store = in Bool
+    val start = out Bool
     val impulse_out = master (
       Flow(
-        Vec(Vec(HComplex(cfg.imp_cfg), cfg.radius_factor), col_num)
+        Vec(HComplex(cfg.imp_cfg), Rlength)
       )
     )
   }
 
-  // the number of sample radius should be the power of 2
-  val local_mem_manager = ApplyMem(init_addr, cfg.imp_cfg.getComplexWidth)
-  val radius_num = cfg.radius_factor
-  val mem_size = 1 << log2Up(col_num / 2)
-
   // Apply for memories stored the impulse, with the ram amount same as radius_name
-  val int_ram_array_map: Vector[(Range, Mem[Bits])] = Vector.fill(radius_num)(
+  val int_ram_array_map: Vector[(Range, Mem[Bits])] = Vector.fill(Rlength)(
     local_mem_manager.allocateRam(
-      Mem(Bits(cfg.imp_cfg.getComplexWidth bit), BigInt(mem_size)).setWeakName("int_ram_array")
+      Mem(Bits(cfg.imp_cfg.getComplexWidth bit), BigInt(radius_num)).setWeakName("int_ram_array")
     )
   )
   // Apply for a register which indicate the beginning of the impulse pushing when it's written by AXI4 bus.
@@ -54,6 +61,7 @@ case class ImpLoadUnit(
   val imp_push_start = imp_push_start_reg
 
   io.impulse_out.valid := imp_push_start
+  io.start := imp_push_start
 
   val output_imp = new Area {
     // Now, when the outside bus write a impulse start signal into imp_push_start register,
@@ -63,30 +71,14 @@ case class ImpLoadUnit(
     //  per cycle, and the virtual address = row address * point_num + col_address is output parallel
     //  for a row, and shift out for each radius.
 
-    val virtual_imp_row_addr = countUpFrom(imp_push_start, 0 until row_num).cnt
-    virtual_imp_row_addr.setWeakName("current_imp_row_addr")
-    val virtual_imp_addr = (0 until col_num).map(virtual_imp_row_addr * col_num + _)
+    val virtual_imp_radidx = countUpFrom(imp_push_start, 0 until radius_num).cnt
+    virtual_imp_radidx.setWeakName("current_imp_row_addr")
 
-    val virtual_imp_addr_fifo = virtual_imp_addr.map(
-      spinal.lib.History(_, radius_num)
-    )
-
-    // The line_mem_addr_map maps the virtual address to the true memory address of int_ram_array.
-    // The true memory address is access the correct pixel in the internal register array
-    // but the address used to access the memory at the same time is not identical.
-    val line_mem_addr_map = Vec( buildAddrMap )
     for {
-      col <- 0 until col_num
-      radius <- 0 until cfg.radius_factor
-      ram = int_ram_array(radius)
+      l <- 0 until Rlength
+      ram = int_ram_array(l)
     } {
-      // Due to the pipeline data pattern of the RSD kernel generation core array, the data
-      // popped out from the io.impulse_out.payload comes from consecutive position of the whole image
-      // in the same cycle, and the latter output ports have former address.
-      // It's OK to have negative address result because we don't care about the data when effective results
-      // haven't been reached.
-      val address: UInt = line_mem_addr_map(virtual_imp_addr_fifo(col)(radius))
-      io.impulse_out.payload(col)(radius) := ram(address.resize(ram.addressWidth))
+      io.impulse_out.payload(l) := ram(virtual_imp_radidx)
     }
   }
 

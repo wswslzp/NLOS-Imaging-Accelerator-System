@@ -13,5 +13,4 @@ case class FFT2dCore(cfg: FFTConfig) extends Component {
   }
 
 
-
 }

@@ -16,7 +16,7 @@ case class DistanceLoadUnit(
 
   val io = new Bundle {
     val ready_for_store = in Bool // When the data store in the internal memory is all consumed, it will be high active.
-    val data_enable = out Bool // The signal's high active indicates that this transaction is done and data is loaded.
+    val start = out Bool // The signal's high active indicates that this transaction is done and data is loaded.
 
     val distance = master (Flow(
       SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp)
@@ -36,5 +36,6 @@ case class DistanceLoadUnit(
 
   io.distance.payload := distance_reg
   io.distance.valid := transfer_done_reg
+  io.start := transfer_done_reg
 
 }

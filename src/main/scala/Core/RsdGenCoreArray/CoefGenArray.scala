@@ -5,6 +5,8 @@ import Util._
 import spinal.core._
 import spinal.lib._
 
+// This module is deprecated due to new architecture
+@deprecated
 case class CoefGenArray
 (
   cfg: RsdKernelConfig,

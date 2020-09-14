@@ -16,7 +16,7 @@ case class TimeshiftLoadUnit(
 
   val io = new Bundle {
     val ready_for_store = in Bool
-    val data_enable = in Bool
+    val start = out Bool
 
     val timeshift = master (Flow(
 //      Vec(HComplex(cfg.timeshift_cfg), cfg.depth_factor)
@@ -30,11 +30,15 @@ case class TimeshiftLoadUnit(
   val (timeshift_reg_addr_map, timeshift_reg) = local_mem_manager.allocateReg(
     HComplex(cfg.timeshift_cfg)
   )
+  val (transfer_done_map, transfer_done_reg) = local_mem_manager.allocateReg(
+    Bool(), "transfer_done"
+  )
 
-  arrangeRegMapAddr( timeshift_reg_addr_map )
+  arrangeRegMapAddr( timeshift_reg_addr_map, transfer_done_map )
   loadData()
 
-  io.timeshift.valid := io.data_enable
+  io.timeshift.valid := transfer_done_reg
+  io.start := transfer_done_reg
   io.timeshift.payload := timeshift_reg
 
 

@@ -1,7 +1,7 @@
 package Core.RsdGenCoreArray
 
 import Config.RsdKernelConfig
-import Util.HComplex
+import Util._
 import spinal.core._
 
 // Partial RSD kernel generator core
@@ -22,6 +22,6 @@ case class PRsdGenCore(cfg: RsdKernelConfig) extends Component {
   coef_gen_core.io.timeshift <> io.timeshift
 
   val delta_rsd_kernel_val = RegNext( coef_gen_core.io.coef * io.ring_impulse )
-  io.rsd_next := RegNext( io.rsd_prev ) + delta_rsd_kernel_val
+  io.rsd_next := RegNext( io.rsd_prev, init = HC(0, 0) ) + delta_rsd_kernel_val
 
 }

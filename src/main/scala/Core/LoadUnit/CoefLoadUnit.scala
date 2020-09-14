@@ -8,6 +8,8 @@ import spinal.lib._
 
 //TODO: This module is too large and contains too much thing that needs to
 //  separate into many single modules.
+//  THE COMPONENT HAS BEEN DEPRECATED!!
+@deprecated
 case class CoefLoadUnit
 (
    cfg: RsdKernelConfig,
