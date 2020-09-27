@@ -3,14 +3,17 @@ package Core.LoadUnit
 import spinal.core._
 import spinal.lib._
 import bus.amba4.axi._
+import bus.amba3.apb._
 import Config._
 import Util._
+import spinal.lib.bus.amba4.axilite._
+import spinal.lib.bus.misc._
 
 case class WaveLoadUnit(
                        cfg: RsdKernelConfig,
                        init_addr: Int,
                        override val axi_config: Axi4Config
-                       ) extends Component with AXI4WLoad {
+                       ) extends Component with Axi4Slave {
   override val word_bit_count: Int = cfg.wave_cfg.getDataWidth
 
   val row_num: Int = cfg.kernel_size(0)
@@ -22,9 +25,14 @@ case class WaveLoadUnit(
   )
 
   val io = new Bundle {
-    val ready_for_store = in Bool
-    val start = out Bool
-
+    val fc_eq_0 = in Bool
+    val dc_eq_0 = in Bool
+    val push_ending = in Bool
+    val ready_for_store = out Bool
+    val load_req = out Bool
+    val distance_enable = in Bool
+    val impulse_enable = in Bool
+    val data_enable = out Bool
     val wave = master (Flow(
       Vec(SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp), Rlength)
     ))
@@ -37,19 +45,56 @@ case class WaveLoadUnit(
   val (wave_reg_addr_map, wave_regs) = local_mem_manager.allocateRegArray(
     Vector.fill(cfg.radius_factor)(SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp))
   )
-  val (wave_push_start_map, wave_push_start_reg) = local_mem_manager.allocateReg(
-    Bool(), "wave_push_start"
+  val (transfer_done_map, transfer_done_reg) = local_mem_manager.allocateReg(
+    Bool(), "transfer_done"
   )
 
-  arrangeRegMapAddr( wave_reg_addr_map, wave_push_start_map )
+  arrangeRegMapAddr(wave_reg_addr_map, transfer_done_map)
   loadData()
 
-//  io.wave.valid := io.data_enable
-  io.wave.valid := wave_push_start_reg
-  io.start := wave_push_start_reg
-//  io.wave.payload := Vec(wave_regs)
+  val transfer_req_reg = RegInit(False)
 
-  val radius_idx = countUpFrom(wave_push_start_reg, 0 until cfg.radius_factor, "radius_idx").cnt
+  //TODO: The code below may cause many trouble
+
+  // When DC == 0, wave load unit needs new waves
+  transfer_req_reg.setWhen(io.dc_eq_0)
+  transfer_req_reg.clearWhen(!io.dc_eq_0)
+
+  // When the impulse has done transfer, the valid and start signal set high
+  io.wave.valid := io.impulse_enable
+
+  // The master set the transfer done register to indicate that the data is on the port
+  io.data_enable := transfer_done_reg
+
+  // Control when should push the wave and start computing rsd kernel
+  val compute_stage = io.dc_eq_0 ## io.fc_eq_0
+  val rsd_comp_start = RegInit(False)
+  switch(compute_stage){
+    is(B"2'b00") {
+      rsd_comp_start := io.impulse_enable
+    }
+    is(B"2'b01") {
+//      rsd_comp_start := io.push_ending
+      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
+    }
+    is(B"2'b10") {
+      rsd_comp_start := transfer_done_reg
+    }
+    is(B"2'b11") {
+      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
+    }
+  }
+
+  val count_for_push_wave = countUpFrom(rsd_comp_start, 0 until cfg.radius_factor, "count_for_push_wave")
+
+  // Indicate when the internal memory is ready for storing the new data
+  io.ready_for_store := !transfer_done_reg
+
+  // Clear the transfer done register when all the wave data have been pushed.
+  transfer_done_reg init False
+  transfer_done_reg clearWhen count_for_push_wave.cnt.willOverflow
+
+  val radius_idx = count_for_push_wave.cnt
   for (l <- 0 until Rlength) {
     io.wave.payload(l) := wave_regs(radius_idx.value)
   }

@@ -27,12 +27,15 @@ package object Util {
   }*/
   }
 
-  def countUpInside(cond: Bool, length: Int) = new Area {
-    val cnt = Counter(0, length-1).setName("count_up_inside_cnt")
+//  def countUpFrom(cond: Bool, length: Int, name: String = "") = countUpFrom(cond, 0 until length, name)
+
+  def countUpInside(cond: Bool, length: Int, name: String = "") = new Area {
+    val cnt = Counter(0, length-1).setName(s"${name}_cnt")
     when(cond) {
       cnt.increment()
     }
     val last = cnt.willOverflow
+    last.setName(s"${name}_last")
   }
 
   def countLtUInt(cond: Bool, stop: UInt): UInt =  {

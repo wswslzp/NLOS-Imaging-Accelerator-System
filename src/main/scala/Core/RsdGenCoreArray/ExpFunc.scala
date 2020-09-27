@@ -26,7 +26,8 @@ case class ExpFunc
   val lut_point: Int = pfunc_tb.length
   val idx_comp: Vector[Bool] = pindx_tb.map(indx < _)
   val idx_comp_vec: Bits = B(idx_comp.reverse)
-  val lzc_t: UInt = stage( simpleCountLeadingZeros(idx_comp_vec) , 0)
+//  val lzc_t: UInt = stage( simpleCountLeadingZeros(idx_comp_vec) , 0)
+  val lzc_t = stage(CountOne(~idx_comp_vec), 0)
   val lzc: UInt = lzc_t.resize(log2Up(lut_point))
 
   val exp_func_value = HComplex(cfg)

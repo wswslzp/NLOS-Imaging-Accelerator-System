@@ -138,7 +138,7 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
 
 object HComplex {
   def apply(intw: Int, fracw: Int): HComplex = {
-    HComplex(HComplexConfig(8, 8))
+    HComplex(HComplexConfig(intw, fracw))
   }
 
   def apply(config: HComplexConfig, bits: Bits): HComplex = {
@@ -157,8 +157,15 @@ object HComplex {
 }
 
 object HC {
-  def apply(real: Double, imag: Double): HComplex = {
-    val ret = HComplex(16, 16)
+  def apply(real: Double, imag: Double, intw: Int = 16, fracw: Int = 16): HComplex = {
+    val ret = HComplex(intw, fracw)
+    ret.real := real
+    ret.imag := imag
+    ret
+  }
+
+  def apply(real: Double, imag: Double, cfg: HComplexConfig): HComplex = {
+    val ret = HComplex(cfg)
     ret.real := real
     ret.imag := imag
     ret

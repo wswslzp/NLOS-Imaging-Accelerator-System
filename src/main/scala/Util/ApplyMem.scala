@@ -8,10 +8,10 @@ import scala.collection.mutable
 
 // init_addr: the initial address of the module
 // word_count: the bit count in a word
-case class ApplyMem(init_addr: Int, word_count: Int) {
+case class ApplyMem(init_addr: Int, bits_num_in_word: Int) {
   private var acc_addr = init_addr
   private val addr_range_record = mutable.Map.empty[Range, String]
-  private val countWordsNum = (d: Int) => Math.ceil(d.toDouble / word_count).toInt
+  private val countWordsNum = (d: Int) => Math.ceil(d.toDouble / bits_num_in_word).toInt
 
   def allocateBaseReg[T <: BaseType](data_type: T, name: String): (Map[Range, T], T) = {
 
@@ -37,7 +37,7 @@ case class ApplyMem(init_addr: Int, word_count: Int) {
 
     // determine the address range according to the word num of the data
     if (words_num_per_word > 1) {
-      require(width % word_count == 0, s"multi-word data width($width bit) must align with the word_count($word_count bit)")
+      require(width % bits_num_in_word == 0, s"multi-word data width($width bit) must align with the word_count($bits_num_in_word bit)")
       val reg = ret_reg.asInstanceOf[BitVector]
       for {
         wn <- 0 until words_num_per_word
@@ -47,7 +47,7 @@ case class ApplyMem(init_addr: Int, word_count: Int) {
         acc_addr += 1
 
         // get the slice of the ret_reg and arrange the address for it
-        val reg_slice_range = (wn + 1)*word_count-1 downto wn*word_count
+        val reg_slice_range = (wn + 1)*bits_num_in_word-1 downto wn*bits_num_in_word
         val reg_slice = reg(reg_slice_range).asInstanceOf[T]
         ret_map += addr_range -> reg_slice
 
@@ -138,6 +138,10 @@ case class ApplyMem(init_addr: Int, word_count: Int) {
   }
 
   def finalAddr: Int = acc_addr
+  def incrAddr: Int = {
+    acc_addr += 1 // increment a word
+    acc_addr
+  }
   def addrRange: String = {
     var s = ""
     addr_range_record foreach {pair=>
@@ -149,7 +153,7 @@ case class ApplyMem(init_addr: Int, word_count: Int) {
 
 object ApplyMemMain extends App {
 
-  case class Amodule(override val axi_config: Axi4Config) extends Component with AXI4WLoad {
+  case class Amodule(override val axi_config: Axi4Config) extends Component with Axi4Slave {
     import spinal.lib._
     import spinal.lib.graphic._
     override val word_bit_count: Int = 32

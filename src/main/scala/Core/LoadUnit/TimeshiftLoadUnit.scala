@@ -5,19 +5,21 @@ import spinal.lib._
 import bus.amba4.axi._
 import Config._
 import Util._
+import spinal.lib.bus.amba3.apb.Apb3SlaveFactory
 
 
 case class TimeshiftLoadUnit(
                               cfg: RsdKernelConfig,
                               init_addr: Int,
                               override val axi_config: Axi4Config
-                            ) extends Component with AXI4WLoad {
+                            ) extends Component with Axi4Slave {
   override val word_bit_count: Int = cfg.timeshift_cfg.getComplexWidth
 
   val io = new Bundle {
-    val ready_for_store = in Bool
-    val start = out Bool
-
+    val load_req = out Bool
+    val ready_for_store = out Bool
+    val data_enable = out Bool
+    val push_ending = in Bool
     val timeshift = master (Flow(
 //      Vec(HComplex(cfg.timeshift_cfg), cfg.depth_factor)
       HComplex(cfg.timeshift_cfg)
@@ -35,11 +37,30 @@ case class TimeshiftLoadUnit(
   )
 
   arrangeRegMapAddr( timeshift_reg_addr_map, transfer_done_map )
+//  arrangeRegMapAddr( timeshift_reg_addr_map )
   loadData()
 
+  // Create a Apb3 bridge
+//  val axi2apb = Axi4SharedToApb3Bridge(
+//    axi_config.addressWidth, axi_config.dataWidth, axi_config.idWidth
+//  )
+//  axi2apb.io.axi <> data_in.toShared()
+//  val apb_bus = axi2apb.io.apb
+//  val busCtrl = Apb3SlaveFactory(apb_bus)
+//  val transfer_done_reg = busCtrl.createWriteOnly(Bool(), local_mem_manager.incrAddr)
+  val transfer_req_reg = RegInit(False)
+
+  transfer_req_reg.setWhen(io.push_ending)
+  transfer_req_reg.clearWhen(!io.push_ending)
+  io.load_req := transfer_req_reg
+
+  transfer_done_reg init False
+  transfer_done_reg clearWhen io.push_ending
+
   io.timeshift.valid := transfer_done_reg
-  io.start := transfer_done_reg
+  io.data_enable := transfer_done_reg
   io.timeshift.payload := timeshift_reg
+  io.ready_for_store := !transfer_done_reg
 
 
 }

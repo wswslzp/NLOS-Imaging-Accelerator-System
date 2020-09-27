@@ -12,13 +12,14 @@ import scala.collection.mutable.ListBuffer
 // arrange the address range and call the loadData() function
 // finally call the awReady() and the wReady() to set when the ready
 // signal is valid.
-trait AXI4WLoad extends Nameable {
+trait Axi4Slave extends Nameable {
   // a abstract config of axi4
   val axi_config: Axi4Config
   val word_bit_count: Int
   val byte_per_word: Int = word_bit_count / 8
 
   val data_in = slave(
+//    Axi4(axi_config)
     Axi4WriteOnly(
       axi_config
     )
@@ -27,25 +28,10 @@ trait AXI4WLoad extends Nameable {
   protected def awReady(set: Bool): Unit = data_in.aw.ready := set
 
   val aw_area = new Area {
-    //    data_in.aw.ready := True
-    val awaddr_r: UInt = Reg(
-      UInt(axi_config.addressWidth bit)
-    )
-    val awlen_r: UInt = Reg(
-      UInt(8 bit)
-    )
-    val awsize_r: UInt = Reg(
-      UInt(3 bit)
-    )
-    val awid_r: UInt = Reg(
-      UInt(axi_config.idWidth bit)
-    )
-    when(data_in.aw.valid) {
-      awaddr_r := data_in.aw.addr
-      awlen_r := data_in.aw.len
-      awsize_r := data_in.aw.size
-      awid_r := data_in.aw.id
-    }
+    val awaddr_r = RegNextWhen(data_in.aw.addr, data_in.aw.valid) init 0
+    val awlen_r = RegNextWhen(data_in.aw.len, data_in.aw.valid) init 0
+    val awsize_r = RegNextWhen(data_in.aw.size, data_in.aw.valid) init 0
+    val awid_r = RegNextWhen(data_in.aw.id, data_in.aw.valid) init 0
   }.setName("aw_area")
 
   val addr_reg_map: ListBuffer[(Range, Data)] = ListBuffer[(Range, Data)]()
@@ -117,10 +103,9 @@ trait AXI4WLoad extends Nameable {
     }
   }.setWeakName("load_data_area")
 
-  // unknown usage
-//  protected def setResponse(resp: => Bits = Axi4.resp.OKAY): Unit = {
-//    data_in.b.resp := resp
-//  }
+  protected def exposeData() = new Area {
+    ???
+  }
 
   val b_area = new Area {
     data_in.b.valid := data_in.w.valid
@@ -141,5 +126,7 @@ trait AXI4WLoad extends Nameable {
     file.write(s)
     file.close()
   }
+
+//  component.addPrePopTask(() => loadData())
 
 }

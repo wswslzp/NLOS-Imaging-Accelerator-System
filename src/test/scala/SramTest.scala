@@ -3,41 +3,54 @@ import spinal.lib._
 import Core._
 import Util._
 import Config._
+import Util.MemManager._
 
 object SramTest extends App{
   case class SramBB() extends Component {
     val io = new Bundle {
-      val D = in UInt(32 bit)
-      val Q = out UInt(32 bit)
-      val ADR = in UInt(14 bit)
-      val WE = in Bool()
-      val ME = in Bool()
-//      val LS = in Bool()
+      val din = slave(Stream(UInt(32 bit)))
+      val dout = master(Stream(UInt(32 bit)))
     }
 
-    val int_mem = Mem(UInt(32 bit), 9152L)
-
-    int_mem.generateAsBlackBox()
-
-    io.Q := int_mem.readSync(
-      address = io.ADR,
-      enable = io.ME & (~io.WE)
+    val memcfg = MemManager.MemConfig(
+      dw = 32, aw = 32, vendor = Huali
     )
 
-    int_mem.write(
-      address = io.ADR,
-      data = io.D,
-      enable = io.ME & (~io.WE)
-    )
-//    when(io.ME === True) {
-//      when(io.WE === False) {
-//        // reading
-//        io.Q := int_mem.readSync(
-//          address = io.ADR
-//        )
-//      }
-//    }
+    val int_mem = Ram1rw(memcfg)
+    int_mem.io.ap.bwe := B(int_mem.mc.dw bit, default->True)
 
+    when(io.din.valid) {
+      int_mem.io.ap.cs := True
+      int_mem.io.dp.we := True
+      int_mem.io.ap.addr := io.din.payload ^ (io.din.payload |>> 1)
+      int_mem.io.dp.din := io.din.payload.asBits
+    } otherwise {
+      int_mem.io.ap.cs := False
+      int_mem.io.dp.we := False
+      int_mem.io.ap.addr := 0
+      int_mem.io.dp.din := 0
+    }
+    val prev_addr = RegNextWhen(
+      io.din.payload ^ (io.din.payload |>> 1), cond = io.din.valid
+    )
+
+    val ovalid = Delay(io.din.valid, 3, init = False)
+    val fire = ovalid & io.dout.ready
+
+    when(fire) {
+      int_mem.io.ap.cs := True
+      int_mem.io.dp.we := False
+      int_mem.io.ap.addr := prev_addr
+      io.dout.payload := int_mem.io.dp.dout.asUInt
+    } otherwise {
+      int_mem.io.ap.cs := False
+      int_mem.io.dp.we := False
+      int_mem.io.ap.addr := 0
+      io.dout.payload := int_mem.io.dp.dout.asUInt
+    }
+
+    io.dout.valid := ovalid
+    io.din.ready := io.dout.ready
   }
 
   SpinalConfig(

@@ -16,7 +16,7 @@ case class CoefLoadUnit
    freq_num: Int,
    init_addr: Int,
    override val axi_config: Axi4Config
-) extends Component with AXI4WLoad
+) extends Component with Axi4Slave
 {
   override val word_bit_count: Int = cfg.coef_cfg.getComplexWidth
   awReady(True)

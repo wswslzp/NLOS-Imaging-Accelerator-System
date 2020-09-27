@@ -3,8 +3,9 @@ package Core.LoadUnit
 import Config.RsdKernelConfig
 import Util._
 import spinal.core._
-import spinal.lib.bus.amba4.axi.Axi4Config
+import spinal.lib.bus.amba4.axi.{Axi4Config, Axi4SharedToApb3Bridge}
 import spinal.lib._
+import spinal.lib.bus.amba3.apb.Apb3SlaveFactory
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -12,7 +13,7 @@ case class ImpLoadUnit(
                         cfg: RsdKernelConfig,
                         init_addr: Int,
                         override val axi_config: Axi4Config
-                      ) extends Component with AXI4WLoad{
+                      ) extends Component with Axi4Slave{
   override val word_bit_count: Int = cfg.imp_cfg.getComplexWidth
 
   val row_num: Int = cfg.kernel_size(0)
@@ -32,8 +33,14 @@ case class ImpLoadUnit(
   wReady(True)
 
   val io = new Bundle {
-    val ready_for_store = in Bool
-    val start = out Bool
+    val fc_eq_0 = in Bool
+    val dc_eq_0 = in Bool
+    val distance_enable = in Bool()
+    val wave_enable = in Bool()
+    val ready_for_store = out Bool
+    val load_req = out Bool
+    val data_enable = out Bool
+    val rsd_comp_end = out Bool
     val impulse_out = master (
       Flow(
         Vec(HComplex(cfg.imp_cfg), Rlength)
@@ -47,55 +54,60 @@ case class ImpLoadUnit(
       Mem(Bits(cfg.imp_cfg.getComplexWidth bit), BigInt(radius_num)).setWeakName("int_ram_array")
     )
   )
-  // Apply for a register which indicate the beginning of the impulse pushing when it's written by AXI4 bus.
-  val ( imp_push_start_map , imp_push_start_reg) = local_mem_manager.allocateReg(Bool().setWeakName("imp_push_start"))
+  val (transfer_done_map, transfer_done_reg) = local_mem_manager.allocateReg(
+    Bool(), "transfer_done"
+  )
 
   int_ram_array_map foreach (arrangeMemAddr(_))
-  arrangeRegMapAddr(imp_push_start_map)
+  arrangeRegMapAddr(transfer_done_map)
 
   printAddrRange
   loadData()
 
+  val transfer_req_reg = RegInit(False)
+
+  transfer_req_reg.setWhen(io.dc_eq_0 & io.fc_eq_0 & io.distance_enable)
+  io.load_req := transfer_req_reg
+
   // output the impulse
   val int_ram_array: Vector[Mem[Bits]] = int_ram_array_map.map(_._2)
-  val imp_push_start = imp_push_start_reg
 
-  io.impulse_out.valid := imp_push_start
-  io.start := imp_push_start
+  val compute_stage = io.dc_eq_0 ## io.fc_eq_0
+  val rsd_comp_start = RegInit(False)
+  switch(compute_stage){
+    is(B"2'b00") {
+      rsd_comp_start := transfer_done_reg
+    }
+    is(B"2'b01") {
+//      rsd_comp_start := io.rsd_comp_end
+      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
+    }
+    is(B"2'b10") {
+      rsd_comp_start := io.wave_enable
+    }
+    is(B"2'b11") {
+      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
+    }
+  }
+
+  io.impulse_out.valid := rsd_comp_start
+  io.data_enable := transfer_done_reg
 
   val output_imp = new Area {
-    // Now, when the outside bus write a impulse start signal into imp_push_start register,
-    // the virtual memory address that iterate from the left top of the image to the bottom right,
-    // start counting up from 0 to the end.
-    // TODO: Now the impulse loader output a row per cycle. So the row address of the impulse changes
-    //  per cycle, and the virtual address = row address * point_num + col_address is output parallel
-    //  for a row, and shift out for each radius.
-
-    val virtual_imp_radidx = countUpFrom(imp_push_start, 0 until radius_num).cnt
-    virtual_imp_radidx.setWeakName("current_imp_row_addr")
+    val virtual_imp_radix_area = countUpFrom(rsd_comp_start, 0 until radius_num, "count_for_push_imp")
+    val virtual_imp_radix = virtual_imp_radix_area.cnt
+    virtual_imp_radix.setWeakName("virtual_imp_radix")
 
     for {
       l <- 0 until Rlength
       ram = int_ram_array(l)
     } {
-      io.impulse_out.payload(l) := ram(virtual_imp_radidx)
+      io.impulse_out.payload(l) := ram(virtual_imp_radix)
     }
   }
 
-  private def buildAddrMap: ArrayBuffer[UInt] = {
-    val addr_lut = ArrayBuffer.fill(1 << log2Up(cfg.kernel_size.product))(U(0))
-    for {
-      idx <- 0 until 1 << log2Up(cfg.kernel_size.product)
-      x = idx / cfg.kernel_size(0) - cfg.kernel_size(0)/2
-      y = idx % cfg.kernel_size(1) - cfg.kernel_size(1)/2
-      xs = (x + cfg.kernel_size(0)/2) % cfg.kernel_size(0)
-      ys = (y + cfg.kernel_size(1)/2) % cfg.kernel_size(1)
-      idxs = xs * cfg.kernel_size(0) + ys
-      d_tmp = Math.min(Math.sqrt((x*x+y*y)/2).toInt, cfg.kernel_size(1)/2-1 )
-    } {
-      addr_lut(idxs) = U(d_tmp)
-    }
-    addr_lut
-  }
+  transfer_done_reg init False
+  transfer_done_reg clearWhen output_imp.virtual_imp_radix.willOverflow
+  io.rsd_comp_end := output_imp.virtual_imp_radix.willOverflow
 
 }

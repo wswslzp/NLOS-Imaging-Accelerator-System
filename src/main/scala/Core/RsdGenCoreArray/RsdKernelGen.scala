@@ -23,7 +23,7 @@ case class RsdKernelGen(cfg: RsdKernelConfig) extends Component {
     val distance = in(SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp))
     val timeshift = in ( HComplex(cfg.timeshift_cfg) )
 //    val kernel = out( HComplex(kernel_cfg) )
-    val kernel_array = out(Vec(HComplex(kernel_cfg)))
+    val kernel_array = out(Vec(HComplex(kernel_cfg), Rlength))
   }
 
   val prsd_core = Vector.fill(Rlength)(PRsdGenCore(cfg))
