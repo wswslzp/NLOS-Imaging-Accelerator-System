@@ -101,9 +101,6 @@ object Computation {
       val yp = (y + col_num/2) % col_num
       result_mat(xp, yp) = Math.max(
           Math.min(
-//            Math.sqrt(Math.pow(x - row_num/2, 2) + Math.pow(y - col_num/2, 2)) ,
-//            Math.sqrt(Math.pow(x - row_num/2, 2) + Math.pow(y - col_num/2, 2)) * sample_point/(row_num/2),
-//            Math.sqrt(Math.pow(x - row_num/2, 2) + Math.pow(y - col_num/2, 2)) * (50 * 100)/(128 * 35.4),
             Math.sqrt(Math.pow(x - row_num/2, 2) + Math.pow(y - col_num/2, 2)) * mapping_factor,
             sample_point - 1
           ),

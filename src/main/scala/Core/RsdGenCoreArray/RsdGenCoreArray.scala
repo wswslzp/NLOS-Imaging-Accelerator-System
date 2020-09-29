@@ -26,30 +26,52 @@ case class RsdGenCoreArray(
 
   private val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
 
-  private def buildAddrMap(sample_point: Int): ArrayBuffer[UInt] = {
+  private def buildAddrMap(sample_point: Int, mapping_factor: Double = 1.1): Array[UInt] = {
     // Return the address LUT
     // The index of the LUT represents the linear address of the original image's pixels
     // The value of the LUT represents the linear address of the radius of image.
-    val addr_lut = ArrayBuffer.fill(1 << log2Up(cfg.kernel_size.product))(U(0))
+
+    val result_mat = ArrayBuffer.fill(row_num, col_num)(0)
     for {
-      idx <- 0 until 1 << log2Up(cfg.kernel_size.product)
-      x = idx / row_num - row_num/2
-      y = idx % col_num - col_num/2
-      xs = (x + row_num/2) % row_num
-      ys = (y + col_num/2) % col_num
-      idxs = xs * row_num + ys
-//      d_tmp = Math.min(Math.sqrt((x*x+y*y)/2).toInt, col_num/2-1 )
-      d_tmp = Math.max(
+      x <- 0 until row_num
+      y <- 0 until col_num
+    } {
+      val xp = (x + row_num/2) % row_num
+      val yp = (y + col_num/2) % col_num
+      result_mat(xp)(yp) = Math.max(
         Math.min(
-          sample_point - ( Math.sqrt(x*x + y*y) * sample_point / (row_num/2)).toInt,
+          Math.sqrt(Math.pow(x - row_num/2, 2) + Math.pow(y - col_num/2, 2)) * mapping_factor,
           sample_point - 1
         ),
         0
-      )
-    } {
-      addr_lut(idxs) = U(d_tmp)
+      ).toInt
     }
-    addr_lut
+    Array.tabulate(row_num * col_num){idx=>
+      val row = idx / row_num
+      val col = idx % row_num
+      U(result_mat(row)(col))
+    }
+
+//    val addr_lut = ArrayBuffer.fill(1 << log2Up(cfg.kernel_size.product))(U(0))
+//    for {
+//      idx <- 0 until 1 << log2Up(cfg.kernel_size.product)
+//      x = idx / row_num - row_num/2
+//      y = idx % col_num - col_num/2
+//      xs = (x + row_num/2) % row_num
+//      ys = (y + col_num/2) % col_num
+//      idxs = xs * row_num + ys
+////      d_tmp = Math.min(Math.sqrt((x*x+y*y)/2).toInt, col_num/2-1 )
+//      d_tmp = Math.max(
+//        Math.min(
+//          sample_point - ( Math.sqrt(x*x + y*y) * sample_point / (row_num/2)).toInt,
+//          sample_point - 1
+//        ),
+//        0
+//      )
+//    } {
+//      addr_lut(idxs) = U(d_tmp)
+//    }
+//    addr_lut
   }
 
   val io = new Bundle {
