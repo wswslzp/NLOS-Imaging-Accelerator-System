@@ -6,7 +6,9 @@ import Core._
 import Util._
 import Config._
 import breeze._
-import breeze.linalg.DenseVector
+import breeze.linalg._
+
+import scala.collection.mutable.ArrayBuffer
 
 object Computation {
   import linalg.DenseMatrix
@@ -16,11 +18,11 @@ object Computation {
                     wave: DenseMatrix[Double],
                     distance: DenseMatrix[Double],
                     timeshift: DenseMatrix[Complex]
-                  ): Vector[DenseMatrix[Complex]] = {
+                  ): Array[DenseMatrix[Complex]] = {
     val freq_num = distance.rows
     val depth_num = wave.cols
     val radius_num = wave.rows
-    val coef = Vector.fill(depth_num)(
+    val coef = Array.fill(depth_num)(
       DenseMatrix.fill(freq_num, radius_num)(Complex(0, 0))
     )
     for {
@@ -34,11 +36,11 @@ object Computation {
     coef
   }
 
-  def restoreImpl(impl_rad: DenseMatrix[Complex]): Vector[DenseMatrix[Complex]] = {
+  def restoreImpl(impl_rad: DenseMatrix[Complex]): Array[DenseMatrix[Complex]] = {
     val radius_num = impl_rad.rows
     val R = impl_rad.cols
     val kernel_size = 2*R
-    val out_impl = Vector.fill(radius_num)(
+    val out_impl = Array.fill(radius_num)(
       DenseMatrix.fill(kernel_size, kernel_size)(Complex(0, 0))
     )
     for {
@@ -51,86 +53,84 @@ object Computation {
         ( Math.pow(ii - R, 2) + Math.pow(jj - R, 2) ) / 2
       ).toInt
       impl_rad_indx = (R-1) - Math.min(impl_rad_indx, R-1)
-//      if (r == 0 && (ii < 4) && (jj < 4)) {
-//        println(s"imp_0 is \n ${imp_r.toString()}")
-//        println(s"The impl_rad_indx($ii, $jj) = $impl_rad_indx")
-//      }
       out_impl(r)(ii, jj) = imp_r(impl_rad_indx)
     }
     out_impl
   }
 
-//  @deprecated
-//  def generateRSDkernel(
-//                       coef: Vector[DenseMatrix[Complex]],
-//                       impl: Vector[DenseMatrix[Complex]]
-//                       ): Vector[DenseMatrix[Complex]] = {
-//    import scala.collection.mutable.ArrayBuffer
-//    //coef : (depth, freq, radius)
-//    //impulse: (radius, R)
-//    //result: (depth, freq, H, W)
-//    val freq_num = coef.head.rows
-//    val depth_num = coef.length
-//    val radius_num = coef.head.cols
-//    val result: ArrayBuffer[DenseMatrix[Complex]] = ArrayBuffer.fill(radius_num)(
-//      DenseMatrix.fill(impl.head.rows, impl.head.cols)(Complex(0, 0))
-//    )
-//    for {
-//      dd <- 0 until depth_num
-//      ff <- 0 until freq_num
-//      rr <- 0 until radius_num
-//    } {
-//      // RSD kernel has no radius dimension
-//      // TODO: This function is wrong
-//      result(rr) = coef(dd)(ff, rr) * impl(rr)
-//    }
-//    result.toVector
-//  }
-//
+  // TODO: Both coef and impulse rad is correct, but the rsd kernel is wrong.
+  //      solve: Not wrong, just not accumulate over all the radius.
+  //      NOTE: The matlab code: coef and impulse don't have to sum over all the radii!!!
   def generateRSDRadKernel(
-                         coef: Vector[DenseMatrix[Complex]],
+                         coef: Array[DenseMatrix[Complex]],
                          impulse_rad: DenseMatrix[Complex]
-                       ): Vector[Vector[DenseVector[Complex]]] = {
+                       ): Array[Array[DenseVector[Complex]]] = {
     //coef : (depth, freq, radius)
-    //impulse_rad: (radius, R)
+    //impulse_rad: (R, radius)
     //result: (depth, freq, R)
     val freq_num = coef.head.rows
     val depth_num = coef.length
     val radius_num = coef.head.cols
-    val R = impulse_rad.cols
-    val result = Vector.fill(depth_num, freq_num)(DenseVector.fill(R)(Complex(0, 0)))
+    val R = impulse_rad.rows
+    val result = Array.fill(depth_num, freq_num)(DenseVector.fill(R)(Complex(0, 0)))
     for {
       dd <- 0 until depth_num
       ff <- 0 until freq_num
       rr <- 0 until radius_num
     } {
-      val tmp = ( coef(dd)(ff, rr) * impulse_rad(rr, ::) ).toDenseVector
-//      result(dd)(ff) += coef(dd)(ff, rr) * impulse_rad(rr, ::)
+      val tmp = impulse_rad(::, rr).map(_*coef(dd)(ff, rr))
       result(dd)(ff) += tmp
     }
+
     result
   }
 
   // The address map from rad to mat
-  def rsdKernelMap(kernel_size: (Int, Int), sample_point: Int): Vector[Int] = {
+  // TODO: The address map's accuracy will significantly influence the output image's quality.
+  //    The idx map should be multiplied with a factor 1.1.
+  def rsdKernelMap(kernel_size: (Int, Int), sample_point: Int, mapping_factor: Double = 1.1): Array[Int] = {
     val row_num = kernel_size._1
     val col_num = kernel_size._2
-    (0 until kernel_size._1 * kernel_size._2).toVector map {idx =>
-      val x = idx / row_num
-      val y = idx % row_num
-      Math.max(
-        Math.min(
-          sample_point - Math.sqrt(Math.pow(x - row_num/2, 2) + Math.pow(y - col_num/2, 2)) * sample_point/(row_num/2),
-          sample_point - 1
-        ),
-        0
-      ).toInt
+    val result_mat = DenseMatrix.zeros[Int](row_num, col_num)
+
+    for {
+      x <- 0 until row_num
+      y <- 0 until col_num
+    } {
+      val xp = (x + row_num/2) % row_num
+      val yp = (y + col_num/2) % col_num
+      result_mat(xp, yp) = Math.max(
+          Math.min(
+//            Math.sqrt(Math.pow(x - row_num/2, 2) + Math.pow(y - col_num/2, 2)) ,
+//            Math.sqrt(Math.pow(x - row_num/2, 2) + Math.pow(y - col_num/2, 2)) * sample_point/(row_num/2),
+//            Math.sqrt(Math.pow(x - row_num/2, 2) + Math.pow(y - col_num/2, 2)) * (50 * 100)/(128 * 35.4),
+            Math.sqrt(Math.pow(x - row_num/2, 2) + Math.pow(y - col_num/2, 2)) * mapping_factor,
+            sample_point - 1
+          ),
+          0
+        ).toInt
+    }
+    Array.tabulate(row_num * col_num){idx=>
+      val row = idx / row_num
+      val col = idx % row_num
+      result_mat(row, col)
+    }
+  }
+
+  def rsdKernelMap(): Array[Int] = {
+    import Sim.RsdGenCoreArray.LoadData._
+    val addressMap = loadDoubleMatrix("src/test/resource/data/map.csv")
+    (0 until addressMap.rows * addressMap.cols).toArray map {idx=>
+      val x = idx / addressMap.rows
+      val y = idx % addressMap.rows
+      addressMap(x, y).toInt - 1
     }
   }
 
   // restore the rsd kernel from rsd kernel rad
   def restoreRSD(rsd_kernel_rad: DenseVector[Complex], kernel_size: (Int, Int)): DenseMatrix[Complex] = {
     val addressMap = rsdKernelMap(kernel_size, rsd_kernel_rad.length)
+//    val addressMap = rsdKernelMap()
     DenseMatrix.tabulate(kernel_size._1, kernel_size._2){(x, y)=>
       rsd_kernel_rad(addressMap(x * kernel_size._1 + y))
     }

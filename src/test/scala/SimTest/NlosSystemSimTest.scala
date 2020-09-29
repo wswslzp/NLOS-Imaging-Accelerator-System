@@ -1,5 +1,7 @@
 package SimTest
 
+import java.io.File
+
 import spinal.core._
 import spinal.lib._
 import Core._
@@ -71,6 +73,12 @@ object NlosSystemSimTest extends App{
   println("Done input image FFT2d!")
 
   val kernel_size = (uin.head.rows, uin.head.cols)
+  println(kernel_size)
+////
+//  val tt = DenseVector.tabulate(rsd.head.head.length)(Complex(_, 0))
+//  val rsd1 = Computation.restoreRSD(tt, kernel_size)
+//  println(s"rsd1 size is (${rsd1.rows}, ${rsd1.cols})")
+//  csvwrite(new File("src/test/scala/SimTest/my_map.csv"), rsd1.map(_.real))
 
   println("Multiply RSD kernel with input image's freq...")
   val uout = Array.tabulate(depth_num) {depth =>
@@ -80,14 +88,14 @@ object NlosSystemSimTest extends App{
       val rsd_kernel = Computation.restoreRSD(rsd_kernel_rad, kernel_size)
       uout_f += rsd_kernel *:* uin_fft(f)
     }
-    uout_f
+    iFourierTr(uout_f)
   }
   println("Done RSD kernel convolution!")
 
   println("Generating output image...")
   val uout_abs = uout.map(_.map(_.abs))
 
-  val uout_abs_max = DenseMatrix.tabulate(kernel_size._1, kernel_size._2) {(x, y)=>
+  val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(kernel_size._1, kernel_size._2) { (x, y)=>
     var umax = 0d
     for(d <- 0 until depth_num) {
       if (uout_abs(d)(x, y) > umax) {
@@ -97,8 +105,10 @@ object NlosSystemSimTest extends App{
     umax
   }
   println("Output image has been generated!")
+  println(s"output size: cols = ${uout_abs_max.cols}")
 
-  write_image(uout_abs_max, "src/test/scala/SimTest/nlos_out.jpg")
+  val uout_abs_max_flip = fliplr(uout_abs_max)
+  write_image(uout_abs_max_flip, "src/test/scala/SimTest/nlos_out.jpg")
 //  val uout_abs_max_maxv: Double = max(uout_abs_max)
 //  val uout_abs_max_minv: Double = min(uout_abs_max)
 //  val uout_abs_norm = (uout_abs_max - uout_abs_max_minv)/(uout_abs_max_maxv - uout_abs_max_minv) * 256

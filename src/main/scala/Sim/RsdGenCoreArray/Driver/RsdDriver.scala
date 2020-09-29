@@ -46,6 +46,7 @@ case class RsdDriver(dut: RsdGenCoreArray) {
           waitUntil(dut.data_in.aw.fire.toBoolean)
           for(j <- 0 until 16) {
             dut.data_in.w.valid #= true
+            //TODO: The last signal activate when j==15 or the final data arrive.
             dut.data_in.w.last #= (j == 15)
             dut.data_in.w.data #= reshapeData(i, j)
             waitUntil(dut.data_in.w.fire.toBoolean)
