@@ -4,21 +4,26 @@ import Config._
 import Core.RsdGenCoreArray.RsdGenCoreArray
 import breeze.linalg._
 import breeze.math._
+import spinal.core._
 import spinal.core.sim._
 import spinal.lib.bus.amba4.axi._
+import spinal.sim.SimThread
 
-case class RsdDriver(dut: RsdGenCoreArray) {
-  val axi4Config = dut.axi_config
+case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
+//  val axi4Config = dut.axi_config
 
   def driveData(data: DenseMatrix[Int], address: Long): Unit = {
     val totalElementNum = data.cols * data.rows
     val totalNumOfDataTransfer = totalElementNum / 16
     val flatData = data.t.flatten().toScalaVector() ++ List.fill(
-      (totalNumOfDataTransfer + 1)*16
+      16 - (totalElementNum % 16)
     )(0)
+    // In breeze, column is first
     val reshapeData = DenseVector.tabulate(flatData.length)(flatData(_)).toDenseMatrix.reshape(
-      totalNumOfDataTransfer + 1, 16
+      16, totalNumOfDataTransfer + 1
     ).t
+    println(s"Total elements' number is $totalElementNum.\n Total Number of Data Transfer is ${totalNumOfDataTransfer + 1}")
+    println(s"reshapeData is \n ${reshapeData.toString()}")
 
     // No out-of-order transfer happens.
     // First address transfer for a transaction, next
@@ -27,33 +32,33 @@ case class RsdDriver(dut: RsdGenCoreArray) {
       // Do address write on aw channel
       () => {
         var addr = address
-        dut.data_in.aw.burst #= 1 // 2'b01 --> INCR
-        dut.data_in.aw.len #= 15 // 4'b1111 --> 16
-        dut.data_in.aw.size #= 2 // 3'b010 --> 4 byte
-        for(i <- 0 until totalNumOfDataTransfer) {
-          dut.data_in.aw.valid #= true
-          dut.data_in.aw.addr #= addr
-          waitUntil(dut.data_in.aw.fire.toBoolean)
+        bus.aw.burst #= 1 // 2'b01 --> INCR
+        bus.aw.len #= 15 // 4'b1111 --> 16
+        bus.aw.size #= 2 // 3'b010 --> 4 byte
+        for(_ <- 0 to totalNumOfDataTransfer) {
+          bus.aw.valid #= true
+          bus.aw.addr #= addr
+          clockDomain.waitActiveEdgeWhere(bus.aw.valid.toBoolean && bus.aw.ready.toBoolean)
           addr += 16
-          dut.data_in.aw.valid #= false
-          waitUntil(dut.data_in.w.last.toBoolean)
+          bus.aw.valid #= false
+          clockDomain.waitActiveEdgeWhere(bus.w.last.toBoolean)
         }
       }
       ,
       // Do data write on w channel
       () => {
-        for(i <- 0 until totalNumOfDataTransfer) {
-          waitUntil(dut.data_in.aw.fire.toBoolean)
+        for(i <- 0 to totalNumOfDataTransfer) {
+          clockDomain.waitActiveEdgeWhere(bus.aw.ready.toBoolean && bus.aw.valid.toBoolean)
           for(j <- 0 until 16) {
-            dut.data_in.w.valid #= true
+            bus.w.valid #= true
             //TODO: The last signal activate when j==15 or the final data arrive.
             //   Do something
-            dut.data_in.w.last #= (j == 15)
-            dut.data_in.w.data #= reshapeData(i, j)
-            waitUntil(dut.data_in.w.fire.toBoolean)
-            dut.clockDomain.waitSampling()
+            bus.w.last #= (j == 15)
+            bus.w.data #= reshapeData(i, j)
+            clockDomain.waitActiveEdgeWhere(bus.w.valid.toBoolean && bus.w.ready.toBoolean)
           }
-          dut.data_in.w.valid #= false
+          bus.w.last #= false
+          bus.w.valid #= false
         }
       }
     )

@@ -4,6 +4,7 @@ import Config._
 import Core.LoadUnit.TimeshiftLoadUnit
 import spinal.core._
 import spinal.lib.bus.amba4.axi.Axi4Config
+import RsdKernelConfig._
 
 object TimeshiftLoadUnitMain extends App{
   val wave_cfg = HComplexConfig(8, 8)
@@ -28,8 +29,7 @@ object TimeshiftLoadUnitMain extends App{
   ).generateVerilog(
     TimeshiftLoadUnit(
       cfg = rsd_cfg,
-      init_addr = 0,
-      axi_config = axi_cfg
+      init_addr = 0
     )
   )
 

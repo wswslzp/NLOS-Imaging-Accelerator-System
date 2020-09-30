@@ -11,9 +11,8 @@ import spinal.lib.bus.misc._
 
 case class WaveLoadUnit(
                        cfg: RsdKernelConfig,
-                       init_addr: Int,
-                       override val axi_config: Axi4Config
-                       ) extends Component with Axi4Slave {
+                       init_addr: Int
+                       )(override implicit val axi_config: Axi4Config) extends Component with Axi4Slave {
   override val word_bit_count: Int = cfg.wave_cfg.getDataWidth
 
   val row_num: Int = cfg.kernel_size(0)
@@ -52,13 +51,13 @@ case class WaveLoadUnit(
   arrangeRegMapAddr(wave_reg_addr_map, transfer_done_map)
   loadData()
 
-  val transfer_req_reg = RegInit(False)
-
   //TODO: The code below may cause many trouble
 
   // When DC == 0, wave load unit needs new waves
-  transfer_req_reg.setWhen(io.dc_eq_0)
-  transfer_req_reg.clearWhen(!io.dc_eq_0)
+  val transfer_req_reg = RegInit(True)
+  transfer_req_reg.setWhen(!io.fc_eq_0)
+  transfer_req_reg.clearWhen(transfer_done_reg)
+  io.load_req := transfer_req_reg
 
   // When the impulse has done transfer, the valid and start signal set high
   io.wave.valid := io.impulse_enable
@@ -71,17 +70,17 @@ case class WaveLoadUnit(
   val rsd_comp_start = RegInit(False)
   switch(compute_stage){
     is(B"2'b00") {
-      rsd_comp_start := io.impulse_enable
+      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
     }
     is(B"2'b01") {
 //      rsd_comp_start := io.push_ending
-      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
-    }
-    is(B"2'b10") {
       rsd_comp_start := transfer_done_reg
     }
-    is(B"2'b11") {
+    is(B"2'b10") {
       rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
+    }
+    is(B"2'b11") {
+      rsd_comp_start := io.impulse_enable
     }
   }
 

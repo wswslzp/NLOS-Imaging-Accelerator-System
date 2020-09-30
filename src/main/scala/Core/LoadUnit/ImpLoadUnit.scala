@@ -11,9 +11,8 @@ import scala.collection.mutable.ArrayBuffer
 
 case class ImpLoadUnit(
                         cfg: RsdKernelConfig,
-                        init_addr: Int,
-                        override val axi_config: Axi4Config
-                      ) extends Component with Axi4Slave{
+                        init_addr: Int
+                      )(override implicit val axi_config: Axi4Config) extends Component with Axi4Slave{
   override val word_bit_count: Int = cfg.imp_cfg.getComplexWidth
 
   val row_num: Int = cfg.kernel_size(0)
@@ -76,17 +75,17 @@ case class ImpLoadUnit(
   val rsd_comp_start = RegInit(False)
   switch(compute_stage){
     is(B"2'b00") {
-      rsd_comp_start := transfer_done_reg
+      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
     }
     is(B"2'b01") {
 //      rsd_comp_start := io.rsd_comp_end
-      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
-    }
-    is(B"2'b10") {
       rsd_comp_start := io.wave_enable
     }
-    is(B"2'b11") {
+    is(B"2'b10") {
       rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
+    }
+    is(B"2'b11") {
+      rsd_comp_start := transfer_done_reg
     }
   }
 

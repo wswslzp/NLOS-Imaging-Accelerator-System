@@ -50,7 +50,7 @@ object RsdGenCoreArrayMain extends App{
       dut.data_in.w.valid #= false
       dut.data_in.w.data #= 0
       dut.data_in.b.ready #= true
-      val rsdDriver = RsdDriver(dut)
+      val rsdDriver = RsdDriver(dut.data_in, dut.clockDomain)
 
       dut.clockDomain.waitSampling()
       rsdDriver.driveComplexData(timeshift, dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)

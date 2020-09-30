@@ -22,10 +22,10 @@ case class RsdKernelConfig
 }
 
 object RsdKernelConfig {
-  implicit val axi_cfg: Axi4Config = Axi4Config(
+  implicit val axi_config: Axi4Config = Axi4Config(
     addressWidth = 32, dataWidth = 32,
     idWidth = 4, useRegion = false, useLock = false, useCache = false, useQos = false,
-    useProt = false, useId = true, useBurst = true, useLen = true, useLast = false,
+    useProt = false, useId = true, useBurst = true, useLen = true, useLast = true,
     useResp = true, useSize = true, useStrb = false
   )
 }

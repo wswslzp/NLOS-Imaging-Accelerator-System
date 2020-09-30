@@ -10,9 +10,8 @@ import spinal.lib.bus.amba3.apb.Apb3SlaveFactory
 
 case class DistanceLoadUnit(
                              cfg: RsdKernelConfig,
-                             init_addr: Int,
-                             override val axi_config: Axi4Config
-                           ) extends Component with Axi4Slave {
+                             init_addr: Int
+                           )(override implicit val axi_config: Axi4Config) extends Component with Axi4Slave {
   override val word_bit_count: Int = cfg.distance_cfg.getDataWidth
 
   val io = new Bundle {
@@ -38,10 +37,10 @@ case class DistanceLoadUnit(
   arrangeRegMapAddr( distance_reg_addr_map, transfer_done_map )
   loadData()
 
-  val transfer_req_reg = RegInit(False)
+  val transfer_req_reg = RegInit(True)
 
   transfer_req_reg.setWhen(io.push_ending)
-  transfer_req_reg.clearWhen(!io.push_ending)
+  transfer_req_reg.clearWhen(transfer_done_reg)
   io.load_req := transfer_req_reg
 
   transfer_done_reg init False
