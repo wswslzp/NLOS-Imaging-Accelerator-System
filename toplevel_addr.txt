@@ -1,3 +1,0 @@
-imp_push_start_reg:		 128 -> 128
-int_ram_array:		 0 -> 63
-int_ram_array:		 64 -> 127
