@@ -25,22 +25,6 @@ object DriverTestMain extends App{
     radius_factor = 69
   )
   var init_addr = 0
-  val axi_cfg = Axi4Config(
-    addressWidth = 32, dataWidth = 32, idWidth = 4, useId = true, useBurst = true, useCache = false,
-    useLast = true, useRegion = false, useLock = false, useLen = true, useSize = true, useQos = false,
-    useResp = true, useProt = false, useStrb = false
-  )
-
-  def setAddr(bus: Axi4WriteOnly, clock: ClockDomain, address: Int): Array[SimThread] = {
-    val tsk = fork {
-      bus.aw.valid #= true
-      bus.aw.addr #= address
-      waitUntil(bus.aw.valid.toBoolean && bus.aw.ready.toBoolean)
-      bus.aw.valid #= false
-    }//.join()
-    Array(tsk)
-//    clock.waitSampling()
-  }
 
   SimConfig
     .withVcdWave
@@ -51,9 +35,7 @@ object DriverTestMain extends App{
     .doSim("RsdDriverTest_tb") {dut=>
       dut.clockDomain.forkStimulus(2)
 
-//      val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")
-      val wave = DenseMatrix.tabulate(4, 10)(_ + _)
-      println(s"wave is \n ${wave.toString()}")
+      val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")
 
       val driver = RsdDriver(dut.data_in, dut.clockDomain)
 
@@ -74,20 +56,10 @@ object DriverTestMain extends App{
 
       if(dut.io.load_req.toBoolean) {
         dut.io.distance_enable #= true
-        driver.driveData(wave, init_addr)
+        driver.driveDoubleData(wave, init_addr, rsd_cfg.wave_cfg.fracw)
         dut.clockDomain.waitSampling()
         dut.io.distance_enable #= false
       }
-
-//      dut.clockDomain.onSamplings {
-//        if(dut.io.load_req.toBoolean) {
-//          dut.io.distance_enable #= true
-////          dut.clockDomain.waitSampling()
-//          driver.driveDoubleData(wave, init_addr, 8)
-//          dut.clockDomain.waitSampling()
-//          dut.io.distance_enable #= false
-//        }
-//      }
 
       dut.clockDomain.waitSampling(10)
 

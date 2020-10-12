@@ -50,11 +50,53 @@ object RsdGenCoreArrayMain extends App{
       dut.data_in.w.valid #= false
       dut.data_in.w.data #= 0
       dut.data_in.b.ready #= true
+      dut.io.dc_eq_0 #= false
+      dut.io.fc_eq_0 #= false
+      dut.io.fft2d_out_sync #= false
       val rsdDriver = RsdDriver(dut.data_in, dut.clockDomain)
-
       dut.clockDomain.waitSampling()
-      rsdDriver.driveComplexData(timeshift, dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)
 
+      fork{
+        SimTimeout(50000)
+      }
+
+      for(d <- 0 until 3) {
+        dut.io.dc_eq_0 #= d == 0
+        for(f <- 0 until 3) {
+          dut.io.fc_eq_0 #= f == 0
+          if(dut.io.load_req(0).toBoolean) {
+            rsdDriver.driveComplexData(timeshift(0, 0), dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)
+            rsdDriver.driveData(1, dut.loadUnitAddrs(0) + 1)
+          }
+          dut.clockDomain.waitSampling()
+          if(dut.io.load_req(1).toBoolean) {
+            rsdDriver.driveDoubleData(distance(0, 0), dut.loadUnitAddrs(1), dut.cfg.distance_cfg.fracw)
+            rsdDriver.driveData(1, dut.loadUnitAddrs(1) + 1)
+          }
+          dut.clockDomain.waitSampling()
+          if(f == 0) {
+            if(dut.io.load_req(2).toBoolean) {
+              rsdDriver.driveDoubleData(wave(::, 1), dut.loadUnitAddrs(2), dut.cfg.wave_cfg.fracw)
+              rsdDriver.driveData(1, dut.loadUnitAddrs(2) + 1)
+            }
+            dut.clockDomain.waitSampling()
+          }
+          if((d == 0) && (f == 0)) {
+            if(dut.io.load_req(3).toBoolean) {
+              rsdDriver.driveComplexData(impulse, dut.loadUnitAddrs(3), dut.cfg.imp_cfg)
+            }
+            dut.clockDomain.waitSampling()
+          }
+          dut.clockDomain.waitSampling(100)
+          dut.io.fft2d_out_sync #= true
+          dut.clockDomain.waitSampling()
+          dut.io.fft2d_out_sync #= false
+          dut.clockDomain.waitActiveEdgeWhere(dut.io.push_ending.toBoolean)
+        }
+      }
+
+      dut.clockDomain.waitSampling(10)
+      simSuccess()
     }
 
 //  SpinalConfig(

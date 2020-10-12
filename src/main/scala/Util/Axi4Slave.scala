@@ -56,12 +56,17 @@ trait Axi4Slave extends Nameable {
   // TODO: partially verified
   protected def loadData() = new Area {
     val wvalid = RegNext(data_in.w.valid) init False
-    val current_addr: UInt = Reg( UInt(axi_config.addressWidth bit) ) init 0
-    val incr = Axi4.incr(aw_area.awaddr_r, data_in.aw.burst, aw_area.awlen_r, aw_area.awsize_r, byte_per_word)
+    val wlast = RegNext(data_in.w.last) init False
+    val incr = Counter(0 until 16)
+    val transaction_first_addr = Axi4.incr(aw_area.awaddr_r, data_in.aw.burst, aw_area.awlen_r, aw_area.awsize_r, byte_per_word)
+    val current_addr: UInt = incr.value + transaction_first_addr -1
 
     when(wvalid) {
       // The burst assumption is INCR, len default to 16
-      current_addr := current_addr + incr
+      incr.increment()
+      when(wlast) {
+        incr.clear()
+      }
 
       val wdata_r = RegNext(data_in.w.data).setWeakName("wdata_r")
 

@@ -76,9 +76,9 @@ case class RsdGenCoreArray(
 
   val io = new Bundle {
     val fft2d_out_sync = in Bool
-    val ready_for_store = in Bool()
-    val start = in Bool()
-    val done = out Bool()
+//    val ready_for_store = in Bool()
+//    val start = in Bool()
+    val push_ending = out Bool()
     val load_req = out Bits(4 bit)
     val fc_eq_0 = in Bool
     val dc_eq_0 = in Bool
@@ -178,7 +178,7 @@ case class RsdGenCoreArray(
   // Store the rsd kernel
   val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength)
   rsd_mem.zipWithIndex.foreach {case(dat, idx) =>
-    when(impulse_load_unit.io.rsd_comp_end) {
+    when(wave_load_unit.io.rsd_comp_end) {
       dat := rsd_gen_core.io.kernel_array(idx)
     }
   }
@@ -217,7 +217,7 @@ case class RsdGenCoreArray(
   io.rsd_kernel.valid := count_col_addr.cond_period
   push_ending := count_col_addr.cnt.willOverflow
 
-  io.done := push_ending
-  io.load_req := impulse_load_unit.io.load_req ## wave_load_unit.io.load_req ## timeshift_load_unit.io.load_req ## distance_load_unit.io.load_req
+  io.push_ending := push_ending
+  io.load_req := impulse_load_unit.io.load_req ## wave_load_unit.io.load_req ## distance_load_unit.io.load_req ## timeshift_load_unit.io.load_req
 
 }

@@ -32,6 +32,7 @@ case class WaveLoadUnit(
     val distance_enable = in Bool
     val impulse_enable = in Bool
     val data_enable = out Bool
+    val rsd_comp_end = out Bool
     val wave = master (Flow(
       Vec(SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp), Rlength)
     ))
@@ -63,7 +64,8 @@ case class WaveLoadUnit(
   io.wave.valid := io.impulse_enable
 
   // The master set the transfer done register to indicate that the data is on the port
-  io.data_enable := transfer_done_reg
+  val transfer_done_rise = transfer_done_reg.rise(initAt = False)
+  io.data_enable := transfer_done_rise
 
   // Control when should push the wave and start computing rsd kernel
   val compute_stage = io.dc_eq_0 ## io.fc_eq_0
@@ -74,7 +76,7 @@ case class WaveLoadUnit(
     }
     is(B"2'b01") {
 //      rsd_comp_start := io.push_ending
-      rsd_comp_start := transfer_done_reg
+      rsd_comp_start := transfer_done_rise
     }
     is(B"2'b10") {
       rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
@@ -94,8 +96,10 @@ case class WaveLoadUnit(
   transfer_done_reg clearWhen count_for_push_wave.cnt.willOverflow
 
   val radius_idx = count_for_push_wave.cnt
+  radius_idx.setName("radius_idx")
   for (l <- 0 until Rlength) {
     io.wave.payload(l) := wave_regs(radius_idx.value)
   }
+  io.rsd_comp_end := radius_idx.willOverflow
 
 }

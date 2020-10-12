@@ -39,7 +39,6 @@ case class ImpLoadUnit(
     val ready_for_store = out Bool
     val load_req = out Bool
     val data_enable = out Bool
-    val rsd_comp_end = out Bool
     val impulse_out = master (
       Flow(
         Vec(HComplex(cfg.imp_cfg), Rlength)
@@ -73,6 +72,7 @@ case class ImpLoadUnit(
 
   val compute_stage = io.dc_eq_0 ## io.fc_eq_0
   val rsd_comp_start = RegInit(False)
+  val transfer_done_rise = transfer_done_reg.rise(initAt = False)
   switch(compute_stage){
     is(B"2'b00") {
       rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
@@ -85,7 +85,7 @@ case class ImpLoadUnit(
       rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
     }
     is(B"2'b11") {
-      rsd_comp_start := transfer_done_reg
+      rsd_comp_start := transfer_done_rise
     }
   }
 
@@ -107,6 +107,5 @@ case class ImpLoadUnit(
 
   transfer_done_reg init False
   transfer_done_reg clearWhen output_imp.virtual_imp_radix.willOverflow
-  io.rsd_comp_end := output_imp.virtual_imp_radix.willOverflow
 
 }
