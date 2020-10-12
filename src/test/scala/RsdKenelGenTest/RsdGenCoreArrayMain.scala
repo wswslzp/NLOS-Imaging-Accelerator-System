@@ -21,26 +21,26 @@ object RsdGenCoreArrayMain extends App{
     radius_factor = 69
   )
   var init_addr = 0
+  val wave = LoadData.loadDoubleMatrix("tb/RsdGenCoreArray_tb/data/wave.csv")
+  val distance = LoadData.loadDoubleMatrix("tb/RsdGenCoreArray_tb/data/distance.csv")
+  val timeshift = LoadData.loadComplexMatrix(
+    "tb/RsdGenCoreArray_tb/data/timeshift_real.csv",
+    "tb/RsdGenCoreArray_tb/data/timeshift_imag.csv"
+  )
+  val impulse = LoadData.loadComplexMatrix(
+    "tb/RsdGenCoreArray_tb/data/kernel_base_rad_real.csv",
+    "tb/RsdGenCoreArray_tb/data/kernel_base_rad_imag.csv"
+  )
 
   SimConfig
     .withWave
     .normalOptimisation
     .workspacePath("tb")
+    .addSimulatorFlag("--threads 4")
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
     .doSim("RsdGenCoreArray_tb") {dut =>
       import Sim.RsdGenCoreArray.Driver._
       dut.clockDomain.forkStimulus(2)
-
-      val wave = LoadData.loadDoubleMatrix("tb/RsdGenCoreArray_tb/data/wave.csv")
-      val distance = LoadData.loadDoubleMatrix("tb/RsdGenCoreArray_tb/data/distance.csv")
-      val timeshift = LoadData.loadComplexMatrix(
-        "tb/RsdGenCoreArray_tb/data/timeshift_real.csv",
-        "tb/RsdGenCoreArray_tb/data/timeshift_imag.csv"
-      )
-      val impulse = LoadData.loadComplexMatrix(
-        "tb/RsdGenCoreArray_tb/data/kernel_rad_real.csv",
-        "tb/RsdGenCoreArray_tb/data/kernel_rad_imag.csv"
-      )
 
       dut.data_in.aw.valid #= false
       dut.data_in.aw.burst #= 0
@@ -64,25 +64,29 @@ object RsdGenCoreArrayMain extends App{
         dut.io.dc_eq_0 #= d == 0
         for(f <- 0 until 3) {
           dut.io.fc_eq_0 #= f == 0
-          if(dut.io.load_req(0).toBoolean) {
+          if((dut.io.load_req.toInt & 1) == 1) {
+//          if(dut.io.load_req(0).toBoolean) {
             rsdDriver.driveComplexData(timeshift(0, 0), dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)
             rsdDriver.driveData(1, dut.loadUnitAddrs(0) + 1)
           }
           dut.clockDomain.waitSampling()
-          if(dut.io.load_req(1).toBoolean) {
+          if((dut.io.load_req.toInt & 2) == 2) {
+//          if(dut.io.load_req(1).toBoolean) {
             rsdDriver.driveDoubleData(distance(0, 0), dut.loadUnitAddrs(1), dut.cfg.distance_cfg.fracw)
             rsdDriver.driveData(1, dut.loadUnitAddrs(1) + 1)
           }
           dut.clockDomain.waitSampling()
           if(f == 0) {
-            if(dut.io.load_req(2).toBoolean) {
+            if((dut.io.load_req.toInt & 4) == 4) {
+//            if(dut.io.load_req(2).toBoolean) {
               rsdDriver.driveDoubleData(wave(::, 1), dut.loadUnitAddrs(2), dut.cfg.wave_cfg.fracw)
               rsdDriver.driveData(1, dut.loadUnitAddrs(2) + 1)
             }
             dut.clockDomain.waitSampling()
           }
           if((d == 0) && (f == 0)) {
-            if(dut.io.load_req(3).toBoolean) {
+            if((dut.io.load_req.toInt & 8) == 8) {
+//            if(dut.io.load_req(3).toBoolean) {
               rsdDriver.driveComplexData(impulse, dut.loadUnitAddrs(3), dut.cfg.imp_cfg)
             }
             dut.clockDomain.waitSampling()

@@ -45,7 +45,7 @@ object FFT2dIntMemTest extends App{
 
   SimConfig
     .withWave
-    .allOptimisation
+    .noOptimisation
     .workspacePath("tb/FFT2dIntMem_tb")
     .addSimulatorFlag("--bbox-unsup")
     .compile(SramForTest())
