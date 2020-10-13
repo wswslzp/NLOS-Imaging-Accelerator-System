@@ -10,7 +10,8 @@ import spinal.lib.bus.amba4.axi._
 import spinal.sim.SimThread
 
 case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
-//  val axi4Config = dut.axi_config
+  val maximum_value: Int = 1 << bus.config.dataWidth
+  val intToUInt: Int => Int = (x: Int) => (maximum_value + x) % maximum_value
 
   def driveData(data: Int, address: Long): Unit = {
     forkJoin(
@@ -35,7 +36,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
         )
         bus.w.valid #= true
         bus.w.last #= true
-        bus.w.data #= data
+        bus.w.data #= intToUInt(data)
         clockDomain.waitActiveEdgeWhere(
           bus.w.valid.toBoolean && bus.w.ready.toBoolean
         )
@@ -85,7 +86,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
             //TODO: The last signal activate when j==15 or the final data arrive.
             //   Do something
             bus.w.last #= (j == 15)
-            bus.w.data #= reshapeData(i, j)
+            bus.w.data #= intToUInt( reshapeData(i, j) )
             clockDomain.waitActiveEdgeWhere(bus.w.valid.toBoolean && bus.w.ready.toBoolean)
           }
           bus.w.last #= false
@@ -135,7 +136,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
             //TODO: The last signal activate when j==15 or the final data arrive.
             //   Do something
             bus.w.last #= (j == 15)
-            bus.w.data #= reshapeData(i, j)
+            bus.w.data #= intToUInt( reshapeData(i, j) )
             clockDomain.waitActiveEdgeWhere(bus.w.valid.toBoolean && bus.w.ready.toBoolean)
           }
           bus.w.last #= false
