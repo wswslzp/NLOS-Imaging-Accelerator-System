@@ -53,7 +53,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
       16 - (totalElementNum % 16)
     )(0)
     // In breeze, column is first
-    val reshapeData = DenseVector.tabulate(flatData.length)(flatData(_)).toDenseMatrix.reshape(
+    val reshapeData: DenseMatrix[Long] = DenseVector.tabulate(flatData.length)(flatData(_)).toDenseMatrix.reshape(
       16, totalNumOfDataTransfer + 1
     ).t
 
@@ -103,7 +103,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
       16 - (totalElementNum % 16)
     )(0)
     // In breeze, column is first
-    val reshapeData = DenseVector.tabulate(flatData.length)(flatData(_)).toDenseMatrix.reshape(
+    val reshapeData: DenseMatrix[Long] = DenseVector.tabulate(flatData.length)(flatData(_)).toDenseMatrix.reshape(
       16, totalNumOfDataTransfer + 1
     ).t
 
