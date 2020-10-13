@@ -218,6 +218,7 @@ case class RsdGenCoreArray(
   push_ending := count_col_addr.cnt.willOverflow
 
   io.push_ending := push_ending
+  //TODO: load req has problems.
   io.load_req := impulse_load_unit.io.load_req ## wave_load_unit.io.load_req ## distance_load_unit.io.load_req ## timeshift_load_unit.io.load_req
 
 }

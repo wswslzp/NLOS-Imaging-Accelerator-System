@@ -47,7 +47,7 @@ case class TimeshiftLoadUnit(
 //  val apb_bus = axi2apb.io.apb
 //  val busCtrl = Apb3SlaveFactory(apb_bus)
 //  val transfer_done_reg = busCtrl.createWriteOnly(Bool(), local_mem_manager.incrAddr)
-  val transfer_req_reg = RegInit(False)
+  val transfer_req_reg = RegInit(True)
 
   transfer_req_reg.setWhen(io.push_ending)
   transfer_req_reg.clearWhen(transfer_done_reg)

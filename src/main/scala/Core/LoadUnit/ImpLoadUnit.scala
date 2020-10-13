@@ -62,9 +62,10 @@ case class ImpLoadUnit(
   printAddrRange
   loadData()
 
-  val transfer_req_reg = RegInit(False)
+  val transfer_req_reg = RegInit(True)
 
-  transfer_req_reg.setWhen(io.dc_eq_0 & io.fc_eq_0 & io.distance_enable)
+//  transfer_req_reg.setWhen(io.dc_eq_0 & io.fc_eq_0 & io.distance_enable)
+  transfer_req_reg clearWhen transfer_done_reg
   io.load_req := transfer_req_reg
 
   // output the impulse
