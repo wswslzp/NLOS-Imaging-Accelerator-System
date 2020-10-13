@@ -24,8 +24,10 @@ case class TimeshiftLoadUnit(
       HComplex(cfg.timeshift_cfg)
     ))
   }
-  wReady(io.ready_for_store)
-  awReady(io.ready_for_store)
+  wReady(True)
+  awReady(True)
+//  wReady(io.ready_for_store)
+//  awReady(io.ready_for_store)
 
   val local_mem_manager = ApplyMem(init_addr, word_bit_count)
   val (timeshift_reg_addr_map, timeshift_reg) = local_mem_manager.allocateReg(

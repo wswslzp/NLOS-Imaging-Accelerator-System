@@ -37,9 +37,10 @@ case class WaveLoadUnit(
       Vec(SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp), Rlength)
     ))
   }
-
-  wReady(io.ready_for_store)
-  awReady(io.ready_for_store)
+  wReady(True)
+  awReady(True)
+//  wReady(io.ready_for_store)
+//  awReady(io.ready_for_store)
 
   val local_mem_manager = ApplyMem(init_addr, word_bit_count)
   val (wave_reg_addr_map, wave_regs) = local_mem_manager.allocateRegArray(

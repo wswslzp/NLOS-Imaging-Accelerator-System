@@ -23,8 +23,10 @@ case class DistanceLoadUnit(
       SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp)
     ))
   }
-  wReady(io.ready_for_store)
-  awReady(io.ready_for_store)
+  wReady(True)
+  awReady(True)
+//  wReady(io.ready_for_store)
+//  awReady(io.ready_for_store)
 
   val local_mem_manager = ApplyMem(init_addr, word_bit_count)
   val (distance_reg_addr_map, distance_reg) = local_mem_manager.allocateReg(
