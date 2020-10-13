@@ -11,7 +11,8 @@ import spinal.sim.SimThread
 
 case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
   val maximum_value: Long = 1L << bus.config.dataWidth
-  val intToUInt: Int => Long = (x: Int) => (maximum_value + x) % maximum_value
+  def intToUInt(x: Int) = (maximum_value + x) % maximum_value
+  def intToUInt(x: Long) = (maximum_value + x) % maximum_value
 
   def driveData(data: Long, address: Long): Unit = {
     forkJoin(
@@ -183,9 +184,9 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
         complex.imag * (1 << hComplexConfig.fracw)
       )
       if (hComplexConfig.real_high) {
-        (real << hComplexConfig.getDataWidth) | imag
+        intToUInt( (real << hComplexConfig.getDataWidth) | imag )
       } else {
-        (imag << hComplexConfig.getDataWidth) | imag
+        intToUInt( (imag << hComplexConfig.getDataWidth) | imag )
       }
     }
     data match {
