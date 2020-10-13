@@ -11,7 +11,7 @@ import spinal.sim.SimThread
 
 case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
   val maximum_value: Long = 1L << bus.config.dataWidth
-  val intToUInt: Int => Int = (x: Int) => (maximum_value + x) % maximum_value
+  val intToUInt: Int => Int = (x: Int) => ( (maximum_value + x) % maximum_value ).toInt
 
   def driveData(data: Int, address: Long): Unit = {
     forkJoin(
