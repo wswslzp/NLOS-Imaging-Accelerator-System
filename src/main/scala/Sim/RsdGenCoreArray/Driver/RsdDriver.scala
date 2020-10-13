@@ -36,7 +36,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
         )
         bus.w.valid #= true
         bus.w.last #= true
-        bus.w.data #= data
+        bus.w.data #= data.toLong
         clockDomain.waitActiveEdgeWhere(
           bus.w.valid.toBoolean && bus.w.ready.toBoolean
         )
@@ -51,9 +51,9 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
     val totalNumOfDataTransfer = totalElementNum / 16
     val flatData = data.toScalaVector() ++ List.fill(
       16 - (totalElementNum % 16)
-    )(0)
+    )(0L)
     // In breeze, column is first
-    val reshapeData: DenseMatrix[Long] = DenseVector.tabulate(flatData.length)(flatData(_)).toDenseMatrix.reshape(
+    val reshapeData = DenseVector.tabulate(flatData.length)(flatData(_)).toDenseMatrix.reshape(
       16, totalNumOfDataTransfer + 1
     ).t
 
@@ -101,9 +101,9 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
     val totalNumOfDataTransfer = totalElementNum / 16
     val flatData = data.t.flatten().toScalaVector() ++ List.fill(
       16 - (totalElementNum % 16)
-    )(0)
+    )(0L)
     // In breeze, column is first
-    val reshapeData: DenseMatrix[Long] = DenseVector.tabulate(flatData.length)(flatData(_)).toDenseMatrix.reshape(
+    val reshapeData = DenseVector.tabulate(flatData.length)(flatData(_)).toDenseMatrix.reshape(
       16, totalNumOfDataTransfer + 1
     ).t
 
