@@ -29,7 +29,8 @@ case class TimeshiftLoadUnit(
 
   val local_mem_manager = ApplyMem(init_addr, word_bit_count)
   val (timeshift_reg_addr_map, timeshift_reg) = local_mem_manager.allocateReg(
-    HComplex(cfg.timeshift_cfg)
+//    HComplex(cfg.timeshift_cfg)
+    Bits(cfg.timeshift_cfg.getComplexWidth bit)
   )
   val (transfer_done_map, transfer_done_reg) = local_mem_manager.allocateReg(
     Bool(), "transfer_done"
