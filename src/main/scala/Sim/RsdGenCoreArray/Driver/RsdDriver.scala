@@ -11,9 +11,9 @@ import spinal.sim.SimThread
 
 case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
   val maximum_value: Long = 1L << bus.config.dataWidth
-  val intToUInt: Int => Int = (x: Int) => ( (maximum_value + x) % maximum_value ).toInt
+  val intToUInt: Int => Long = (x: Int) => (maximum_value + x) % maximum_value
 
-  def driveData(data: Int, address: Long): Unit = {
+  def driveData(data: Long, address: Long): Unit = {
     forkJoin(
       () => {
         bus.aw.burst #= 1 // 2'b01 --> INCR
@@ -36,7 +36,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
         )
         bus.w.valid #= true
         bus.w.last #= true
-        bus.w.data #= intToUInt(data)
+        bus.w.data #= data
         clockDomain.waitActiveEdgeWhere(
           bus.w.valid.toBoolean && bus.w.ready.toBoolean
         )
@@ -46,7 +46,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
     )
   }
 
-  def driveData(data: DenseVector[Int], initAddress: Long): Unit = {
+  def driveData(data: DenseVector[Long], initAddress: Long): Unit = {
     val totalElementNum = data.length
     val totalNumOfDataTransfer = totalElementNum / 16
     val flatData = data.toScalaVector() ++ List.fill(
@@ -86,7 +86,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
             //TODO: The last signal activate when j==15 or the final data arrive.
             //   Do something
             bus.w.last #= (j == 15)
-            bus.w.data #= intToUInt( reshapeData(i, j) )
+            bus.w.data #= reshapeData(i, j)
             clockDomain.waitActiveEdgeWhere(bus.w.valid.toBoolean && bus.w.ready.toBoolean)
           }
           bus.w.last #= false
@@ -96,7 +96,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
     )
   }
 
-  def driveData(data: DenseMatrix[Int], initAddress: Long): Unit = {
+  def driveData(data: DenseMatrix[Long], initAddress: Long): Unit = {
     val totalElementNum = data.cols * data.rows
     val totalNumOfDataTransfer = totalElementNum / 16
     val flatData = data.t.flatten().toScalaVector() ++ List.fill(
@@ -136,7 +136,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
             //TODO: The last signal activate when j==15 or the final data arrive.
             //   Do something
             bus.w.last #= (j == 15)
-            bus.w.data #= intToUInt( reshapeData(i, j) )
+            bus.w.data #= reshapeData(i, j)
             clockDomain.waitActiveEdgeWhere(bus.w.valid.toBoolean && bus.w.ready.toBoolean)
           }
           bus.w.last #= false
@@ -147,22 +147,25 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
   }
 
   def driveDoubleData(data: Any, initAddress: Long, fraction: Int): Unit = {
+    def doubleToULong(x: Double): Long = {
+      val toSInt = Math.round(x * (1 << fraction)).toInt
+      val sintToUInt = intToUInt(toSInt)
+      sintToUInt
+    }
     data match {
       case double: Double =>
-        val dataToInt: Int = Math.round(
-          double.asInstanceOf[Double] * (1 << fraction)
-        ).toInt
+        val dataToInt = doubleToULong(double)
         driveData(dataToInt, initAddress)
 
       case denseVector: DenseVector[_] =>
-        val dataToInt: DenseVector[Int] = denseVector map {dat =>
-          Math.round(dat.asInstanceOf[Double] * (1 << fraction)).toInt
+        val dataToInt: DenseVector[Long] = denseVector map {dat =>
+          doubleToULong(dat.asInstanceOf[Double])
         }
         driveData(dataToInt, initAddress)
 
       case denseMatrix: DenseMatrix[_] =>
-        val dataToInt: DenseMatrix[Int] = denseMatrix map {dat =>
-          Math.round(dat.asInstanceOf[Double] * (1 << fraction)).toInt
+        val dataToInt: DenseMatrix[Long] = denseMatrix map {dat =>
+          doubleToULong(dat.asInstanceOf[Double])
         }
         driveData(dataToInt, initAddress)
 
@@ -171,13 +174,13 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
   }
 
   def driveComplexData(data: Any, initAddress: Long, hComplexConfig: HComplexConfig): Unit = {
-    def mergeComplex(complex: Complex): Int = {
-      val real: Int = Math.round(
+    def mergeComplex(complex: Complex): Long = {
+      val real: Long = Math.round(
         complex.real * (1 << hComplexConfig.fracw)
-      ).toInt
-      val imag: Int = Math.round(
+      )
+      val imag: Long = Math.round(
         complex.imag * (1 << hComplexConfig.fracw)
-      ).toInt
+      )
       if (hComplexConfig.real_high) {
         (real << hComplexConfig.getDataWidth) | imag
       } else {
@@ -189,14 +192,14 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
         driveData(mergeComplex(complex), initAddress)
 
       case denseVector: DenseVector[_] =>
-        val dataToInt: DenseVector[Int] = denseVector map {dat =>
+        val dataToInt: DenseVector[Long] = denseVector map {dat =>
           val comp = dat.asInstanceOf[Complex]
           mergeComplex(comp)
         }
         driveData(dataToInt, initAddress)
 
       case denseMatrix: DenseMatrix[_] =>
-        val dataToInt: DenseMatrix[Int] = denseMatrix map {dat =>
+        val dataToInt: DenseMatrix[Long] = denseMatrix map {dat =>
           val comp = dat.asInstanceOf[Complex]
           mergeComplex(comp)
         }
