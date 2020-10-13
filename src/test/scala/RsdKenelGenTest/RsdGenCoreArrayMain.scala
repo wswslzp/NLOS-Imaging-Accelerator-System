@@ -21,15 +21,15 @@ object RsdGenCoreArrayMain extends App{
     radius_factor = 69
   )
   var init_addr = 0
-  val wave = LoadData.loadDoubleMatrix("tb/RsdGenCoreArray_tb/data/wave.csv")
-  val distance = LoadData.loadDoubleMatrix("tb/RsdGenCoreArray_tb/data/distance.csv")
+  val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")
+  val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")
   val timeshift = LoadData.loadComplexMatrix(
-    "tb/RsdGenCoreArray_tb/data/timeshift_real.csv",
-    "tb/RsdGenCoreArray_tb/data/timeshift_imag.csv"
+    "src/test/resource/data/timeshift_real.csv",
+    "src/test/resource/data/timeshift_imag.csv"
   )
   val impulse = LoadData.loadComplexMatrix(
-    "tb/RsdGenCoreArray_tb/data/kernel_base_rad_real.csv",
-    "tb/RsdGenCoreArray_tb/data/kernel_base_rad_imag.csv"
+    "src/test/resource/data/kernel_base_rad_real.csv",
+    "src/test/resource/data/kernel_base_rad_imag.csv"
   )
 
   SimConfig
