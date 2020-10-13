@@ -10,7 +10,7 @@ import spinal.lib.bus.amba4.axi._
 import spinal.sim.SimThread
 
 case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
-  val maximum_value: Int = 1 << bus.config.dataWidth
+  val maximum_value: Long = 1L << bus.config.dataWidth
   val intToUInt: Int => Int = (x: Int) => (maximum_value + x) % maximum_value
 
   def driveData(data: Int, address: Long): Unit = {
