@@ -65,20 +65,20 @@ object RsdGenCoreArrayMain extends App{
         for(f <- 0 until 3) {
           dut.io.fc_eq_0 #= f == 0
           if((dut.io.load_req.toInt & 1) == 1) {
-//          if(dut.io.load_req(0).toBoolean) {
+            println("TS")
             rsdDriver.driveComplexData(timeshift(0, 0), dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)
             rsdDriver.driveData(1, dut.loadUnitAddrs(0) + 1)
           }
           dut.clockDomain.waitSampling()
           if((dut.io.load_req.toInt & 2) == 2) {
-//          if(dut.io.load_req(1).toBoolean) {
+            println("D")
             rsdDriver.driveDoubleData(distance(0, 0), dut.loadUnitAddrs(1), dut.cfg.distance_cfg.fracw)
             rsdDriver.driveData(1, dut.loadUnitAddrs(1) + 1)
           }
           dut.clockDomain.waitSampling()
           if(f == 0) {
             if((dut.io.load_req.toInt & 4) == 4) {
-//            if(dut.io.load_req(2).toBoolean) {
+              println("Wave")
               rsdDriver.driveDoubleData(wave(::, 1), dut.loadUnitAddrs(2), dut.cfg.wave_cfg.fracw)
               rsdDriver.driveData(1, dut.loadUnitAddrs(2) + 1)
             }
@@ -86,8 +86,9 @@ object RsdGenCoreArrayMain extends App{
           }
           if((d == 0) && (f == 0)) {
             if((dut.io.load_req.toInt & 8) == 8) {
-//            if(dut.io.load_req(3).toBoolean) {
+              println("Imp")
               rsdDriver.driveComplexData(impulse, dut.loadUnitAddrs(3), dut.cfg.imp_cfg)
+              rsdDriver.driveData(1, dut.loadUnitAddrs(3) + 1)
             }
             dut.clockDomain.waitSampling()
           }
