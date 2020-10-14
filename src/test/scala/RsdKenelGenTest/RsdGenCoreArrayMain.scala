@@ -34,7 +34,7 @@ object RsdGenCoreArrayMain extends App{
 
   SimConfig
     .withWave
-    .normalOptimisation
+    .allOptimisation
     .workspacePath("tb")
     .addSimulatorFlag("--threads 4")
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
