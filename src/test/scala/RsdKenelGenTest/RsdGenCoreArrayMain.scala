@@ -36,6 +36,7 @@ object RsdGenCoreArrayMain extends App{
     .withWave
     .allOptimisation
     .workspacePath("tb")
+    .addSimulatorFlag("-j")
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
     .doSim("RsdGenCoreArray_tb") {dut =>
       import Sim.RsdGenCoreArray.Driver._
