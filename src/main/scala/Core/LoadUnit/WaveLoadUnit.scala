@@ -57,16 +57,16 @@ case class WaveLoadUnit(
   //TODO: The code below may cause many trouble
 
   // When DC == 0, wave load unit needs new waves
+  val transfer_done_rise = transfer_done_reg.rise(initAt = False)
   val transfer_req_reg = RegInit(True)
   transfer_req_reg.setWhen(!io.fc_eq_0)
-  transfer_req_reg.clearWhen(transfer_done_reg)
+  transfer_req_reg.clearWhen(transfer_done_rise)
   io.load_req := transfer_req_reg
 
   // When the impulse has done transfer, the valid and start signal set high
   io.wave.valid := io.impulse_enable
 
   // The master set the transfer done register to indicate that the data is on the port
-  val transfer_done_rise = transfer_done_reg.rise(initAt = False)
   io.data_enable := transfer_done_rise
 
   // Control when should push the wave and start computing rsd kernel

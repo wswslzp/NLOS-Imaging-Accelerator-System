@@ -40,9 +40,10 @@ case class DistanceLoadUnit(
   loadData()
 
   val transfer_req_reg = RegInit(True)
+  val transfer_done_rise = transfer_done_reg.rise(False)
 
   transfer_req_reg.setWhen(io.push_ending)
-  transfer_req_reg.clearWhen(transfer_done_reg)
+  transfer_req_reg.clearWhen(transfer_done_rise)
   io.load_req := transfer_req_reg
 
   transfer_done_reg init False
@@ -50,7 +51,8 @@ case class DistanceLoadUnit(
 
   io.distance.payload := distance_reg
   io.distance.valid := transfer_done_reg
-  io.data_enable := transfer_done_reg
+  io.data_enable := transfer_done_rise
+//  io.data_enable := transfer_done_reg
   io.ready_for_store := !transfer_done_reg
 
 }

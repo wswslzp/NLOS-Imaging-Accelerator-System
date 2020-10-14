@@ -66,7 +66,8 @@ case class ImpLoadUnit(
   val transfer_req_reg = RegInit(True)
 
 //  transfer_req_reg.setWhen(io.dc_eq_0 & io.fc_eq_0 & io.distance_enable)
-  transfer_req_reg clearWhen transfer_done_reg
+  val transfer_done_rise = transfer_done_reg.rise(initAt = False)
+  transfer_req_reg clearWhen transfer_done_rise
   io.load_req := transfer_req_reg
 
   // output the impulse
@@ -74,7 +75,6 @@ case class ImpLoadUnit(
 
   val compute_stage = io.dc_eq_0 ## io.fc_eq_0
   val rsd_comp_start = RegInit(False)
-  val transfer_done_rise = transfer_done_reg.rise(initAt = False)
   switch(compute_stage){
     is(B"2'b00") {
       rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
@@ -92,7 +92,8 @@ case class ImpLoadUnit(
   }
 
   io.impulse_out.valid := rsd_comp_start
-  io.data_enable := transfer_done_reg
+//  io.data_enable := transfer_done_reg
+  io.data_enable := transfer_done_rise
 
   val output_imp = new Area {
     val virtual_imp_radix_area = countUpFrom(rsd_comp_start, 0 until radius_num, "count_for_push_imp")

@@ -64,6 +64,7 @@ object RsdGenCoreArrayMain extends App{
         dut.io.dc_eq_0 #= d == 0
         for(f <- 0 until 3) {
           dut.io.fc_eq_0 #= f == 0
+          println(s"sf = ($d, $f)")
           if((dut.io.load_req.toInt & 1) == 1) {
             println("TS")
             rsdDriver.driveComplexData(timeshift(0, 0), dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)

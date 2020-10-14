@@ -52,27 +52,6 @@ case class RsdGenCoreArray(
       val col = idx % row_num
       U(result_mat(row)(col))
     }
-
-//    val addr_lut = ArrayBuffer.fill(1 << log2Up(cfg.kernel_size.product))(U(0))
-//    for {
-//      idx <- 0 until 1 << log2Up(cfg.kernel_size.product)
-//      x = idx / row_num - row_num/2
-//      y = idx % col_num - col_num/2
-//      xs = (x + row_num/2) % row_num
-//      ys = (y + col_num/2) % col_num
-//      idxs = xs * row_num + ys
-////      d_tmp = Math.min(Math.sqrt((x*x+y*y)/2).toInt, col_num/2-1 )
-//      d_tmp = Math.max(
-//        Math.min(
-//          sample_point - ( Math.sqrt(x*x + y*y) * sample_point / (row_num/2)).toInt,
-//          sample_point - 1
-//        ),
-//        0
-//      )
-//    } {
-//      addr_lut(idxs) = U(d_tmp)
-//    }
-//    addr_lut
   }
 
   val io = new Bundle {

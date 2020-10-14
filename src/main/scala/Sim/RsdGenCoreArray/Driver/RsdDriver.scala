@@ -107,7 +107,6 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
     val reshapeData = DenseVector.tabulate(flatData.length)(flatData(_)).toDenseMatrix.reshape(
       16, totalNumOfDataTransfer + 1
     ).t
-    println(s"${reshapeData.toString()}")
 
     // No out-of-order transfer happens.
     // First address transfer for a transaction, next
