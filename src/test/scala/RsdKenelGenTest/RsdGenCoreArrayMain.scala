@@ -36,7 +36,6 @@ object RsdGenCoreArrayMain extends App{
     .withWave
     .allOptimisation
     .workspacePath("tb")
-    .addSimulatorFlag("--threads 32")
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
     .doSim("RsdGenCoreArray_tb") {dut =>
       import Sim.RsdGenCoreArray.Driver._
@@ -64,7 +63,7 @@ object RsdGenCoreArrayMain extends App{
         dut.io.dc_eq_0 #= d == 0
         for(f <- 0 until 3) {
           dut.io.fc_eq_0 #= f == 0
-          println(s"sf = ($d, $f)")
+          println(s"df = ($d, $f)")
           if((dut.io.load_req.toInt & 1) == 1) {
             println("TS")
             rsdDriver.driveComplexData(timeshift(0, 0), dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)
