@@ -17,11 +17,12 @@ case class WaveLoadUnit(
 
   val row_num: Int = cfg.kernel_size(0)
   val col_num: Int = cfg.kernel_size(1)
-  val Rlength = 1 << log2Up(
-    Math.sqrt(
-      Math.pow(row_num/2, 2) + Math.pow(col_num/2, 2)
-    ).toInt
-  )
+  val Rlength = cfg.impulse_sample_point
+//  val Rlength = 1 << log2Up(
+//    Math.sqrt(
+//      Math.pow(row_num/2, 2) + Math.pow(col_num/2, 2)
+//    ).toInt
+//  )
 
   val io = new Bundle {
     val fc_eq_0 = in Bool
