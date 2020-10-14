@@ -84,7 +84,7 @@ case class RsdGenCoreArray(
     val fc_eq_0 = in Bool
     val dc_eq_0 = in Bool
     val rsd_kernel: Flow[Vec[HComplex]] = master (
-      Flow(Vec(HComplex(kernel_cfg), Rlength))
+      Flow(Vec(HComplex(kernel_cfg), row_num))
     )
   }
   val data_in = slave(Axi4WriteOnly(axi_config))
