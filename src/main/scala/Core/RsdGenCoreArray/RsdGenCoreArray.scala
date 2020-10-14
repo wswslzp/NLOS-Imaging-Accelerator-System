@@ -59,6 +59,7 @@ case class RsdGenCoreArray(
 //    val ready_for_store = in Bool()
 //    val start = in Bool()
     val push_ending = out Bool()
+    val cnt_incr = out Bool
     val load_req = out Bits(4 bit)
     val fc_eq_0 = in Bool
     val dc_eq_0 = in Bool
@@ -124,7 +125,29 @@ case class RsdGenCoreArray(
 
 
   // ******************** main part of rsd core gen array *******************************
+
+  // Control when should push the wave and start computing rsd kernel
+  val compute_stage = io.dc_eq_0 ## io.fc_eq_0
+  val rsd_comp_start = RegInit(False)
+  val wave_hit = (data_in.w.fire & (data_in.aw.payload.addr === loadUnitAddrs(2))).rise(False)
+  switch(compute_stage){
+    is(B"2'b00") { // d != 0 && f != 0
+      rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
+    }
+    is(B"2'b01") { // d != 0 && f == 0
+      rsd_comp_start := Delay(wave_hit, 3, init = False) // RSD kernel compute as soon as wave has loaded 3 elements
+    }
+    is(B"2'b10") { // d == 0 && f != 0
+//      rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
+      rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
+    }
+    is(B"2'b11") { // d == 0 && d == 0
+      rsd_comp_start := impulse_load_unit.io.data_enable // RSD kernel compute as soon as impulse loaded
+    }
+  }
+
   val push_ending = RegInit(False)
+  val push_ending_1 = RegNext(push_ending) init False
 
   // instantiate the rsd kernel core array
   // A rsd_gen_core contains a list of prsd_gen_core to pipe out a column of rsd kernel
@@ -138,6 +161,7 @@ case class RsdGenCoreArray(
   wave_load_unit.io.impulse_enable := impulse_load_unit.io.data_enable
   wave_load_unit.io.distance_enable := distance_load_unit.io.data_enable
   wave_load_unit.io.push_ending := push_ending
+  wave_load_unit.io.rsd_comp_start := rsd_comp_start
 
   // Timeshift load unit
   timeshift_load_unit.io.push_ending := push_ending
@@ -148,6 +172,7 @@ case class RsdGenCoreArray(
   // Impulse load unit
   impulse_load_unit.io.distance_enable := distance_load_unit.io.data_enable
   impulse_load_unit.io.wave_enable := wave_load_unit.io.data_enable
+  impulse_load_unit.io.rsd_comp_start := rsd_comp_start
 
   // connect the fceq0 and dceq0
   impulse_load_unit.io.fc_eq_0 := io.fc_eq_0
@@ -170,7 +195,8 @@ case class RsdGenCoreArray(
   // Push_start: A one-cycle square impulse active one cycle before actually push start
   // fft2d_out_sync is active at the last one cycle of the fft2d_valid
   val push_start = RegNext(
-    io.dc_eq_0 ? io.fft2d_out_sync | push_ending,
+//    io.dc_eq_0 ? io.fft2d_out_sync | push_ending,
+    io.dc_eq_0 ? io.fft2d_out_sync | push_ending_1,
     init = False
   )
 
@@ -199,7 +225,7 @@ case class RsdGenCoreArray(
   push_ending := count_col_addr.cnt.willOverflow
 
   io.push_ending := push_ending
-  //TODO: load req has problems.
+  io.cnt_incr := push_ending_1
   io.load_req := impulse_load_unit.io.load_req ## wave_load_unit.io.load_req ## distance_load_unit.io.load_req ## timeshift_load_unit.io.load_req
 
 }

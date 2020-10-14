@@ -93,11 +93,20 @@ object RsdGenCoreArrayMain extends App{
             }
             dut.clockDomain.waitSampling()
           }
-          dut.clockDomain.waitSampling(100)
-          dut.io.fft2d_out_sync #= true
-          dut.clockDomain.waitSampling()
-          dut.io.fft2d_out_sync #= false
+          if(d == 0) {
+            // for d == 0, kernel pushing needs to wait for fft2d output valid.
+            // waiting cycle ~ K^2, so we set 100 cycles
+            dut.clockDomain.waitSampling(100)
+            dut.io.fft2d_out_sync #= true
+            dut.clockDomain.waitSampling()
+            dut.io.fft2d_out_sync #= false
+          } else {
+            // TODO: for d != 0, kernel pushing don't have to wait for fft2d loading
+            dut.clockDomain.waitSampling(20)
+          }
           dut.clockDomain.waitActiveEdgeWhere(dut.io.push_ending.toBoolean)
+//          dut.clockDomain.waitSampling() // Same as below
+          dut.clockDomain.waitActiveEdgeWhere(dut.io.cnt_incr.toBoolean)
         }
       }
 

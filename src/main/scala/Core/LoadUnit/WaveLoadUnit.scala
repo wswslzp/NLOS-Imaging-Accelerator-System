@@ -34,6 +34,7 @@ case class WaveLoadUnit(
     val impulse_enable = in Bool
     val data_enable = out Bool
     val rsd_comp_end = out Bool
+    val rsd_comp_start = in Bool
     val wave = master (Flow(
       Vec(SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp), Rlength)
     ))
@@ -69,26 +70,7 @@ case class WaveLoadUnit(
   // The master set the transfer done register to indicate that the data is on the port
   io.data_enable := transfer_done_rise
 
-  // Control when should push the wave and start computing rsd kernel
-  val compute_stage = io.dc_eq_0 ## io.fc_eq_0
-  val rsd_comp_start = RegInit(False)
-  switch(compute_stage){
-    is(B"2'b00") {
-      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
-    }
-    is(B"2'b01") {
-//      rsd_comp_start := io.push_ending
-      rsd_comp_start := transfer_done_rise
-    }
-    is(B"2'b10") {
-      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
-    }
-    is(B"2'b11") {
-      rsd_comp_start := io.impulse_enable
-    }
-  }
-
-  val count_for_push_wave = countUpFrom(rsd_comp_start, 0 until cfg.radius_factor, "count_for_push_wave")
+  val count_for_push_wave = countUpFrom(io.rsd_comp_start, 0 until cfg.radius_factor, "count_for_push_wave")
 
   // Indicate when the internal memory is ready for storing the new data
   io.ready_for_store := !transfer_done_reg

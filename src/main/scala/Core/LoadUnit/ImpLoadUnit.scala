@@ -37,6 +37,7 @@ case class ImpLoadUnit(
     val dc_eq_0 = in Bool
     val distance_enable = in Bool()
     val wave_enable = in Bool()
+    val rsd_comp_start = in Bool()
     val ready_for_store = out Bool
     val load_req = out Bool
     val data_enable = out Bool
@@ -73,30 +74,12 @@ case class ImpLoadUnit(
   // output the impulse
   val int_ram_array: Vector[Mem[Bits]] = int_ram_array_map.map(_._2)
 
-  val compute_stage = io.dc_eq_0 ## io.fc_eq_0
-  val rsd_comp_start = RegInit(False)
-  switch(compute_stage){
-    is(B"2'b00") {
-      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
-    }
-    is(B"2'b01") {
-//      rsd_comp_start := io.rsd_comp_end
-      rsd_comp_start := io.wave_enable
-    }
-    is(B"2'b10") {
-      rsd_comp_start := Delay(io.distance_enable, 6, init = False) // The latency of coefGenCore is 6
-    }
-    is(B"2'b11") {
-      rsd_comp_start := transfer_done_rise
-    }
-  }
-
-  io.impulse_out.valid := rsd_comp_start
+  io.impulse_out.valid := io.rsd_comp_start
 //  io.data_enable := transfer_done_reg
   io.data_enable := transfer_done_rise
 
   val output_imp = new Area {
-    val virtual_imp_radix_area = countUpFrom(rsd_comp_start, 0 until radius_num, "count_for_push_imp")
+    val virtual_imp_radix_area = countUpFrom(io.rsd_comp_start, 0 until radius_num, "count_for_push_imp")
     val virtual_imp_radix = virtual_imp_radix_area.cnt
     virtual_imp_radix.setWeakName("virtual_imp_radix")
 
