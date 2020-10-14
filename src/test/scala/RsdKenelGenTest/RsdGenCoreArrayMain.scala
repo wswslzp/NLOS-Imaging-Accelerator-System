@@ -80,7 +80,7 @@ object RsdGenCoreArrayMain extends App{
             if((dut.io.load_req.toInt & 4) == 4) {
               println("Wave")
               rsdDriver.driveDoubleData(wave(::, 1), dut.loadUnitAddrs(2), dut.cfg.wave_cfg.fracw)
-              rsdDriver.driveData(1, dut.loadUnitAddrs(2) + 1)
+              rsdDriver.driveData(1, dut.loadUnitAddrs(2) + dut.cfg.radius_factor)
             }
             dut.clockDomain.waitSampling()
           }
@@ -88,7 +88,7 @@ object RsdGenCoreArrayMain extends App{
             if((dut.io.load_req.toInt & 8) == 8) {
               println("Imp")
               rsdDriver.driveComplexData(impulse, dut.loadUnitAddrs(3), dut.cfg.imp_cfg)
-              rsdDriver.driveData(1, dut.loadUnitAddrs(3) + 1)
+              rsdDriver.driveData(1, dut.loadUnitAddrs(3) + dut.cfg.radius_factor * dut.cfg.impulse_sample_point)
             }
             dut.clockDomain.waitSampling()
           }

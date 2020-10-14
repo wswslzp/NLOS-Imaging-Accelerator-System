@@ -22,11 +22,12 @@ case class ImpLoadUnit(
   val local_mem_manager = ApplyMem(init_addr, cfg.imp_cfg.getComplexWidth)
   val radius_num = cfg.radius_factor
   //  val mem_size = 1 << log2Up(col_num / 2)
-  val Rlength = 1 << log2Up(
-    Math.sqrt(
-      Math.pow(row_num/2, 2) + Math.pow(col_num/2, 2)
-    ).toInt
-  )
+  val Rlength = cfg.impulse_sample_point
+//  val Rlength = 1 << log2Up(
+//    Math.sqrt(
+//      Math.pow(row_num/2, 2) + Math.pow(col_num/2, 2)
+//    ).toInt
+//  )
 
   awReady(True)
   wReady(True)

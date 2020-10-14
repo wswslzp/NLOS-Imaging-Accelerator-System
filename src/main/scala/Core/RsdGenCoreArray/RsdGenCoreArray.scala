@@ -18,11 +18,12 @@ case class RsdGenCoreArray(
 //  override val word_bit_count: Int = cfg.timeshift_cfg.getComplexWidth
   val row_num = cfg.kernel_size(0)
   val col_num: Int = cfg.kernel_size(1)
-  val Rlength = 1 << log2Up(
-    Math.sqrt(
-      Math.pow(row_num/2, 2) + Math.pow(col_num/2, 2)
-    ).toInt
-  )
+  val Rlength = cfg.impulse_sample_point
+//  val Rlength = 1 << log2Up(
+//    Math.sqrt(
+//      Math.pow(row_num/2, 2) + Math.pow(col_num/2, 2)
+//    ).toInt
+//  )
 
   private val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
 
@@ -184,7 +185,8 @@ case class RsdGenCoreArray(
   }
 
   // The address transformation happens here
-  val addr_map = Vec( buildAddrMap(cfg.impulse_sample_point) )
+//  val addr_map = Vec( buildAddrMap(cfg.impulse_sample_point) )
+  val addr_map = Vec(buildAddrMap(Rlength))
 
   // Push_start: A one-cycle square impulse active one cycle before actually push start
   // fft2d_out_sync is active at the last one cycle of the fft2d_valid
@@ -196,8 +198,8 @@ case class RsdGenCoreArray(
   // count for row_num cycles from push_start signal active
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
   val col_addr = count_col_addr.cnt
-  val pixel_addrs = Vector.tabulate(row_num){id=>
-    col_addr.value + U(id * row_num).resized
+  val pixel_addrs: Array[UInt] = Array.tabulate(row_num){ id=>
+    addr_map( col_addr.value + U(id * row_num).resized )
   }
 
 //  when(count_col_addr.cond_period) {
