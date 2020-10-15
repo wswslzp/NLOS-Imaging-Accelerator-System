@@ -65,6 +65,7 @@ object RsdGenCoreArrayMain extends App{
         for(f <- 0 until 3) {
           dut.io.fc_eq_0 #= f == 0
           println(s"df = ($d, $f)")
+          dut.clockDomain.waitSampling()
           if((dut.io.load_req.toInt & 1) == 1) {
             println("TS")
             rsdDriver.driveComplexData(timeshift(0, 0), dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)
@@ -105,8 +106,7 @@ object RsdGenCoreArrayMain extends App{
             dut.clockDomain.waitSampling(20)
           }
           dut.clockDomain.waitActiveEdgeWhere(dut.io.push_ending.toBoolean)
-//          dut.clockDomain.waitSampling() // Same as below
-          dut.clockDomain.waitActiveEdgeWhere(dut.io.cnt_incr.toBoolean)
+//          dut.clockDomain.waitActiveEdgeWhere(dut.io.cnt_incr.toBoolean)
         }
       }
 
