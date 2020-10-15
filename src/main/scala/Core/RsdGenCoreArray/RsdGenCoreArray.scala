@@ -195,8 +195,8 @@ case class RsdGenCoreArray(
   // Push_start: A one-cycle square impulse active one cycle before actually push start
   // fft2d_out_sync is active at the last one cycle of the fft2d_valid
   val push_start = RegNext(
-//    io.dc_eq_0 ? io.fft2d_out_sync | push_ending,
-    io.dc_eq_0 ? io.fft2d_out_sync | push_ending_1,
+    io.dc_eq_0 ? io.fft2d_out_sync | push_ending,
+//    io.dc_eq_0 ? io.fft2d_out_sync | push_ending_1,
     init = False
   )
 
