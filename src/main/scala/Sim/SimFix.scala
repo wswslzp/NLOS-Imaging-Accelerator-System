@@ -22,7 +22,12 @@ package object SimFix {
       this.#=(that.toFloat)
     }
     def toFloat: Float = {
-      x.raw.toInt.toFloat / (1 << fraction_bit)
+      if (x.bitCount <= 32){
+        x.raw.toInt.toFloat / (1 << fraction_bit)
+      }
+      else {
+        x.raw.toLong.toFloat / (1 << fraction_bit)
+      }
     }
     def toDouble: Double = {
       this.toFloat.toDouble
@@ -41,10 +46,16 @@ package object SimFix {
       this.#=(that.toFloat)
     }
     def toFloat: Float = {
-      x.raw.toInt.toFloat / (1 << fraction_bit)
+      if (x.bitCount <= 32){
+        x.raw.toInt.toFloat / (1 << fraction_bit)
+      }
+      else {
+        x.raw.toLong.toFloat / (1 << fraction_bit)
+      }
     }
     def toDouble: Double = {
-      x.raw.toInt.toDouble / (1 << fraction_bit)
+//      x.raw.toInt.toDouble / (1 << fraction_bit)
+      this.toFloat.toDouble
     }
   }
 }
