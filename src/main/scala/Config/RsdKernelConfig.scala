@@ -12,6 +12,7 @@ case class RsdKernelConfig
 //  point_facotr: Int,
   depth_factor: Int,
   radius_factor: Int,
+  freq_factor: Int = 1,
   kernel_size: List[Int] = 128 :: 128 :: Nil,
   impulse_sample_point: Int = 101,
   less_mem_size: Boolean = true,

@@ -10,7 +10,7 @@ import breeze.linalg._
 
 import scala.collection.mutable.ArrayBuffer
 
-object Computation {
+package object Computation {
   import linalg.DenseMatrix
   import breeze.math.Complex
 
@@ -58,9 +58,6 @@ object Computation {
     out_impl
   }
 
-  // TODO: Both coef and impulse rad is correct, but the rsd kernel is wrong.
-  //      solve: Not wrong, just not accumulate over all the radius.
-  //      NOTE: The matlab code: coef and impulse don't have to sum over all the radii!!!
   def generateRSDRadKernel(
                          coef: Array[DenseMatrix[Complex]],
                          impulse_rad: DenseMatrix[Complex]
@@ -86,7 +83,6 @@ object Computation {
   }
 
   // The address map from rad to mat
-  // TODO: The address map's accuracy will significantly influence the output image's quality.
   //    The idx map should be multiplied with a factor 1.1.
   def rsdKernelMap(kernel_size: (Int, Int), sample_point: Int, mapping_factor: Double = 1.1): Array[Int] = {
     val row_num = kernel_size._1

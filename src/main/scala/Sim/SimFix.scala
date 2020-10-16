@@ -7,7 +7,7 @@ import Util._
 import Config._
 import spinal.core.sim._
 
-object SimFix {
+package object SimFix {
   implicit class SimSFix(x: SFix) {
     val fraction_bit = -x.minExp
     val max_v = (1 << ( x.bitCount - 1)) - 1
