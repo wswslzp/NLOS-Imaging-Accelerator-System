@@ -21,9 +21,9 @@ object RsdGenCoreArrayMain extends App{
     "src/test/resource/data/timeshift_real.csv",
     "src/test/resource/data/timeshift_imag.csv"
   )
-  val impulse = LoadData.loadComplexMatrix(
-    "src/test/resource/data/kernel_base_rad_real.csv",
-    "src/test/resource/data/kernel_base_rad_imag.csv"
+  val impulse: DenseMatrix[Complex] = LoadData.loadComplexMatrix(
+    "src/test/resource/data/impulse_rad_real.csv",
+    "src/test/resource/data/impulse_rad_imag.csv"
   )
   val rsd_cfg = RsdKernelConfig(
     wave_cfg = HComplexConfig(8, 8),
@@ -35,13 +35,8 @@ object RsdGenCoreArrayMain extends App{
     radius_factor = wave.rows,
     freq_factor = distance.rows
   )
-  val coef = Computation.generateCoef(wave, distance, timeshift)
+  val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)
   val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse)
-//  val h_rsd = Array.fill(rsd.length){
-//    Array.fill(rsd.head.length){
-//      DenseVector.zeros[Complex](rsd.head.head.length)
-//    }
-//  }
   var dd = 0
   var ff = 0
 
