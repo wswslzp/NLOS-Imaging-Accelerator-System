@@ -135,7 +135,7 @@ object RsdGenCoreArrayMain extends App{
               val hout = DenseVector.tabulate(rsd_cfg.kernel_size.head)(dut.io.rsd_kernel.payload(_).toComplex)
               val diff_amp: DenseVector[Double] = (rsd_kernel(::, x) - hout).map(_.abs)
               val diff_amp_max: Double = breeze.linalg.max(diff_amp)
-              if (diff_amp_max < 1e-5) {
+              if (diff_amp_max > 1e-5) {
                 println(s"when dd = $dd, ff = $ff, x = $x")
                 println(s"The diff_amp_max = $diff_amp_max > 1e-5, simulation failed.\n hout: ${hout.toString()}\n rsd_kernel: ${rsd_kernel(::, x).toString()}")
                 simFailure("**********TEST FAILED!*************")
