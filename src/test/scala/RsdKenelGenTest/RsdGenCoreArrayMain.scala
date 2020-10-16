@@ -122,6 +122,8 @@ object RsdGenCoreArrayMain extends App{
               //          dut.clockDomain.waitActiveEdgeWhere(dut.io.cnt_incr.toBoolean)
             }
           }
+          dut.clockDomain.waitSampling(10)
+          simSuccess()
         }
         ,
         () => {
@@ -147,8 +149,6 @@ object RsdGenCoreArrayMain extends App{
 
       )
 
-      dut.clockDomain.waitSampling(10)
-      simSuccess()
     }
 
 //  SpinalConfig(
