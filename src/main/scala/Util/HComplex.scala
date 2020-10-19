@@ -19,6 +19,11 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
   val real, imag = SFix(( config.intw - 1) exp, -config.fracw exp)
   val q_format = SQ(config.getDataWidth, config.fracw)
 
+  override def asBits: Bits = {
+    if(config.real_high) real.asBits ## imag.asBits
+    else imag.asBits ## real.asBits
+  }
+
   def conj: HComplex = {
     val ret = HComplex(this.config)
     ret.real := this.real

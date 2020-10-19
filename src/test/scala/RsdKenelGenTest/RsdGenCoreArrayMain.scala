@@ -41,7 +41,7 @@ object RsdGenCoreArrayMain extends App{
   var ff = 0
 
   SimConfig
-    .withFstWave
+    .withWave
     .allOptimisation
     .workspacePath("tb")
 //    .addSimulatorFlag("-j")
