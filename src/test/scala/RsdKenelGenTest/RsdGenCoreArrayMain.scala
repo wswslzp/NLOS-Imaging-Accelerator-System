@@ -115,7 +115,6 @@ object RsdGenCoreArrayMain extends App{
                 dut.clockDomain.waitSampling()
                 dut.io.fft2d_out_sync #= false
               } else {
-                // TODO: for d != 0, kernel pushing don't have to wait for fft2d loading
                 dut.clockDomain.waitSampling(20)
               }
               dut.clockDomain.waitActiveEdgeWhere(dut.io.push_ending.toBoolean)
@@ -139,7 +138,7 @@ object RsdGenCoreArrayMain extends App{
               val diff_amp_max: Double = breeze.linalg.max(diff_amp)
               if (diff_amp_max > 1e-5) {
                 println(s"when dd = $dd, ff = $ff, x = $x")
-                println(s"The diff_amp_max = $diff_amp_max > 1e-5, simulation failed.\n hout: ${hout.toString()}\n rsd_kernel: ${rsd_kernel(::, x).toString()}")
+                println(s"The diff_amp_max = $diff_amp_max > 1e-5, simulation failed.\n hout: ${hout(0 to 9).toString()}\n rsd_kernel: ${rsd_kernel(0 to 9, x).toString()}")
                 simFailure("**********TEST FAILED!*************")
               }
               dut.clockDomain.waitSampling()

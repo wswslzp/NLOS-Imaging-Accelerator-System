@@ -8,12 +8,13 @@ import Config._
 import spinal.core.sim._
 
 package object SimFix {
+  import scala.math._
   implicit class SimSFix(x: SFix) {
     val fraction_bit = -x.minExp
-    val max_v = (1 << ( x.bitCount - 1)) - 1
-    val min_v = -(1 << (x.bitCount - 1))
+    val max_v: Long = (1L << ( x.bitCount - 1)) - 1
+    val min_v: Long = -(1L << (x.bitCount - 1))
     def #=(that: Float): Unit = {
-      var rhs = (that * (1 << fraction_bit)).toInt
+      var rhs = (that * (1 << fraction_bit)).toLong
       rhs = Math.min(max_v, rhs)
       rhs = Math.max(min_v, rhs)
       x.raw #= rhs
