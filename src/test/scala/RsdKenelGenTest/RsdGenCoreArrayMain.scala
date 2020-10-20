@@ -43,7 +43,6 @@ object RsdGenCoreArrayMain extends App{
 
   SimConfig
     .withWave
-    .withConfig(SpinalConfig(oneFilePerComponent = true))
     .allOptimisation
     .workspacePath("tb")
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
