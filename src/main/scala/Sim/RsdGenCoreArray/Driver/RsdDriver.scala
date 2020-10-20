@@ -185,7 +185,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
       if (hComplexConfig.real_high) {
         intToUInt( (real << hComplexConfig.getDataWidth) | imag )
       } else {
-        intToUInt( (imag << hComplexConfig.getDataWidth) | imag )
+        intToUInt( (real << hComplexConfig.getDataWidth) | imag )
       }
     }
     data match {
