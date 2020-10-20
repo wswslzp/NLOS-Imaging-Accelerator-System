@@ -6,7 +6,7 @@ import bus.amba4.axi._
 import Config._
 import Util._
 import spinal.lib.bus.amba3.apb.Apb3SlaveFactory
-
+import spinal.core.sim._
 
 case class TimeshiftLoadUnit(
                               cfg: RsdKernelConfig,
@@ -20,14 +20,11 @@ case class TimeshiftLoadUnit(
     val data_enable = out Bool
     val push_ending = in Bool
     val timeshift = master (Flow(
-//      Vec(HComplex(cfg.timeshift_cfg), cfg.depth_factor)
       HComplex(cfg.timeshift_cfg)
     ))
   }
   wReady(True)
   awReady(True)
-//  wReady(io.ready_for_store)
-//  awReady(io.ready_for_store)
 
   val local_mem_manager = ApplyMem(init_addr, word_bit_count)
   val (timeshift_reg_addr_map, timeshift_reg) = local_mem_manager.allocateReg(
@@ -42,6 +39,12 @@ case class TimeshiftLoadUnit(
 
   val transfer_req_reg = RegInit(True)
   val transfer_done_rise = (transfer_done_reg.rise(initAt = False))
+
+  // Make internal reg visible to simulation
+  // TODO: Delete These after simulation
+  val sim_timeshift = HComplex(cfg.timeshift_cfg) simPublic() dontSimplifyIt()
+  sim_timeshift := timeshift_reg
+  transfer_done_rise.simPublic()
 
   transfer_req_reg.setWhen(io.push_ending)
   transfer_req_reg.clearWhen(transfer_done_rise)

@@ -18,11 +18,6 @@ case class WaveLoadUnit(
   val row_num: Int = cfg.kernel_size(0)
   val col_num: Int = cfg.kernel_size(1)
   val Rlength = cfg.impulse_sample_point
-//  val Rlength = 1 << log2Up(
-//    Math.sqrt(
-//      Math.pow(row_num/2, 2) + Math.pow(col_num/2, 2)
-//    ).toInt
-//  )
 
   val io = new Bundle {
     val fc_eq_0 = in Bool
@@ -41,8 +36,6 @@ case class WaveLoadUnit(
   }
   wReady(True)
   awReady(True)
-//  wReady(io.ready_for_store)
-//  awReady(io.ready_for_store)
 
   val local_mem_manager = ApplyMem(init_addr, word_bit_count)
   val (wave_reg_addr_map, wave_regs) = local_mem_manager.allocateRegArray(
@@ -63,6 +56,11 @@ case class WaveLoadUnit(
   transfer_req_reg.setWhen(!io.fc_eq_0)
   transfer_req_reg.clearWhen(transfer_done_rise)
   io.load_req := transfer_req_reg
+
+  // Make internal reg visible to simulation
+  import spinal.core.sim._
+  wave_regs.foreach(_.simPublic())
+  transfer_done_rise.simPublic()
 
   // When the impulse has done transfer, the valid and start signal set high
   io.wave.valid := io.impulse_enable

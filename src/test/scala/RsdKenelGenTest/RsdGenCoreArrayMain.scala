@@ -8,6 +8,7 @@ import spinal.core._
 import spinal.core.sim._
 import spinal.lib.bus.amba4.axi.Axi4Config
 import Sim.SimComplex._
+import Sim.SimFix._
 
 object RsdGenCoreArrayMain extends App{
 
@@ -44,7 +45,6 @@ object RsdGenCoreArrayMain extends App{
     .withWave
     .allOptimisation
     .workspacePath("tb")
-//    .addSimulatorFlag("-j")
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
     .doSim("RsdGenCoreArray_tb") {dut =>
       import Sim.RsdGenCoreArray.Driver._
@@ -123,6 +123,43 @@ object RsdGenCoreArrayMain extends App{
           }
           dut.clockDomain.waitSampling(10)
           simSuccess()
+        }
+        ,
+        () => {
+          // Monitor to catch the input and median results
+          forkJoin(
+            () => {
+              while(true) {
+                // catch timeshift
+                dut.clockDomain.waitActiveEdgeWhere(dut.timeshift_load_unit.transfer_done_rise.toBoolean)
+                println(s"Got Timeshift:\n ${dut.timeshift_load_unit.sim_timeshift.toComplex}")
+              }
+            }
+            ,
+            () => {
+              while(true) {
+                // catch distance
+                dut.clockDomain.waitActiveEdgeWhere(dut.distance_load_unit.transfer_done_rise.toBoolean)
+                println(s"Got Distance:\n ${dut.distance_load_unit.distance_reg.toDouble}")
+              }
+            }
+            ,
+            () => {
+              while(true) {
+                // catch wave
+                dut.clockDomain.waitActiveEdgeWhere(dut.wave_load_unit.transfer_done_rise.toBoolean)
+                println(s"Got Wave:\n ${dut.wave_load_unit.wave_regs.map(_.toDouble)}")
+              }
+            }
+//            ,
+//            () => {
+//              while(true) {
+//                // catch rsd ker
+//                dut.clockDomain.waitActiveEdgeWhere(dut.impulse_load_unit.transfer_done_rise.toBoolean)
+////                println(s"Got impulse:\n ${dut.impulse_load_unit.sim_int_ram_array.head.}")
+//              }
+//            }
+          )
         }
         ,
         () => {

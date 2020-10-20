@@ -9,6 +9,7 @@ import Core.LoadUnit._
 import spinal.lib.bus.amba4.axi._
 
 import scala.collection.mutable._
+import spinal.core.sim._
 
 case class RsdGenCoreArray(
                           cfg: RsdKernelConfig,
@@ -19,11 +20,6 @@ case class RsdGenCoreArray(
   val row_num = cfg.kernel_size(0)
   val col_num: Int = cfg.kernel_size(1)
   val Rlength = cfg.impulse_sample_point
-//  val Rlength = 1 << log2Up(
-//    Math.sqrt(
-//      Math.pow(row_num/2, 2) + Math.pow(col_num/2, 2)
-//    ).toInt
-//  )
 
   private val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
 
@@ -108,7 +104,6 @@ case class RsdGenCoreArray(
   axi_w_streams(2) <> distance_load_unit.data_in.w
 
   // accumulate the wave load units' initial address
-//  var wave_acc_addr = distance_final_addr
   wave_load_unit.data_in.aw <> axi_aw_streams(3)
   wave_load_unit.data_in.w <> axi_w_streams(3)
 
@@ -181,7 +176,7 @@ case class RsdGenCoreArray(
   wave_load_unit.io.dc_eq_0 := io.dc_eq_0
 
   // Store the rsd kernel
-  val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength)
+  val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength) simPublic()
   rsd_mem.zipWithIndex.foreach {case(dat, idx) =>
     when(wave_load_unit.io.rsd_comp_end) {
       dat := rsd_gen_core.io.kernel_array(idx)
@@ -195,11 +190,6 @@ case class RsdGenCoreArray(
   // Push_start: A one-cycle square impulse active one cycle before actually push start
   // fft2d_out_sync is active at the last one cycle of the fft2d_valid
   val push_start = io.dc_eq_0 ? io.fft2d_out_sync | push_ending_1
-//  val push_start = RegNext(
-////    io.dc_eq_0 ? io.fft2d_out_sync | push_ending,
-//    io.dc_eq_0 ? io.fft2d_out_sync | push_ending_1,
-//    init = False
-//  )
 
   // count for row_num cycles from push_start signal active
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
@@ -207,12 +197,6 @@ case class RsdGenCoreArray(
   val pixel_addrs: Array[UInt] = Array.tabulate(row_num){ id=>
     addr_map( ( col_addr.value + U(id * row_num) ).resized )
   }
-
-//  when(count_col_addr.cond_period) {
-//    for(id <- 0 until row_num) {
-//      io.rsd_kernel.payload(id) := rsd_mem(pixel_addrs(id))
-//    }
-//  }
 
   for(id <- 0 until row_num) {
     when(count_col_addr.cond_period) {

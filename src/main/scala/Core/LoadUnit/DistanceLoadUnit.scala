@@ -6,7 +6,7 @@ import bus.amba4.axi._
 import Config._
 import Util._
 import spinal.lib.bus.amba3.apb.Apb3SlaveFactory
-
+import spinal.core.sim._
 
 case class DistanceLoadUnit(
                              cfg: RsdKernelConfig,
@@ -25,8 +25,6 @@ case class DistanceLoadUnit(
   }
   wReady(True)
   awReady(True)
-//  wReady(io.ready_for_store)
-//  awReady(io.ready_for_store)
 
   val local_mem_manager = ApplyMem(init_addr, word_bit_count)
   val (distance_reg_addr_map, distance_reg) = local_mem_manager.allocateReg(
@@ -42,6 +40,10 @@ case class DistanceLoadUnit(
   val transfer_req_reg = RegInit(True)
   val transfer_done_rise = transfer_done_reg.rise(False)
 
+  // Make reg visible to simulation
+  transfer_done_rise.simPublic()
+  distance_reg.simPublic()
+
   transfer_req_reg.setWhen(io.push_ending)
   transfer_req_reg.clearWhen(transfer_done_rise)
   io.load_req := transfer_req_reg
@@ -52,7 +54,6 @@ case class DistanceLoadUnit(
   io.distance.payload := distance_reg
   io.distance.valid := transfer_done_reg
   io.data_enable := transfer_done_rise
-//  io.data_enable := transfer_done_reg
   io.ready_for_store := !transfer_done_reg
 
 }

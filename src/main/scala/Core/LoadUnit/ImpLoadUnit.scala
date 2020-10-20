@@ -8,6 +8,7 @@ import spinal.lib._
 import spinal.lib.bus.amba3.apb.Apb3SlaveFactory
 
 import scala.collection.mutable.ArrayBuffer
+import spinal.core.sim._
 
 case class ImpLoadUnit(
                         cfg: RsdKernelConfig,
@@ -21,26 +22,20 @@ case class ImpLoadUnit(
   // the number of sample radius should be the power of 2
   val local_mem_manager = ApplyMem(init_addr, cfg.imp_cfg.getComplexWidth)
   val radius_num = cfg.radius_factor
-  //  val mem_size = 1 << log2Up(col_num / 2)
   val Rlength = cfg.impulse_sample_point
-//  val Rlength = 1 << log2Up(
-//    Math.sqrt(
-//      Math.pow(row_num/2, 2) + Math.pow(col_num/2, 2)
-//    ).toInt
-//  )
 
   awReady(True)
   wReady(True)
 
   val io = new Bundle {
-    val fc_eq_0 = in Bool
-    val dc_eq_0 = in Bool
+    val fc_eq_0 = in Bool()
+    val dc_eq_0 = in Bool()
     val distance_enable = in Bool()
     val wave_enable = in Bool()
     val rsd_comp_start = in Bool()
-    val ready_for_store = out Bool
-    val load_req = out Bool
-    val data_enable = out Bool
+    val ready_for_store = out Bool()
+    val load_req = out Bool()
+    val data_enable = out Bool()
     val impulse_out = master (
       Flow(
         Vec(HComplex(cfg.imp_cfg), Rlength)
@@ -66,16 +61,20 @@ case class ImpLoadUnit(
 
   val transfer_req_reg = RegInit(True)
 
-//  transfer_req_reg.setWhen(io.dc_eq_0 & io.fc_eq_0 & io.distance_enable)
+  transfer_req_reg.setWhen(io.dc_eq_0 & io.fc_eq_0 & io.distance_enable) // TODO: Test it!
   val transfer_done_rise = transfer_done_reg.rise(initAt = False)
   transfer_req_reg clearWhen transfer_done_rise
   io.load_req := transfer_req_reg
+
+  // Make internal memories visible to simulation
+  transfer_done_rise.simPublic()
+//  int_ram_array.foreach(_.simPublic())
+  val sim_int_ram_array = int_ram_array.map(_.simPublic())
 
   // output the impulse
   val int_ram_array: Vector[Mem[Bits]] = int_ram_array_map.map(_._2)
 
   io.impulse_out.valid := io.rsd_comp_start
-//  io.data_enable := transfer_done_reg
   io.data_enable := transfer_done_rise
 
   val output_imp = new Area {
