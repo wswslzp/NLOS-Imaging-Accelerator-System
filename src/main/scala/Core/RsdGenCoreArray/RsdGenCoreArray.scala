@@ -166,7 +166,7 @@ case class RsdGenCoreArray(
 
   // Impulse load unit
   impulse_load_unit.io.distance_enable := distance_load_unit.io.data_enable
-  impulse_load_unit.io.wave_enable := wave_load_unit.io.data_enable
+//  impulse_load_unit.io.wave_enable := wave_load_unit.io.data_enable
   impulse_load_unit.io.rsd_comp_start := rsd_comp_start
 
   // connect the fceq0 and dceq0

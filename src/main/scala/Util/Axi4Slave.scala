@@ -75,7 +75,8 @@ trait Axi4Slave extends Nameable {
       // the reg's width must be less than the data bus width
       // TODO: addr_hit incur the high fanout of the current_addr, damage the timing!!
       addr_reg_map foreach { case (range, reg) =>
-        val addr_hit = (range.head <= current_addr) && (current_addr <= range.last)
+//        val single_addr = range.head == range.last
+        val addr_hit = (range.head <= current_addr) && (current_addr <= range.last)// || ((current_addr === range.head) && Bool(single_addr))
         addr_hit.setWeakName("addr_hit")
         reg match {
           case _: Bool => {
@@ -101,7 +102,7 @@ trait Axi4Slave extends Nameable {
         addr_hit.setWeakName("addr_hit")
         mem.write(
           address = ( current_addr - range.head ).resize(mem.addressWidth bit),
-          data = data_in.w.data,
+          data = wdata_r,
           enable = addr_hit
         )
       }

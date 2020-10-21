@@ -31,9 +31,9 @@ case class ImpLoadUnit(
     val fc_eq_0 = in Bool()
     val dc_eq_0 = in Bool()
     val distance_enable = in Bool()
-    val wave_enable = in Bool()
+//    val wave_enable = in Bool()
     val rsd_comp_start = in Bool()
-    val ready_for_store = out Bool()
+//    val ready_for_store = out Bool()
     val load_req = out Bool()
     val data_enable = out Bool()
     val impulse_out = master (

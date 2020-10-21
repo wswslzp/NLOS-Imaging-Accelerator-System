@@ -22,7 +22,7 @@ object DriverTestMain extends App{
     coef_cfg = HComplexConfig(-4, 20),
     imp_cfg = HComplexConfig(5, 11),
     depth_factor = 1,
-    radius_factor = 69
+    radius_factor = 68
   )
   var init_addr = 0
 
@@ -31,25 +31,30 @@ object DriverTestMain extends App{
     real_part_filename = "src/test/resource/data/timeshift_real.csv",
     imag_part_filename = "src/test/resource/data/timeshift_imag.csv"
   )
+  val impulse = LoadData.loadComplexMatrix(
+    real_part_filename = "src/test/resource/data/impulse_rad_real.csv",
+    imag_part_filename = "src/test/resource/data/impulse_rad_imag.csv"
+  )
 
   SimConfig
     .withVcdWave
     .withVerilator
     .allOptimisation
     .workspacePath("tb")
-    .compile(TimeshiftLoadUnit(rsd_cfg, init_addr = init_addr))
+    .addSimulatorFlag("--trace-underscore")
+    .compile(ImpLoadUnit(rsd_cfg, init_addr = init_addr))
     .doSim("RsdDriverTest_tb") {dut=>
       import Sim.SimComplex._
       dut.clockDomain.forkStimulus(2)
-      println(s"Input timeshift(0:3, 0:3) = ${timeshift(0 to 3, 0 to 3)}")
+      println(s"Input impulse = ${impulse(12, ::).t.map(_.real)}")
       println(" ")
 
       val driver = RsdDriver(dut.data_in, dut.clockDomain)
 
-//      dut.io.fc_eq_0 #= true
-//      dut.io.dc_eq_0 #= true
-      dut.io.push_ending #= false
-//      dut.io.distance_enable #= false
+      dut.io.fc_eq_0 #= true
+      dut.io.dc_eq_0 #= true
+//      dut.io.push_ending #= false
+      dut.io.distance_enable #= false
 //      dut.io.impulse_enable #= false
       dut.data_in.aw.valid #= false
       dut.data_in.w.valid #= false
@@ -63,17 +68,9 @@ object DriverTestMain extends App{
 
       forkJoin(
         () => {
-          for{
-            i <- 0 to 3
-            j <- 0 to 3
-          }{
-            driver.driveComplexData(timeshift(i, j), init_addr, rsd_cfg.timeshift_cfg)
-            dut.clockDomain.waitSampling()
-            driver.driveData(1, init_addr+1)
-            dut.clockDomain.waitSampling(3)
-            driver.driveData(0, init_addr+1)
-            dut.clockDomain.waitSampling()
-          }
+          driver.driveComplexData(impulse, init_addr, rsd_cfg.imp_cfg)
+          dut.clockDomain.waitSampling()
+          driver.driveData(1, init_addr + dut.cfg.radius_factor * dut.cfg.impulse_sample_point)
           dut.clockDomain.waitSampling(10)
           simSuccess()
         }
@@ -81,16 +78,25 @@ object DriverTestMain extends App{
         () => {
           while(true) {
             dut.clockDomain.waitActiveEdgeWhere(dut.transfer_done_rise.toBoolean)
-            println(s"Sample Timeshift_reg: ${dut.sim_timeshift.toComplex}")
+            val imp = Array.tabulate(dut.int_ram_array.length){idx=>
+              Array.tabulate(dut.cfg.radius_factor){addr=>
+                val xbits = dut.int_ram_array(idx).getBigInt(addr).toLong
+                bitsToComplex(xbits, dut.cfg.imp_cfg).real
+              }
+            }
+            // TODO:
+            //  1 the image part of the input impulse becomes zeros.
+            println(s"Got impulse:\n ${imp(12).map(_.toString()).mkString("Array(", ", ", ")")}")
+            //            println(s"Sample Timeshift_reg: ${dut..toComplex}")
           }
         }
-        ,
-        () => {
-          while(true) {
-            dut.clockDomain.waitActiveEdgeWhere(dut.data_in.w.valid.toBoolean)
-            println(s"data_in.w = ${dut.data_in.w.payload.data.toLong} (${dut.data_in.w.payload.data.toLong.toBinaryString})")
-          }
-        }
+//        ,
+//        () => {
+//          while(true) {
+//            dut.clockDomain.waitActiveEdgeWhere(dut.data_in.w.valid.toBoolean)
+//            println(s"data_in.w = ${dut.data_in.w.payload.data.toLong} (${dut.data_in.w.payload.data.toLong.toBinaryString})")
+//          }
+//        }
       )
 
 //      if(dut.io.load_req.toBoolean) {
