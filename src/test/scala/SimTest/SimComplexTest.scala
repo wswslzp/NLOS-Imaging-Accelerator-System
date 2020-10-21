@@ -5,25 +5,28 @@ import spinal.core.sim._
 import breeze.math._
 import breeze.linalg._
 import Util._
+import Config.HComplexConfig
 
 import scala.collection.mutable
 
 object SimComplexTest extends App{
-  case class TestSC() extends Component {
+  case class TestSC(cfg: HComplexConfig) extends Component {
     val io = new Bundle {
-      val xin = in(HComplex(19, 19))
-      val xout = out(HComplex(19, 19))
+      val xin = in(HComplex(cfg))
+      val xout = out(HComplex(cfg))
     }
 
     io.xout := RegNext( io.xin.conj )
   }
+
+  val cfg = HComplexConfig(19, 19)
 
   SimConfig
     .withWave
     .withVerilator
     .allOptimisation
     .workspacePath("tb")
-    .compile(TestSC())
+    .compile(TestSC(cfg))
     .doSim("TestSC_tb") {dut=>
       import Sim.SimComplex._
 
@@ -35,7 +38,7 @@ object SimComplexTest extends App{
       }
 
       for(i <- 0 to 3) {
-        val inputData = Complex(Math.exp(i), Math.exp(i+1))
+        val inputData = Complex(Math.exp(-i), Math.exp(-i-1))
         dut.io.xin #= inputData
         println(s"input: $inputData")
         dut.clockDomain.waitSampling()
