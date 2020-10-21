@@ -184,8 +184,6 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
       )
       val high_mask: Long = (1 << hComplexConfig.getDataWidth) - 1
       if (hComplexConfig.real_high) {
-        //TODO: When image part is negative, sign extension will be done on the high
-        //  bits part of image's int representation, which will cover the real part!
         intToUInt( (real << hComplexConfig.getDataWidth) | (imag & high_mask) )
       } else {
         intToUInt( (imag << hComplexConfig.getDataWidth) | (real & high_mask) )

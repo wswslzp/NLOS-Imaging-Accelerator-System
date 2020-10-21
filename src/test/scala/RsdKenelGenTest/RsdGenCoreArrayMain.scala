@@ -157,8 +157,14 @@ object RsdGenCoreArrayMain extends App{
               while(true) {
                 // catch imp
                 dut.clockDomain.waitActiveEdgeWhere(dut.impulse_load_unit.transfer_done_rise.toBoolean)
-                val imp = dut.impulse_load_unit.int_ram_array.map(_.getBigInt(0))
-//                println(s"Got impulse:\n ${dut.impulse_load_unit.sim_int_ram_array.head.}")
+                val imp = Array.tabulate(dut.impulse_load_unit.int_ram_array.length){idx=>
+                  Array.tabulate(dut.cfg.radius_factor){addr=>
+                    val xbits = dut.impulse_load_unit.int_ram_array(idx).getBigInt(addr).toLong
+                    bitsToComplex(xbits, dut.cfg.imp_cfg)
+                  }
+                }
+//                val imp = dut.impulse_load_unit.int_ram_array.map(_.getBigInt(0).toLong)
+                println(s"Got impulse:\n ${imp.head.map(_.toString()).mkString("Array(", ", ", ")")}")
               }
             }
           )
