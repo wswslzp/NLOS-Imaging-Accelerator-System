@@ -68,7 +68,7 @@ case class ImpLoadUnit(
 
   // Make internal memories visible to simulation
   transfer_done_rise.simPublic()
-//  int_ram_array.foreach(_.simPublic())
+  int_ram_array.foreach(_.simPublic())
 //  val sim_int_ram_array = int_ram_array.map(_.simPublic())
 
   // output the impulse

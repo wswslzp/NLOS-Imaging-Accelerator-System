@@ -43,7 +43,7 @@ object RsdGenCoreArrayMain extends App{
 
   SimConfig
     .withWave
-    .allOptimisation
+    .noOptimisation
     .workspacePath("tb")
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
     .doSim("RsdGenCoreArray_tb") {dut =>
@@ -81,6 +81,7 @@ object RsdGenCoreArrayMain extends App{
               dut.clockDomain.waitSampling()
               if((dut.io.load_req.toInt & 1) == 1) {
                 println("TS")
+                println(s"timeshift($f, $d) = ${timeshift(f, d)}")
                 rsdDriver.driveComplexData(timeshift(f, d), dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)
                 rsdDriver.driveData(1, dut.loadUnitAddrs(0) + 1)
               }
@@ -151,14 +152,15 @@ object RsdGenCoreArrayMain extends App{
                 println(s"Got Wave:\n ${dut.wave_load_unit.wave_regs.map(_.toDouble)}")
               }
             }
-//            ,
-//            () => {
-//              while(true) {
-//                // catch rsd ker
-//                dut.clockDomain.waitActiveEdgeWhere(dut.impulse_load_unit.transfer_done_rise.toBoolean)
-////                println(s"Got impulse:\n ${dut.impulse_load_unit.sim_int_ram_array.head.}")
-//              }
-//            }
+            ,
+            () => {
+              while(true) {
+                // catch imp
+                dut.clockDomain.waitActiveEdgeWhere(dut.impulse_load_unit.transfer_done_rise.toBoolean)
+                val imp = dut.impulse_load_unit.int_ram_array.map(_.getBigInt(0))
+//                println(s"Got impulse:\n ${dut.impulse_load_unit.sim_int_ram_array.head.}")
+              }
+            }
           )
         }
         ,
