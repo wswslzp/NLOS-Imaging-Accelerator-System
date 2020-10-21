@@ -66,13 +66,13 @@ case class ImpLoadUnit(
   transfer_req_reg clearWhen transfer_done_rise
   io.load_req := transfer_req_reg
 
+  // output the impulse
+  val int_ram_array: Vector[Mem[Bits]] = int_ram_array_map.map(_._2)
+
   // Make internal memories visible to simulation
   transfer_done_rise.simPublic()
   int_ram_array.foreach(_.simPublic())
-//  val sim_int_ram_array = int_ram_array.map(_.simPublic())
-
-  // output the impulse
-  val int_ram_array: Vector[Mem[Bits]] = int_ram_array_map.map(_._2)
+  //  val sim_int_ram_array = int_ram_array.map(_.simPublic())
 
   io.impulse_out.valid := io.rsd_comp_start
   io.data_enable := transfer_done_rise
