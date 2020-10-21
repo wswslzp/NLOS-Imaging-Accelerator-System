@@ -29,7 +29,6 @@ package object SimComplex {
     require(cfg.getComplexWidth < 64)
     val low_part_mask: Long = (1L << cfg.getDataWidth) - 1
     val high_part_mask: Long = low_part_mask << cfg.getDataWidth
-    println(s"lowmask: ${low_part_mask.toBinaryString}\nhighmask: ${high_part_mask.toBinaryString}")
 
     def uintToFloat(x: Long): Double = {
       val neg_detect: Long => Boolean = xt => {

@@ -163,7 +163,6 @@ object RsdGenCoreArrayMain extends App{
                     bitsToComplex(xbits, dut.cfg.imp_cfg)
                   }
                 }
-//                val imp = dut.impulse_load_unit.int_ram_array.map(_.getBigInt(0).toLong)
                 println(s"Got impulse:\n ${imp.head.map(_.toString()).mkString("Array(", ", ", ")")}")
               }
             }
