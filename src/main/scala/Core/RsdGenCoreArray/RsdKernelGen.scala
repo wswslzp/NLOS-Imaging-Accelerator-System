@@ -7,15 +7,13 @@ import spinal.core._
 //TODO: This module needs to be modified for the new architecture.
 case class RsdKernelGen(cfg: RsdKernelConfig) extends Component {
   val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
-  val row_num: Int = cfg.kernel_size(0)
-  val col_num: Int = cfg.kernel_size(1)
   val Rlength = cfg.impulse_sample_point
 
   val io = new Bundle {
     val ring_impulse = in (
       Vec(HComplex(cfg.imp_cfg), Rlength)
     )
-    val wave = in(Vec( SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp) , Rlength))
+    val wave = in(SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp))
     val distance = in(SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp))
     val timeshift = in ( HComplex(cfg.timeshift_cfg) )
     val kernel_array = out(Vec(HComplex(kernel_cfg), Rlength))
@@ -26,7 +24,7 @@ case class RsdKernelGen(cfg: RsdKernelConfig) extends Component {
   // Unfold in the Rlength dim
   prsd_core.zipWithIndex.foreach { case(core, idx) =>
     core.io.ring_impulse <> io.ring_impulse(idx)
-    core.io.wave <> io.wave(idx) // Rlength waves share the same value
+    core.io.wave <> io.wave // Rlength waves share the same value
     core.io.distance <> io.distance
     core.io.timeshift <> io.timeshift
 

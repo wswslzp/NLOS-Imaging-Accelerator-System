@@ -20,6 +20,32 @@ case class RsdKernelConfig
 ){
   require(kernel_size.length == 2)
   def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg
+
+  override def toString: String = {
+    s"""
+       |depth = $depth_factor
+       |radius = $radius_factor
+       |freq = $freq_factor
+       |kernel_size = $kernel_size
+       |impulse_sample_point = $impulse_sample_point
+       |wave_cfg: {
+       |  intw: ${wave_cfg.intw},
+       |  fracw: ${wave_cfg.fracw},
+       |}
+       |distance_cfg: {
+       |  intw: ${distance_cfg.intw},
+       |  fracw: ${distance_cfg.fracw},
+       |}
+       |coef_cfg: {
+       |  intw: ${coef_cfg.intw},
+       |  fracw: ${coef_cfg.fracw},
+       |}
+       |imp_cfg: {
+       |  intw: ${imp_cfg.intw},
+       |  fracw: ${imp_cfg.fracw},
+       |}
+       |""".stripMargin
+  }
 }
 
 object RsdKernelConfig {

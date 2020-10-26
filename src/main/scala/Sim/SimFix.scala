@@ -8,13 +8,12 @@ import Config._
 import spinal.core.sim._
 
 package object SimFix {
-  import scala.math._
   implicit class SimSFix(x: SFix) {
     val fraction_bit = -x.minExp
     val max_v: Long = (1L << ( x.bitCount - 1)) - 1
     val min_v: Long = -(1L << (x.bitCount - 1))
     def #=(that: Float): Unit = {
-      var rhs = (that * (1 << fraction_bit)).toLong
+      var rhs = (that * (1L << fraction_bit)).toLong
       rhs = Math.min(max_v, rhs)
       rhs = Math.max(min_v, rhs)
       x.raw #= rhs
@@ -23,11 +22,11 @@ package object SimFix {
       this.#=(that.toFloat)
     }
     def toFloat: Float = {
-      if (x.bitCount <= 32){
-        x.raw.toInt.toFloat / (1 << fraction_bit)
+      if (x.bitCount < 32){
+        x.raw.toInt.toFloat / (1L << fraction_bit)
       }
       else {
-        x.raw.toLong.toFloat / (1 << fraction_bit)
+        x.raw.toLong.toFloat / (1L << fraction_bit)
       }
     }
     def toDouble: Double = {
@@ -37,9 +36,9 @@ package object SimFix {
 
   implicit class SimUFix(x: UFix) {
     val fraction_bit = -x.minExp
-    val max_v = (1 << x.bitCount) - 1
+    val max_v = (1L << x.bitCount) - 1
     def #=(that: Float): Unit = {
-      var rhs = Math.min(max_v, (that * (1 << fraction_bit)).toInt)
+      var rhs = Math.min(max_v, (that * (1L << fraction_bit)).toLong)
       rhs = Math.max(0, rhs)
       x.raw #= rhs
     }
@@ -47,11 +46,11 @@ package object SimFix {
       this.#=(that.toFloat)
     }
     def toFloat: Float = {
-      if (x.bitCount <= 32){
-        x.raw.toInt.toFloat / (1 << fraction_bit)
+      if (x.bitCount < 32){
+        x.raw.toInt.toFloat / (1L << fraction_bit)
       }
       else {
-        x.raw.toLong.toFloat / (1 << fraction_bit)
+        x.raw.toLong.toFloat / (1L << fraction_bit)
       }
     }
     def toDouble: Double = {

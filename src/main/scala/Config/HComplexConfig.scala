@@ -51,7 +51,7 @@ case class HComplexConfig
   def *(that: HComplexConfig): HComplexConfig = {
     require(this.useGauss == that.useGauss && this.real_high == that.real_high)
     HComplexConfig(
-      intw = this.intw + that.fracw,
+      intw = this.intw + that.intw,
       fracw = this.fracw + that.fracw,
       useGauss, real_high
     )

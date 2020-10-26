@@ -54,7 +54,7 @@ case class ExpFunc
 }
 
 object ExpFunc {
-  def apply(idat: SFix, samplePoint: Int, period: Double): HComplex = {
+  def apply(idat: SFix, samplePoint: Int = 128, period: Double = 1): HComplex = {
     val func_core = new ExpFunc(
       cfg = HComplexConfig(idat.maxExp + 1, -idat.minExp),
       samplePoint = samplePoint,
@@ -62,8 +62,5 @@ object ExpFunc {
     ).setWeakName("func_core")
     func_core.io.data_in <> idat
     func_core.io.data_out
-  }
-  def apply(idat: SFix): HComplex = {
-    apply(idat, 128, 1)
   }
 }

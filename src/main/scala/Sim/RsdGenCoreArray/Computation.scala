@@ -15,9 +15,9 @@ package object Computation {
   import breeze.math.Complex
 
   def generateCoef(
-                    wave: DenseMatrix[Double],
-                    distance: DenseMatrix[Double],
-                    timeshift: DenseMatrix[Complex]
+                    wave: DenseMatrix[Double], // wave(radius, depth)
+                    distance: DenseMatrix[Double], // distance(freq, depth)
+                    timeshift: DenseMatrix[Complex] // timeshift(freq, depth)
                   ): Array[DenseMatrix[Complex]] = {
     val freq_num = distance.rows
     val depth_num = wave.cols
@@ -36,6 +36,7 @@ package object Computation {
     coef
   }
 
+  @deprecated
   def restoreImpl(impl_rad: DenseMatrix[Complex]): Array[DenseMatrix[Complex]] = {
     val radius_num = impl_rad.rows
     val R = impl_rad.cols

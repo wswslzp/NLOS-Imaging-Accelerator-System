@@ -30,8 +30,8 @@ case class WaveLoadUnit(
     val data_enable = out Bool
     val rsd_comp_end = out Bool
     val rsd_comp_start = in Bool
-    val wave = master (Flow(
-      Vec(SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp), Rlength)
+    val wave = master(Flow(
+      SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp)
     ))
   }
   wReady(True)
@@ -79,9 +79,7 @@ case class WaveLoadUnit(
 
   val radius_idx = count_for_push_wave.cnt
   radius_idx.setName("radius_idx")
-  for (l <- 0 until Rlength) {
-    io.wave.payload(l) := wave_regs(radius_idx.value)
-  }
+  io.wave.payload := wave_regs(radius_idx.value)
   io.rsd_comp_end := radius_idx.willOverflow
 
 }
