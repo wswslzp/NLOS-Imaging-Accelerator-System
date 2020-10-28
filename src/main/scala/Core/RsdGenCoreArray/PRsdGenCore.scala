@@ -29,7 +29,8 @@ case class PRsdGenCore(cfg: RsdKernelConfig) extends Component {
   val W2CLatency = LatencyAnalysis(io.wave.raw, coef_gen_core.io.coef.real.raw) + 1
 
   val delta_rsd_kernel_val = coef_gen_core.io.coef * io.ring_impulse
-  val delta_rsd_kernel_val_r = RegNext(delta_rsd_kernel_val) init HC(0, 0, io.rsd_prev.config) simPublic()
+  delta_rsd_kernel_val.simPublic()
+  val delta_rsd_kernel_val_r = RegNext(delta_rsd_kernel_val) init HC(0, 0, io.rsd_prev.config)
 
   val rsd_prev_r = RegNextWhen(
     next = io.rsd_prev,

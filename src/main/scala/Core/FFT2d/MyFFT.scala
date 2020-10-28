@@ -5,7 +5,11 @@ import Util._
 import spinal.core._
 import spinal.lib._
 
-case class MyFFT(length: Int, cfg: HComplexConfig, use_pipeline: Boolean = true, serial: Boolean = false) extends Component {
+case class MyFFT(length: Int,
+                 cfg: HComplexConfig,
+                 use_pipeline: Boolean = true,
+                 serial: Boolean = false
+                 ) extends Component {
   val io = new Bundle {
     val data_in: Flow[Vec[HComplex]] = in( Flow( Vec(HComplex(cfg), length) ) )
     val data_out = out ( Flow( Vec(HComplex(cfg), length) ) )
@@ -18,7 +22,8 @@ case class MyFFT(length: Int, cfg: HComplexConfig, use_pipeline: Boolean = true,
   }
 //  val data_in: Vec[HComplex] = io.data_in.toReg()
 
-  val twiddle_factor_table: Vec[HComplex] = TwiddleFactorTable.getw(length, cfg)
+//  val twiddle_factor_table: Vec[HComplex] = TwiddleFactorTable.getw(length, cfg)
+  val twiddle_factor_table: Vec[HComplex] = TwiddleFactorTable.getw(length)
 
   val data_reorder: Vec[HComplex] = cloneOf(data_in)
   private def bitReverse(dat: Int, width: Int): Int = {
@@ -128,7 +133,7 @@ object MyFFT {
     fft_input_flow.payload := sdata_in
     fft_input_flow.valid := countUpInside(input.valid, length).last
 //    fft_input_flow.valid := countUpFrom(input.valid, 0 until length).cnt.willOverflow
-    val sdata_out = fft(fft_input_flow, false).setName("sdata_out")
+    val sdata_out = fft(fft_input_flow, use_pipeline = false).setName("sdata_out")
     val sdata_out_regs_addr_area = countUpFrom(RegNext( sdata_out.valid , init = False), 0 until length, name = "sdata_out_regs_addr_area")
     val sdata_out_regs = sdata_out.toReg().setName("sdata_out_regs")
     val output = Flow(HComplex(sdata_out.payload(0).config)).setName("output")

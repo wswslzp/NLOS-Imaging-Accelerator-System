@@ -21,6 +21,8 @@ case class RsdKernelConfig
   require(kernel_size.length == 2)
   def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg
 
+  def getFFT2dConfig: FFTConfig = FFTConfig(getKernelConfig, kernel_size(1), kernel_size(0))
+
   override def toString: String = {
     s"""
        |depth = $depth_factor

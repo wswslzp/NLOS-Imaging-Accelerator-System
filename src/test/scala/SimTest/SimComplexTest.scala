@@ -19,7 +19,7 @@ object SimComplexTest extends App{
     io.xout := RegNext( io.xin.conj )
   }
 
-  val cfg = HComplexConfig(0, 32)
+  val cfg = HComplexConfig(1, 8)
 
   SimConfig
     .withWave
@@ -37,8 +37,8 @@ object SimComplexTest extends App{
         SimTimeout(300)
       }
 
-      for(i <- 3 to 5) {
-        val inputData = Complex(Math.exp(-i), Math.exp(-i-1))
+      for(i <- 0 to 5) {
+        val inputData = Complex(Math.exp(-i*2), Math.exp(-i*2-1))
         dut.io.xin #= inputData
         println(s"input: $inputData")
         dut.clockDomain.waitSampling()

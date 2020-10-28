@@ -40,4 +40,20 @@ object TwiddleFactorTable {
 
     table
   }
+  def getw(length: Int): Vec[HComplex] = {
+    val twf = TwiddleFactorTable(length).twiddle_factor
+
+    // Automatically determine the complex configuration
+    val factor_cfg = HComplexConfig(
+      2, ( -Math.log(2 * Math.PI / length)/Math.log(2) ).toInt + 1
+    )
+    val table = Vec(HComplex(factor_cfg), length-1)
+
+    table.zipWithIndex foreach { case(dat, idx) =>
+      dat.real := twf(idx)(0)
+      dat.imag := twf(idx)(1)
+    }
+
+    table
+  }
 }
