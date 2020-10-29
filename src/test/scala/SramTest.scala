@@ -73,7 +73,7 @@ object SramTest extends App{
       dut.clockDomain.waitSampling()
 
       val random_data = Array.tabulate(10){_ =>
-        val d = nextInt()
+        val d = nextInt(10)
         Math.max(
           d, -d
         )
