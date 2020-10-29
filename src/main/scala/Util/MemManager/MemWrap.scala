@@ -7,7 +7,7 @@ import Util._
 import Config._
 
 trait MemWrap {
-
+  def addSimulationModel(fileName: String)
 }
 
 case class Ram1rw(mc: MemConfig) extends Component with MemWrap {
@@ -19,6 +19,8 @@ case class Ram1rw(mc: MemConfig) extends Component with MemWrap {
   }
   noIoPrefix()
   val ram = mc.vendor.build(this)
+
+  override def addSimulationModel(modelFileName: String): Unit = ram.addRTLPath(modelFileName)
 }
 
 case class Ram1r1w(mc: MemConfig) extends Component with MemWrap{
@@ -37,6 +39,7 @@ case class Ram1r1w(mc: MemConfig) extends Component with MemWrap{
   noIoPrefix()
   val ram = mc.vendor.build(this)
 
+  override def addSimulationModel(modelFileName: String): Unit = ram.addRTLPath(modelFileName)
 }
 
 case class Ram2rw(mc: MemConfig) extends Component with MemWrap {
@@ -55,6 +58,8 @@ case class Ram2rw(mc: MemConfig) extends Component with MemWrap {
   cdb.clock := io.clkb
   noIoPrefix()
   val ram = mc.vendor.build(this)
+
+  override def addSimulationModel(modelFileName: String): Unit = ram.addRTLPath(modelFileName)
 }
 
 case class Rom(mc: MemConfig) extends Component with MemWrap {
@@ -67,4 +72,5 @@ case class Rom(mc: MemConfig) extends Component with MemWrap {
   noIoPrefix()
   val ram = mc.vendor.build(this)
 
+  override def addSimulationModel(modelFileName: String): Unit = ram.addRTLPath(modelFileName)
 }
