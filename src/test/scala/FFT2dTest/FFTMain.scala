@@ -86,7 +86,7 @@ object FFTMain extends App{
     .compile(SFFT2d(fft_config))
     .doSim("FFT2IFFT2d_tb") {dut =>
       import linalg._
-      val fft2_in = load_image("tb/FFT2d_tb/data/test.jpg")
+      val fft2_in = load_image("tb/FFT2d_tb/data/t1.jpg")
       write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
       val true_res: DenseMatrix[Complex] = fft2d_func(fft2_in)
       val true_res_abs = true_res.map(_.abs)
