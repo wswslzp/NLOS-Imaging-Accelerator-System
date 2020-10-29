@@ -20,16 +20,20 @@ object FFt2dCoreMain extends App{
     freq_factor = 69
   )
 
-  new File("rtl/fft2d_core").mkdir()
-  SpinalConfig(
-    oneFilePerComponent = true,
-    targetDirectory = "rtl/fft2d_core"
-  ).generateVerilog(
-    FFT2dCore(rsd_cfg.getFFT2dConfig, rsd_cfg.freq_factor, rsd_cfg.depth_factor)
+//  new File("rtl/fft2d_core").mkdir()
+//  SpinalConfig(
+//    oneFilePerComponent = true,
+//    targetDirectory = "rtl/fft2d_core"
+//  ).generateVerilog(
+//    FFT2dCore(rsd_cfg.getFFT2dConfig, rsd_cfg.freq_factor, rsd_cfg.depth_factor)
+//  )
+
+  val compiled_fft2d_core = SimConfig.allOptimisation.workspacePath("tb").withWave.compile(
+    Core.FFT2d.FFT2dCore(rsd_cfg.getFFT2dConfig, rsd_cfg.freq_factor, rsd_cfg.depth_factor)
   )
 
-//  val compiled_fft2d_core = SimConfig.allOptimisation.workspacePath("tb").withWave.compile(
-//    Core.FFT2d.FFT2dCore(rsd_cfg.getFFT2dConfig, rsd_cfg.freq_factor, rsd_cfg.depth_factor)
-//  )
+  compiled_fft2d_core.doSim("FFT2dCoreMain_tb"){dut=>
+    dut.clockDomain.forkStimulus(2)
+  }
 
 }

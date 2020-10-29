@@ -47,6 +47,7 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
       name = "fft2d9k32bit8bank"
     ))
   )
+  int_mem.head.addSimulationModel("tmp/simtmp/fft2d9k32bit8bank_ikos.v")
 
   // TODO: Timing degrading due to multiplication and addition
   val int_mem_address: UInt = io.fc * freq_factor + col_addr_cnt.value

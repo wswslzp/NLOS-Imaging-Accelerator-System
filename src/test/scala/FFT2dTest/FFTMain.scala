@@ -59,13 +59,10 @@ object FFTMain extends App{
   case class SFFT2d(cfg: FFTConfig) extends Component {
     import FFT2d._
     val io = new Bundle {
-      val shit = in Bool
       val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
       val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
-      val shiit = out Bool
     }
 
-    io.shiit := io.shit
     io.line_out <> fft2(io.line_in, cfg.row, cfg.point)
   }
 
@@ -86,7 +83,7 @@ object FFTMain extends App{
     .withWave
     .allOptimisation
     .workspacePath("tb/FFT2d_tb")
-    .compile(FFT2IFFT_2d(fft_config))
+    .compile(SFFT2d(fft_config))
     .doSim("FFT2IFFT2d_tb") {dut =>
       import linalg._
       val fft2_in = load_image("tb/FFT2d_tb/data/test.jpg")

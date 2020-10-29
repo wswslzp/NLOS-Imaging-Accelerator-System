@@ -20,7 +20,7 @@ object SramTest extends App{
     )
 
     val int_mem = Ram1rw(memcfg)
-    int_mem.addSimulationModel("tmp/simtmp/fft2d9k32bit8bank_fast_func.v")
+    int_mem.addSimulationModel("tmp/simtmp/fft2d9k32bit8bank_ikos.v")
 
     val addr_data_sw = RegNext(io.ad_sw, init = True)
 
