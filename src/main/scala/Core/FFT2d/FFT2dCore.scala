@@ -43,7 +43,8 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
     Ram1rw(MemConfig(
       dw = cfg.hComplexConfig.getComplexWidth,
       aw = log2Up(cfg.row * freq_factor),
-      vendor = Huali
+      vendor = Huali,
+      name = "fft2d9k32bit8bank"
     ))
   )
 
@@ -58,6 +59,7 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
     int_mem.zipWithIndex.foreach { case (ram1rw, i) =>
       ram1rw.io.ap.addr := int_mem_address
       ram1rw.io.ap.cs := push_period
+      ram1rw.io.ap.bwe := default -> True
       ram1rw.io.dp.we := push_period
       ram1rw.io.dp.din := fft_out.payload(i).asBits
     }
@@ -66,11 +68,12 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
     int_mem.zipWithIndex.foreach { case (ram1rw, i) =>
       ram1rw.io.ap.addr := int_mem_address
       ram1rw.io.ap.cs := push_period
+      ram1rw.io.ap.bwe := default -> True
       ram1rw.io.dp.we := False
       ram1rw.io.dp.din := B(0).resized
       io.data_to_mac.payload(i) := ram1rw.io.dp.dout
-      io.data_to_mac.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
     }
+    io.data_to_mac.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
   }
 
   // When inverse is activated, the ifft results will directly be sent to

@@ -8,7 +8,7 @@ import Config._
 import Util.MemManager._
 import Util.Vendor._
 
-class mbbrom(wrap: Rom) extends MemBlackBox {
+class mbbrom(wrap: Rom) extends MemBlackBox(wrap.mc) {
 //  this.setDefinitionName()
   val io = new Bundle {
     val CLK = in Bool()

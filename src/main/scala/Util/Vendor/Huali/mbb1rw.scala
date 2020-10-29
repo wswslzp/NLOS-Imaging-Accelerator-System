@@ -8,7 +8,7 @@ import Config._
 import Util.MemManager._
 import Vendor._
 
-class mbb1rw(wrap: Ram1rw) extends Util.Vendor.MemBlackBox {
+class mbb1rw(wrap: Ram1rw) extends Util.Vendor.MemBlackBox(wrap.mc) {
 //  this.setDefinitionName()
   val io = new Bundle {
     val CLK = in Bool
@@ -19,7 +19,7 @@ class mbb1rw(wrap: Ram1rw) extends Util.Vendor.MemBlackBox {
     val WE, ME, TEST1, RME = in Bool
     val RM = in Bits(4 bit)
   }
-  println("In Huali, mbb1rw")
+//  println("In Huali, mbb1rw")
 
   val cd = ClockDomain(io.CLK)
 

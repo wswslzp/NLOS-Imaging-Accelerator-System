@@ -22,7 +22,6 @@ case class MyFFT(length: Int,
   }
 //  val data_in: Vec[HComplex] = io.data_in.toReg()
 
-//  val twiddle_factor_table: Vec[HComplex] = TwiddleFactorTable.getw(length, cfg)
   val twiddle_factor_table: Vec[HComplex] = TwiddleFactorTable.getw(length)
 
   val data_reorder: Vec[HComplex] = cloneOf(data_in)

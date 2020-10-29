@@ -5,17 +5,19 @@ import spinal.lib._
 import Config._
 import Core.RsdGenCoreArray._
 import Sim.RsdGenCoreArray.{Computation, LoadData}
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{DenseMatrix, DenseVector, fliplr}
 import breeze.math.Complex
 import breeze.plot._
 import org.jfree.chart.axis._
 import java.io._
-import scala.util.Random._
 
+import SimTest.NlosSystemSimTest.write_image
+import breeze.signal._
+
+import scala.util.Random._
 import scala.collection.mutable
 
 // TODO: Not so accurate. Test it with fft2d.
-//  coef are accurate for the first thirty part.
 object RsdGenCoreMain extends App{
   import Sim.SimComplex._
   import Sim.SimFix._
@@ -25,9 +27,6 @@ object RsdGenCoreMain extends App{
     "src/test/resource/data/timeshift_real.csv",
     "src/test/resource/data/timeshift_imag.csv"
   )
-  // TODO: It seems that the image part of impulse is important and cannot be negligible.
-  //  The impulse configuration now is not suitable.
-  //  (5, 11) for real part but (-12, 28) for image part!!
   val impulse: DenseMatrix[Complex] = LoadData.loadComplexMatrix( //(R, radius)
     "src/test/resource/data/impulse_rad_real.csv",
     "src/test/resource/data/impulse_rad_imag.csv"
@@ -50,6 +49,9 @@ object RsdGenCoreMain extends App{
   println(s"coef_depth = ${coef.length}, coef_freq = ${coef.head.rows}, coef_rad = ${coef.head.cols}")
   val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse)//(d, f, R)
   println(rsd_cfg.toString)
+  val hardware_rsd = Array.fill(rsd.length, rsd.head.length){
+    DenseVector.fill(rsd.head.head.length)(Complex(0d, 0d))
+  }
 
   val impulse_queue = mutable.Queue[Complex]()
   val coef_queue = mutable.Queue[Complex]()
@@ -132,6 +134,7 @@ object RsdGenCoreMain extends App{
         () => {
           while(true) {
             dut.clockDomain.waitActiveEdgeWhere(dut.io.kernel.valid.toBoolean)
+            hardware_rsd(d_id)(f_id)(R_id) = dut.io.kernel.payload.toComplex
 //            println(s"hardware kernel is ${dut.io.kernel.payload.toComplex}")
           }
         }
@@ -157,191 +160,192 @@ object RsdGenCoreMain extends App{
       )
     }
 
-//    println(s"true kernel = ${rsd(d_id)(f_id)(R_id)}")
     module_compiled.doSim("RsdGenCore_tb"){dut=>
       println("")
       testBench(dut, R_id, d_id, f_id)
     }
-//    kernel_queue.zipWithIndex.foreach{ case (dat, idx) =>
-//      println(s"Hardware kernel($idx) = ${dat.toString()}")
+
+//    // TODO: ci is different from kernel_queue!!
+//    //  Solution: given the hardware impulse the correct image part, than it will be same.
+//    val coef_x_impu = Array.tabulate(rsd_cfg.radius_factor) {idx=> // idx = r
+//      impulse_queue(idx) * coef_queue(idx)
 //    }
-//    println("=======================")
-
-    // sub impulse's image with true one
-//    for(i <- 0 until rsd_cfg.radius_factor) {
-//      impulse_queue(i) = Complex(impulse_queue(i).real, impulse(R_id, i).imag)
+//    val tcoef_x_impu = Array.tabulate(rsd_cfg.radius_factor) {idx=>
+//      impulse_queue(idx) * coef(d_id)(f_id, idx)
 //    }
-
-    // TODO: ci is different from kernel_queue!!
-    //  Solution: given the hardware impulse the correct image part, than it will be same.
-    val coef_x_impu = Array.tabulate(rsd_cfg.radius_factor) {idx=> // idx = r
-      impulse_queue(idx) * coef_queue(idx)
-    }
-    val tcoef_x_impu = Array.tabulate(rsd_cfg.radius_factor) {idx=>
-      impulse_queue(idx) * coef(d_id)(f_id, idx)
-    }
-    val coef_x_timpu = Array.tabulate(rsd_cfg.radius_factor) {idx=>
-      impulse(R_id, idx) * coef_queue(idx)
-    }
-    val tcoef_x_timpu = Array.tabulate(rsd_cfg.radius_factor) {idx=>
-      impulse(R_id, idx) * coef(d_id)(f_id, idx)
-    }
-    def accmulatePRSD(xin: Array[Complex]): Array[Complex] = {
-      Array.tabulate(xin.length) {idx=>
-        var tmp = Complex(0, 0)
-        for(n <- 0 to idx) {
-          tmp += xin(n)
-        }
-        tmp
-      }
-    }
-    val ci_kernels = accmulatePRSD(coef_x_impu)
-    val tci_kernels = accmulatePRSD(tcoef_x_impu)
-    val cti_kernels = accmulatePRSD(coef_x_timpu)
-    val tcti_kernels = accmulatePRSD(tcoef_x_timpu)
-    val hard_ci_kernels = accmulatePRSD(coef_x_impu_queue.toArray)
-//    tcti_kernels.zipWithIndex.foreach { case (complex, i) =>
-//      println(s"tcti kernel($i) = $complex")
+//    val coef_x_timpu = Array.tabulate(rsd_cfg.radius_factor) {idx=>
+//      impulse(R_id, idx) * coef_queue(idx)
 //    }
-
-    val tcti_kernel_max = breeze.linalg.max(DenseVector(tcti_kernels.map(_.abs)))
-//    println(s"tcti_max = $tcti_kernel_max")
-    val coef_max = breeze.linalg.max(coef(d_id)(f_id, ::).t.map(_.abs))
-//    println(s"coef_max = $coef_max")
-
-    val delta_kernels = DenseVector.tabulate(tcti_kernels.length) {idx=>
-      (tcti_kernels(idx) - kernel_queue(idx)).abs
-    }
-    val delta_coefs: DenseVector[Double] = DenseVector.tabulate(coef_queue.length) { idx=>
-      ( coef(d_id)(f_id, idx) - coef_queue(idx) ).abs
-    }
+//    val tcoef_x_timpu = Array.tabulate(rsd_cfg.radius_factor) {idx=>
+//      impulse(R_id, idx) * coef(d_id)(f_id, idx)
+//    }
+//    def accmulatePRSD(xin: Array[Complex]): Array[Complex] = {
+//      Array.tabulate(xin.length) {idx=>
+//        var tmp = Complex(0, 0)
+//        for(n <- 0 to idx) {
+//          tmp += xin(n)
+//        }
+//        tmp
+//      }
+//    }
+//    val ci_kernels = accmulatePRSD(coef_x_impu)
+//    val tci_kernels = accmulatePRSD(tcoef_x_impu)
+//    val cti_kernels = accmulatePRSD(coef_x_timpu)
+//    val tcti_kernels = accmulatePRSD(tcoef_x_timpu)
+//    val hard_ci_kernels = accmulatePRSD(coef_x_impu_queue.toArray)
+//
     val f = Figure()
     f.visible = visible
-    val p1 = f.subplot(2, 3, 0)
-    val p2 = f.subplot(2, 3, 1)
-    val p5 = f.subplot(2, 3, 2)
-    val p3 = f.subplot(2, 3, 3)
-    val p4 = f.subplot(2, 3, 4)
-    val p6 = f.subplot(2, 3, 5)
-    p1 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = DenseVector(kernel_queue.toArray).map(_.real),
-      name = "hardware kernel"
-    )
-    p1 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = DenseVector(tcti_kernels).map(_.real),
-      name = "tcti_kernel"
-    )
-    p2 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = DenseVector(coef_queue.toArray).map(_.real),
-      name = "hardware coef"
-    )
-    p2 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = coef(d_id)(f_id, ::).t.map(_.real),
-      name = "true coef"
-    )
-    p3 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = DenseVector(kernel_queue.toArray).map(_.real),
-      name = "hardware kernels"
-    )
-    p3 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = DenseVector(hard_ci_kernels).map(_.real),
-      name = "hard_ci_kernels"
-    )
-    p4 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = DenseVector(coef_x_impu_queue.toArray).map(_.real),
-      name = "hardware coef_x_impu"
-    )
-    p4 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = DenseVector(coef_x_impu).map(_.real),
-      name = "coef_x_impu"
-    )
-    p5 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = DenseVector(ci_kernels).map(_.real),
-      name = "ci_kernels"
-    )
-    p5 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = DenseVector(tcti_kernels).map(_.real),
-      name = "tcti_kernels"
-    )
-    p6 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = DenseVector(ci_kernels).map(_.real),
-      name = "ci kernels"
-    )
-    p6 += plot(
-      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
-      y = DenseVector(hard_ci_kernels).map(_.real),
-      name = "hard_ci_kernels"
-    )
-    p1.legend = true
-    p1.xlabel = "accumulate time"
-    p1.ylabel = "kernel comparison"
-    p1.yaxis.setTickUnit(new NumberTickUnit(0.05))
-    p2.legend = true
-    p2.xlabel = "accumulate time"
-    p2.ylabel = "error"
-    p2.yaxis.setTickUnit(new NumberTickUnit(0.005))
-    p3.legend = true
-    p3.xlabel = "accumulate time"
-    p3.ylabel = "kernel comparison"
-    p3.yaxis.setTickUnit(new NumberTickUnit(0.05))
-    p4.legend = true
-    p4.xlabel = "accumulate time"
-    p4.ylabel = "prsd kernel"
-    p4.yaxis.setTickUnit(new NumberTickUnit(0.05))
-    p5.legend = true
-    p5.xlabel = "accumulate time"
-    p5.ylabel = "impulse"
-    p5.yaxis.setTickUnit(new NumberTickUnit(0.05))
-    p6.legend = true
-    p6.xlabel = "accumulate time"
-    p6.ylabel = "kernel comparison"
-    p6.yaxis.setTickUnit(new NumberTickUnit(0.05))
-
-    impulse_queue.clear()
-    coef_queue.clear()
-    kernel_queue.clear()
-    coef_x_impu_queue.clear()
-
+//    val p1 = f.subplot(2, 3, 0)
+//    val p2 = f.subplot(2, 3, 1)
+//    val p5 = f.subplot(2, 3, 2)
+//    val p3 = f.subplot(2, 3, 3)
+//    val p4 = f.subplot(2, 3, 4)
+//    val p6 = f.subplot(2, 3, 5)
+//    p1 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = DenseVector(kernel_queue.toArray).map(_.real),
+//      name = "hardware kernel"
+//    )
+//    p1 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = DenseVector(tcti_kernels).map(_.real),
+//      name = "tcti_kernel"
+//    )
+//    p2 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = DenseVector(coef_queue.toArray).map(_.real),
+//      name = "hardware coef"
+//    )
+//    p2 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = coef(d_id)(f_id, ::).t.map(_.real),
+//      name = "true coef"
+//    )
+//    p3 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = DenseVector(kernel_queue.toArray).map(_.real),
+//      name = "hardware kernels"
+//    )
+//    p3 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = DenseVector(hard_ci_kernels).map(_.real),
+//      name = "hard_ci_kernels"
+//    )
+//    p4 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = DenseVector(coef_x_impu_queue.toArray).map(_.real),
+//      name = "hardware coef_x_impu"
+//    )
+//    p4 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = DenseVector(coef_x_impu).map(_.real),
+//      name = "coef_x_impu"
+//    )
+//    p5 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = DenseVector(ci_kernels).map(_.real),
+//      name = "ci_kernels"
+//    )
+//    p5 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = DenseVector(tcti_kernels).map(_.real),
+//      name = "tcti_kernels"
+//    )
+//    p6 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = DenseVector(ci_kernels).map(_.real),
+//      name = "ci kernels"
+//    )
+//    p6 += plot(
+//      x = DenseVector(tcti_kernels.indices.toArray.map(_.toDouble)),
+//      y = DenseVector(hard_ci_kernels).map(_.real),
+//      name = "hard_ci_kernels"
+//    )
+//    p1.legend = true
+//    p1.xlabel = "accumulate time"
+//    p1.ylabel = "kernel comparison"
+//    p1.yaxis.setTickUnit(new NumberTickUnit(0.05))
+//    p2.legend = true
+//    p2.xlabel = "accumulate time"
+//    p2.ylabel = "error"
+//    p2.yaxis.setTickUnit(new NumberTickUnit(0.005))
+//    p3.legend = true
+//    p3.xlabel = "accumulate time"
+//    p3.ylabel = "kernel comparison"
+//    p3.yaxis.setTickUnit(new NumberTickUnit(0.05))
+//    p4.legend = true
+//    p4.xlabel = "accumulate time"
+//    p4.ylabel = "prsd kernel"
+//    p4.yaxis.setTickUnit(new NumberTickUnit(0.05))
+//    p5.legend = true
+//    p5.xlabel = "accumulate time"
+//    p5.ylabel = "impulse"
+//    p5.yaxis.setTickUnit(new NumberTickUnit(0.05))
+//    p6.legend = true
+//    p6.xlabel = "accumulate time"
+//    p6.ylabel = "kernel comparison"
+//    p6.yaxis.setTickUnit(new NumberTickUnit(0.05))
+//
+//    impulse_queue.clear()
+//    coef_queue.clear()
+//    kernel_queue.clear()
+//    coef_x_impu_queue.clear()
+//
     f
 
   }
 
-//  setSeed(6)
-//  for {
-//    _ <- 0 to 5
-//  } {
-//    val did = nextInt(rsd_cfg.depth_factor)
-//    val fid = nextInt(rsd_cfg.freq_factor)
-//    val dir = new File(s"tmp/fig/d${did}f${fid}")
-//    dir.mkdir()
-//    for(Rid <- 0 until rsd_cfg.impulse_sample_point) {
-//      val f = testCase(Rid, did, fid)
-//
-//      f.saveas(s"tmp/fig/d${did}f${fid}/res_R${Rid}_d${did}_f${fid}.png", dpi = 144)
-//    }
-//  }
-//
-//  testCase(19, 32, 45)
+  val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
+    LoadData.loadComplexMatrix(
+      real_part_filename = s"src/test/resource/data/real/uin_${idx+1}.csv",
+      imag_part_filename = s"src/test/resource/data/imag/uin_${idx+1}.csv"
+    )
+  }
+  val uin_fft = uin.map(fourierTr(_))
+  val kernel_size = (uin.head.rows, uin.head.cols)
+  for{
+    did <- 0 until rsd_cfg.depth_factor
+    fid <- 0 until rsd_cfg.freq_factor
+    len <- 0 until rsd_cfg.impulse_sample_point
+  } {
+    testCase(len, did, fid)
+  }
+  val uout = Array.tabulate(rsd_cfg.depth_factor) {depth =>
+    val uout_f = DenseMatrix.fill(kernel_size._1, kernel_size._2)(Complex(0, 0))
+    for(f <- 0 until rsd_cfg.freq_factor) {
+      val rsd_kernel_rad = hardware_rsd(depth)(f)
+      val rsd_kernel = Computation.restoreRSD(rsd_kernel_rad, kernel_size)
+      uout_f += rsd_kernel *:* uin_fft(f)
+    }
+    iFourierTr(uout_f)
+  }
+  val uout_abs = uout.map(_.map(_.abs))
 
-  new File("tmp/fig2").mkdir()
-  for(f <- 0 until rsd_cfg.freq_factor) {
-      val fig = testCase(40, 30, f)
-      fig.saveas(s"tmp/fig2/res_R40_d30_f$f.png", dpi = 144)
+  val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(kernel_size._1, kernel_size._2) { (x, y)=>
+    var umax = 0d
+    for(d <- 0 until rsd_cfg.depth_factor) {
+      if (uout_abs(d)(x, y) > umax) {
+        umax = uout_abs(d)(x, y)
+      }
+    }
+    umax
   }
-  new File("tmp/fig3").mkdir()
-  for(d <- 0 until rsd_cfg.depth_factor) {
-    val fig = testCase(40, d, 30)
-    fig.saveas(s"tmp/fig3/res_R40_d${d}_f30.png", dpi = 144)
-  }
+  println("Output image has been generated!")
+  println(s"output size: cols = ${uout_abs_max.cols}")
+
+  val uout_abs_max_flip = fliplr(uout_abs_max)
+  write_image(uout_abs_max_flip, "tb/RsdGenCore/nlos_out.jpg")
+
+
+//  new File("tmp/fig2").mkdir()
+//  for(f <- 0 until rsd_cfg.freq_factor) {
+//      val fig = testCase(40, 30, f)
+//      fig.saveas(s"tmp/fig2/res_R40_d30_f$f.png", dpi = 144)
+//  }
+//  new File("tmp/fig3").mkdir()
+//  for(d <- 0 until rsd_cfg.depth_factor) {
+//    val fig = testCase(40, d, 30)
+//    fig.saveas(s"tmp/fig3/res_R40_d${d}_f30.png", dpi = 144)
+//  }
 }

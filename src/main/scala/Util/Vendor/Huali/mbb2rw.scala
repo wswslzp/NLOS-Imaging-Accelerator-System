@@ -8,7 +8,7 @@ import Config._
 import Util.MemManager._
 import Util.Vendor._
 
-class mbb2rw(wrap: Ram2rw) extends MemBlackBox {
+class mbb2rw(wrap: Ram2rw) extends MemBlackBox(wrap.mc) {
   //  this.setDefinitionName()
   val io = new Bundle {
     val CLKA, CLKB = in Bool
