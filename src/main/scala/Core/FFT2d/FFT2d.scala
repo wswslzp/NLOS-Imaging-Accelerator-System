@@ -102,11 +102,10 @@ object FFT2d {
     // The valid of input should be active during all the cycles of effective value.
     val hcfg = input.payload.config
     val fft2_in_flow = Flow(Vec(HComplex(hcfg), point))
-    fft2_in_flow.translateFrom(input){(this_row, that_row)=>
-      this_row := Vec(History(that_row, point, input.valid).reverse.map{hcomp=>
-        inverse ? hcomp.conj | hcomp
-      })
-    }
+    fft2_in_flow.valid := countUpInside(input.valid, point).last
+    fft2_in_flow.payload := Vec(History(input.payload, point, input.valid).reverse.map{hcomp=>
+      inverse ? hcomp.conj | hcomp
+    })
     val fft_config = FFTConfig(hcfg, point, row)
     val fft2d_core = FFT2d(fft_config)
     fft2d_core.io.line_in <> fft2_in_flow

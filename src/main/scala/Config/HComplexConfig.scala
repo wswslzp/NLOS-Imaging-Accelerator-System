@@ -60,7 +60,16 @@ case class HComplexConfig
   def *(that: QFormat): HComplexConfig = {
     HComplexConfig(
       intw = this.intw + that.width - that.fraction,
-      fracw = this.fracw + that.fraction
+      fracw = this.fracw + that.fraction,
+      useGauss, real_high
+    )
+  }
+
+  def /(that: Int): HComplexConfig = {
+    HComplexConfig(
+      intw = this.intw/that,
+      fracw = this.fracw/that,
+      useGauss, real_high
     )
   }
 

@@ -19,7 +19,7 @@ case class RsdKernelConfig
   sub_mem_tag: Int = 0
 ){
   require(kernel_size.length == 2)
-  def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg
+  def getKernelConfig: HComplexConfig = ( coef_cfg * imp_cfg ) / 2
 
   def getFFT2dConfig: FFTConfig = FFTConfig(getKernelConfig, kernel_size(1), kernel_size(0))
 

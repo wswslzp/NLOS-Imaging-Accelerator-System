@@ -187,8 +187,8 @@ case class RsdGenCoreArray(
 //  val addr_map = Vec( buildAddrMap(cfg.impulse_sample_point) )
   val addr_map = Vec(buildAddrMap(Rlength))
 
-  // Push_start: A one-cycle square impulse active one cycle before actually push start
-  // fft2d_out_sync is active at the last one cycle of the fft2d_valid
+  // Push_start: A one-cycle square impulse active one cycle of actually push start
+  // fft2d_out_sync is active at the first one cycle of the fft2d_valid
   val push_start = io.dc_eq_0 ? io.fft2d_out_sync | push_ending_1
 
   // count for row_num cycles from push_start signal active
@@ -209,8 +209,8 @@ case class RsdGenCoreArray(
   io.rsd_kernel.valid := count_col_addr.cond_period
   push_ending := count_col_addr.cnt.willOverflow
 
-  io.push_ending := push_ending
-  io.cnt_incr := push_ending_1
+  io.push_ending := push_ending // Push ending is the true increment signal tb used.
+  io.cnt_incr := push_ending_1 // TODO: if freq counter increment when it activate, the timing is not conform to tb!
   io.load_req := impulse_load_unit.io.load_req ## wave_load_unit.io.load_req ## distance_load_unit.io.load_req ## timeshift_load_unit.io.load_req
 
 }
