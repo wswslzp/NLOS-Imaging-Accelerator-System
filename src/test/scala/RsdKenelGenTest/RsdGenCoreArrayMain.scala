@@ -232,7 +232,7 @@ object RsdGenCoreArrayMain extends App{
   }
 
   val uout_abs_max_flip = fliplr(uout_abs_max)
-  write_image(uout_abs_max_flip, "src/test/scala/SimTest/nlos_out.jpg")
+  write_image(uout_abs_max_flip, "tb/RsdGenCoreArray/nlos_hard_out.jpg")
 
 //  SpinalConfig(
 //    targetDirectory = "rtl/RsdGenCoreArray",
