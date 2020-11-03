@@ -59,8 +59,13 @@ object RsdGenCoreArrayMain extends App{
     .withFstWave
     .noOptimisation
     .workspacePath("tb")
-    .addSimulatorFlag("--hierarchical -j 32 --threads 32")
-    .addRtl("tmp/config.vlt")
+    .addSimulatorFlag("--hierarchical -j 4 --threads 4")
+    .withConfig(
+      SpinalConfig(
+        oneFilePerComponent = true,
+        rtlHeader = "/* verilator hier_block */"
+      )
+    )
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
     .doSim("RsdGenCoreArray_tb") {dut =>
       import Sim.RsdGenCoreArray.Driver._
