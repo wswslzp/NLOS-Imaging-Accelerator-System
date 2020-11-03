@@ -1,13 +1,15 @@
+package UtilTest
+
+import Util.MemManager
+import Util.MemManager.{Huali, Ram1rw}
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
-import Core._
-import Util._
-import Config._
-import Util.MemManager._
-import scala.util.Random._
 
-object SramTest extends App{
+import scala.util.Random.nextInt
+
+object SramTest extends App {
+
   case class SramBB() extends Component {
     val io = new Bundle {
       val ad_sw = in Bool()
@@ -24,7 +26,7 @@ object SramTest extends App{
 
     val addr_data_sw = RegNext(io.ad_sw, init = True)
 
-    when(io.din.fire){
+    when(io.din.fire) {
       // start write int mem
       when(addr_data_sw) {
         // write address to mem
@@ -43,7 +45,7 @@ object SramTest extends App{
         io.dout.valid := True
         io.dout.payload := int_mem.io.dp.dout.asUInt
       }
-    }otherwise{
+    } otherwise {
       int_mem.io.ap.addr := 0
       int_mem.io.dp.din := 0
       int_mem.io.ap.cs := False
@@ -64,7 +66,7 @@ object SramTest extends App{
     .addSimulatorFlag("--bbox-unsup")
     .workspacePath("tb")
     .compile(SramBB())
-    .doSim("SramBB_tb"){dut=>
+    .doSim("SramBB_tb") { dut =>
       dut.clockDomain.forkStimulus(2)
       dut.io.din.valid #= false
       dut.io.dout.ready #= true
@@ -72,13 +74,13 @@ object SramTest extends App{
 
       dut.clockDomain.waitSampling()
 
-      val random_data = Array.tabulate(10){_ =>
+      val random_data = Array.tabulate(10) { _ =>
         val d = nextInt(10)
         Math.max(
           d, -d
         )
       }
-      for(d <- 0 until 10) {
+      for (d <- 0 until 10) {
         dut.io.din.payload #= random_data(d)
         dut.io.din.valid #= true
         dut.clockDomain.waitSampling()
@@ -86,7 +88,7 @@ object SramTest extends App{
 
       dut.io.ad_sw #= false
       dut.clockDomain.waitSampling()
-      for(d <- 0 until 10) {
+      for (d <- 0 until 10) {
         dut.io.din.payload #= random_data(d)
         dut.io.din.valid #= true
         dut.clockDomain.waitSampling()

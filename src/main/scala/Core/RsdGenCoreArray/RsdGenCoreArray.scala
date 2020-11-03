@@ -51,9 +51,9 @@ case class RsdGenCoreArray(
   }
 
   val io = new Bundle {
+    val dc = in UInt(log2Up(cfg.depth_factor) bit)
+    val fc = in UInt(log2Up(cfg.freq_factor) bit)
     val fft2d_out_sync = in Bool
-//    val ready_for_store = in Bool()
-//    val start = in Bool()
     val push_ending = out Bool()
     val cnt_incr = out Bool
     val load_req = out Bits(4 bit)
@@ -62,7 +62,9 @@ case class RsdGenCoreArray(
     val rsd_kernel: Flow[Vec[HComplex]] = master (
       Flow(Vec(HComplex(kernel_cfg), row_num))
     )
+    val t1 = out Bool
   }
+  io.t1 := io.dc.andR | io.fc.orR
   val data_in = slave(Axi4WriteOnly(axi_config))
 
   // ********************* Load Unit ***************************
@@ -205,7 +207,7 @@ case class RsdGenCoreArray(
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
   val col_addr = count_col_addr.cnt
   val pixel_addrs: Array[UInt] = Array.tabulate(row_num){ id=>
-    addr_map( ( col_addr.value + U(id * row_num) ).resized )
+    addr_map( ( col_addr.value + U(id * col_num) ).resized )
   }
 
   for(id <- 0 until row_num) {

@@ -1,15 +1,15 @@
+package UtilTest
+
 import spinal.core._
 import spinal.lib._
-import Core._
-import Util._
-import Config._
 
-object latTest extends App{
+object latTest extends App {
+
   case class LatTest() extends Component {
     val io = new Bundle {
       val ia = in Bool
       val ib = in Bool
-      val ob = out Bits(2 bit)
+      val ob = out Bits (2 bit)
     }
 
     val a = RegInit(UInt(3 bit))

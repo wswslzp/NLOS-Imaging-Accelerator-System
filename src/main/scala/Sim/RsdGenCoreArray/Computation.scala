@@ -130,7 +130,7 @@ package object Computation {
     }
   }
 
-  def restoreRSD(rsd_kernel_rad: Vector[Vector[DenseVector[Complex]]], kernel_size: (Int, Int)): Vector[Vector[DenseMatrix[Complex]]] = {
+  def restoreRSD(rsd_kernel_rad: Array[Array[DenseVector[Complex]]], kernel_size: (Int, Int)): Array[Array[DenseMatrix[Complex]]] = {
     val addressMap = rsdKernelMap(kernel_size, rsd_kernel_rad.length)
     rsd_kernel_rad.map(_.map{kernel_rad=>
       DenseMatrix.tabulate(kernel_size._1, kernel_size._2){(x, y)=>

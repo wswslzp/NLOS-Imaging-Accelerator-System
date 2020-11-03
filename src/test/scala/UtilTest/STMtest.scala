@@ -1,21 +1,21 @@
-import spinal.core._
-import spinal.lib._
-import Core._
-import Util._
-import Config._
+package UtilTest
 
-object STMtest extends App{
+import spinal.core._
+
+object STMtest extends App {
+
   import spinal.core.sim._
   import spinal.lib.fsm._
+
   class TopLevel extends Component {
-    val io = new Bundle{
+    val io = new Bundle {
       val result = out Bool
       val when_is_next = out Bool
       val int_fsm1_flag = out Bool
       val int_fsm2_flag = out Bool
     }
 
-    val fsm = new StateMachine{
+    val fsm = new StateMachine {
       val stateA = new State with EntryPoint
       val stateB = new State
       val stateC = new StateDelay(10)
@@ -66,20 +66,20 @@ object STMtest extends App{
       io.int_fsm2_flag := False
 
       stateA
-        .whenIsActive (goto(stateB))
+        .whenIsActive(goto(stateB))
 
       stateB
         .onEntry(counter := 0) // The first cycle of the stateB
         .whenIsActive { // when current_state == stateB
           counter := counter + 1
-          when(counter === 4){
+          when(counter === 4) {
             goto(stateC)
           }
         }
         .whenIsNext { // when next_state == stateB
           io.when_is_next := True
         }
-        .onExit(io.result := True)// The last cycle of the stateB
+        .onExit(io.result := True) // The last cycle of the stateB
 
       stateC
         .whenCompleted {
@@ -100,7 +100,7 @@ object STMtest extends App{
     .workspacePath("tb")
     .allOptimisation
     .compile(new TopLevel())
-    .doSim("STMTest") {dut =>
+    .doSim("STMTest") { dut =>
       dut.clockDomain.doStimulus(2)
 
       dut.clockDomain.waitSampling(100)

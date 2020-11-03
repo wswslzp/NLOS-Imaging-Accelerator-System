@@ -56,7 +56,7 @@ object RsdGenCoreArrayMain extends App{
   val hard_rsd_kernel = DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
 
   SimConfig
-    .withWave
+    .withFstWave
     .noOptimisation
     .workspacePath("tb")
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
@@ -78,18 +78,20 @@ object RsdGenCoreArrayMain extends App{
       val rsdDriver = RsdDriver(dut.data_in, dut.clockDomain)
       dut.clockDomain.waitSampling()
 
-      fork{
-        SimTimeout(9000000)
-      }
+//      fork{
+//        SimTimeout(9000000)
+//      }
 
       forkJoin(
         () => {
           // Driver to send the input data
           for(d <- 0 until rsd_cfg.depth_factor) {
             dd = d
+            dut.io.dc #= d
             dut.io.dc_eq_0 #= d == 0
             for(f <- 0 until rsd_cfg.freq_factor) {
               ff = f
+              dut.io.fc #= f
               dut.io.fc_eq_0 #= f == 0
 //              println(s"df = ($d, $f)")
               dut.clockDomain.waitSampling()
@@ -125,12 +127,12 @@ object RsdGenCoreArrayMain extends App{
               if(d == 0) {
                 // for d == 0, kernel pushing needs to wait for fft2d output valid.
                 // waiting cycle ~ K^2, so we set 100 cycles
-                dut.clockDomain.waitSampling(100)
                 dut.io.fft2d_out_sync #= true
                 dut.clockDomain.waitSampling()
                 dut.io.fft2d_out_sync #= false
+                dut.clockDomain.waitSampling(128)
               } else {
-                dut.clockDomain.waitSampling(20)
+                dut.clockDomain.waitSampling(10)
               }
               dut.clockDomain.waitActiveEdgeWhere(dut.io.push_ending.toBoolean)
               //          dut.clockDomain.waitActiveEdgeWhere(dut.io.cnt_incr.toBoolean)
@@ -141,71 +143,15 @@ object RsdGenCoreArrayMain extends App{
         }
         ,
         () => {
-          // Monitor to catch the input and median results
-          forkJoin(
-            () => {
-              while(true) {
-                // catch timeshift
-                dut.clockDomain.waitActiveEdgeWhere(dut.timeshift_load_unit.transfer_done_rise.toBoolean)
-//                println(s"Got Timeshift:\n ${dut.timeshift_load_unit.sim_timeshift.toComplex}")
-              }
-            }
-            ,
-            () => {
-              while(true) {
-                // catch distance
-                dut.clockDomain.waitActiveEdgeWhere(dut.distance_load_unit.transfer_done_rise.toBoolean)
-//                println(s"Got Distance:\n ${dut.distance_load_unit.distance_reg.toDouble}")
-              }
-            }
-            ,
-            () => {
-              while(true) {
-                // catch wave
-                dut.clockDomain.waitActiveEdgeWhere(dut.wave_load_unit.transfer_done_rise.toBoolean)
-//                println(s"Got Wave:\n ${dut.wave_load_unit.wave_regs.map(_.toDouble)}")
-              }
-            }
-            ,
-            () => {
-              while(true) {
-                // catch imp
-                dut.clockDomain.waitActiveEdgeWhere(dut.impulse_load_unit.transfer_done_rise.toBoolean)
-                val imp = Array.tabulate(dut.impulse_load_unit.int_ram_array.length){idx=>
-                  Array.tabulate(dut.cfg.radius_factor){addr=>
-                    val xbits = dut.impulse_load_unit.int_ram_array(idx).getBigInt(addr).toLong
-                    bitsToComplex(xbits, dut.cfg.imp_cfg)
-                  }
-                }
-//                println(s"Got impulse:\n ${imp.head.map(_.toString()).mkString("Array(", ", ", ")")}")
-              }
-            }
-          )
-        }
-        ,
-        () => {
           // Monitor to catch the rsd kernel output
           while(true) {
             val cur_d = dd
             val cur_f = ff
             dut.clockDomain.waitActiveEdgeWhere(dut.io.rsd_kernel.valid.toBoolean)
-//            val rsd_kernel = Sim.RsdGenCoreArray.Computation.restoreRSD(
-//              rsd(dd)(ff), (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
-//            )
             for(y <- 0 until rsd_cfg.kernel_size.last) {
               for(x <- 0 until rsd_cfg.kernel_size.head) {
                 hard_rsd_kernel(x, y) = dut.io.rsd_kernel.payload(x).toComplex
               }
-//              val hout = DenseVector.tabulate(rsd_cfg.kernel_size.head)(dut.io.rsd_kernel.payload(_).toComplex)
-//              val diff_amp: DenseVector[Double] = (rsd_kernel(::, y) - hout).map(_.abs)
-//              val diff_amp_max: Double = breeze.linalg.max(diff_amp)
-//              if (diff_amp_max > 1e-5) {
-//                println(s"when dd = $dd, ff = $ff, y = $y")
-//                println(s"hout is \n${hout.toString()}")
-//                println(s"sout is \n${rsd_kernel(::, y).toString()}")
-//                println(s"The diff_amp_max = $diff_amp_max > 1e-5, simulation failed.\n hout: ${hout(0 to 9).toString()}\n rsd_kernel: ${rsd_kernel(0 to 9, y).toString()}")
-////                simFailure("**********TEST FAILED!*************")
-//              }
               dut.clockDomain.waitSampling()
             }
             uout(cur_d) += hard_rsd_kernel *:* uin_fft(cur_f)
@@ -214,7 +160,6 @@ object RsdGenCoreArrayMain extends App{
             }
           }
         }
-
       )
 
     }
