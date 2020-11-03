@@ -60,6 +60,7 @@ object RsdGenCoreArrayMain extends App{
     .noOptimisation
     .workspacePath("tb")
     .addSimulatorFlag("--hierarchical")
+    .addRtl("tmp/config.vlt")
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
     .doSim("RsdGenCoreArray_tb") {dut =>
       import Sim.RsdGenCoreArray.Driver._
@@ -184,7 +185,7 @@ object RsdGenCoreArrayMain extends App{
 //    targetDirectory = "rtl/RsdGenCoreArray",
 //    oneFilePerComponent = true
 //  ).generateVerilog(
-//    RsdGenCoreArray(rsd_cfg, init_addr)(axi_cfg)
+//    RsdGenCoreArray(rsd_cfg, init_addr)
 //  )
 //
 }
