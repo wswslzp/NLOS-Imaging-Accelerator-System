@@ -59,7 +59,7 @@ object RsdGenCoreArrayMain extends App{
     .withFstWave
     .noOptimisation
     .workspacePath("tb")
-    .addSimulatorFlag("--hierarchical -j 32")
+    .addSimulatorFlag("--hierarchical -j 32 --threads 32")
     .addRtl("tmp/config.vlt")
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
     .doSim("RsdGenCoreArray_tb") {dut =>
