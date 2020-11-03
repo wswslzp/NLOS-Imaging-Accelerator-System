@@ -5,9 +5,6 @@ import Util.HComplex
 import spinal.core._
 import spinal.lib._
 
-// TODO: Change to Flow, inner registers' random initial number should be eliminated.
-//  The inner feedback register for accumulation will initially store random number.
-//  So the inner reg should know when to store the valid result.
 case class RsdGenCore(cfg: RsdKernelConfig) extends Component {
   val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
   val io = new Bundle {

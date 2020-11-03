@@ -146,11 +146,20 @@ case class RsdGenCoreArray(
 
   // instantiate the rsd kernel core array
   // A rsd_gen_core contains a list of prsd_gen_core to pipe out a column of rsd kernel
-  val rsd_gen_core = RsdKernelGen(cfg)
-  rsd_gen_core.io.wave <> wave_load_unit.io.wave.payload
-  rsd_gen_core.io.distance <> distance_load_unit.io.distance.payload
-  rsd_gen_core.io.timeshift <> timeshift_load_unit.io.timeshift.payload
-  rsd_gen_core.io.ring_impulse <> impulse_load_unit.io.impulse_out.payload
+//  val rsd_gen_core = RsdKernelGen(cfg)
+//  rsd_gen_core.io.wave <> wave_load_unit.io.wave.payload
+//  rsd_gen_core.io.distance <> distance_load_unit.io.distance.payload
+//  rsd_gen_core.io.timeshift <> timeshift_load_unit.io.timeshift.payload
+//  rsd_gen_core.io.ring_impulse <> impulse_load_unit.io.impulse_out.payload
+  val rsd_gen_core_array = Array.fill(Rlength)(RsdGenCore(cfg))
+  rsd_gen_core_array.foreach(_.io.wave <> wave_load_unit.io.wave)
+  rsd_gen_core_array.foreach(_.io.distance <> distance_load_unit.io.distance)
+  rsd_gen_core_array.foreach(_.io.timeshift <> timeshift_load_unit.io.timeshift)
+  rsd_gen_core_array.zipWithIndex.foreach{ case (core, i) =>
+    core.io.ring_impulse <> impulse_load_unit.io.impulse_out.translateWith(
+      impulse_load_unit.io.impulse_out.payload(i)
+    )
+  }
 
   //Wave load unit's control signal connection
   wave_load_unit.io.impulse_enable := impulse_load_unit.io.data_enable
@@ -179,7 +188,8 @@ case class RsdGenCoreArray(
   val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength) simPublic()
   rsd_mem.zipWithIndex.foreach {case(dat, idx) =>
     when(wave_load_unit.io.rsd_comp_end) {
-      dat := rsd_gen_core.io.kernel_array(idx)
+//      dat := rsd_gen_core.io.kernel_array(idx)
+      dat := rsd_gen_core_array(idx).io.kernel.payload
     }
   }
 
