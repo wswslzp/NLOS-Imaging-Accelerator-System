@@ -2,13 +2,15 @@ package RsdKenelGenTest
 
 import Config._
 import Core._
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{DenseMatrix, DenseVector, fliplr}
 import breeze.math.Complex
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib.bus.amba4.axi.Axi4Config
 import Sim.SimComplex._
 import Sim.SimFix._
+import SimTest.NlosSystemSimTest.write_image
+import breeze.signal._
 
 object RsdGenCoreArrayMain extends App{
 
@@ -40,6 +42,18 @@ object RsdGenCoreArrayMain extends App{
   val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse)
   var dd = 0
   var ff = 0
+
+  val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
+    LoadData.loadComplexMatrix(
+      real_part_filename = s"src/test/resource/data/real/uin_${idx+1}.csv",
+      imag_part_filename = s"src/test/resource/data/imag/uin_${idx+1}.csv"
+    )
+  }
+  val uout = Array.fill(rsd_cfg.depth_factor)(
+    DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
+  )
+  val uin_fft = uin.map(fourierTr(_))
+  val hard_rsd_kernel = DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
 
   SimConfig
     .withWave
@@ -77,24 +91,24 @@ object RsdGenCoreArrayMain extends App{
             for(f <- 0 until rsd_cfg.freq_factor) {
               ff = f
               dut.io.fc_eq_0 #= f == 0
-              println(s"df = ($d, $f)")
+//              println(s"df = ($d, $f)")
               dut.clockDomain.waitSampling()
               if((dut.io.load_req.toInt & 1) == 1) {
-                println("TS")
-                println(s"timeshift($f, $d) = ${timeshift(f, d)}")
+//                println("TS")
+//                println(s"timeshift($f, $d) = ${timeshift(f, d)}")
                 rsdDriver.driveComplexData(timeshift(f, d), dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)
                 rsdDriver.driveData(1, dut.loadUnitAddrs(0) + 1)
               }
               dut.clockDomain.waitSampling()
               if((dut.io.load_req.toInt & 2) == 2) {
-                println("D")
+//                println("D")
                 rsdDriver.driveDoubleData(distance(f, d), dut.loadUnitAddrs(1), dut.cfg.distance_cfg.fracw)
                 rsdDriver.driveData(1, dut.loadUnitAddrs(1) + 1)
               }
               dut.clockDomain.waitSampling()
               if(f == 0) {
                 if((dut.io.load_req.toInt & 4) == 4) {
-                  println("Wave")
+//                  println("Wave")
                   rsdDriver.driveDoubleData(wave(::, d), dut.loadUnitAddrs(2), dut.cfg.wave_cfg.fracw)
                   rsdDriver.driveData(1, dut.loadUnitAddrs(2) + dut.cfg.radius_factor)
                 }
@@ -102,7 +116,7 @@ object RsdGenCoreArrayMain extends App{
               }
               if((d == 0) && (f == 0)) {
                 if((dut.io.load_req.toInt & 8) == 8) {
-                  println("Imp")
+//                  println("Imp")
                   rsdDriver.driveComplexData(impulse, dut.loadUnitAddrs(3), dut.cfg.imp_cfg)
                   rsdDriver.driveData(1, dut.loadUnitAddrs(3) + dut.cfg.radius_factor * dut.cfg.impulse_sample_point)
                 }
@@ -133,7 +147,7 @@ object RsdGenCoreArrayMain extends App{
               while(true) {
                 // catch timeshift
                 dut.clockDomain.waitActiveEdgeWhere(dut.timeshift_load_unit.transfer_done_rise.toBoolean)
-                println(s"Got Timeshift:\n ${dut.timeshift_load_unit.sim_timeshift.toComplex}")
+//                println(s"Got Timeshift:\n ${dut.timeshift_load_unit.sim_timeshift.toComplex}")
               }
             }
             ,
@@ -141,7 +155,7 @@ object RsdGenCoreArrayMain extends App{
               while(true) {
                 // catch distance
                 dut.clockDomain.waitActiveEdgeWhere(dut.distance_load_unit.transfer_done_rise.toBoolean)
-                println(s"Got Distance:\n ${dut.distance_load_unit.distance_reg.toDouble}")
+//                println(s"Got Distance:\n ${dut.distance_load_unit.distance_reg.toDouble}")
               }
             }
             ,
@@ -149,7 +163,7 @@ object RsdGenCoreArrayMain extends App{
               while(true) {
                 // catch wave
                 dut.clockDomain.waitActiveEdgeWhere(dut.wave_load_unit.transfer_done_rise.toBoolean)
-                println(s"Got Wave:\n ${dut.wave_load_unit.wave_regs.map(_.toDouble)}")
+//                println(s"Got Wave:\n ${dut.wave_load_unit.wave_regs.map(_.toDouble)}")
               }
             }
             ,
@@ -163,7 +177,7 @@ object RsdGenCoreArrayMain extends App{
                     bitsToComplex(xbits, dut.cfg.imp_cfg)
                   }
                 }
-                println(s"Got impulse:\n ${imp.head.map(_.toString()).mkString("Array(", ", ", ")")}")
+//                println(s"Got impulse:\n ${imp.head.map(_.toString()).mkString("Array(", ", ", ")")}")
               }
             }
           )
@@ -172,22 +186,31 @@ object RsdGenCoreArrayMain extends App{
         () => {
           // Monitor to catch the rsd kernel output
           while(true) {
+            val cur_d = dd
+            val cur_f = ff
             dut.clockDomain.waitActiveEdgeWhere(dut.io.rsd_kernel.valid.toBoolean)
-            val rsd_kernel = Sim.RsdGenCoreArray.Computation.restoreRSD(
-              rsd(dd)(ff), (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
-            )
-            for(x <- 0 until rsd_cfg.kernel_size.last) {
-              val hout = DenseVector.tabulate(rsd_cfg.kernel_size.head)(dut.io.rsd_kernel.payload(_).toComplex)
-              val diff_amp: DenseVector[Double] = (rsd_kernel(::, x) - hout).map(_.abs)
-              val diff_amp_max: Double = breeze.linalg.max(diff_amp)
-              if (diff_amp_max > 1e-5) {
-                println(s"when dd = $dd, ff = $ff, x = $x")
-                println(s"hout is \n${hout.toString()}")
-                println(s"sout is \n${rsd_kernel(::, x).toString()}")
-                println(s"The diff_amp_max = $diff_amp_max > 1e-5, simulation failed.\n hout: ${hout(0 to 9).toString()}\n rsd_kernel: ${rsd_kernel(0 to 9, x).toString()}")
-//                simFailure("**********TEST FAILED!*************")
+//            val rsd_kernel = Sim.RsdGenCoreArray.Computation.restoreRSD(
+//              rsd(dd)(ff), (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
+//            )
+            for(y <- 0 until rsd_cfg.kernel_size.last) {
+              for(x <- 0 until rsd_cfg.kernel_size.head) {
+                hard_rsd_kernel(x, y) = dut.io.rsd_kernel.payload(x).toComplex
               }
+//              val hout = DenseVector.tabulate(rsd_cfg.kernel_size.head)(dut.io.rsd_kernel.payload(_).toComplex)
+//              val diff_amp: DenseVector[Double] = (rsd_kernel(::, y) - hout).map(_.abs)
+//              val diff_amp_max: Double = breeze.linalg.max(diff_amp)
+//              if (diff_amp_max > 1e-5) {
+//                println(s"when dd = $dd, ff = $ff, y = $y")
+//                println(s"hout is \n${hout.toString()}")
+//                println(s"sout is \n${rsd_kernel(::, y).toString()}")
+//                println(s"The diff_amp_max = $diff_amp_max > 1e-5, simulation failed.\n hout: ${hout(0 to 9).toString()}\n rsd_kernel: ${rsd_kernel(0 to 9, y).toString()}")
+////                simFailure("**********TEST FAILED!*************")
+//              }
               dut.clockDomain.waitSampling()
+            }
+            uout(cur_d) += hard_rsd_kernel *:* uin_fft(cur_f)
+            if(cur_d == rsd_cfg.depth_factor-1){
+              uout(cur_d) = iFourierTr(uout(cur_d))
             }
           }
         }
@@ -195,6 +218,21 @@ object RsdGenCoreArrayMain extends App{
       )
 
     }
+
+  val uout_abs = uout.map(_.map(_.abs))
+
+  val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
+    var umax = 0d
+    for(d <- 0 until rsd_cfg.depth_factor) {
+      if (uout_abs(d)(x, y) > umax) {
+        umax = uout_abs(d)(x, y)
+      }
+    }
+    umax
+  }
+
+  val uout_abs_max_flip = fliplr(uout_abs_max)
+  write_image(uout_abs_max_flip, "src/test/scala/SimTest/nlos_out.jpg")
 
 //  SpinalConfig(
 //    targetDirectory = "rtl/RsdGenCoreArray",
