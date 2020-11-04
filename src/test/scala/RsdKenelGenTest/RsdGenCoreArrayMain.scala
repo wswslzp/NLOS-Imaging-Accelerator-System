@@ -59,7 +59,7 @@ object RsdGenCoreArrayMain extends App{
     .withFstWave
     .noOptimisation
     .workspacePath("tb")
-    .addSimulatorFlag("--hierarchical -j 16 --threads 16")
+    .addSimulatorFlag("--hierarchical -j 16 --threads 16 --trace-threads 16")
     .compile(RsdGenCoreArray(rsd_cfg, init_addr))
     .doSim("RsdGenCoreArray_tb") {dut =>
       import Sim.RsdGenCoreArray.Driver._

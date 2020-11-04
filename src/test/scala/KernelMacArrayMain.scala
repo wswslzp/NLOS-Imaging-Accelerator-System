@@ -50,6 +50,7 @@ object KernelMacArrayMain extends App{
     .withWave
     .allOptimisation
     .workspacePath("tb")
+    .addSimulatorFlag("--hierarchical -j 16 --threads 16 --trace-threads 16")
     .compile(KernelMacArray(rsd_cfg))
     .doSim("KernelMacArray_tb"){dut=>
       import Sim.SimComplex._
