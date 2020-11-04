@@ -56,15 +56,15 @@ object RsdGenCoreArrayMain extends App{
   val hard_rsd_kernel = DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
 
   import java.io._
-  new File("tb/RsdGenCoreArray/rtl").mkdirs()
+  new File("rtl").mkdirs()
   val report = SpinalConfig(
     oneFilePerComponent = true,
     rtlHeader = "/* verilator hier_block */",
-    targetDirectory = "tb/RsdGenCoreArray/rtl"
+    targetDirectory = "rtl"
   ).generateVerilog(
     RsdGenCoreArray(rsd_cfg, init_addr)
   )
-  report.blackboxesIncludeDir += "tb/RsdGenCoreArray/rtl"
+  report.blackboxesIncludeDir += "rtl"
 
   SimConfig
     .withFstWave
