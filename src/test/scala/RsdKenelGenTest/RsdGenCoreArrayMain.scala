@@ -55,12 +55,21 @@ object RsdGenCoreArrayMain extends App{
   val uin_fft = uin.map(fourierTr(_))
   val hard_rsd_kernel = DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
 
+  val report = SpinalConfig(
+    oneFilePerComponent = true,
+    rtlHeader = "/* verilator hier_block */"
+  ).generateVerilog(
+    RsdGenCoreArray(rsd_cfg, init_addr)
+  )
+  report.blackboxesIncludeDir += "tb/RsdGenCoreArray/rtl"
+
   SimConfig
     .withFstWave
     .noOptimisation
     .workspacePath("tb")
+    .workspaceName("RsdGenCoreArray")
     .addSimulatorFlag("--hierarchical -j 16 --threads 16 --trace-threads 16")
-    .compile(RsdGenCoreArray(rsd_cfg, init_addr))
+    .compile(report)
     .doSim("RsdGenCoreArray_tb") {dut =>
       import Sim.RsdGenCoreArray.Driver._
       dut.clockDomain.forkStimulus(2)
