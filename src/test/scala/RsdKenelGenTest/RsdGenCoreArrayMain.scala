@@ -55,6 +55,8 @@ object RsdGenCoreArrayMain extends App{
   val uin_fft = uin.map(fourierTr(_))
   val hard_rsd_kernel = DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
 
+  import java.io._
+  new File("tb/RsdGenCoreArray/rtl").mkdirs()
   val report = SpinalConfig(
     oneFilePerComponent = true,
     rtlHeader = "/* verilator hier_block */",
