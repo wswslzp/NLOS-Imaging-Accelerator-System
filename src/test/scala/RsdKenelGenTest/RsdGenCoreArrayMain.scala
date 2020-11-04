@@ -57,7 +57,8 @@ object RsdGenCoreArrayMain extends App{
 
   val report = SpinalConfig(
     oneFilePerComponent = true,
-    rtlHeader = "/* verilator hier_block */"
+    rtlHeader = "/* verilator hier_block */",
+    targetDirectory = "tb/RsdGenCoreArray/rtl"
   ).generateVerilog(
     RsdGenCoreArray(rsd_cfg, init_addr)
   )
