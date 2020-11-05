@@ -103,6 +103,7 @@ object RsdGenCoreArrayMain extends App{
             dut.io.dc #= d
             dut.io.dc_eq_0 #= d == 0
             for(f <- 0 until rsd_cfg.freq_factor) {
+              println(s"Now is ($d, $f)")
               ff = f
               dut.io.fc #= f
               dut.io.fc_eq_0 #= f == 0
