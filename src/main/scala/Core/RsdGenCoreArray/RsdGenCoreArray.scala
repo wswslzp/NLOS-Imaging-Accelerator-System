@@ -204,8 +204,13 @@ case class RsdGenCoreArray(
   val push_start = io.dc_eq_0 ? io.fft2d_out_sync | push_ending_1
 
   // count for row_num cycles from push_start signal active
+  // TODO: separate the address map function into a single module
+  //  Input: col_addr;
+  //  Param: row_num, col_num, sample_points;
+  //  Output: pixel_addrs;
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
   val col_addr = count_col_addr.cnt
+  col_addr.setName("col_addr")
   val pixel_addrs: Array[UInt] = Array.tabulate(row_num){ id=>
     addr_map( ( col_addr.value + U(id * col_num) ).resized )
   }
