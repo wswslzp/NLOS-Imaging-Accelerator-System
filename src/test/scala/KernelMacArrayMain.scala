@@ -55,6 +55,7 @@ object KernelMacArrayMain extends App{
   SimConfig
     .withWave
     .allOptimisation
+    .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
     .workspacePath("tb")
     .compile(KernelMacArray(rsd_cfg))
     .doSim("KernelMacArray_tb"){dut=>

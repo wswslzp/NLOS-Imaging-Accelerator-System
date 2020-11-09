@@ -51,6 +51,7 @@ case class KernelMacArray(cfg: RsdKernelConfig) extends Component {
   pipe_out_col_addr.setName("pipe_out_col_addr")
   val pipe_out_enable = pipe_out_col_addr_area.cond_period
   pipe_out_enable.setName("pipe_out_enable")
+  // TODO: This address muxer may be too slow for both implementation and simulation
   when(pipe_out_enable){
     for(row <- 0 until row_num) {
       acc_regs(row)(pipe_out_col_addr.value) := HC(0, 0, cfg.getKernelConfig)

@@ -191,11 +191,4 @@ object RsdGenCoreArrayMain extends App{
   val uout_abs_max_flip = fliplr(uout_abs_max)
   write_image(uout_abs_max_flip, "tb/RsdGenCoreArray/nlos_hard_out.jpg")
 
-  SpinalConfig(
-    targetDirectory = "rtl/RsdGenCoreArray",
-    oneFilePerComponent = true
-  ).generateVerilog(
-    RsdGenCoreArray(rsd_cfg, init_addr)
-  )
-
 }
