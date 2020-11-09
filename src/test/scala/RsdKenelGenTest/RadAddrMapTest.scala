@@ -24,6 +24,7 @@ object RadAddrMapTest extends App{
           addr_mat(row, col) = dut.io.pixel_addrs(row).toInt.toDouble
         }
       }
+      new File("tmp/addr_map_test").mkdir()
       csvwrite(new File("tmp/addr_map_test/hard_addr_mat.csv"), addr_mat)
       simSuccess()
     }
