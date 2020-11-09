@@ -53,7 +53,7 @@ object KernelMacArrayMain extends App{
   ).generateVerilog(KernelMacArray(rsd_cfg))
 
   SimConfig
-    .withWave
+    .withWave(2)
     .allOptimisation
     .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
     .workspacePath("tb")
