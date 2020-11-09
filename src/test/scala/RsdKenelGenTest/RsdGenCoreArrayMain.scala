@@ -58,7 +58,7 @@ object RsdGenCoreArrayMain extends App{
   import java.io._
   new File("rtl/RsdGenCoreArray").mkdir()
   val report = SpinalConfig(
-    oneFilePerComponent = true,
+//    oneFilePerComponent = true,
     targetDirectory = "rtl/RsdGenCoreArray"
   ).generateVerilog(
     RsdGenCoreArray(rsd_cfg, init_addr)
@@ -90,7 +90,7 @@ object RsdGenCoreArrayMain extends App{
       dut.clockDomain.waitSampling()
 
       fork{
-        SimTimeout(40000)
+        SimTimeout(40000000)
       }
 
       forkJoin(
