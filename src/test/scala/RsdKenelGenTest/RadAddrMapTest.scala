@@ -17,9 +17,9 @@ object RadAddrMapTest extends App{
     .compile(RadAddrMap(rsd_cfg))
     .doSim("RadAddrMap_tb"){dut=>
       for(col <- 0 until rsd_cfg.kernel_size.last){
-        wait(10)
+        sleep(1)
         dut.io.col_addr #= col
-        wait(10)
+        sleep(1)
         for(row <- 0 until rsd_cfg.kernel_size.head){
           addr_mat(row, col) = dut.io.pixel_addrs(row).toInt.toDouble
         }
