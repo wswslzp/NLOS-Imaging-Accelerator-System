@@ -58,7 +58,7 @@ object RsdGenCoreArrayMain extends App{
   import java.io._
   new File("rtl/RsdGenCoreArray").mkdir()
   val report = SpinalConfig(
-    oneFilePerComponent = true,
+//    oneFilePerComponent = true,
     targetDirectory = "rtl/RsdGenCoreArray"
   ).generateVerilog(
     RsdGenCoreArray(rsd_cfg, init_addr)
