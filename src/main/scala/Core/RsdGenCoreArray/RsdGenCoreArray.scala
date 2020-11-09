@@ -197,7 +197,7 @@ case class RsdGenCoreArray(
 
   // The address transformation happens here
 //  val addr_map = Vec( buildAddrMap(cfg.impulse_sample_point) )
-  val addr_map = Vec(buildAddrMap(Rlength))
+//  val addr_map = Vec(buildAddrMap(Rlength))
 
   // Push_start: A one-cycle square impulse active one cycle of actually push start
   // fft2d_out_sync is active at the first one cycle of the fft2d_valid
@@ -211,9 +211,12 @@ case class RsdGenCoreArray(
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
   val col_addr = count_col_addr.cnt
   col_addr.setName("col_addr")
-  val pixel_addrs: Array[UInt] = Array.tabulate(row_num){ id=>
-    addr_map( ( col_addr.value + U(id * col_num) ).resized )
-  }
+  val rad_addr_map = RadAddrMap(cfg)
+  rad_addr_map.io.col_addr := col_addr.value
+  val pixel_addrs = rad_addr_map.io.pixel_addrs
+//  val pixel_addrs: Array[UInt] = Array.tabulate(row_num){ id=>
+//    addr_map( ( col_addr.value + U(id * col_num) ).resized )
+//  }
 
   for(id <- 0 until row_num) {
     when(count_col_addr.cond_period) {

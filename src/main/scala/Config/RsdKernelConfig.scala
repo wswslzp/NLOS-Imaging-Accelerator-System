@@ -1,5 +1,6 @@
 package Config
 
+import Sim.RsdGenCoreArray.LoadData
 import spinal.lib.bus.amba4.axi.Axi4Config
 
 case class RsdKernelConfig
@@ -51,6 +52,18 @@ case class RsdKernelConfig
 }
 
 object RsdKernelConfig {
+  private val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")
+  private val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")
+  val rsd_cfg = RsdKernelConfig(
+    wave_cfg = HComplexConfig(8, 8),
+    distance_cfg = HComplexConfig(8, 8),
+    timeshift_cfg = HComplexConfig(-4, 20),
+    coef_cfg = HComplexConfig(-5, 21), // (-4 ,20) --> (-5, 21)
+    imp_cfg = HComplexConfig(5, 11),
+    depth_factor = wave.cols,
+    radius_factor = wave.rows,
+    freq_factor = distance.rows
+  )
   implicit val axi_config: Axi4Config = Axi4Config(
     addressWidth = 32, dataWidth = 32,
     idWidth = 4, useRegion = false, useLock = false, useCache = false, useQos = false,

@@ -6,11 +6,22 @@ import spinal.lib._
 
 import scala.collection.mutable.ArrayBuffer
 import breeze.linalg._
+import breeze.numerics._
 import java.io._
 
 object AddrMapTest extends App{
   val row_num = 128
   val col_num = 128
+
+  def jplsqrt(x: Double, y: Double): Double = {
+    val I = max(abs(x), abs(y))
+    val Q = min(abs(x), abs(y))
+    if(I < 3*Q){
+      7/8 * I + Q/2
+    } else {
+      I + Q/8
+    }
+  }
 
   def buildAddrMap(sample_point: Int, mapping_factor: Double = 1.1): Array[Int] = {
     // Return the address LUT
@@ -39,7 +50,32 @@ object AddrMapTest extends App{
     }
   }
 
-  val addr_map = buildAddrMap(101)
+  def buildAddrMap1(sample_point: Int, mapping_factor: Double = 1.1): Array[Int] = {
+    // Return the address LUT
+    // The index of the LUT represents the linear address of the original image's pixels
+    // The value of the LUT represents the linear address of the radius of image.
+
+    val result_mat = ArrayBuffer.fill(row_num, col_num)(0)
+    for {
+      x <- 0 until row_num
+      y <- 0 until col_num
+    } {
+      val gx = if (x < row_num/2) x else row_num-x
+      val gy = if (y < col_num/2) y else col_num-y
+      val tmp = sqrt(
+        gx * gx + gy * gy
+      )
+//      val tmp = jplsqrt(gx, gy)
+      result_mat(x)(y) = ( mapping_factor * tmp ).toInt
+    }
+    Array.tabulate(row_num * col_num){idx=>
+      val row = idx / row_num
+      val col = idx % row_num
+      result_mat(row)(col)
+    }
+  }
+
+  val addr_map = buildAddrMap1(101)
   val addr_map_mat = DenseMatrix.tabulate(row_num, col_num){(x, y)=>
     addr_map(
       x * col_num + y

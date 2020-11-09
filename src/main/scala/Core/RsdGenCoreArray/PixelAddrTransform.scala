@@ -3,6 +3,7 @@ package Core.RsdGenCoreArray
 import spinal.core._
 import spinal.lib._
 import Config._
+import Util.SqrtImpl._
 
 case class PixelAddrTransform(
                                row_addr: Int,
@@ -20,7 +21,7 @@ case class PixelAddrTransform(
   when(io.col_addr < col_num/2){
     g_col_addr := io.col_addr
   } otherwise {
-    g_col_addr := col_num - io.col_addr
+    g_col_addr := ( col_num - io.col_addr ).resized
   }
 
   val g_row_addr2 = g_row_addr * g_row_addr
@@ -28,6 +29,8 @@ case class PixelAddrTransform(
 
   val g_tmp_addr = g_col_addr2 + g_row_addr2
 
-  //TODO: sqrt approximation: JPL? Cordic?
+  val g_sqrt_addr = CompareSqrt.sqrt(g_tmp_addr)
+
+  io.rad_addr := ( g_sqrt_addr + (g_sqrt_addr >> 3) ).resized // multiply with 1.1
 
 }
