@@ -46,6 +46,12 @@ object KernelMacArrayMain extends App{
     DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
   )
 
+  new java.io.File("rtl/KernelMacArray").mkdir()
+  SpinalConfig(
+    targetDirectory = "rtl/KernelMacArray",
+    oneFilePerComponent = true
+  ).generateVerilog(KernelMacArray(rsd_cfg))
+
   SimConfig
     .withWave
     .allOptimisation
@@ -100,11 +106,11 @@ object KernelMacArrayMain extends App{
                   dut.clockDomain.waitSampling(2)
                 }
                 dut.clockDomain.waitSampling(10)
-                simSuccess()
               }
             )
           }
         }
+        simSuccess()
       }
 
       fork{

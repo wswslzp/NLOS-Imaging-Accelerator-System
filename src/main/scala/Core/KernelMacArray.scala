@@ -15,9 +15,7 @@ case class KernelMacArray(cfg: RsdKernelConfig) extends Component {
     val mac_result = master(Flow(Vec(HComplex(cfg.getKernelConfig), row_num)))
   }
 
-  val rsd_kernel = io.rsd_kernel.toReg()
-  val fft_out = io.fft_out.toReg()
-  val valid = RegNext(io.rsd_kernel.valid & io.fft_out.valid, init = False)
+  val valid = io.rsd_kernel.valid & io.fft_out.valid
 
   // Count up for the current column address
   val col_addr_area = countUpInside(valid, cfg.kernel_size.head)
@@ -25,11 +23,8 @@ case class KernelMacArray(cfg: RsdKernelConfig) extends Component {
   col_addr.setName("col_addr")
 
   // Pipeline the complex multiplication for good timing. Trade off between area and timing.
-  val rsd_fft_prod = Array.fill(row_num){
-    Vec.fill(col_num)(Reg(HComplex(cfg.getKernelConfig)))
-  }
-  for(row <- 0 until row_num){
-    rsd_fft_prod(row)(col_addr.value.resized) := rsd_kernel(row) * fft_out(row)
+  val rsd_fft_prod = Vec.tabulate(row_num){idx=>
+    RegNext(io.rsd_kernel.payload(idx) * io.fft_out.payload(idx))
   }
 
   // Store the median accumulation results.
@@ -43,7 +38,7 @@ case class KernelMacArray(cfg: RsdKernelConfig) extends Component {
   }
   when(acc_enable){
     for(row <- 0 until row_num) {
-      acc_regs(row)(col_addr_1) := acc_regs(row)(col_addr_1) + rsd_fft_prod(row)(col_addr_1)
+      acc_regs(row)(col_addr_1) := acc_regs(row)(col_addr_1) + rsd_fft_prod(row)
     }
   }
 

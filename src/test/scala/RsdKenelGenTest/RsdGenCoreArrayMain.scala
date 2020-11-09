@@ -58,14 +58,14 @@ object RsdGenCoreArrayMain extends App{
   import java.io._
   new File("rtl/RsdGenCoreArray").mkdir()
   val report = SpinalConfig(
-//    oneFilePerComponent = true,
+    oneFilePerComponent = true,
     targetDirectory = "rtl/RsdGenCoreArray"
   ).generateVerilog(
     RsdGenCoreArray(rsd_cfg, init_addr)
   )
 
   SimConfig
-    .withFstWave
+    .withWave
     .noOptimisation
     .workspacePath("tb")
     .workspaceName("RsdGenCoreArray")
@@ -89,9 +89,9 @@ object RsdGenCoreArrayMain extends App{
       val rsdDriver = RsdDriver(dut.data_in, dut.clockDomain)
       dut.clockDomain.waitSampling()
 
-//      fork{
-//        SimTimeout(9000000)
-//      }
+      fork{
+        SimTimeout(40000)
+      }
 
       forkJoin(
         () => {
@@ -142,7 +142,7 @@ object RsdGenCoreArrayMain extends App{
                 dut.io.fft2d_out_sync #= true
                 dut.clockDomain.waitSampling()
                 dut.io.fft2d_out_sync #= false
-                dut.clockDomain.waitSampling(128)
+                dut.clockDomain.waitSampling(120)
               } else {
                 dut.clockDomain.waitSampling(10)
               }
