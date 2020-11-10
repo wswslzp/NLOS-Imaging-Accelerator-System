@@ -35,10 +35,6 @@ object WaveLoadUnitTest extends App{
       val driver = RsdDriver(dut.data_in, dut.clockDomain)
 
       dut.io.fc_eq_0 #= true
-      dut.io.dc_eq_0 #= true
-      dut.io.push_ending #= false
-      dut.io.distance_enable #= false
-      dut.io.impulse_enable #= false
       dut.data_in.aw.valid #= false
       dut.data_in.w.valid #= false
       dut.data_in.b.ready #= false
@@ -51,9 +47,7 @@ object WaveLoadUnitTest extends App{
 
       // df = (0, 0)
       if(dut.io.load_req.toBoolean) {
-        dut.io.distance_enable #= true
         dut.clockDomain.waitSampling()
-        dut.io.distance_enable #= false
         driver.driveDoubleData(wave(::, 1), init_addr, rsd_cfg.wave_cfg.fracw)
 //        dut.clockDomain.waitSampling()
 //        dut.io.distance_enable #= false
@@ -64,9 +58,7 @@ object WaveLoadUnitTest extends App{
       dut.clockDomain.waitSampling(rsd_cfg.impulse_sample_point)
       forkJoin(
         () => {
-          dut.io.impulse_enable #= true
           dut.clockDomain.waitSampling()
-          dut.io.impulse_enable #= false
         },
         () => {
           dut.clockDomain.waitSampling(rsd_cfg.radius_factor)
@@ -75,18 +67,14 @@ object WaveLoadUnitTest extends App{
       dut.clockDomain.waitSampling(30)
 
       // df = (0, 1)
-      dut.io.dc_eq_0 #= true
       dut.io.fc_eq_0 #= false
       dut.clockDomain.waitSampling(30)
 
       // df = (1, 0)
-      dut.io.dc_eq_0 #= false
       dut.io.fc_eq_0 #= true
       if(dut.io.load_req.toBoolean) {
         dut.clockDomain.waitSampling(10)
-        dut.io.distance_enable #= true
         dut.clockDomain.waitSampling()
-        dut.io.distance_enable #= false
         driver.driveDoubleData(wave(::, 2), init_addr, rsd_cfg.wave_cfg.fracw)
       }
       dut.clockDomain.waitSampling()
@@ -95,7 +83,6 @@ object WaveLoadUnitTest extends App{
       dut.clockDomain.waitSampling(rsd_cfg.radius_factor)
 
       // df = (1, 1)
-      dut.io.dc_eq_0 #= false
       dut.io.fc_eq_0 #= false
       dut.clockDomain.waitSampling(30)
 
