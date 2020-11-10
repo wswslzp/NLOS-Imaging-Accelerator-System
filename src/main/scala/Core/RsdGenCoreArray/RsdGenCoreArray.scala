@@ -130,9 +130,9 @@ case class RsdGenCoreArray(
   }
 
   //Wave load unit's control signal connection
-  wave_load_unit.io.impulse_enable := impulse_load_unit.io.data_enable
-  wave_load_unit.io.distance_enable := distance_load_unit.io.data_enable
-  wave_load_unit.io.push_ending := push_ending
+//  wave_load_unit.io.impulse_enable := impulse_load_unit.io.data_enable
+//  wave_load_unit.io.distance_enable := distance_load_unit.io.data_enable
+//  wave_load_unit.io.push_ending := push_ending
   wave_load_unit.io.rsd_comp_start := rsd_comp_start
 
   // Timeshift load unit
@@ -150,7 +150,7 @@ case class RsdGenCoreArray(
   impulse_load_unit.io.fc_eq_0 := io.fc_eq_0
   impulse_load_unit.io.dc_eq_0 := io.dc_eq_0
   wave_load_unit.io.fc_eq_0 := io.fc_eq_0
-  wave_load_unit.io.dc_eq_0 := io.dc_eq_0
+//  wave_load_unit.io.dc_eq_0 := io.dc_eq_0
 
   // Store the rsd kernel
   val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength) simPublic()

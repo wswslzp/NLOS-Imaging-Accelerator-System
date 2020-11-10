@@ -21,12 +21,8 @@ case class WaveLoadUnit(
 
   val io = new Bundle {
     val fc_eq_0 = in Bool
-    val dc_eq_0 = in Bool
-    val push_ending = in Bool
     val ready_for_store = out Bool
     val load_req = out Bool
-    val distance_enable = in Bool
-    val impulse_enable = in Bool
     val data_enable = out Bool
     val rsd_comp_end = out Bool
     val rsd_comp_start = in Bool
@@ -62,13 +58,13 @@ case class WaveLoadUnit(
   wave_regs.foreach(_.simPublic())
   transfer_done_rise.simPublic()
 
-  // When the impulse has done transfer, the valid and start signal set high
-  io.wave.valid := io.impulse_enable
-
   // The master set the transfer done register to indicate that the data is on the port
   io.data_enable := transfer_done_rise
 
   val count_for_push_wave = countUpFrom(io.rsd_comp_start, 0 until cfg.radius_factor, "count_for_push_wave")
+
+  // When the impulse has done transfer, the valid and start signal set high
+  io.wave.valid := count_for_push_wave.cond_period
 
   // Indicate when the internal memory is ready for storing the new data
   io.ready_for_store := !transfer_done_reg

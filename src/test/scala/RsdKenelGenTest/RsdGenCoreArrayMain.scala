@@ -1,5 +1,6 @@
 package RsdKenelGenTest
 
+import sys.process._
 import Config._
 import Core._
 import breeze.linalg.{DenseMatrix, DenseVector, fliplr}
@@ -190,5 +191,8 @@ object RsdGenCoreArrayMain extends App{
 
   val uout_abs_max_flip = fliplr(uout_abs_max)
   write_image(uout_abs_max_flip, "tb/RsdGenCoreArray/nlos_hard_out.jpg")
+
+  "vcd2vpd RsdGenCoreArray_tb.vcd RsdGenCoreArray_tb.vcd.vpd" !
+  "vpd2fsdb RsdGenCoreArray_tb.vcd.vpd -o RsdGenCoreArray_tb.vcd.vpd.fsdb" !
 
 }
