@@ -160,7 +160,6 @@ object RsdGenCoreArrayMain extends App{
             val cur_d = dd
             val cur_f = ff
             dut.clockDomain.waitActiveEdgeWhere(dut.io.rsd_kernel.valid.toBoolean)
-            println(s"cur_d = $cur_d and cur_f = $cur_f")
             for(y <- 0 until rsd_cfg.kernel_size.last) {
               for(x <- 0 until rsd_cfg.kernel_size.head) {
                 hard_rsd_kernel(x, y) = dut.io.rsd_kernel.payload(x).toComplex
@@ -168,7 +167,7 @@ object RsdGenCoreArrayMain extends App{
               dut.clockDomain.waitSampling()
             }
             uout(cur_d) += hard_rsd_kernel *:* uin_fft(cur_f)
-            if(cur_d == rsd_cfg.depth_factor-1){
+            if(cur_f == rsd_cfg.freq_factor-1){
               uout(cur_d) = iFourierTr(uout(cur_d))
             }
           }
