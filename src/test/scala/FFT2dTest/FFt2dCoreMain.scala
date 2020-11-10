@@ -12,19 +12,10 @@ import breeze.math._
 object FFt2dCoreMain extends App{
   import Sim.SimFix._
   import Sim.SimComplex._
-  val rsd_cfg = RsdKernelConfig(
-    wave_cfg = HComplexConfig(8, 8),
-    distance_cfg = HComplexConfig(8, 8),
-    timeshift_cfg = HComplexConfig(-4, 20),
-    coef_cfg = HComplexConfig(-5, 21), // (-4 ,20) --> (-5, 21)
-    imp_cfg = HComplexConfig(5, 11),
-    depth_factor = 51,
-    radius_factor = 68,
-    freq_factor = 69
-  )
+  import Config.RsdKernelConfig.rsd_cfg
 
   SpinalConfig(
-    targetDirectory = "tb/FFT2dCore_tb/rtl",
+    targetDirectory = "rtl/fft2d_core",
     oneFilePerComponent = true
   ).generateVerilog(
     FFT2dCore(

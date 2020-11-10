@@ -14,41 +14,12 @@ import spinal.core.sim._
 case class RsdGenCoreArray(
                           cfg: RsdKernelConfig,
                           init_addr: Int
-//                          axi_config: Axi4Config
-                          )(implicit val axi_config: Axi4Config) extends Component /*with Axi4Slave*/ {
-//  override val word_bit_count: Int = cfg.timeshift_cfg.getComplexWidth
+                          )(implicit val axi_config: Axi4Config) extends Component {
   val row_num = cfg.kernel_size(0)
   val col_num: Int = cfg.kernel_size(1)
   val Rlength = cfg.impulse_sample_point
 
   private val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
-
-//  private def buildAddrMap(sample_point: Int, mapping_factor: Double = 1.1): Array[UInt] = {
-//    // Return the address LUT
-//    // The index of the LUT represents the linear address of the original image's pixels
-//    // The value of the LUT represents the linear address of the radius of image.
-//
-//    val result_mat = ArrayBuffer.fill(row_num, col_num)(0)
-//    for {
-//      x <- 0 until row_num
-//      y <- 0 until col_num
-//    } {
-//      val xp = (x + row_num/2) % row_num
-//      val yp = (y + col_num/2) % col_num
-//      result_mat(xp)(yp) = Math.max(
-//        Math.min(
-//          Math.sqrt(Math.pow(x - row_num/2, 2) + Math.pow(y - col_num/2, 2)) * mapping_factor,
-//          sample_point - 1
-//        ),
-//        0
-//      ).toInt
-//    }
-//    Array.tabulate(row_num * col_num){idx=>
-//      val row = idx / row_num
-//      val col = idx % row_num
-//      U(result_mat(row)(col))
-//    }
-//  }
 
   val io = new Bundle {
     val dc = in UInt(log2Up(cfg.depth_factor) bit)
@@ -148,11 +119,6 @@ case class RsdGenCoreArray(
 
   // instantiate the rsd kernel core array
   // A rsd_gen_core contains a list of prsd_gen_core to pipe out a column of rsd kernel
-//  val rsd_gen_core = RsdKernelGen(cfg)
-//  rsd_gen_core.io.wave <> wave_load_unit.io.wave.payload
-//  rsd_gen_core.io.distance <> distance_load_unit.io.distance.payload
-//  rsd_gen_core.io.timeshift <> timeshift_load_unit.io.timeshift.payload
-//  rsd_gen_core.io.ring_impulse <> impulse_load_unit.io.impulse_out.payload
   val rsd_gen_core_array = Array.fill(Rlength)(RsdGenCore(cfg))
   rsd_gen_core_array.foreach(_.io.wave <> wave_load_unit.io.wave)
   rsd_gen_core_array.foreach(_.io.distance <> distance_load_unit.io.distance)
@@ -204,19 +170,12 @@ case class RsdGenCoreArray(
   val push_start = io.dc_eq_0 ? io.fft2d_out_sync | push_ending_1
 
   // count for row_num cycles from push_start signal active
-  // TODO: separate the address map function into a single module
-  //  Input: col_addr;
-  //  Param: row_num, col_num, sample_points;
-  //  Output: pixel_addrs;
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
   val col_addr = count_col_addr.cnt
   col_addr.setName("col_addr")
   val rad_addr_map = RadAddrMap(cfg)
   rad_addr_map.io.col_addr := col_addr.value
   val pixel_addrs = rad_addr_map.io.pixel_addrs
-//  val pixel_addrs: Array[UInt] = Array.tabulate(row_num){ id=>
-//    addr_map( ( col_addr.value + U(id * col_num) ).resized )
-//  }
 
   for(id <- 0 until row_num) {
     when(count_col_addr.cond_period) {

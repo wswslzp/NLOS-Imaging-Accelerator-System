@@ -65,7 +65,7 @@ object RsdGenCoreArrayMain extends App{
   )
 
   SimConfig
-    .withWave
+    .withWave(1)
     .noOptimisation
     .workspacePath("tb")
     .workspaceName("RsdGenCoreArray")
@@ -160,6 +160,7 @@ object RsdGenCoreArrayMain extends App{
             val cur_d = dd
             val cur_f = ff
             dut.clockDomain.waitActiveEdgeWhere(dut.io.rsd_kernel.valid.toBoolean)
+            println(s"cur_d = $cur_d and cur_f = $cur_f")
             for(y <- 0 until rsd_cfg.kernel_size.last) {
               for(x <- 0 until rsd_cfg.kernel_size.head) {
                 hard_rsd_kernel(x, y) = dut.io.rsd_kernel.payload(x).toComplex

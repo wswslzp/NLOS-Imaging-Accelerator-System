@@ -56,7 +56,7 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
 
   val int_mem = Array.fill(cfg.row)(
     Ram1rw(MemConfig(
-      dw = cfg.hComplexConfig.getComplexWidth,
+      dw = 32, //cfg.hComplexConfig.getComplexWidth,
       aw = log2Up(cfg.row * freq_factor),
       vendor = Huali,
       name = "fft2d9k32bit8bank",
