@@ -21,6 +21,6 @@ case class RadAddrMap(cfg: RsdKernelConfig) extends Component{
 
   pixelAddrTransforms.zipWithIndex.foreach{ case (transform, i) =>
     transform.io.col_addr := io.col_addr
-    io.pixel_addrs(i) := transform.io.rad_addr
+    io.pixel_addrs(i) := (transform.io.rad_addr < (cfg.impulse_sample_point - 1)) ? transform.io.rad_addr | U(cfg.impulse_sample_point - 1)
   }
 }
