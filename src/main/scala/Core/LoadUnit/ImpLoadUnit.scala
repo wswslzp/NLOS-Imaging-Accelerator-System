@@ -42,11 +42,11 @@ case class ImpLoadUnit(
   }
 
   // Apply for memories stored the impulse, with the ram amount same as radius_name
-  val int_ram_array_map: Vector[(Range, Mem[Bits])] = Vector.fill(Rlength)(
+  val int_ram_array_map: Array[(Range, Mem[Bits])] = Array.tabulate(Rlength) { idx=>
     local_mem_manager.allocateRam(
-      Mem(Bits(cfg.imp_cfg.getComplexWidth bit), BigInt(radius_num)).setWeakName("int_ram_array")
+      Mem(Bits(cfg.imp_cfg.getComplexWidth bit), BigInt(radius_num)).setWeakName(s"int_ram_$idx")
     )
-  )
+  }
   val (transfer_done_map, transfer_done_reg) = local_mem_manager.allocateReg(
     Bool(), "transfer_done"
   )
@@ -65,7 +65,7 @@ case class ImpLoadUnit(
   io.load_req := transfer_req_reg
 
   // output the impulse
-  val int_ram_array: Vector[Mem[Bits]] = int_ram_array_map.map(_._2)
+  val int_ram_array: Array[Mem[Bits]] = int_ram_array_map.map(_._2)
 
   // Make internal memories visible to simulation
   transfer_done_rise.simPublic()

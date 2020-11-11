@@ -97,7 +97,7 @@ case class RsdDriver(bus: Axi4WriteOnly, clockDomain: ClockDomain) {
     )
   }
 
-  def driveData(data: DenseMatrix[Long], initAddress: Long): Unit = {
+  def driveData(data: DenseMatrix[Long], initAddress: Long, col_first: Boolean = true): Unit = {
     val totalElementNum = data.cols * data.rows
     val totalNumOfDataTransfer = totalElementNum / 16
     val flatData = data.t.flatten().toScalaVector() ++ List.fill(
