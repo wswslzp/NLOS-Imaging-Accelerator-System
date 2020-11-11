@@ -99,6 +99,7 @@ case class RsdGenCoreArray(
   val rsd_comp_start = RegInit(False)
   val wave_hit = (data_in.w.fire & (data_in.aw.payload.addr === loadUnitAddrs(2))).rise(False)
   switch(compute_stage){
+    //TODO: it seems that for compute_stage != 2'b11, others are identity.
     is(B"2'b00") { // d != 0 && f != 0
       rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
     }
@@ -131,9 +132,6 @@ case class RsdGenCoreArray(
   }
 
   //Wave load unit's control signal connection
-//  wave_load_unit.io.impulse_enable := impulse_load_unit.io.data_enable
-//  wave_load_unit.io.distance_enable := distance_load_unit.io.data_enable
-//  wave_load_unit.io.push_ending := push_ending
   wave_load_unit.io.rsd_comp_start := rsd_comp_start
 
   // Timeshift load unit
@@ -144,7 +142,6 @@ case class RsdGenCoreArray(
 
   // Impulse load unit
   impulse_load_unit.io.distance_enable := distance_load_unit.io.data_enable
-//  impulse_load_unit.io.wave_enable := wave_load_unit.io.data_enable
   impulse_load_unit.io.rsd_comp_start := rsd_comp_start
 
   // connect the fceq0 and dceq0
@@ -153,25 +150,55 @@ case class RsdGenCoreArray(
   wave_load_unit.io.fc_eq_0 := io.fc_eq_0
 //  wave_load_unit.io.dc_eq_0 := io.dc_eq_0
 
-  // Store the rsd kernel
-  val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength) simPublic()
-  rsd_mem.zipWithIndex.foreach {case(dat, idx) =>
-    when(rsd_gen_core_array(idx).io.kernel.valid) {
-//      dat := rsd_gen_core.io.kernel_array(idx)
-      dat := rsd_gen_core_array(idx).io.kernel.payload
+  //********************************* RSD Kernel memory*************************
+  // Store the rsd kernel into two identical memory
+  val rsd_mem_0 = Vec(Reg(HComplex(kernel_cfg)), Rlength) simPublic()
+  val rsd_mem_1 = Vec(Reg(HComplex(kernel_cfg)), Rlength)
+  val mem_spare = RegInit(B"2'b00") // memory spare signal, 0 signal spare and 1 signal busy
+  val mem_key = RegInit(False) // indicate which memory to be released. 1'b0 means that key is on rsd_mem_0
+
+  // depending on the states of two memories that indicate busy or not,
+  //  rsd kernel rad store in turn between them.
+  for(idx <- rsd_mem_0.indices){
+    when(rsd_gen_core_array(idx).io.kernel.valid){
+      when(!mem_spare(0)){
+        rsd_mem_0(idx) := rsd_gen_core_array(idx).io.kernel.payload
+      } elsewhen(!mem_spare(1)){
+        rsd_mem_1(idx) := rsd_gen_core_array(idx).io.kernel.payload
+      }
     }
   }
 
-  // The address transformation happens here
-//  val addr_map = Vec( buildAddrMap(cfg.impulse_sample_point) )
-//  val addr_map = Vec(buildAddrMap(Rlength))
+  // indicate which memory is on working while another one is standing by.
+  mem_key.setWhen(
+    rsd_gen_core_array.last.io.kernel.valid & mem_spare(0) & !mem_spare(1)
+  ).clearWhen(
+    rsd_gen_core_array.last.io.kernel.valid & !mem_spare(0)
+  )
+
+  // set the spare signal of two memories.
+  when(rsd_gen_core_array.head.io.kernel.valid){
+    when(!mem_spare(0)){
+      mem_spare(0) := True
+    } elsewhen(!mem_spare(1)){
+      mem_spare(1) := True
+    }
+  }
+  when(push_ending){
+    when(!mem_key){
+      mem_spare(0) := False
+    } otherwise {
+      mem_spare(1) := False
+    }
+  }
 
   // Push_start: A one-cycle square impulse active one cycle of actually push start
   // fft2d_out_sync is active at the first one cycle of the fft2d_valid
+  // TODO: The push start should not be last push ending if logic not changed
   val push_start = io.dc_eq_0 ? io.fft2d_out_sync | push_ending_1
 
   // count for row_num cycles from push_start signal active
-  // TODO: The waveform here have problem
+  // TODO: for d = 1 and f = 0, things broken
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
   val col_addr = count_col_addr.cnt
   col_addr.setName("col_addr")
@@ -181,7 +208,11 @@ case class RsdGenCoreArray(
 
   for(id <- 0 until row_num) {
     when(count_col_addr.cond_period) {
-      io.rsd_kernel.payload(id) := rsd_mem(pixel_addrs(id))
+      when(!mem_key){
+        io.rsd_kernel.payload(id) := rsd_mem_0(pixel_addrs(id))
+      }otherwise{
+        io.rsd_kernel.payload(id) := rsd_mem_1(pixel_addrs(id))
+      }
     } otherwise {
       io.rsd_kernel.payload(id) := 0
     }

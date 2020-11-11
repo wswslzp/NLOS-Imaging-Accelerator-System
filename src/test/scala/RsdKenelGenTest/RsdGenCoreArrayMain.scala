@@ -148,6 +148,7 @@ object RsdGenCoreArrayMain extends App{
               } else {
                 dut.clockDomain.waitSampling(10)
               }
+              // TODO: master will change
               dut.clockDomain.waitActiveEdgeWhere(dut.io.push_ending.toBoolean)
               //          dut.clockDomain.waitActiveEdgeWhere(dut.io.cnt_incr.toBoolean)
             }
