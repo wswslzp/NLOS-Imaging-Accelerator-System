@@ -156,7 +156,7 @@ case class RsdGenCoreArray(
   // Store the rsd kernel
   val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength) simPublic()
   rsd_mem.zipWithIndex.foreach {case(dat, idx) =>
-    when(wave_load_unit.io.rsd_comp_end) {
+    when(rsd_gen_core_array(idx).io.kernel.valid) {
 //      dat := rsd_gen_core.io.kernel_array(idx)
       dat := rsd_gen_core_array(idx).io.kernel.payload
     }
@@ -171,6 +171,7 @@ case class RsdGenCoreArray(
   val push_start = io.dc_eq_0 ? io.fft2d_out_sync | push_ending_1
 
   // count for row_num cycles from push_start signal active
+  // TODO: The waveform here have problem
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
   val col_addr = count_col_addr.cnt
   col_addr.setName("col_addr")
