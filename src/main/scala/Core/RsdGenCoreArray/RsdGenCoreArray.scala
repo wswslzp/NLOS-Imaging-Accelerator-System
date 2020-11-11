@@ -103,7 +103,8 @@ case class RsdGenCoreArray(
       rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
     }
     is(B"2'b01") { // d != 0 && f == 0
-      rsd_comp_start := Delay(wave_hit, 3, init = False) // RSD kernel compute as soon as wave has loaded 3 elements
+      val wave_push_latency = cfg.radius_factor / 16 + 1
+      rsd_comp_start := Delay(wave_hit, wave_push_latency, init = False) // RSD kernel compute as soon as wave has loaded 3 elements
     }
     is(B"2'b10") { // d == 0 && f != 0
 //      rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
