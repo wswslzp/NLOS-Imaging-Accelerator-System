@@ -133,10 +133,10 @@ case class RsdGenCoreArray(
   wave_load_unit.io.rsd_comp_start := rsd_comp_start
 
   // Timeshift load unit
-  timeshift_load_unit.io.push_ending := push_ending
+  timeshift_load_unit.io.cnt_incr := io.cnt_incr
 
   // Distance load unit
-  distance_load_unit.io.push_ending := push_ending
+  distance_load_unit.io.cnt_incr := io.cnt_incr
 
   // Impulse load unit
   impulse_load_unit.io.distance_enable := distance_load_unit.io.data_enable

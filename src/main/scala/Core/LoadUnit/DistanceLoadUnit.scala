@@ -18,7 +18,6 @@ case class DistanceLoadUnit(
     val load_req = out Bool
     val ready_for_store = out Bool // When the data store in the internal memory is all consumed, it will be high active.
     val data_enable = out Bool // The signal's high active indicates that this transaction is done and data is loaded.
-    val push_ending = in Bool // indicate that the impulse of a radix has been all pushed out.
     val distance = master (Flow(
       SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp)
     ))

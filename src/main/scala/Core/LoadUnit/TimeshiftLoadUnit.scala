@@ -18,7 +18,6 @@ case class TimeshiftLoadUnit(
     val load_req = out Bool
     val ready_for_store = out Bool
     val data_enable = out Bool
-    val push_ending = in Bool
     val timeshift = master (Flow(
       HComplex(cfg.timeshift_cfg)
     ))
