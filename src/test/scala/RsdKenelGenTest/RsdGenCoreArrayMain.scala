@@ -129,7 +129,7 @@ object RsdGenCoreArrayMain extends App{
               }
               fork{
                 // TODO: DF logic needs to modify
-                if(d == 0 || (d == 1 && f == 0)) {
+                if(d == 0) {
                   // for d == 0, kernel pushing needs to wait for fft2d output valid.
                   // waiting cycle ~ K^2, so we set 100 cycles
                   dut.clockDomain.waitSampling(2000) // simulate the image loading
@@ -188,7 +188,7 @@ object RsdGenCoreArrayMain extends App{
 
   Process("vcd2vpd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd").!
   Process("vpd2fsdb tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd -o tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").!
-  Process("rm -f novas*").!
-  Process("verdi -ssf tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").run()
+//  Process("rm -f novas*").!
+//  Process("verdi -ssf tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").run()
 
 }
