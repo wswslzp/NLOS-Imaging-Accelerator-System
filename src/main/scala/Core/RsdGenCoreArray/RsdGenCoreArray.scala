@@ -222,7 +222,13 @@ case class RsdGenCoreArray(
   push_ending := count_col_addr.cnt.willOverflow
 
   io.push_ending := push_ending // Push ending is the true increment signal tb used.
-  io.cnt_incr := push_ending_1 // TODO: if freq counter increment when it activate, the timing is not conform to tb!
+
+  // indicate when the controller to do counter increment.
+  when((io.dc === 0 && io.fc === cfg.freq_factor-1) || (io.dc > 0)) {
+    io.cnt_incr := rsd_gen_core_array.head.io.kernel.valid
+  } otherwise {
+    io.cnt_incr := push_ending
+  }
   io.load_req := impulse_load_unit.io.load_req ## wave_load_unit.io.load_req ## distance_load_unit.io.load_req ## timeshift_load_unit.io.load_req
 
 }
