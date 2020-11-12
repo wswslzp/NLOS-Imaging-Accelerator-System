@@ -115,19 +115,17 @@ object RsdGenCoreArrayMain extends App{
                 rsdDriver.driveData(1, dut.loadUnitAddrs(1) + 1)
               }
               dut.clockDomain.waitSampling()
-              fork{
-                if((dut.io.load_req.toInt & 4) == 4) {
-                  rsdDriver.driveDoubleData(wave(::, d), dut.loadUnitAddrs(2), dut.cfg.wave_cfg.fracw)
-                  rsdDriver.driveData(1, dut.loadUnitAddrs(2) + dut.cfg.radius_factor)
+              if((dut.io.load_req.toInt & 4) == 4) {
+                rsdDriver.driveDoubleData(wave(::, d), dut.loadUnitAddrs(2), dut.cfg.wave_cfg.fracw)
+                rsdDriver.driveData(1, dut.loadUnitAddrs(2) + dut.cfg.radius_factor)
+              }
+              dut.clockDomain.waitSampling()
+              if((d == 0) && (f == 0)) {
+                if((dut.io.load_req.toInt & 8) == 8) {
+                  rsdDriver.driveComplexData(impulse, dut.loadUnitAddrs(3), dut.cfg.imp_cfg)
+                  rsdDriver.driveData(1, dut.loadUnitAddrs(3) + dut.cfg.radius_factor * dut.cfg.impulse_sample_point)
                 }
                 dut.clockDomain.waitSampling()
-                if((d == 0) && (f == 0)) {
-                  if((dut.io.load_req.toInt & 8) == 8) {
-                    rsdDriver.driveComplexData(impulse, dut.loadUnitAddrs(3), dut.cfg.imp_cfg)
-                    rsdDriver.driveData(1, dut.loadUnitAddrs(3) + dut.cfg.radius_factor * dut.cfg.impulse_sample_point)
-                  }
-                  dut.clockDomain.waitSampling()
-                }
               }
               fork{
                 // TODO: DF logic needs to modify
