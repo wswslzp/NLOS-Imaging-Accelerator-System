@@ -104,36 +104,30 @@ object RsdGenCoreArrayMain extends App{
               println(s"Now is ($d, $f)")
               ff = f
               dut.io.fc #= f
-//              println(s"df = ($d, $f)")
               dut.clockDomain.waitSampling()
               if((dut.io.load_req.toInt & 1) == 1) {
-//                println("TS")
-//                println(s"timeshift($f, $d) = ${timeshift(f, d)}")
                 rsdDriver.driveComplexData(timeshift(f, d), dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)
                 rsdDriver.driveData(1, dut.loadUnitAddrs(0) + 1)
               }
               dut.clockDomain.waitSampling()
               if((dut.io.load_req.toInt & 2) == 2) {
-//                println("D")
                 rsdDriver.driveDoubleData(distance(f, d), dut.loadUnitAddrs(1), dut.cfg.distance_cfg.fracw)
                 rsdDriver.driveData(1, dut.loadUnitAddrs(1) + 1)
               }
               dut.clockDomain.waitSampling()
-//              if(f == 0) {
+              fork{
                 if((dut.io.load_req.toInt & 4) == 4) {
-//                  println("Wave")
                   rsdDriver.driveDoubleData(wave(::, d), dut.loadUnitAddrs(2), dut.cfg.wave_cfg.fracw)
                   rsdDriver.driveData(1, dut.loadUnitAddrs(2) + dut.cfg.radius_factor)
                 }
                 dut.clockDomain.waitSampling()
-//              }
-              if((d == 0) && (f == 0)) {
-                if((dut.io.load_req.toInt & 8) == 8) {
-//                  println("Imp")
-                  rsdDriver.driveComplexData(impulse, dut.loadUnitAddrs(3), dut.cfg.imp_cfg)
-                  rsdDriver.driveData(1, dut.loadUnitAddrs(3) + dut.cfg.radius_factor * dut.cfg.impulse_sample_point)
+                if((d == 0) && (f == 0)) {
+                  if((dut.io.load_req.toInt & 8) == 8) {
+                    rsdDriver.driveComplexData(impulse, dut.loadUnitAddrs(3), dut.cfg.imp_cfg)
+                    rsdDriver.driveData(1, dut.loadUnitAddrs(3) + dut.cfg.radius_factor * dut.cfg.impulse_sample_point)
+                  }
+                  dut.clockDomain.waitSampling()
                 }
-                dut.clockDomain.waitSampling()
               }
               fork{
                 // TODO: DF logic needs to modify
@@ -150,8 +144,7 @@ object RsdGenCoreArrayMain extends App{
                 }
               }
               // TODO: master will change
-//              dut.clockDomain.waitActiveEdgeWhere(dut.io.push_ending.toBoolean)
-                dut.clockDomain.waitActiveEdgeWhere(dut.io.cnt_incr.toBoolean)
+              dut.clockDomain.waitActiveEdgeWhere(dut.io.cnt_incr.toBoolean)
             }
           }
           dut.clockDomain.waitSampling(10)
