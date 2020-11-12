@@ -194,7 +194,7 @@ case class RsdGenCoreArray(
   // fft2d_out_sync is active at the first one cycle of the fft2d_valid
   // TODO: The push start should not be last push ending if logic not changed
   //  push start needs to be assert when d==0 and f==freq-1
-  val push_start = dc_eq_0 ? io.fft2d_out_sync | push_ending_1
+  val push_start = (dc_eq_0 || (io.dc === 1 && fc_eq_0)) ? io.fft2d_out_sync | push_ending_1
 
   // count for row_num cycles from push_start signal active
   // TODO: for d = 1 and f = 0, things broken
@@ -205,12 +205,14 @@ case class RsdGenCoreArray(
   rad_addr_map.io.col_addr := col_addr.value
   val pixel_addrs = rad_addr_map.io.pixel_addrs
 
-  for(id <- 0 until row_num) {
-    when(count_col_addr.cond_period) {
-      when(!mem_key){
+  for(id <- 0 until row_num){
+    when(count_col_addr.cond_period){
+      when(mem_spare(0)) {
         io.rsd_kernel.payload(id) := rsd_mem_0(pixel_addrs(id))
-      }otherwise{
+      } elsewhen(mem_spare(1)) {
         io.rsd_kernel.payload(id) := rsd_mem_1(pixel_addrs(id))
+      } otherwise {
+        io.rsd_kernel.payload(id) := 0
       }
     } otherwise {
       io.rsd_kernel.payload(id) := 0

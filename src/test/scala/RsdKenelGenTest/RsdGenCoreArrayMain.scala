@@ -136,7 +136,8 @@ object RsdGenCoreArrayMain extends App{
                 dut.clockDomain.waitSampling()
               }
               fork{
-                if(d == 0) {
+                // TODO: DF logic needs to modify
+                if(d == 0 || (d == 1 && f == 0)) {
                   // for d == 0, kernel pushing needs to wait for fft2d output valid.
                   // waiting cycle ~ K^2, so we set 100 cycles
                   dut.clockDomain.waitSampling(200) // simulate the image loading
