@@ -92,6 +92,20 @@ case class RsdGenCoreArray(
 
   // ******************** main part of rsd core gen array *******************************
 
+  // instantiate the rsd kernel core array
+  // A rsd_gen_core contains a list of prsd_gen_core to pipe out a column of rsd kernel
+  val rsd_gen_core_array = Array.fill(Rlength)(RsdGenCore(cfg))
+  rsd_gen_core_array.foreach(_.io.wave <> wave_load_unit.io.wave)
+  rsd_gen_core_array.foreach(_.io.distance <> distance_load_unit.io.distance)
+  rsd_gen_core_array.foreach(_.io.timeshift <> timeshift_load_unit.io.timeshift)
+  rsd_gen_core_array.zipWithIndex.foreach{ case (core, i) =>
+    core.io.ring_impulse <> impulse_load_unit.io.impulse_out.translateWith(
+      impulse_load_unit.io.impulse_out.payload(i)
+    )
+  }
+
+  val W2CLatency = rsd_gen_core_array.head.prsd_core.W2CLatency
+
   // Control when should push the wave and start computing rsd kernel
   val compute_stage = dc_eq_0 ## fc_eq_0
   val rsd_comp_start = RegInit(False)
@@ -117,20 +131,9 @@ case class RsdGenCoreArray(
   val push_ending = RegInit(False)
   val push_ending_1 = RegNext(push_ending) init False
 
-  // instantiate the rsd kernel core array
-  // A rsd_gen_core contains a list of prsd_gen_core to pipe out a column of rsd kernel
-  val rsd_gen_core_array = Array.fill(Rlength)(RsdGenCore(cfg))
-  rsd_gen_core_array.foreach(_.io.wave <> wave_load_unit.io.wave)
-  rsd_gen_core_array.foreach(_.io.distance <> distance_load_unit.io.distance)
-  rsd_gen_core_array.foreach(_.io.timeshift <> timeshift_load_unit.io.timeshift)
-  rsd_gen_core_array.zipWithIndex.foreach{ case (core, i) =>
-    core.io.ring_impulse <> impulse_load_unit.io.impulse_out.translateWith(
-      impulse_load_unit.io.impulse_out.payload(i)
-    )
-  }
-
   //Wave load unit's control signal connection
   wave_load_unit.io.rsd_comp_start := rsd_comp_start
+  wave_load_unit.io.rsd_comp_end := impulse_load_unit.io.rsd_comp_end
 
   // Timeshift load unit
   timeshift_load_unit.io.cnt_incr := io.cnt_incr
@@ -140,7 +143,7 @@ case class RsdGenCoreArray(
 
   // Impulse load unit
   impulse_load_unit.io.distance_enable := distance_load_unit.io.data_enable
-  impulse_load_unit.io.rsd_comp_start := rsd_comp_start
+  impulse_load_unit.io.rsd_comp_start := Delay(rsd_comp_start, W2CLatency, init = False)
 
   // connect the fceq0 and dceq0
   impulse_load_unit.io.fc_eq_0 := fc_eq_0

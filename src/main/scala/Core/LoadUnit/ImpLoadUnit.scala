@@ -32,6 +32,7 @@ case class ImpLoadUnit(
     val dc_eq_0 = in Bool()
     val distance_enable = in Bool()
     val rsd_comp_start = in Bool()
+    val rsd_comp_end = out Bool()
     val load_req = out Bool()
     val data_enable = out Bool()
     val impulse_out = master (
@@ -86,6 +87,7 @@ case class ImpLoadUnit(
       io.impulse_out.payload(l) := ram(virtual_imp_radix)
     }
     io.impulse_out.valid := virtual_imp_radix_area.cond_period
+    io.rsd_comp_end := virtual_imp_radix.willOverflow
   }
 
   transfer_done_reg init False
