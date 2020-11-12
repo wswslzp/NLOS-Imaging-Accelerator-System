@@ -132,7 +132,7 @@ object RsdGenCoreArrayMain extends App{
                 if(d == 0 || (d == 1 && f == 0)) {
                   // for d == 0, kernel pushing needs to wait for fft2d output valid.
                   // waiting cycle ~ K^2, so we set 100 cycles
-                  dut.clockDomain.waitSampling(200) // simulate the image loading
+                  dut.clockDomain.waitSampling(2000) // simulate the image loading
                   dut.io.fft2d_out_sync #= true
                   dut.clockDomain.waitSampling()
                   dut.io.fft2d_out_sync #= false

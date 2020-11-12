@@ -97,12 +97,11 @@ case class RsdGenCoreArray(
   val rsd_comp_start = RegInit(False)
   val wave_hit = (data_in.w.fire & (data_in.aw.payload.addr === loadUnitAddrs(2))).rise(False)
   switch(compute_stage){
-    //TODO: it seems that for compute_stage != 2'b11, others are identity.
+    //TODO: it seems that except for compute_stage == 2'b11, others are identity.
     is(B"2'b00") { // d != 0 && f != 0
       rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
     }
     is(B"2'b01") { // d != 0 && f == 0
-      // TODO: for d1f0, it comes too fast.
       val wave_push_latency = cfg.radius_factor / 16 + 1
       rsd_comp_start := Delay(wave_hit, wave_push_latency, init = False) // RSD kernel compute as soon as wave has loaded 3 elements
     }
@@ -146,59 +145,34 @@ case class RsdGenCoreArray(
   // connect the fceq0 and dceq0
   impulse_load_unit.io.fc_eq_0 := fc_eq_0
   impulse_load_unit.io.dc_eq_0 := dc_eq_0
-//  wave_load_unit.io.fc_eq_0 := io.fc_eq_0
   wave_load_unit.io.fc_overflow := io.fc === cfg.freq_factor-1
 
   //********************************* RSD Kernel memory*************************
-  // Store the rsd kernel into two identical memory
-  val rsd_mem_0 = Vec(Reg(HComplex(kernel_cfg)), Rlength) simPublic()
-  val rsd_mem_1 = Vec(Reg(HComplex(kernel_cfg)), Rlength)
-  val mem_spare = RegInit(B"2'b00") // memory spare signal, 0 signal spare and 1 signal busy
-  val mem_key = RegInit(False) // indicate which memory to be released. 1'b0 means that key is on rsd_mem_0
+  // Store the rsd kernel memory
+  val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength) simPublic()
 
-  // depending on the states of two memories that indicate busy or not,
-  //  rsd kernel rad store in turn between them.
-  for(idx <- rsd_mem_0.indices){
-    when(rsd_gen_core_array(idx).io.kernel.valid){
-      when(!mem_spare(0)){
-        rsd_mem_0(idx) := rsd_gen_core_array(idx).io.kernel.payload
-      } elsewhen(!mem_spare(1)){
-        rsd_mem_1(idx) := rsd_gen_core_array(idx).io.kernel.payload
+  // for d0, f < f_max-1, rsd kernel rad store into mem right after kernel valid
+  // while for other df cycles, valid rsd kernel rad should wait for push ending
+  // because the mem storing previous rsd kernel must not be overwritten.
+  for(idx <- rsd_mem.indices){
+    when(dc_eq_0 && (io.fc =/= cfg.freq_factor-1)) {
+      when(rsd_gen_core_array(idx).io.kernel.valid){
+        rsd_mem(idx) := rsd_gen_core_array(idx).io.kernel.payload
       }
-    }
-  }
-
-  // indicate which memory is on working while another one is standing by.
-  mem_key.setWhen(
-    rsd_gen_core_array.last.io.kernel.valid & mem_spare(0) & !mem_spare(1)
-  ).clearWhen(
-    rsd_gen_core_array.last.io.kernel.valid & !mem_spare(0)
-  )
-
-  // set the spare signal of two memories.
-  when(rsd_gen_core_array.head.io.kernel.valid){
-    when(!mem_spare(0)){
-      mem_spare(0) := True
-    } elsewhen(!mem_spare(1)){
-      mem_spare(1) := True
-    }
-  }
-  when(push_ending){
-    when(!mem_key){
-      mem_spare(0) := False
     } otherwise {
-      mem_spare(1) := False
+      when(push_ending) {
+        rsd_mem(idx) := rsd_gen_core_array(idx).io.kernel.payload
+      }
     }
   }
 
   // Push_start: A one-cycle square impulse active one cycle of actually push start
   // fft2d_out_sync is active at the first one cycle of the fft2d_valid
   // TODO: The push start should not be last push ending if logic not changed
-  //  push start needs to be assert when d==0 and f==freq-1
+  //  push start needs to be assert for the last one fft!
   val push_start = (dc_eq_0 || (io.dc === 1 && fc_eq_0)) ? io.fft2d_out_sync | push_ending_1
 
   // count for row_num cycles from push_start signal active
-  // TODO: for d = 1 and f = 0, things broken
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
   val col_addr = count_col_addr.cnt
   col_addr.setName("col_addr")
@@ -208,13 +182,7 @@ case class RsdGenCoreArray(
 
   for(id <- 0 until row_num){
     when(count_col_addr.cond_period){
-      when(mem_spare(0)) {
-        io.rsd_kernel.payload(id) := rsd_mem_0(pixel_addrs(id))
-      } elsewhen(mem_spare(1)) {
-        io.rsd_kernel.payload(id) := rsd_mem_1(pixel_addrs(id))
-      } otherwise {
-        io.rsd_kernel.payload(id) := 0
-      }
+      io.rsd_kernel.payload(id) := rsd_mem(pixel_addrs(id))
     } otherwise {
       io.rsd_kernel.payload(id) := 0
     }
@@ -226,13 +194,7 @@ case class RsdGenCoreArray(
   io.push_ending := push_ending // Push ending is the true increment signal tb used.
 
   // indicate when the controller to do counter increment.
-  when((io.dc === 0 && io.fc === cfg.freq_factor-1) || (io.dc > 0)) {
-//    io.cnt_incr := rsd_gen_core_array.head.io.kernel.valid
-//    io.cnt_incr := Delay(rsd_gen_core_array.head.io.kernel.valid, 10, init = False)
-    io.cnt_incr := wave_load_unit.io.data_enable
-  } otherwise {
-    io.cnt_incr := push_ending
-  }
+  io.cnt_incr := (dc_eq_0 && io.fc === cfg.freq_factor-1) ? rsd_gen_core_array.head.io.kernel.valid | push_ending
 
   // define new load req
   val wave_req = wave_load_unit.io.load_req
