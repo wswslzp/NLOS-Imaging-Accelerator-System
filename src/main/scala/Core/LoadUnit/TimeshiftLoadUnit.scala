@@ -22,6 +22,7 @@ case class TimeshiftLoadUnit(
     val timeshift = master (Flow(
       HComplex(cfg.timeshift_cfg)
     ))
+    val cnt_incr = in Bool()
   }
   wReady(True)
   awReady(True)
@@ -41,22 +42,19 @@ case class TimeshiftLoadUnit(
   val transfer_done_rise = (transfer_done_reg.rise(initAt = False))
 
   // Make internal reg visible to simulation
-  // TODO: Delete These after simulation
-  val sim_timeshift = HComplex(cfg.timeshift_cfg) simPublic() dontSimplifyIt()
-  sim_timeshift := timeshift_reg
   transfer_done_rise.simPublic()
 
-  transfer_req_reg.setWhen(io.push_ending)
+  transfer_req_reg.setWhen(io.cnt_incr)
   transfer_req_reg.clearWhen(transfer_done_rise)
   io.load_req := transfer_req_reg
 
   transfer_done_reg init False
-  transfer_done_reg clearWhen io.push_ending
+  transfer_done_reg clearWhen io.cnt_incr
 
   io.timeshift.valid := transfer_done_reg
-//  io.data_enable := transfer_done_reg
-  io.data_enable := transfer_done_rise
   io.timeshift.payload := timeshift_reg
+
+  io.data_enable := transfer_done_rise
   io.ready_for_store := !transfer_done_reg
 
 

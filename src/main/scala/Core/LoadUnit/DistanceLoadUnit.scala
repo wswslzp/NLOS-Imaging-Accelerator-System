@@ -22,6 +22,7 @@ case class DistanceLoadUnit(
     val distance = master (Flow(
       SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp)
     ))
+    val cnt_incr = in Bool()
   }
   wReady(True)
   awReady(True)
@@ -44,12 +45,12 @@ case class DistanceLoadUnit(
   transfer_done_rise.simPublic()
   distance_reg.simPublic()
 
-  transfer_req_reg.setWhen(io.push_ending)
+  transfer_req_reg.setWhen(io.cnt_incr)
   transfer_req_reg.clearWhen(transfer_done_rise)
   io.load_req := transfer_req_reg
 
   transfer_done_reg init False
-  transfer_done_reg clearWhen io.push_ending
+  transfer_done_reg clearWhen io.cnt_incr
 
   io.distance.payload := distance_reg
   io.distance.valid := transfer_done_reg

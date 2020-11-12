@@ -84,9 +84,9 @@ object RsdGenCoreArrayMain extends App{
       dut.data_in.w.valid #= false
       dut.data_in.w.data #= 0
       dut.data_in.b.ready #= true
-      dut.io.dc_eq_0 #= false
-      dut.io.fc_eq_0 #= false
       dut.io.fft2d_out_sync #= false
+      dut.io.dc #= 0
+      dut.io.fc #= 0
       val rsdDriver = RsdDriver(dut.data_in, dut.clockDomain)
       dut.clockDomain.waitSampling()
 
@@ -100,12 +100,10 @@ object RsdGenCoreArrayMain extends App{
           for(d <- 0 until rsd_cfg.depth_factor) {
             dd = d
             dut.io.dc #= d
-            dut.io.dc_eq_0 #= d == 0
             for(f <- 0 until rsd_cfg.freq_factor) {
               println(s"Now is ($d, $f)")
               ff = f
               dut.io.fc #= f
-              dut.io.fc_eq_0 #= f == 0
 //              println(s"df = ($d, $f)")
               dut.clockDomain.waitSampling()
               if((dut.io.load_req.toInt & 1) == 1) {

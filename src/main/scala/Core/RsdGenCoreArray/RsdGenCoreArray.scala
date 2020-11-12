@@ -28,14 +28,12 @@ case class RsdGenCoreArray(
     val push_ending = out Bool()
     val cnt_incr = out Bool
     val load_req = out Bits(4 bit)
-    val fc_eq_0 = in Bool
-    val dc_eq_0 = in Bool
     val rsd_kernel: Flow[Vec[HComplex]] = master (
       Flow(Vec(HComplex(kernel_cfg), row_num))
     )
-    val t1 = out Bool
   }
-  io.t1 := io.dc.andR | io.fc.orR
+  val fc_eq_0 = io.fc === 0
+  val dc_eq_0 = io.dc === 0
   val data_in = slave(Axi4WriteOnly(axi_config))
 
   // ********************* Load Unit ***************************
@@ -95,7 +93,7 @@ case class RsdGenCoreArray(
   // ******************** main part of rsd core gen array *******************************
 
   // Control when should push the wave and start computing rsd kernel
-  val compute_stage = io.dc_eq_0 ## io.fc_eq_0
+  val compute_stage = dc_eq_0 ## fc_eq_0
   val rsd_comp_start = RegInit(False)
   val wave_hit = (data_in.w.fire & (data_in.aw.payload.addr === loadUnitAddrs(2))).rise(False)
   switch(compute_stage){
@@ -145,8 +143,8 @@ case class RsdGenCoreArray(
   impulse_load_unit.io.rsd_comp_start := rsd_comp_start
 
   // connect the fceq0 and dceq0
-  impulse_load_unit.io.fc_eq_0 := io.fc_eq_0
-  impulse_load_unit.io.dc_eq_0 := io.dc_eq_0
+  impulse_load_unit.io.fc_eq_0 := fc_eq_0
+  impulse_load_unit.io.dc_eq_0 := dc_eq_0
 //  wave_load_unit.io.fc_eq_0 := io.fc_eq_0
   wave_load_unit.io.fc_overflow := io.fc === cfg.freq_factor-1
 
@@ -195,7 +193,8 @@ case class RsdGenCoreArray(
   // Push_start: A one-cycle square impulse active one cycle of actually push start
   // fft2d_out_sync is active at the first one cycle of the fft2d_valid
   // TODO: The push start should not be last push ending if logic not changed
-  val push_start = io.dc_eq_0 ? io.fft2d_out_sync | push_ending_1
+  //  push start needs to be assert when d==0 and f==freq-1
+  val push_start = dc_eq_0 ? io.fft2d_out_sync | push_ending_1
 
   // count for row_num cycles from push_start signal active
   // TODO: for d = 1 and f = 0, things broken
