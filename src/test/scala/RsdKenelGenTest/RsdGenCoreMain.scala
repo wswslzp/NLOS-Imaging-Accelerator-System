@@ -58,7 +58,7 @@ object RsdGenCoreMain extends App{
   val kernel_queue = mutable.Queue[Complex]()
   val coef_x_impu_queue = mutable.Queue[Complex]()
 
-  val withWave = false
+  val withWave = true
   val waveDepth = 1
   val module_compiled = if(withWave) {
     SimConfig.allOptimisation.withWave(waveDepth).workspacePath("tb").compile(RsdGenCore(rsd_cfg))
