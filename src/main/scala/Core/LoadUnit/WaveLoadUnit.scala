@@ -20,7 +20,8 @@ case class WaveLoadUnit(
   val Rlength = cfg.impulse_sample_point
 
   val io = new Bundle {
-    val fc_eq_0 = in Bool
+//    val fc_eq_0 = in Bool()
+    val fc_overflow = in Bool
     val ready_for_store = out Bool
     val load_req = out Bool
     val data_enable = out Bool
@@ -49,7 +50,7 @@ case class WaveLoadUnit(
   // When DC == 0, wave load unit needs new waves
   val transfer_done_rise = transfer_done_reg.rise(initAt = False)
   val transfer_req_reg = RegInit(True)
-  transfer_req_reg.setWhen(!io.fc_eq_0)
+  transfer_req_reg.setWhen(io.fc_overflow)
   transfer_req_reg.clearWhen(transfer_done_rise)
   io.load_req := transfer_req_reg
 

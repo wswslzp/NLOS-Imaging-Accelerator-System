@@ -34,7 +34,7 @@ object WaveLoadUnitTest extends App{
 
       val driver = RsdDriver(dut.data_in, dut.clockDomain)
 
-      dut.io.fc_eq_0 #= true
+//      dut.io.fc_eq_0 #= true
       dut.data_in.aw.valid #= false
       dut.data_in.w.valid #= false
       dut.data_in.b.ready #= false
@@ -67,11 +67,11 @@ object WaveLoadUnitTest extends App{
       dut.clockDomain.waitSampling(30)
 
       // df = (0, 1)
-      dut.io.fc_eq_0 #= false
+//      dut.io.fc_eq_0 #= false
       dut.clockDomain.waitSampling(30)
 
       // df = (1, 0)
-      dut.io.fc_eq_0 #= true
+//      dut.io.fc_eq_0 #= true
       if(dut.io.load_req.toBoolean) {
         dut.clockDomain.waitSampling(10)
         dut.clockDomain.waitSampling()
@@ -83,7 +83,7 @@ object WaveLoadUnitTest extends App{
       dut.clockDomain.waitSampling(rsd_cfg.radius_factor)
 
       // df = (1, 1)
-      dut.io.fc_eq_0 #= false
+//      dut.io.fc_eq_0 #= false
       dut.clockDomain.waitSampling(30)
 
       simSuccess()

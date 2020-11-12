@@ -147,8 +147,8 @@ case class RsdGenCoreArray(
   // connect the fceq0 and dceq0
   impulse_load_unit.io.fc_eq_0 := io.fc_eq_0
   impulse_load_unit.io.dc_eq_0 := io.dc_eq_0
-  wave_load_unit.io.fc_eq_0 := io.fc_eq_0
-//  wave_load_unit.io.dc_eq_0 := io.dc_eq_0
+//  wave_load_unit.io.fc_eq_0 := io.fc_eq_0
+  wave_load_unit.io.fc_overflow := io.fc === cfg.freq_factor-1
 
   //********************************* RSD Kernel memory*************************
   // Store the rsd kernel into two identical memory
@@ -229,6 +229,9 @@ case class RsdGenCoreArray(
   } otherwise {
     io.cnt_incr := push_ending
   }
+
+  // define new load req
+  val wave_req = wave_load_unit.io.load_req
   io.load_req := impulse_load_unit.io.load_req ## wave_load_unit.io.load_req ## distance_load_unit.io.load_req ## timeshift_load_unit.io.load_req
 
 }

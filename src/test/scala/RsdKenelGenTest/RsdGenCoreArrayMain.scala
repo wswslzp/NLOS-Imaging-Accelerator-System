@@ -121,14 +121,14 @@ object RsdGenCoreArrayMain extends App{
                 rsdDriver.driveData(1, dut.loadUnitAddrs(1) + 1)
               }
               dut.clockDomain.waitSampling()
-              if(f == 0) {
+//              if(f == 0) {
                 if((dut.io.load_req.toInt & 4) == 4) {
 //                  println("Wave")
                   rsdDriver.driveDoubleData(wave(::, d), dut.loadUnitAddrs(2), dut.cfg.wave_cfg.fracw)
                   rsdDriver.driveData(1, dut.loadUnitAddrs(2) + dut.cfg.radius_factor)
                 }
                 dut.clockDomain.waitSampling()
-              }
+//              }
               if((d == 0) && (f == 0)) {
                 if((dut.io.load_req.toInt & 8) == 8) {
 //                  println("Imp")
