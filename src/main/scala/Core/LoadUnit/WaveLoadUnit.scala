@@ -50,7 +50,7 @@ case class WaveLoadUnit(
   // When DC == 0, wave load unit needs new waves
   val transfer_done_rise = transfer_done_reg.rise(initAt = False)
   val transfer_req_reg = RegInit(True)
-  transfer_req_reg.setWhen(io.fc_overflow)
+  transfer_req_reg.setWhen(io.fc_overflow && io.rsd_comp_end)
   transfer_req_reg.clearWhen(transfer_done_rise)
   io.load_req := transfer_req_reg
 
