@@ -228,7 +228,8 @@ case class RsdGenCoreArray(
   // indicate when the controller to do counter increment.
   when((io.dc === 0 && io.fc === cfg.freq_factor-1) || (io.dc > 0)) {
 //    io.cnt_incr := rsd_gen_core_array.head.io.kernel.valid
-    io.cnt_incr := Delay(rsd_gen_core_array.head.io.kernel.valid, 10, init = False)
+//    io.cnt_incr := Delay(rsd_gen_core_array.head.io.kernel.valid, 10, init = False)
+    io.cnt_incr := wave_load_unit.io.data_enable
   } otherwise {
     io.cnt_incr := push_ending
   }
