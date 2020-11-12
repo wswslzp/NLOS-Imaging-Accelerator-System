@@ -137,16 +137,18 @@ object RsdGenCoreArrayMain extends App{
                 }
                 dut.clockDomain.waitSampling()
               }
-              if(d == 0) {
-                // for d == 0, kernel pushing needs to wait for fft2d output valid.
-                // waiting cycle ~ K^2, so we set 100 cycles
-                dut.clockDomain.waitSampling(200) // simulate the image loading
-                dut.io.fft2d_out_sync #= true
-                dut.clockDomain.waitSampling()
-                dut.io.fft2d_out_sync #= false
-                dut.clockDomain.waitSampling(120) // simulate the fft
-              } else {
-                dut.clockDomain.waitSampling(10)
+              fork{
+                if(d == 0) {
+                  // for d == 0, kernel pushing needs to wait for fft2d output valid.
+                  // waiting cycle ~ K^2, so we set 100 cycles
+                  dut.clockDomain.waitSampling(200) // simulate the image loading
+                  dut.io.fft2d_out_sync #= true
+                  dut.clockDomain.waitSampling()
+                  dut.io.fft2d_out_sync #= false
+                  dut.clockDomain.waitSampling(120) // simulate the fft
+                } else {
+                  dut.clockDomain.waitSampling(10)
+                }
               }
               // TODO: master will change
 //              dut.clockDomain.waitActiveEdgeWhere(dut.io.push_ending.toBoolean)
