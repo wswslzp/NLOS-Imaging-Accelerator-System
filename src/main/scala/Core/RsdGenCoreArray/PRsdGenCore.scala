@@ -12,7 +12,7 @@ case class PRsdGenCore(cfg: RsdKernelConfig) extends Component {
   val io = new Bundle {
     val ring_impulse = in (HComplex(cfg.imp_cfg))
     val rsd_prev = in (HComplex(kernel_cfg))
-    val wave = in SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp)// these two data are real
+    val wave = in SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp)
     val distance = in SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp)
     val timeshift = in ( HComplex(cfg.timeshift_cfg) )
     val rsd_next = out (HComplex(kernel_cfg))
@@ -34,7 +34,7 @@ case class PRsdGenCore(cfg: RsdKernelConfig) extends Component {
 
   val rsd_prev_r = RegNextWhen(
     next = io.rsd_prev,
-    cond = RegNext(io.impulse_valid, False), // TODO: This location is weird.
+    cond = RegNext(io.impulse_valid, False),
     init = HC(0, 0, io.rsd_prev.config)
   )
   io.rsd_next := rsd_prev_r + delta_rsd_kernel_val_r

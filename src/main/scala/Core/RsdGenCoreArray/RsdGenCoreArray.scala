@@ -160,6 +160,7 @@ case class RsdGenCoreArray(
         rsd_mem(idx) := rsd_gen_core_array(idx).io.kernel.payload
       }
     } otherwise {
+      // TODO: When waiting for push ending, the rsd kernel data have been changed
       when(push_ending) {
         rsd_mem(idx) := rsd_gen_core_array(idx).io.kernel.payload
       }
@@ -168,8 +169,6 @@ case class RsdGenCoreArray(
 
   // Push_start: A one-cycle square impulse active one cycle of actually push start
   // fft2d_out_sync is active at the first one cycle of the fft2d_valid
-  // TODO: The push start should not be last push ending if logic not changed
-  //  push start needs to be assert for the last one fft!
   val push_start = (dc_eq_0 || (io.dc === 1 && fc_eq_0)) ? io.fft2d_out_sync | push_ending_1
 
   // count for row_num cycles from push_start signal active

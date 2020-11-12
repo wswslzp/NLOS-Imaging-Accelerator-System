@@ -66,7 +66,7 @@ object RsdGenCoreArrayMain extends App{
   )
 
   SimConfig
-    .withWave(1)
+    .withWave(3)
     .noOptimisation
     .workspacePath("tb")
     .workspaceName("RsdGenCoreArray")
@@ -188,6 +188,7 @@ object RsdGenCoreArrayMain extends App{
 
   Process("vcd2vpd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd").!
   Process("vpd2fsdb tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd -o tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").!
+  Process("rm -f novas*").!
   Process("verdi -ssf tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").run()
 
 }
