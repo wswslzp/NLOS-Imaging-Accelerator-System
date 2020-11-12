@@ -66,7 +66,7 @@ object RsdGenCoreArrayMain extends App{
   )
 
   SimConfig
-    .withWave(3)
+    .withWave(1)
     .noOptimisation
     .workspacePath("tb")
     .workspaceName("RsdGenCoreArray")
