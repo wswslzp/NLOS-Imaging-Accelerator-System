@@ -155,7 +155,7 @@ case class RsdGenCoreArray(
   // while for other df cycles, valid rsd kernel rad should wait for push ending
   // because the mem storing previous rsd kernel must not be overwritten.
   for(idx <- rsd_mem.indices){
-    when(dc_eq_0 && (io.fc =/= cfg.freq_factor-1)) {
+    when(dc_eq_0) {
       when(rsd_gen_core_array(idx).io.kernel.valid){
         rsd_mem(idx) := rsd_gen_core_array(idx).io.kernel.payload
       }
