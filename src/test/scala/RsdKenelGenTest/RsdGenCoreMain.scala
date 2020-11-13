@@ -309,12 +309,19 @@ object RsdGenCoreMain extends App{
   if(withWave){
     new File("tb/RsdGenCore/wave").mkdir()
   }
-  for{
-    did <- 0 until rsd_cfg.depth_factor
-    fid <- 0 until rsd_cfg.freq_factor
-    len <- 0 until rsd_cfg.impulse_sample_point
-  } {
-    testCase(len, did, fid)
+//  for{
+//    did <- 0 until rsd_cfg.depth_factor
+//    fid <- 0 until rsd_cfg.freq_factor
+//    len <- 0 until rsd_cfg.impulse_sample_point
+//  } {
+//    testCase(len, did, fid)
+//  }
+  (0 until rsd_cfg.depth_factor).par.foreach{did=>
+    (0 until rsd_cfg.freq_factor).par.foreach{fid=>
+      (0 until rsd_cfg.impulse_sample_point).par.foreach{len=>
+        testCase(len, did, fid)
+      }
+    }
   }
   if(withWave){
     Process("fd -e vcd -x mv {} tb/RsdGenCore/wave")
