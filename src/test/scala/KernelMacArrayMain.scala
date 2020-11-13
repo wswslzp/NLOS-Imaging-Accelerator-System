@@ -10,6 +10,8 @@ import Core.KernelMacArray
 import SimTest.NlosSystemSimTest.write_image
 import breeze.signal._
 
+import scala.sys.process.Process
+
 object KernelMacArrayMain extends App{
 
   val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv") //(
@@ -53,7 +55,7 @@ object KernelMacArrayMain extends App{
   ).generateVerilog(KernelMacArray(rsd_cfg))
 
   SimConfig
-    .withWave(1)
+    .withWave
     .allOptimisation
     .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
     .workspacePath("tb")
@@ -145,5 +147,10 @@ object KernelMacArrayMain extends App{
 
   val uout_abs_max_flip = fliplr(uout_abs_max)
   write_image(uout_abs_max_flip, "tb/KernelMacArray/nlos_hard_out.jpg")
+
+  val tb_path = "tb/KernelMacArray"
+  Process(s"vcd2vpd ${tb_path}/KernelMacArray_tb.vcd tb/KernelMacArray_tb.vpd").!
+  Process(s"vpd2fsdb ${tb_path}/KernelMacArray_tb.vpd -o ${tb_path}/KernelMacArray_tb.fsdb").!
+  Process(s"verdi -ssf ${tb_path}/KernelMacArray_tb.fsdb").!!
 
 }
