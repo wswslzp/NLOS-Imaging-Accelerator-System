@@ -162,7 +162,7 @@ object RsdGenCoreMain extends App{
       )
     }
 
-    module_compiled.doSim("RsdGenCore_tb"){dut=>
+    module_compiled.doSim(s"RsdGenCore_tb_d${d_id}_f${f_id}_R$R_id"){dut=>
       println("")
       testBench(dut, R_id, d_id, f_id)
     }
