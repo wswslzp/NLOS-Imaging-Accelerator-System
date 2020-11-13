@@ -10,7 +10,6 @@ import breeze.math.Complex
 import breeze.plot._
 import org.jfree.chart.axis._
 import java.io._
-
 import sys.process._
 import SimTest.NlosSystemSimTest.write_image
 import breeze.signal._
@@ -67,7 +66,7 @@ object RsdGenCoreMain extends App{
     SimConfig.allOptimisation.workspacePath("tb").compile(RsdGenCore(rsd_cfg))
   }
 
-  def testCase(R_id: Int, d_id: Int, f_id: Int, visible: Boolean = false): Figure = {
+  def testCase(R_id: Int, d_id: Int, f_id: Int, visible: Boolean = false): Unit = {
     def testBench(dut: RsdGenCore, R_id: Int = 0, d_id: Int = 0, f_id: Int = 0): Unit = {
       dut.clockDomain.forkStimulus(2)
       dut.io.timeshift.valid #= false
@@ -121,8 +120,8 @@ object RsdGenCoreMain extends App{
                 // TODO: should we let machine configure coef automatically?
                 //              println(s"true coef is ${coef(0)(0, r)}")
                 //              println(s"current coef is ${dut.prsd_core.coef_gen_core.io.coef.toComplex}")
-                coef_queue.enqueue(dut.prsd_core.coef_gen_core.prev_coef.toComplex)
-                coef_x_impu_queue.enqueue(dut.prsd_core.delta_rsd_kernel_val.toComplex)
+//                coef_queue.enqueue(dut.prsd_core.coef_gen_core.prev_coef.toComplex)
+//                coef_x_impu_queue.enqueue(dut.prsd_core.delta_rsd_kernel_val.toComplex)
                 dut.clockDomain.waitSampling()
               }
             }
@@ -145,7 +144,7 @@ object RsdGenCoreMain extends App{
         () => {
           while(true) {
             dut.clockDomain.waitActiveEdgeWhere(dut.io.ring_impulse.valid.toBoolean)
-            impulse_queue.enqueue(dut.io.ring_impulse.payload.toComplex)
+//            impulse_queue.enqueue(dut.io.ring_impulse.payload.toComplex)
             //            println(s"delta_kernel = ${( dut.io.kernel.payload.toComplex - rsd(0)(0)(0) ).abs}")
           }
         }
@@ -155,7 +154,7 @@ object RsdGenCoreMain extends App{
           dut.clockDomain.waitActiveEdgeWhere(dut.io.ring_impulse.valid.toBoolean)
           dut.clockDomain.waitSampling(2)
           for(_ <- 0 until rsd_cfg.radius_factor) {
-            kernel_queue.enqueue(dut.io.kernel.payload.toComplex)
+//            kernel_queue.enqueue(dut.io.kernel.payload.toComplex)
             dut.clockDomain.waitSampling()
           }
         }
@@ -163,7 +162,6 @@ object RsdGenCoreMain extends App{
     }
 
     module_compiled.doSim(s"RsdGenCore_tb_d${d_id}_f${f_id}_R$R_id"){dut=>
-      println("")
       testBench(dut, R_id, d_id, f_id)
     }
 
@@ -196,8 +194,8 @@ object RsdGenCoreMain extends App{
 //    val tcti_kernels = accmulatePRSD(tcoef_x_timpu)
 //    val hard_ci_kernels = accmulatePRSD(coef_x_impu_queue.toArray)
 //
-    val f = Figure()
-    f.visible = visible
+//    val f = Figure()
+//    f.visible = visible
 //    val p1 = f.subplot(2, 3, 0)
 //    val p2 = f.subplot(2, 3, 1)
 //    val p5 = f.subplot(2, 3, 2)
@@ -294,7 +292,7 @@ object RsdGenCoreMain extends App{
 //    kernel_queue.clear()
 //    coef_x_impu_queue.clear()
 //
-    f
+//    f
 
   }
 
@@ -309,19 +307,12 @@ object RsdGenCoreMain extends App{
   if(withWave){
     new File("tb/RsdGenCore/wave").mkdir()
   }
-//  for{
-//    did <- 0 until rsd_cfg.depth_factor
-//    fid <- 0 until rsd_cfg.freq_factor
-//    len <- 0 until rsd_cfg.impulse_sample_point
-//  } {
-//    testCase(len, did, fid)
-//  }
-  (0 until rsd_cfg.depth_factor).par.foreach{did=>
-    (0 until rsd_cfg.freq_factor).foreach{fid=>
-      (0 until rsd_cfg.impulse_sample_point).foreach{len=>
-        testCase(len, did, fid)
-      }
-    }
+  for{
+    did <- ( 0 until rsd_cfg.depth_factor )
+    fid <- ( 0 until rsd_cfg.freq_factor )
+    len <- ( 0 until rsd_cfg.impulse_sample_point ).par
+  } {
+    testCase(len, did, fid)
   }
   if(withWave){
     Process("fd -e vcd -x mv {} tb/RsdGenCore/wave")
