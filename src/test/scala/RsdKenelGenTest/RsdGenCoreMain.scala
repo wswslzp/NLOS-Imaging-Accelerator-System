@@ -317,8 +317,8 @@ object RsdGenCoreMain extends App{
 //    testCase(len, did, fid)
 //  }
   (0 until rsd_cfg.depth_factor).par.foreach{did=>
-    (0 until rsd_cfg.freq_factor).par.foreach{fid=>
-      (0 until rsd_cfg.impulse_sample_point).par.foreach{len=>
+    (0 until rsd_cfg.freq_factor).foreach{fid=>
+      (0 until rsd_cfg.impulse_sample_point).foreach{len=>
         testCase(len, did, fid)
       }
     }
