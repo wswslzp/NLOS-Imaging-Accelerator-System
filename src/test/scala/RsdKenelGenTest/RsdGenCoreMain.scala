@@ -310,7 +310,7 @@ object RsdGenCoreMain extends App{
   for{
     did <- ( 0 until rsd_cfg.depth_factor )
     fid <- ( 0 until rsd_cfg.freq_factor )
-    len <- ( 0 until rsd_cfg.impulse_sample_point ).par
+    len <- ( 0 until rsd_cfg.impulse_sample_point )
   } {
     testCase(len, did, fid)
   }
