@@ -5,13 +5,13 @@ import spinal.lib._
 import Config._
 import Core.RsdGenCoreArray._
 import Sim.RsdGenCoreArray.{Computation, LoadData}
-import breeze.linalg.{DenseMatrix, DenseVector, fliplr}
+import breeze.linalg.{DenseMatrix, DenseVector, csvwrite, fliplr}
 import breeze.math.Complex
 import breeze.plot._
 import org.jfree.chart.axis._
 import java.io._
-import sys.process._
 
+import sys.process._
 import SimTest.NlosSystemSimTest.write_image
 import breeze.signal._
 
@@ -59,7 +59,7 @@ object RsdGenCoreMain extends App{
   val kernel_queue = mutable.Queue[Complex]()
   val coef_x_impu_queue = mutable.Queue[Complex]()
 
-  val withWave = true
+  val withWave = false
   val waveDepth = 1
   val module_compiled = if(withWave) {
     SimConfig.allOptimisation.withWave(waveDepth).workspacePath("tb").compile(RsdGenCore(rsd_cfg))
@@ -306,7 +306,9 @@ object RsdGenCoreMain extends App{
   }
   val uin_fft = uin.map(fourierTr(_))
   val kernel_size = (uin.head.rows, uin.head.cols)
-  new File("tb/RsdGenCore/wave").mkdir()
+  if(withWave){
+    new File("tb/RsdGenCore/wave").mkdir()
+  }
   for{
     did <- 0 until rsd_cfg.depth_factor
     fid <- 0 until rsd_cfg.freq_factor
@@ -314,7 +316,10 @@ object RsdGenCoreMain extends App{
   } {
     testCase(len, did, fid)
   }
-  Process("fd -e vcd -x mv {} tb/RsdGenCore/wave")
+  if(withWave){
+    Process("fd -e vcd -x mv {} tb/RsdGenCore/wave")
+  }
+  new File("tb/RsdGenCore/uout").mkdir()
   val uout = Array.tabulate(rsd_cfg.depth_factor) {depth =>
     val uout_f = DenseMatrix.fill(kernel_size._1, kernel_size._2)(Complex(0, 0))
     for(f <- 0 until rsd_cfg.freq_factor) {
@@ -322,7 +327,12 @@ object RsdGenCoreMain extends App{
       val rsd_kernel = Computation.restoreRSD(rsd_kernel_rad, kernel_size)
       uout_f += rsd_kernel *:* uin_fft(f)
     }
-    iFourierTr(uout_f)
+    val uout_d = iFourierTr(uout_f)
+    csvwrite(
+      new File(s"tb/RsdGenCore/uout/uout_d${depth}_real.csv"),
+      uout_d.map(_.real)
+    )
+    uout_d
   }
   val uout_abs = uout.map(_.map(_.abs))
 

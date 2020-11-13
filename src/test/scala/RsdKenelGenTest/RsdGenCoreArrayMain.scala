@@ -3,7 +3,7 @@ package RsdKenelGenTest
 import scala.sys.process._
 import Config._
 import Core._
-import breeze.linalg.{DenseMatrix, DenseVector, fliplr}
+import breeze.linalg.{DenseMatrix, DenseVector, csvwrite, fliplr}
 import breeze.math.Complex
 import spinal.core._
 import spinal.core.sim._
@@ -151,6 +151,7 @@ object RsdGenCoreArrayMain extends App{
         ,
         () => {
           // Monitor to catch the rsd kernel output
+          new File("tb/RsdGenCoreArray/uout").mkdir()
           while(true) {
             val cur_d = dd
             val cur_f = ff
@@ -164,6 +165,10 @@ object RsdGenCoreArrayMain extends App{
             uout(cur_d) += hard_rsd_kernel *:* uin_fft(cur_f)
             if(cur_f == rsd_cfg.freq_factor-1){
               uout(cur_d) = iFourierTr(uout(cur_d))
+              csvwrite(
+                new File(s"tb/RsdGenCoreArray/uout/uout_d${cur_d}_real.csv"),
+                uout(cur_d).map(_.real)
+              )
             }
           }
         }
