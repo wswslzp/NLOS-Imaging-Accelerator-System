@@ -313,8 +313,8 @@ object RsdGenCoreMain extends App{
     len <- 0 until rsd_cfg.impulse_sample_point
   } {
     testCase(len, did, fid)
-    Process("mv tb/RsdGenCore/*vcd tb/RsdGenCore/wave").run()
   }
+  Process("fd -e vcd -x mv {} tb/RsdGenCore/wave")
   val uout = Array.tabulate(rsd_cfg.depth_factor) {depth =>
     val uout_f = DenseMatrix.fill(kernel_size._1, kernel_size._2)(Complex(0, 0))
     for(f <- 0 until rsd_cfg.freq_factor) {
