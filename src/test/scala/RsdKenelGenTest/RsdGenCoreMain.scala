@@ -10,6 +10,7 @@ import breeze.math.Complex
 import breeze.plot._
 import org.jfree.chart.axis._
 import java.io._
+import sys.process._
 
 import SimTest.NlosSystemSimTest.write_image
 import breeze.signal._
@@ -311,6 +312,7 @@ object RsdGenCoreMain extends App{
     len <- 0 until rsd_cfg.impulse_sample_point
   } {
     testCase(len, did, fid)
+    Process("cp ")
   }
   val uout = Array.tabulate(rsd_cfg.depth_factor) {depth =>
     val uout_f = DenseMatrix.fill(kernel_size._1, kernel_size._2)(Complex(0, 0))
