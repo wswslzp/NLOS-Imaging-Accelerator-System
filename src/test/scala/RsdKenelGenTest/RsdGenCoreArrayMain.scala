@@ -131,10 +131,19 @@ object RsdGenCoreArrayMain extends App{
           //  2. Address map output wrong pixel address: Get the rsd kernel rad output and compare with the RsdGenCore output
           //  3.
           new File("tb/RsdGenCoreArray/uout").mkdir()
+          new File("tb/RsdGenCoreArray_rad").mkdir()
+          val rsd_rad = DenseMatrix.fill(rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)(Complex(0, 0))
           while(true) {
             val cur_d = dd
             val cur_f = ff
             dut.clockDomain.waitActiveEdgeWhere(dut.io.rsd_kernel.valid.toBoolean)
+
+            // get the rsd kernel rad from internal memory
+            for(r <- 0 until rsd_cfg.impulse_sample_point){
+              rsd_rad(cur_f, r) = dut.rsd_mem(r).toComplex
+            }
+
+            // Get the restored rsd hardware kernel
             for(y <- 0 until rsd_cfg.kernel_size.last) {
               for(x <- 0 until rsd_cfg.kernel_size.head) {
                 hard_rsd_kernel(x, y) = dut.io.rsd_kernel.payload(x).toComplex
@@ -149,6 +158,10 @@ object RsdGenCoreArrayMain extends App{
 //                new File(s"tb/RsdGenCoreArray/uout/uout_d${cur_d}_real.csv"),
 //                uout(cur_d).map(_.abs)
 //              )
+              csvwrite(
+                new File(s"tb/RsdGenCoreArray_rad/arr_rad_d$cur_d.csv"),
+                rsd_rad.map(_.abs)
+              )
             }
           }
         }
