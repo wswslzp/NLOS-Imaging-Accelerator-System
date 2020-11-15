@@ -108,7 +108,7 @@ case class RsdGenCoreArray(
 
   // Control when should push the wave and start computing rsd kernel
   val compute_stage = dc_eq_0 ## fc_eq_0
-  val rsd_comp_start = RegInit(False)
+  val rsd_comp_start = RegInit(False) simPublic()
   val wave_hit = (data_in.w.fire & (data_in.aw.payload.addr === loadUnitAddrs(2))).rise(False)
   switch(compute_stage){
     //TODO: it seems that except for compute_stage == 2'b11, others are identity.
@@ -152,7 +152,7 @@ case class RsdGenCoreArray(
 
   //********************************* RSD Kernel memory*************************
   // Store the rsd kernel memory
-  val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength) simPublic()
+  val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength).simPublic()
 
   // for d0, f < f_max-1, rsd kernel rad store into mem right after kernel valid
   // while for other df cycles, valid rsd kernel rad should wait for push ending
