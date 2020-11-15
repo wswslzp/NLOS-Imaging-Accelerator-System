@@ -307,7 +307,7 @@ object RsdGenCoreMain extends App{
   if(withWave){
     new File("tb/RsdGenCore/wave").mkdir()
   }
-  new File("tb/RsdGenCore/rad").mkdir()
+  new File("tb/RsdGenCore_rad").mkdir()
   for(did <- 0 until rsd_cfg.depth_factor){
     val rad_d = DenseMatrix.fill(rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)(0d)
     for{
@@ -318,7 +318,7 @@ object RsdGenCoreMain extends App{
       rad_d(fid, ::) := hardware_rsd(did)(fid).map(_.abs).t
     }
     csvwrite(
-      new File(s"tb/RsdGenCore/rad/rad_$did.csv"),
+      new File(s"tb/RsdGenCore_rad/rad_$did.csv"),
       rad_d
     )
   }
