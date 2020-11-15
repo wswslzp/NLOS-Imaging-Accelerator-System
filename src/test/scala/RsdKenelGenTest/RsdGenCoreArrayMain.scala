@@ -34,6 +34,8 @@ object RsdGenCoreArrayMain extends App{
 //    oneFilePerComponent = true,
     targetDirectory = "rtl/RsdGenCoreArray",
     headerWithDate = true
+  ).addTransformationPhase(
+    new SwapTagPhase(SimPublic, Verilator.public)
   ).generateVerilog(
     RsdGenCoreArray(rsd_cfg, init_addr)
   )

@@ -1,11 +1,14 @@
 package SimTest
 
+import java.io.File
+
 import spinal.core._
 import spinal.core.sim._
 import breeze.math._
 import breeze.linalg._
 import Util._
 import Config.HComplexConfig
+
 import scala.collection.mutable
 import spinal.lib._
 
@@ -31,13 +34,19 @@ object SimComplexTest extends App{
 
   val cfg = HComplexConfig(1, 8)
 
-  SimConfig
-    .withWave
-    .withVerilator
-    .allOptimisation
-    .workspacePath("tb")
-    .compile(TestSC(cfg))
-    .doSim("TestSC_tb") {dut=>
+  new File("tmp/test_sc").mkdir()
+  val report = SpinalConfig(
+    targetDirectory = "tmp/test_sc",
+    headerWithDate = true
+  ).addTransformationPhase(
+    new SwapTagPhase(SimPublic, Verilator.public)
+  ).generateVerilog(
+    TestSC(cfg)
+  )
+
+  val module_compiled = SimConfig.withWave.withVerilator.allOptimisation.workspacePath("tb").compile(report)
+
+  module_compiled.doSim("TestSC_tb") {dut=>
       import Sim.SimComplex._
 
       dut.clockDomain.forkStimulus(2)
