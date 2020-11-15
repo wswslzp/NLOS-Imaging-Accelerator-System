@@ -307,7 +307,7 @@ object RsdGenCoreMain extends App{
   if(withWave){
     new File("tb/RsdGenCore/wave").mkdir()
   }
-  new File("tb/RsdGenCore/rad")
+  new File("tb/RsdGenCore/rad").mkdir()
   for(did <- 0 until rsd_cfg.depth_factor){
     val rad_d = DenseMatrix.fill(rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)(0d)
     for{
