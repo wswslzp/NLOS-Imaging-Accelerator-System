@@ -154,8 +154,7 @@ case class RsdGenCoreArray(
   // Store the rsd kernel memory
   val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength) simPublic()
   rsd_mem.foreach{dat=>
-    dat.real.raw.simPublic()
-    dat.imag.raw.simPublic()
+    dat.simPublic()
   }
 
   // for d0, f < f_max-1, rsd kernel rad store into mem right after kernel valid
