@@ -7,11 +7,10 @@ import breeze.linalg.{DenseMatrix, DenseVector, csvwrite, fliplr}
 import breeze.math.Complex
 import spinal.core._
 import spinal.core.sim._
-import spinal.lib.bus.amba4.axi.Axi4Config
 import Sim.SimComplex._
-import Sim.SimFix._
 import SimTest.NlosSystemSimTest.write_image
 import breeze.signal._
+import java.io._
 
 object RsdGenCoreArrayMain extends App{
 
@@ -19,44 +18,17 @@ object RsdGenCoreArrayMain extends App{
   import Sim.RsdGenCoreArray._
   import RsdKernelConfig._
   var init_addr = 0
-  val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")
-  val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")
-  val timeshift = LoadData.loadComplexMatrix(
-    "src/test/resource/data/timeshift_real.csv",
-    "src/test/resource/data/timeshift_imag.csv"
-  )
-  val impulse: DenseMatrix[Complex] = LoadData.loadComplexMatrix(
-    "src/test/resource/data/impulse_rad_real.csv",
-    "src/test/resource/data/impulse_rad_imag.csv"
-  )
-  val rsd_cfg = RsdKernelConfig(
-    wave_cfg = HComplexConfig(8, 8),
-    distance_cfg = HComplexConfig(8, 8),
-    timeshift_cfg = HComplexConfig(-4, 20),
-    coef_cfg = HComplexConfig(-4, 20),
-    imp_cfg = HComplexConfig(5, 11),
-    depth_factor = wave.cols,
-    radius_factor = wave.rows,
-    freq_factor = distance.rows
-  )
   val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)
   val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse)
   var dd = 0
   var ff = 0
 
-  val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
-    LoadData.loadComplexMatrix(
-      real_part_filename = s"src/test/resource/data/real/uin_${idx+1}.csv",
-      imag_part_filename = s"src/test/resource/data/imag/uin_${idx+1}.csv"
-    )
-  }
   val uout = Array.fill(rsd_cfg.depth_factor)(
     DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
   )
   val uin_fft = uin.map(fourierTr(_))
   val hard_rsd_kernel = DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
 
-  import java.io._
   new File("rtl/RsdGenCoreArray").mkdir()
   val report = SpinalConfig(
 //    oneFilePerComponent = true,
@@ -65,14 +37,16 @@ object RsdGenCoreArrayMain extends App{
     RsdGenCoreArray(rsd_cfg, init_addr)
   )
 
-  SimConfig
-    .withWave(1)
-    .noOptimisation
-    .workspacePath("tb")
-    .workspaceName("RsdGenCoreArray")
-    .addSimulatorFlag("--hierarchical -j 16 --threads 16 --trace-threads 16")
-    .compile(report)
-    .doSim("RsdGenCoreArray_tb") {dut =>
+  val withWave = true
+  val module_compiled = if(withWave) {
+    SimConfig.withWave(1).allOptimisation.workspacePath("tb").workspaceName("RsdGenCoreArray")
+      .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16").compile(report)
+  } else {
+    SimConfig.allOptimisation.workspacePath("tb").workspaceName("RsdGenCoreArray")
+      .addSimulatorFlag("-j 16 --threads 16 ").compile(report)
+  }
+
+  module_compiled.doSim("RsdGenCoreArray_tb") {dut =>
       import Sim.RsdGenCoreArray.Driver._
       dut.clockDomain.forkStimulus(2)
 
@@ -101,7 +75,7 @@ object RsdGenCoreArrayMain extends App{
             dd = d
             dut.io.dc #= d
             for(f <- 0 until rsd_cfg.freq_factor) {
-              println(s"Now is ($d, $f)")
+//              println(s"Now is ($d, $f)")
               ff = f
               dut.io.fc #= f
               dut.clockDomain.waitSampling()
@@ -151,6 +125,11 @@ object RsdGenCoreArrayMain extends App{
         ,
         () => {
           // Monitor to catch the rsd kernel output
+          // TODO: uout didn't conform to RsdGenCore.
+          //  Problems may be
+          //  1. cur_d and cur_f may wrong: Print the cur_d and cur_f every time?
+          //  2. Address map output wrong pixel address: Get the rsd kernel rad output and compare with the RsdGenCore output
+          //  3.
           new File("tb/RsdGenCoreArray/uout").mkdir()
           while(true) {
             val cur_d = dd
@@ -162,13 +141,14 @@ object RsdGenCoreArrayMain extends App{
               }
               dut.clockDomain.waitSampling()
             }
+            println(s"Now is ($dd, $ff) and cur_d is $cur_d, cur_f is $cur_f")
             uout(cur_d) += hard_rsd_kernel *:* uin_fft(cur_f)
             if(cur_f == rsd_cfg.freq_factor-1){
               uout(cur_d) = iFourierTr(uout(cur_d))
-              csvwrite(
-                new File(s"tb/RsdGenCoreArray/uout/uout_d${cur_d}_real.csv"),
-                uout(cur_d).map(_.real)
-              )
+//              csvwrite(
+//                new File(s"tb/RsdGenCoreArray/uout/uout_d${cur_d}_real.csv"),
+//                uout(cur_d).map(_.abs)
+//              )
             }
           }
         }
@@ -193,7 +173,6 @@ object RsdGenCoreArrayMain extends App{
 
   Process("vcd2vpd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd").!
   Process("vpd2fsdb tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd -o tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").!
-  Process("rm -f novas*").!
   Process("verdi -ssf tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").!!
 
 }

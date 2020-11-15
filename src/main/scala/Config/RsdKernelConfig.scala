@@ -1,6 +1,8 @@
 package Config
 
 import Sim.RsdGenCoreArray.LoadData
+import breeze.linalg.DenseMatrix
+import breeze.math.Complex
 import spinal.lib.bus.amba4.axi.Axi4Config
 
 case class RsdKernelConfig
@@ -52,8 +54,8 @@ case class RsdKernelConfig
 }
 
 object RsdKernelConfig {
-  private val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")
-  private val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")
+  val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")
+  val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")
   val rsd_cfg = RsdKernelConfig(
     wave_cfg = HComplexConfig(8, 8),
     distance_cfg = HComplexConfig(8, 8),
@@ -64,6 +66,20 @@ object RsdKernelConfig {
     radius_factor = wave.rows,
     freq_factor = distance.rows
   )
+  val timeshift = LoadData.loadComplexMatrix(
+    "src/test/resource/data/timeshift_real.csv",
+    "src/test/resource/data/timeshift_imag.csv"
+  )
+  val impulse: DenseMatrix[Complex] = LoadData.loadComplexMatrix(
+    "src/test/resource/data/impulse_rad_real.csv",
+    "src/test/resource/data/impulse_rad_imag.csv"
+  )
+  val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
+    LoadData.loadComplexMatrix(
+      real_part_filename = s"src/test/resource/data/real/uin_${idx+1}.csv",
+      imag_part_filename = s"src/test/resource/data/imag/uin_${idx+1}.csv"
+    )
+  }
   implicit val axi_config: Axi4Config = Axi4Config(
     addressWidth = 32, dataWidth = 32,
     idWidth = 4, useRegion = false, useLock = false, useCache = false, useQos = false,

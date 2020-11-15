@@ -307,12 +307,20 @@ object RsdGenCoreMain extends App{
   if(withWave){
     new File("tb/RsdGenCore/wave").mkdir()
   }
-  for{
-    did <- ( 0 until rsd_cfg.depth_factor )
-    fid <- ( 0 until rsd_cfg.freq_factor )
-    len <- ( 0 until rsd_cfg.impulse_sample_point )
-  } {
-    testCase(len, did, fid)
+  new File("tb/RsdGenCore/rad")
+  for(did <- 0 until rsd_cfg.depth_factor){
+    val rad_d = DenseMatrix.fill(rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)(0d)
+    for{
+      fid <- 0 until rsd_cfg.freq_factor
+      len <- 0 until rsd_cfg.impulse_sample_point
+    } {
+      testCase(len, did, fid)
+      rad_d(fid, ::) := hardware_rsd(did)(fid).map(_.abs).t
+    }
+    csvwrite(
+      new File(s"tb/RsdGenCore/rad/rad_$did.csv"),
+      rad_d
+    )
   }
   if(withWave){
     Process("fd -e vcd -x mv {} tb/RsdGenCore/wave")
@@ -326,10 +334,10 @@ object RsdGenCoreMain extends App{
       uout_f += rsd_kernel *:* uin_fft(f)
     }
     val uout_d = iFourierTr(uout_f)
-    csvwrite(
-      new File(s"tb/RsdGenCore/uout/uout_d${depth}_real.csv"),
-      uout_d.map(_.real)
-    )
+//    csvwrite(
+//      new File(s"tb/RsdGenCore/uout/uout_d${depth}_real.csv"),
+//      uout_d.map(_.real)
+//    )
     uout_d
   }
   val uout_abs = uout.map(_.map(_.abs))
