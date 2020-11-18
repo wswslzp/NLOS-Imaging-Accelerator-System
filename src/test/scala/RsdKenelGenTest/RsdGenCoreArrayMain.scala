@@ -221,7 +221,7 @@ object RsdGenCoreArrayMain extends App{
     )
 
   }
-  new File("tmp/rsd_gen_core_array_dat/").mkdir()
+  new File("tmp/rsd_gen_core_array_dat").mkdir()
   csvwrite(
     new File("tb/rsd_gen_core_array_dat/timeshift.csv"),
     h_timeshift.map(_.real)
