@@ -223,15 +223,15 @@ object RsdGenCoreArrayMain extends App{
   }
   new File("tmp/rsd_gen_core_array_dat").mkdir()
   csvwrite(
-    new File("tb/rsd_gen_core_array_dat/timeshift.csv"),
+    new File("tmp/rsd_gen_core_array_dat/timeshift.csv"),
     h_timeshift.map(_.real)
   )
   csvwrite(
-    new File("tb/rsd_gen_core_array_dat/distance.csv"),
+    new File("tmp/rsd_gen_core_array_dat/distance.csv"),
     h_distance
   )
   csvwrite(
-    new File("tb/rsd_gen_core_array_dat/wave.csv"),
+    new File("tmp/rsd_gen_core_array_dat/wave.csv"),
     h_wave
   )
 
