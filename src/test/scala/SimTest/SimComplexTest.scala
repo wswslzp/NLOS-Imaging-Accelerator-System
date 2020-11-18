@@ -47,28 +47,28 @@ object SimComplexTest extends App{
   val module_compiled = SimConfig.withWave.withVerilator.allOptimisation.workspacePath("tb").compile(report)
 
   module_compiled.doSim("TestSC_tb") {dut=>
-      import Sim.SimComplex._
+    import Sim.SimComplex._
 
-      dut.clockDomain.forkStimulus(2)
-      dut.clockDomain.waitSampling()
+    dut.clockDomain.forkStimulus(2)
+    dut.clockDomain.waitSampling()
 
-      fork{
-        SimTimeout(300)
-      }
-
-      for(i <- 0 to 5) {
-        val inputData = Complex(Math.exp(-i*2), Math.exp(-i*2-1))
-        dut.io.xin #= inputData
-        println(s"input: $inputData")
-        dut.clockDomain.waitSampling()
-        println(s"dat2input: ${dut.io.xin.toComplex}")
-        dut.clockDomain.waitSampling(2)
-        for(i <- 0 until 10){
-          println(s"inside[$i] = ${dut.vec_hcomp_10(i).toComplex}")
-        }
-        println(s"output: ${dut.io.xout.toComplex}")
-      }
-      simSuccess()
-
+    fork{
+      SimTimeout(300)
     }
+
+    for(i <- 0 to 5) {
+      val inputData = Complex(Math.exp(-i*2), Math.exp(-i*2-1))
+      dut.io.xin #= inputData
+      println(s"input: $inputData")
+      dut.clockDomain.waitSampling()
+      println(s"dat2input: ${dut.io.xin.toComplex}")
+      dut.clockDomain.waitSampling(2)
+      for(i <- 0 until 10){
+        println(s"inside[$i] = ${dut.vec_hcomp_10(i).toComplex}")
+      }
+      println(s"output: ${dut.io.xout.toComplex}")
+    }
+    simSuccess()
+
+  }
 }

@@ -44,18 +44,22 @@ case class RsdGenCoreArray(
   val timeshift_load_unit: TimeshiftLoadUnit = LoadUnit.TimeshiftLoadUnit(
     cfg, loadUnitAddrs.head
   )
+  timeshift_load_unit.io.timeshift.simPublic()
 
   val distance_load_unit: DistanceLoadUnit = LoadUnit.DistanceLoadUnit(
     cfg, loadUnitAddrs(1)
   )
+  distance_load_unit.io.distance.simPublic()
 
   val wave_load_unit: WaveLoadUnit = LoadUnit.WaveLoadUnit(
     cfg, loadUnitAddrs(2)
   )
+  wave_load_unit.io.wave.simPublic()
 
   val impulse_load_unit: ImpLoadUnit = LoadUnit.ImpLoadUnit(
     cfg, loadUnitAddrs(3)
   )
+  impulse_load_unit.io.impulse_out.simPublic()
 
   // ******************** Axi Bus crossbar ***********************
   // Fork the AW channel of AXI bus into all the load units

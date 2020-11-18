@@ -15,9 +15,9 @@ case class TimeshiftLoadUnit(
   override val word_bit_count: Int = cfg.timeshift_cfg.getComplexWidth
 
   val io = new Bundle {
-    val load_req = out Bool
-    val ready_for_store = out Bool
-    val data_enable = out Bool
+    val load_req = out Bool()
+    val ready_for_store = out Bool()
+    val data_enable = out Bool()
     val timeshift = master (Flow(
       HComplex(cfg.timeshift_cfg)
     ))
