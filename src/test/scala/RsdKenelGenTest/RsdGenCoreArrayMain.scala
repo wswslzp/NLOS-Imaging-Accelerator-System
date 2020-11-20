@@ -87,6 +87,7 @@ object RsdGenCoreArrayMain extends App{
           for(f <- 0 until rsd_cfg.freq_factor) {
             ff = f
             dut.io.fc #= f
+            println(s"($dd, $ff)")
             dut.clockDomain.waitSampling()
             if((dut.io.load_req.toInt & 1) == 1) {
               rsdDriver.driveComplexData(timeshift(f, d), dut.loadUnitAddrs(0), dut.cfg.timeshift_cfg)
