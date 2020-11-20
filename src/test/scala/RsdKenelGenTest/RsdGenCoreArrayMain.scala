@@ -193,7 +193,9 @@ object RsdGenCoreArrayMain extends App{
               }
             }
           }
-          dut.clockDomain.waitSampling()
+          else {
+            dut.clockDomain.waitSampling()
+          }
         }
       }
       ,
