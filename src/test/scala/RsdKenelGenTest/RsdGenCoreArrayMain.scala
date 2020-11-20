@@ -193,6 +193,7 @@ object RsdGenCoreArrayMain extends App{
               }
             }
           }
+          dut.clockDomain.waitSampling()
         }
       }
       ,
