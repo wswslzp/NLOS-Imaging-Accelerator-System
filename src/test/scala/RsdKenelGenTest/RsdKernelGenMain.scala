@@ -151,6 +151,6 @@ object RsdKernelGenMain extends App{
   println(s"output size: cols = ${uout_abs_max.cols}")
 
   val uout_abs_max_flip = fliplr(uout_abs_max)
-  write_image(uout_abs_max_flip, "tb/RsdGenCore/nlos_out.jpg")
+  write_image(uout_abs_max_flip, "tb/RsdKernelGen_tb/nlos_out.jpg")
 
 }
