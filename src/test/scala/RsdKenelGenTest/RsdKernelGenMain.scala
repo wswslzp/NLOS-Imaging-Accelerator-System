@@ -112,7 +112,7 @@ object RsdKernelGenMain extends App{
   val kernel_size = (uin.head.rows, uin.head.cols)
   new File("tb/RsdKernelGen_tb/rad").mkdirs()
   for(did <- rsd_cfg.depthRange){
-    val rad_d = DenseMatrix.fill(rsd_cfg.depth_factor, rsd_cfg.impulse_sample_point)(0d)
+    val rad_d = DenseMatrix.fill(rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)(0d)
     for(fid <- rsd_cfg.freqRange){
       testCase(did, fid)
       rad_d(fid, ::) := hardware_rsd(did)(fid).map(_.abs).t
