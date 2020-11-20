@@ -104,7 +104,7 @@ object RsdKernelGenMain extends App{
 
     }
 
-    module_compiled.doSim(s"RsdKernelGen_d{$d_id}_f${f_id}_tb")(testBench)
+    module_compiled.doSim(s"RsdKernelGen_d${d_id}_f${f_id}_tb")(testBench)
   }
 
 
