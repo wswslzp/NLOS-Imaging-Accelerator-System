@@ -166,8 +166,8 @@ object RsdGenCoreArrayMain extends App{
             while(true){
               dut.clockDomain.waitActiveEdgeWhere(dut.impulse_load_unit.io.impulse_out.valid.toBoolean)
               if(dd == 0 && ff == 0){
-                for(x <- rsd_cfg.rowRange){
-                  for(y <- rsd_cfg.colRange){
+                for(x <- impulse.rows){
+                  for(y <- impulse.cols){
                     h_impulse(x, y) = dut.impulse_load_unit.io.impulse_out.payload(y).toDouble
                   }
                   dut.clockDomain.waitSampling()
