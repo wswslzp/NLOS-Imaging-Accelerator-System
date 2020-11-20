@@ -1,7 +1,7 @@
 package RsdKenelGenTest
 
 import Config._
-import Core.RsdGenCoreArray.RsdKernelGen
+import Core.RsdGenCoreArray.PRsdKernelGen
 import spinal.core._
 import spinal.lib.bus.amba4.axi.Axi4Config
 import Sim.RsdGenCoreArray._
@@ -46,7 +46,7 @@ object RsdKernelGenMain extends App{
     .withWave
     .noOptimisation
     .workspacePath("tb")
-    .compile(RsdKernelGen(rsd_cfg))
+    .compile(PRsdKernelGen(rsd_cfg))
     .doSim("RsdKernelGen_tb"){dut=>
       
     }

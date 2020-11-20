@@ -97,18 +97,14 @@ case class RsdGenCoreArray(
   // ******************** main part of rsd core gen array *******************************
 
   // instantiate the rsd kernel core array
-  // A rsd_gen_core contains a list of prsd_gen_core to pipe out a column of rsd kernel
-  val rsd_gen_core_array = Array.fill(Rlength)(RsdGenCore(cfg))
-  rsd_gen_core_array.foreach(_.io.wave <> wave_load_unit.io.wave)
-  rsd_gen_core_array.foreach(_.io.distance <> distance_load_unit.io.distance)
-  rsd_gen_core_array.foreach(_.io.timeshift <> timeshift_load_unit.io.timeshift)
-  rsd_gen_core_array.zipWithIndex.foreach{ case (core, i) =>
-    core.io.ring_impulse <> impulse_load_unit.io.impulse_out.translateWith(
-      impulse_load_unit.io.impulse_out.payload(i)
-    )
-  }
+  // A rsd_kernel_gen pipe out a radius of rsd kernel
+  val rsd_kernel_gen = RsdKernelGen(cfg)
+  rsd_kernel_gen.io.wave <> wave_load_unit.io.wave
+  rsd_kernel_gen.io.distance <> distance_load_unit.io.distance
+  rsd_kernel_gen.io.timeshift <> timeshift_load_unit.io.timeshift
+  rsd_kernel_gen.io.ring_impulse <> impulse_load_unit.io.impulse_out
 
-  val W2CLatency = rsd_gen_core_array.head.prsd_core.W2CLatency
+  val W2CLatency = rsd_kernel_gen.pRsdKernelGen.W2CLatency
 
   // Control when should push the wave and start computing rsd kernel
   val compute_stage = dc_eq_0 ## fc_eq_0
@@ -124,7 +120,6 @@ case class RsdGenCoreArray(
       rsd_comp_start := Delay(wave_hit, wave_push_latency, init = False) // RSD kernel compute as soon as wave has loaded 3 elements
     }
     is(B"2'b10") { // d == 0 && f != 0
-//      rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
       rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
     }
     is(B"2'b11") { // d == 0 && d == 0
@@ -161,16 +156,11 @@ case class RsdGenCoreArray(
   // for d0, f < f_max-1, rsd kernel rad store into mem right after kernel valid
   // while for other df cycles, valid rsd kernel rad should wait for push ending
   // because the mem storing previous rsd kernel must not be overwritten.
+  val rsd_store_en = dc_eq_0 ? rsd_kernel_gen.io.kernel.valid | push_ending // TODO: This behavior does not conform the comment!!
   for(idx <- rsd_mem.indices){
-    when(dc_eq_0) {
-      when(rsd_gen_core_array(idx).io.kernel.valid){
-        rsd_mem(idx) := rsd_gen_core_array(idx).io.kernel.payload
-      }
-    } otherwise {
+    when(rsd_store_en){
       // TODO: When waiting for push ending, the rsd kernel data have been changed
-      when(push_ending) {
-        rsd_mem(idx) := rsd_gen_core_array(idx).io.kernel.payload
-      }
+      rsd_mem(idx) := rsd_kernel_gen.io.kernel.payload(idx)
     }
   }
 
@@ -200,7 +190,7 @@ case class RsdGenCoreArray(
   io.push_ending := push_ending // Push ending is the true increment signal tb used.
 
   // indicate when the controller to do counter increment.
-  io.cnt_incr := (dc_eq_0 && io.fc === cfg.freq_factor-1) ? rsd_gen_core_array.head.io.kernel.valid | push_ending
+  io.cnt_incr := (dc_eq_0 && io.fc === cfg.freq_factor-1) ? rsd_kernel_gen.io.kernel.valid | push_ending
 
   // define new load req
   val wave_req = wave_load_unit.io.load_req

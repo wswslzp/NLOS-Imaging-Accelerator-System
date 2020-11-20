@@ -1,35 +1,33 @@
 package Core.RsdGenCoreArray
 
-import Config.RsdKernelConfig
-import Util.HComplex
 import spinal.core._
+import spinal.lib._
+import Config._
+import Util._
 
-//TODO: This module needs to be modified for the new architecture.
 case class RsdKernelGen(cfg: RsdKernelConfig) extends Component {
   val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
   val Rlength = cfg.impulse_sample_point
-
   val io = new Bundle {
-    val ring_impulse = in (
+    val ring_impulse = slave(Flow(
       Vec(HComplex(cfg.imp_cfg), Rlength)
-    )
-    val wave = in(SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp))
-    val distance = in(SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp))
-    val timeshift = in ( HComplex(cfg.timeshift_cfg) )
-    val kernel_array = out(Vec(HComplex(kernel_cfg), Rlength))
+    ))
+    val wave = slave(Flow(SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp)))
+    val distance = slave(Flow(SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp)))
+    val timeshift = slave(Flow(HComplex(cfg.timeshift_cfg)))
+    val kernel = master(Flow(
+      Vec(HComplex(kernel_cfg), Rlength)
+    ))
   }
 
-  val prsd_core = Vector.fill(Rlength)(PRsdGenCore(cfg))
-
-  // Unfold in the Rlength dim
-  prsd_core.zipWithIndex.foreach { case(core, idx) =>
-    core.io.ring_impulse <> io.ring_impulse(idx)
-    core.io.wave <> io.wave // Rlength waves share the same value
-    core.io.distance <> io.distance
-    core.io.timeshift <> io.timeshift
-
-    core.io.rsd_prev <> core.io.rsd_next
-    core.io.rsd_next <> io.kernel_array(idx)
-  }
+  val pRsdKernelGen = PRsdKernelGen(cfg)
+  pRsdKernelGen.io.ring_impulse := io.ring_impulse.toReg()
+  pRsdKernelGen.io.wave := io.wave.toReg()
+  pRsdKernelGen.io.timeshift := io.timeshift.toReg()
+  pRsdKernelGen.io.distance := io.distance.toReg()
+  pRsdKernelGen.io.rsd_prev := pRsdKernelGen.io.rsd_next
+  pRsdKernelGen.io.impulse_valid := RegNext(io.ring_impulse.valid, False)
+  io.kernel.payload := pRsdKernelGen.io.rsd_next
+  io.kernel.valid := Delay( io.ring_impulse.valid.fall(False), 1, init = False )
 
 }
