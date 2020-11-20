@@ -32,7 +32,7 @@ case class RsdKernelGen(cfg: RsdKernelConfig) extends Component {
   io.kernel.valid := Delay( io.ring_impulse.valid.fall(False), 1, init = False )
 
   val sim = new Bundle {
-    val coef = HComplex(pRsdKernelGen.sim.coef.config)
+    val coef = out(HComplex(pRsdKernelGen.sim.coef.config))
   }
   sim.coef := pRsdKernelGen.sim.coef
 
