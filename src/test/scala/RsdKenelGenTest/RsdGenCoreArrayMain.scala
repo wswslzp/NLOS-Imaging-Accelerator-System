@@ -34,6 +34,7 @@ object RsdGenCoreArrayMain extends App{
   val h_distance = DenseMatrix.fill(distance.rows, distance.cols)(0d)
   val h_timeshift = DenseMatrix.fill(timeshift.rows, timeshift.cols)(Complex(0d, 0d))
   val h_impulse = DenseMatrix.fill(impulse.rows, impulse.cols)(0d)
+  val h_addr_map = DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(0d)
 
   new File("rtl/RsdGenCoreArray").mkdir()
   val report = SpinalConfig(
@@ -163,17 +164,34 @@ object RsdGenCoreArrayMain extends App{
         }
         fork{
           // Monitor for impulse
-            while(true){
-              dut.clockDomain.waitActiveEdgeWhere(dut.impulse_load_unit.io.impulse_out.valid.toBoolean)
-              if(dd == 0 && ff == 0){
-                for(r <- rsd_cfg.radiusRange){
-                  for(len <- rsd_cfg.rLengthRange){
-                    h_impulse(len, r) = dut.impulse_load_unit.io.impulse_out.payload(len).toDouble
-                  }
-                  dut.clockDomain.waitSampling()
+          while(true){
+            dut.clockDomain.waitActiveEdgeWhere(dut.impulse_load_unit.io.impulse_out.valid.toBoolean)
+            if(dd == 0 && ff == 0){
+              for(r <- rsd_cfg.radiusRange){
+                for(len <- rsd_cfg.rLengthRange){
+                  h_impulse(len, r) = dut.impulse_load_unit.io.impulse_out.payload(len).toDouble
                 }
+                dut.clockDomain.waitSampling()
               }
             }
+          }
+        }
+      }
+      ,
+      () => {
+        // Monitor to catch the address map
+        // TODO: Catch address map
+        while(true){
+          if(dd == 0 && ff == 0) {
+            if(dut.io.rsd_kernel.valid.toBoolean){
+              for(col <- rsd_cfg.colRange){
+                for(row <- rsd_cfg.rowRange){
+                  h_addr_map(row, col) = dut.pixel_addrs(col).toInt.toDouble
+                }
+                dut.clockDomain.waitSampling()
+              }
+            }
+          }
         }
       }
       ,
@@ -183,9 +201,9 @@ object RsdGenCoreArrayMain extends App{
         //  Now we know that the rsd mem store wrong rsd kernel rad.
         //  Problems may be
         //  1. cur_d and cur_f may wrong: Print the cur_d and cur_f every time? No
-        //  2. Wrong impulse/coef/timeshift/distance/wave loads in ??
+        //  2. Wrong impulse/coef/timeshift/distance/wave loads in ?? No
         //  3. Address map output wrong pixel address: Get the rsd kernel rad output and compare with the RsdGenCore output
-        //  4.
+        //  4. Wrong middle result?? Check coefficients, rad inside memory, output rsd kernel.
         new File("tb/RsdGenCoreArray/uout").mkdir()
         new File("tb/RsdGenCoreArray_rad").mkdir()
         val rsd_rad = DenseMatrix.fill(rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)(Complex(0, 0))
@@ -240,6 +258,10 @@ object RsdGenCoreArrayMain extends App{
   csvwrite(
     new File("tmp/rsd_gen_core_array_dat/h_impulse.csv"),
     h_impulse
+  )
+  csvwrite(
+    new File("tmp/rsd_gen_core_array_dat/h_addr_map.csv"),
+    h_addr_map
   )
 
   val uout_abs = uout.map(_.map(_.abs))

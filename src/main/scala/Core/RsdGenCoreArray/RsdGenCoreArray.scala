@@ -176,6 +176,7 @@ case class RsdGenCoreArray(
   val rad_addr_map = RadAddrMap(cfg)
   rad_addr_map.io.col_addr := col_addr.value
   val pixel_addrs = rad_addr_map.io.pixel_addrs
+  pixel_addrs.simPublic()
 
   for(id <- 0 until row_num){
     when(count_col_addr.cond_period){
