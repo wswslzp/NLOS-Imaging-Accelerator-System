@@ -28,6 +28,8 @@ case class RsdKernelConfig
   def radiusRange: Range = 0 until radius_factor
   def freqRange: Range = 0 until freq_factor
   def rLengthRange: Range = 0 until impulse_sample_point
+  def rowRange: Range = 0 until kernel_size.head
+  def colRange: Range = 0 until kernel_size.last
 
   override def toString: String = {
     s"""

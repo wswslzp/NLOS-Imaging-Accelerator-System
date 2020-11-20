@@ -9,7 +9,7 @@ import spinal.core._
 import spinal.core.sim._
 import Sim.SimComplex._
 import Sim.SimFix._
-import SimTest.NlosSystemSimTest.write_image
+import SimTest.NlosSystemSimTest.{kernel_size, write_image}
 import breeze.signal._
 import java.io._
 
@@ -33,7 +33,7 @@ object RsdGenCoreArrayMain extends App{
   val h_wave = DenseMatrix.fill(wave.rows, wave.cols)(0d)
   val h_distance = DenseMatrix.fill(distance.rows, distance.cols)(0d)
   val h_timeshift = DenseMatrix.fill(timeshift.rows, timeshift.cols)(Complex(0d, 0d))
-  val h_impulse = DenseMatrix.fill(impulse.rows, impulse.cols)(Complex(0d, 0d))
+  val h_impulse = DenseMatrix.fill(impulse.rows, impulse.cols)(0d)
 
   new File("rtl/RsdGenCoreArray").mkdir()
   val report = SpinalConfig(
@@ -46,7 +46,7 @@ object RsdGenCoreArrayMain extends App{
     RsdGenCoreArray(rsd_cfg, init_addr)
   )
 
-  val withWave = true
+  val withWave = false
   val module_compiled = if(withWave) {
     SimConfig.withWave(1).allOptimisation.workspacePath("tb").workspaceName("RsdGenCoreArray")
       .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16").compile(report)
@@ -84,7 +84,6 @@ object RsdGenCoreArrayMain extends App{
           dd = d
           dut.io.dc #= d
           for(f <- 0 until rsd_cfg.freq_factor) {
-//              println(s"Now is ($d, $f)")
             ff = f
             dut.io.fc #= f
             dut.clockDomain.waitSampling()
@@ -164,13 +163,17 @@ object RsdGenCoreArrayMain extends App{
         }
         fork{
           // Monitor for impulse
-          // TODO: finish impulse monitor
-//            while(true){
-//              dut.clockDomain.waitActiveEdgeWhere(dut.impulse_load_unit.io.impulse_out.valid.toBoolean)
-//              if(dd == 0 && ff == 0){
-//                ???
-//              }
-//            }
+            while(true){
+              dut.clockDomain.waitActiveEdgeWhere(dut.impulse_load_unit.io.impulse_out.valid.toBoolean)
+              if(dd == 0 && ff == 0){
+                for(x <- rsd_cfg.rowRange){
+                  for(y <- rsd_cfg.colRange){
+                    h_impulse(x, y) = dut.impulse_load_unit.io.impulse_out.payload(y).toDouble
+                  }
+                  dut.clockDomain.waitSampling()
+                }
+              }
+            }
         }
       }
       ,
@@ -223,16 +226,20 @@ object RsdGenCoreArrayMain extends App{
   }
   new File("tmp/rsd_gen_core_array_dat").mkdir()
   csvwrite(
-    new File("tmp/rsd_gen_core_array_dat/timeshift.csv"),
+    new File("tmp/rsd_gen_core_array_dat/h_timeshift.csv"),
     h_timeshift.map(_.real)
   )
   csvwrite(
-    new File("tmp/rsd_gen_core_array_dat/distance.csv"),
+    new File("tmp/rsd_gen_core_array_dat/h_distance.csv"),
     h_distance
   )
   csvwrite(
-    new File("tmp/rsd_gen_core_array_dat/wave.csv"),
+    new File("tmp/rsd_gen_core_array_dat/h_wave.csv"),
     h_wave
+  )
+  csvwrite(
+    new File("tmp/rsd_gen_core_array_dat/h_impulse.csv"),
+    h_impulse
   )
 
   val uout_abs = uout.map(_.map(_.abs))
@@ -250,8 +257,10 @@ object RsdGenCoreArrayMain extends App{
   val uout_abs_max_flip = fliplr(uout_abs_max)
   write_image(uout_abs_max_flip, "tb/RsdGenCoreArray/nlos_hard_out.jpg")
 
-  Process("vcd2vpd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd").!
-  Process("vpd2fsdb tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd -o tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").!
-  Process("verdi -ssf tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").!!
+  if(withWave){
+    Process("vcd2vpd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd").!
+    Process("vpd2fsdb tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd -o tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").!
+    Process("verdi -ssf tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").!!
+  }
 
 }
