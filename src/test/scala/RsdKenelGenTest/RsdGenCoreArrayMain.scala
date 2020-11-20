@@ -105,7 +105,7 @@ object RsdGenCoreArrayMain extends App{
             dut.clockDomain.waitSampling()
             if((d == 0) && (f == 0)) {
               if((dut.io.load_req.toInt & 8) == 8) {
-                rsdDriver.driveComplexData(impulse, dut.loadUnitAddrs(3), dut.cfg.imp_cfg)
+                rsdDriver.driveDoubleData(impulse, dut.loadUnitAddrs(3), rsd_cfg.imp_cfg.fracw)
                 rsdDriver.driveData(1, dut.loadUnitAddrs(3) + dut.cfg.radius_factor * dut.cfg.impulse_sample_point)
               }
               dut.clockDomain.waitSampling()
