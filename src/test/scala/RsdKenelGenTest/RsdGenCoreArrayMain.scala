@@ -47,7 +47,7 @@ object RsdGenCoreArrayMain extends App{
     RsdGenCoreArray(rsd_cfg, init_addr)
   )
 
-  val withWave = false
+  val withWave = true
   val module_compiled = if(withWave) {
     SimConfig.withWave(1).allOptimisation.workspacePath("tb").workspaceName("RsdGenCoreArray")
       .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16").compile(report)
