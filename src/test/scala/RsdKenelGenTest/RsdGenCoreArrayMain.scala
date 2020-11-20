@@ -178,26 +178,25 @@ object RsdGenCoreArrayMain extends App{
           }
         }
       }
-//      ,
-//      () => {
-//        // Monitor to catch the address map
-//        // TODO: Catch address map
-//        while(true){
-//          if(dd == 0 && ff == 0) {
-//            if(dut.io.rsd_kernel.valid.toBoolean){
-//              for(col <- rsd_cfg.colRange){
-//                for(row <- rsd_cfg.rowRange){
-//                  h_addr_map(row, col) = dut.pixel_addrs(col).toInt.toDouble
-//                }
-//                dut.clockDomain.waitSampling()
-//              }
-//            }
-//          }
-//          else {
-//            dut.clockDomain.waitSampling()
-//          }
-//        }
-//      }
+      ,
+      () => {
+        // Monitor to catch the address map
+        // TODO: Catch address map
+        while(true){
+          if(dd == 0 && ff == 0) {
+            dut.clockDomain.waitActiveEdgeWhere(dut.io.rsd_kernel.valid.toBoolean)
+            for(col <- rsd_cfg.colRange){
+              for(row <- rsd_cfg.rowRange){
+                h_addr_map(row, col) = dut.pixel_addrs(col).toInt.toDouble
+              }
+              dut.clockDomain.waitSampling()
+            }
+          }
+          else {
+            dut.clockDomain.waitSampling()
+          }
+        }
+      }
       ,
       () => {
         // Monitor to catch the rsd kernel output
