@@ -23,8 +23,11 @@ case class RsdKernelConfig
 ){
   require(kernel_size.length == 2)
   def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg
-
   def getFFT2dConfig: FFTConfig = FFTConfig(getKernelConfig / 2, kernel_size(1), kernel_size(0))
+  def depthRange: Range = 0 until depth_factor
+  def radiusRange: Range = 0 until radius_factor
+  def freqRange: Range = 0 until freq_factor
+  def rLengthRange: Range = 0 until impulse_sample_point
 
   override def toString: String = {
     s"""
