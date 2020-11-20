@@ -22,7 +22,7 @@ object RsdKernelGenMain extends App{
     DenseVector.fill(rsd.head.head.length)(Complex(0d, 0d))
   }
 
-  val withWave = false
+  val withWave = true
   val waveDepth = 1
   val module_compiled = if(withWave){
     SimConfig
