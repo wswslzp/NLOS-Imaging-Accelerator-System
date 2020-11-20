@@ -28,6 +28,11 @@ case class PRsdKernelGen(cfg: RsdKernelConfig) extends Component {
   coef_gen_core.io.timeshift <> io.timeshift
   coef_gen_core.io.coef.simPublic()
 
+  val sim = new Bundle {
+    val coef = out(HComplex(coef_gen_core.io.coef.config))
+  }
+  sim.coef := coef_gen_core.io.coef
+
   val W2CLatency = LatencyAnalysis(io.wave.raw, coef_gen_core.io.coef.real.raw) + 1
 
   val delta_rsd_kernel_val = Vec.tabulate(io.ring_impulse.length){idx=>

@@ -23,7 +23,7 @@ object RsdKernelGenMain extends App{
   }
 
   val withWave = true
-  val waveDepth = 1
+  val waveDepth = 2
   val module_compiled = if(withWave){
     SimConfig
       .withWave(waveDepth)
