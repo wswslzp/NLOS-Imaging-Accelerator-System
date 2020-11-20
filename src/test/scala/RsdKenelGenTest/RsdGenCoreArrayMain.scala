@@ -284,7 +284,7 @@ object RsdGenCoreArrayMain extends App{
 
   if(withWave){
     Process("vcd2fsdb tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd -o tb/RsdGenCoreArray/RsdGenCoreArray_tb.fsdb").!
-    Process("verdi -ssf tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd.vpd.fsdb").!!
+    Process("verdi -ssf tb/RsdGenCoreArray/RsdGenCoreArray_tb.fsdb").!!
   }
 
 }
