@@ -118,7 +118,7 @@ object RsdKernelGenMain extends App{
       rad_d(fid, ::) := hardware_rsd(did)(fid).map(_.abs).t
     }
     csvwrite(
-      new File(s"tb/RsdKernelGen_tb/rad/rad_$did.csv"),
+      new File(s"tb/RsdKernelGen_tb/rad/rad_d$did.csv"),
       rad_d
     )
   }
