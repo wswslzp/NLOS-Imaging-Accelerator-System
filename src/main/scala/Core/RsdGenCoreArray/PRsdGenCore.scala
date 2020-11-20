@@ -10,7 +10,7 @@ case class PRsdGenCore(cfg: RsdKernelConfig) extends Component {
   import spinal.core.sim._
   val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
   val io = new Bundle {
-    val ring_impulse = in (HComplex(cfg.imp_cfg))
+    val ring_impulse = in(SFix(cfg.imp_cfg.intw-1 exp, -cfg.imp_cfg.fracw exp))
     val rsd_prev = in (HComplex(kernel_cfg))
     val rsd_next = out (HComplex(kernel_cfg))
     val wave = in SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp)

@@ -5,12 +5,13 @@ import spinal.lib._
 import Config._
 import Util._
 
+// TODO: impulse will be real
 case class RsdKernelGen(cfg: RsdKernelConfig) extends Component {
   val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
   val Rlength = cfg.impulse_sample_point
   val io = new Bundle {
     val ring_impulse = slave(Flow(
-      Vec(HComplex(cfg.imp_cfg), Rlength)
+      Vec(SFix(cfg.imp_cfg.intw-1 exp, -cfg.imp_cfg.fracw exp), Rlength)
     ))
     val wave = slave(Flow(SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp)))
     val distance = slave(Flow(SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp)))

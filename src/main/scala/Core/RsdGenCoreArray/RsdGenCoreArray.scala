@@ -11,6 +11,7 @@ import spinal.lib.bus.amba4.axi._
 import scala.collection.mutable._
 import spinal.core.sim._
 
+// TODO: impulse will be real
 case class RsdGenCoreArray(
                           cfg: RsdKernelConfig,
                           init_addr: Int

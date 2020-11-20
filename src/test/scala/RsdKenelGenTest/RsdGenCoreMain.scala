@@ -21,30 +21,11 @@ import scala.collection.mutable
 object RsdGenCoreMain extends App{
   import Sim.SimComplex._
   import Sim.SimFix._
-  val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv") //(
-  val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")
-  val timeshift = LoadData.loadComplexMatrix(
-    "src/test/resource/data/timeshift_real.csv",
-    "src/test/resource/data/timeshift_imag.csv"
-  )
-  val impulse: DenseMatrix[Complex] = LoadData.loadComplexMatrix( //(R, radius)
-    "src/test/resource/data/impulse_rad_real.csv",
-    "src/test/resource/data/impulse_rad_imag.csv"
-  )
+  import RsdKernelConfig._
   println(s"wave:(${wave.rows}, ${wave.cols})")
   println(s"distance:(${distance.rows}, ${distance.cols})")
   println(s"timeshift:(${timeshift.rows}, ${timeshift.cols})")
   println(s"impulse:(${impulse.rows}, ${impulse.cols})")
-  val rsd_cfg = RsdKernelConfig(
-    wave_cfg = HComplexConfig(8, 8),
-    distance_cfg = HComplexConfig(8, 8),
-    timeshift_cfg = HComplexConfig(-4, 20),
-    coef_cfg = HComplexConfig(-5, 21), // (-4 ,20) --> (-5, 21)
-    imp_cfg = HComplexConfig(5, 11),
-    depth_factor = wave.cols,
-    radius_factor = wave.rows,
-    freq_factor = distance.rows
-  )
   val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)//(d, f, r)
   println(s"coef_depth = ${coef.length}, coef_freq = ${coef.head.rows}, coef_rad = ${coef.head.cols}")
   val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse)//(d, f, R)

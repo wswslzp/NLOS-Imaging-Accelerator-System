@@ -5,6 +5,7 @@ import breeze.linalg.DenseMatrix
 import breeze.math.Complex
 import spinal.lib.bus.amba4.axi.Axi4Config
 
+// TODO: Impulse will be real
 case class RsdKernelConfig
 (
   wave_cfg: HComplexConfig,
@@ -12,7 +13,6 @@ case class RsdKernelConfig
   timeshift_cfg: HComplexConfig,
   coef_cfg: HComplexConfig,
   imp_cfg: HComplexConfig,
-//  point_facotr: Int,
   depth_factor: Int,
   radius_factor: Int,
   freq_factor: Int = 1,
@@ -73,9 +73,9 @@ object RsdKernelConfig {
     "src/test/resource/data/timeshift_real.csv",
     "src/test/resource/data/timeshift_imag.csv"
   )
-  val impulse: DenseMatrix[Complex] = LoadData.loadComplexMatrix(
-    "src/test/resource/data/impulse_rad_real.csv",
-    "src/test/resource/data/impulse_rad_imag.csv"
+
+  val impulse: DenseMatrix[Double] = LoadData.loadDoubleMatrix(
+  "src/test/resource/data/impulse_rad_real.csv"
   )
   val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
     LoadData.loadComplexMatrix(

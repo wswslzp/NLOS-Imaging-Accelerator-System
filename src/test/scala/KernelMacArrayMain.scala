@@ -13,36 +13,17 @@ import breeze.signal._
 import scala.sys.process.Process
 
 object KernelMacArrayMain extends App{
+  import RsdKernelConfig._
 
-  val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv") //(
-  val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")
-  val timeshift = LoadData.loadComplexMatrix(
-    "src/test/resource/data/timeshift_real.csv",
-    "src/test/resource/data/timeshift_imag.csv"
-  )
-  val impulse: DenseMatrix[Complex] = LoadData.loadComplexMatrix( //(R, radius)
-    "src/test/resource/data/impulse_rad_real.csv",
-    "src/test/resource/data/impulse_rad_imag.csv"
-  )
-  val rsd_cfg = RsdKernelConfig(
-    wave_cfg = HComplexConfig(8, 8),
-    distance_cfg = HComplexConfig(8, 8),
-    timeshift_cfg = HComplexConfig(-4, 20),
-    coef_cfg = HComplexConfig(-5, 21), // (-4 ,20) --> (-5, 21)
-    imp_cfg = HComplexConfig(5, 11),
-    depth_factor = wave.cols,
-    radius_factor = wave.rows,
-    freq_factor = distance.rows
-  )
   val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)//(d, f, r)
   val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse)//(d, f, R)
-  val rsd_kernel = Computation.restoreRSD(rsd, (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last))//(d, f, x, y)
   val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
     LoadData.loadComplexMatrix(
       real_part_filename = s"src/test/resource/data/real/uin_${idx+1}.csv",
       imag_part_filename = s"src/test/resource/data/imag/uin_${idx+1}.csv"
     )
   }
+  val rsd_kernel = Computation.restoreRSD(rsd, (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last))//(d, f, x, y)
   val uin_fft = uin.map(fourierTr(_))
   val uout_f = Array.fill(rsd_cfg.depth_factor)(
     DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))

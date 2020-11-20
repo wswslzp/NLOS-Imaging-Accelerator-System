@@ -61,6 +61,18 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
     ret
   }
 
+  def *(that: SFix)(implicit use_synthesizable_mul: Synthesizable): HComplex = {
+    val real_part = this.real * that
+    val imag_part = this.imag * that
+    val ret = HComplex(
+      intw = real_part.getBitsWidth-real_part.fraction,
+      fracw = real_part.fraction
+    )
+    ret.real := real_part
+    ret.imag := imag_part
+    ret
+  }
+
   def *(that: HComplex)(implicit use_synthesizable_mul: Synthesizable): HComplex = {
     val result = HComplex(this.config * that.config)
     if (!use_synthesizable_mul.flag) {

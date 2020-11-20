@@ -10,6 +10,7 @@ import breeze.linalg._
 
 import scala.collection.mutable.ArrayBuffer
 
+// TODO: impulse will be real
 package object Computation {
   import linalg.DenseMatrix
   import breeze.math.Complex
@@ -61,7 +62,7 @@ package object Computation {
 
   def generateRSDRadKernel(
                          coef: Array[DenseMatrix[Complex]],
-                         impulse_rad: DenseMatrix[Complex]
+                         impulse_rad: DenseMatrix[Double]
                        ): Array[Array[DenseVector[Complex]]] = {
     //coef : (depth, freq, radius)
     //impulse_rad: (R, radius)

@@ -10,17 +10,18 @@ import spinal.lib.bus.amba3.apb.Apb3SlaveFactory
 import scala.collection.mutable.ArrayBuffer
 import spinal.core.sim._
 
+// TODO: Impulse will be real
 case class ImpLoadUnit(
                         cfg: RsdKernelConfig,
                         init_addr: Int
                       )(override implicit val axi_config: Axi4Config) extends Component with Axi4Slave{
-  override val word_bit_count: Int = cfg.imp_cfg.getComplexWidth
+  override val word_bit_count: Int = cfg.imp_cfg.getDataWidth
 
   val row_num: Int = cfg.kernel_size(0)
   val col_num: Int = cfg.kernel_size(1)
 
   // the number of sample radius should be the power of 2
-  val local_mem_manager = ApplyMem(init_addr, cfg.imp_cfg.getComplexWidth)
+  val local_mem_manager = ApplyMem(init_addr, cfg.imp_cfg.getDataWidth)
   val radius_num = cfg.radius_factor
   val Rlength = cfg.impulse_sample_point
 
@@ -37,7 +38,7 @@ case class ImpLoadUnit(
     val data_enable = out Bool()
     val impulse_out = master (
       Flow(
-        Vec(HComplex(cfg.imp_cfg), Rlength)
+        Vec(SFix(cfg.imp_cfg.intw-1 exp, -cfg.imp_cfg.fracw exp), Rlength)
       )
     )
   }
@@ -45,7 +46,7 @@ case class ImpLoadUnit(
   // Apply for memories stored the impulse, with the ram amount same as radius_name
   val int_ram_array_map: Array[(Range, Mem[Bits])] = Array.tabulate(Rlength) { idx=>
     local_mem_manager.allocateRam(
-      Mem(Bits(cfg.imp_cfg.getComplexWidth bit), BigInt(radius_num)).setWeakName(s"int_ram_$idx")
+      Mem(Bits(cfg.imp_cfg.getDataWidth bit), BigInt(radius_num)).setWeakName(s"int_ram_$idx")
     )
   }
   val (transfer_done_map, transfer_done_reg) = local_mem_manager.allocateReg(
@@ -84,7 +85,8 @@ case class ImpLoadUnit(
       l <- 0 until Rlength
       ram = int_ram_array(l)
     } {
-      io.impulse_out.payload(l) := ram(virtual_imp_radix)
+//      io.impulse_out.payload(l) := ram(virtual_imp_radix)
+      io.impulse_out.payload(l).assignFromBits(ram(virtual_imp_radix))
     }
     io.impulse_out.valid := virtual_imp_radix_area.cond_period
     io.rsd_comp_end := virtual_imp_radix.willOverflow

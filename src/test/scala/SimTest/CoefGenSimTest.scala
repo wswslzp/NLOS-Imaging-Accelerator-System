@@ -34,9 +34,4 @@ object CoefGenSimTest extends App{
   println(s"coef size is (${coef.length}, ${coef.head.rows}, ${coef.head.cols})")
   println(s"kernel_coef is ${coef(0)(20 to 23, 20 to 23).map(_.real).toString()}")
 
-  val rsd = Computation.generateRSDRadKernel(coef, impulse_rad)
-  println(s"rsd size is (${rsd.length}, ${rsd.head.length}, ${rsd.head.head.length})")
-  println(s"rsd is \n ${rsd(0)(0)(0 to 9).toString()}")
-
-
 }

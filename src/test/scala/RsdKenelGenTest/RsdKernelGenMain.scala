@@ -131,10 +131,6 @@ object RsdKernelGenMain extends App{
       uout_f += rsd_kernel *:* uin_fft(f)
     }
     val uout_d = iFourierTr(uout_f)
-    //    csvwrite(
-    //      new File(s"tb/RsdGenCore/uout/uout_d${depth}_real.csv"),
-    //      uout_d.map(_.real)
-    //    )
     uout_d
   }
   val uout_abs = uout.map(_.map(_.abs))

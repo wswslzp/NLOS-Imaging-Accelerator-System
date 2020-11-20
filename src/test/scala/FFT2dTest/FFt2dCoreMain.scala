@@ -1,7 +1,7 @@
 package FFT2dTest
 
 import Config.{HComplexConfig, RsdKernelConfig}
-import RsdKenelGenTest.RsdGenCoreMain.{distance, wave}
+import RsdKernelConfig._
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._

@@ -18,6 +18,7 @@ import org.bytedeco.opencv.opencv_core.Mat
 import signal._
 
 object NlosSystemSimTest extends App{
+  import RsdKernelConfig._
 
   def write_image(input: linalg.DenseMatrix[Double], path: String): Unit = {
     val input_max: Double = linalg.max(input)
@@ -40,22 +41,10 @@ object NlosSystemSimTest extends App{
   val depth_num = 51
 
   println("Begin loading...")
-  val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")
-  val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")
-  val timeshift = LoadData.loadComplexMatrix(
-    "src/test/resource/data/timeshift_real.csv",
-    "src/test/resource/data/timeshift_imag.csv"
-  )
-  val impulse_rad = LoadData.loadComplexMatrix(
-    "src/test/resource/data/impulse_rad_real.csv",
-    "src/test/resource/data/impulse_rad_imag.csv"
-  )
-  println("Loading complete!")
-
   println("Begin input generation...")
   val coef = Computation.generateCoef(wave, distance, timeshift)
 
-  val rsd = Computation.generateRSDRadKernel(coef, impulse_rad)
+  val rsd = Computation.generateRSDRadKernel(coef, impulse)
   println("Generation done!")
 
   println("Begin loading input image...")
