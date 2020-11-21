@@ -283,7 +283,7 @@ object RsdGenCoreArrayMain extends App{
   write_image(uout_abs_max_flip, "tb/RsdGenCoreArray/nlos_hard_out.jpg")
 
   if(withWave){
-    Process("vcd2fsdb tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd -o tb/RsdGenCoreArray/RsdGenCoreArray_tb.fsdb").!
+    Process("vcd2fsdb tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd -o tb/RsdGenCoreArray/RsdGenCoreArray_tb.fsdb").!<
     Process("verdi -ssf tb/RsdGenCoreArray/RsdGenCoreArray_tb.fsdb").!!
   }
 
