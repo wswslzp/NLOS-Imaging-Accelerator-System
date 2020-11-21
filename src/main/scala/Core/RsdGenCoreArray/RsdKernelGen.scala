@@ -33,7 +33,9 @@ case class RsdKernelGen(cfg: RsdKernelConfig) extends Component {
 
   val sim = new Bundle {
     val coef = out(HComplex(pRsdKernelGen.sim.coef.config))
+    val rsd_prev = out(cloneOf(pRsdKernelGen.sim.rsd_prev))
   }
   sim.coef := pRsdKernelGen.sim.coef
+  sim.rsd_prev := pRsdKernelGen.sim.rsd_prev
 
 }

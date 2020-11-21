@@ -200,6 +200,8 @@ case class RsdGenCoreArray(
 
   val sim = new Bundle {
     val coef = out(HComplex(rsd_kernel_gen.sim.coef.config))
+    val rsd_prev = out(cloneOf(rsd_kernel_gen.sim.rsd_prev))
   }
   sim.coef := rsd_kernel_gen.sim.coef
+  sim.rsd_prev := rsd_kernel_gen.sim.rsd_prev
 }
