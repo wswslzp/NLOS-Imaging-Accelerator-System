@@ -38,4 +38,13 @@ case class CoefGenCore
   io.coef := stage( prev_coef , 5)
 
   val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
+
+  val sim = new Bundle {
+    val exp_wd_prod_s = out(cloneOf(exp_wd_prod))
+    val exp_wd_prod_divw_s = out(cloneOf(exp_wd_prod_divw))
+    val prev_coef_s = out(cloneOf(prev_coef))
+  }
+  sim.exp_wd_prod_s := exp_wd_prod
+  sim.exp_wd_prod_divw_s := exp_wd_prod_divw
+  sim.prev_coef_s := prev_coef
 }
