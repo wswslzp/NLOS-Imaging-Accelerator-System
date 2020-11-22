@@ -22,19 +22,22 @@ case class CoefGenCore
 
   val wave = stage(io.wave, 0) //A
   val distance = stage(io.distance, 0) //B
-  val timeshift = stage(io.timeshift, 0 to 4) //C
+//  val timeshift = stage(io.timeshift, 0 to 4) //C
+  val timeshift = stage(io.timeshift, 0 to 3) //C
 
   val wd_prod = stage(wave * distance, 1)
 
-  val exp_wd_prod = ExpFunc(wd_prod, samplePoint = 32) // with 2 stage pipeline inside.
+  val exp_wd_prod = ExpFunc(wd_prod, samplePoint = 32) // with 3 stage pipeline inside.
   exp_wd_prod.setWeakName("exp_wd_prod")
 
-  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 3) , 4) // D
+//  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 3) , 4) // D
+  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 2) , 3) // D
 
   val prev_coef = exp_wd_prod_divw * timeshift
   prev_coef.simPublic()
 
-  io.coef := stage( prev_coef , 5)
+//  io.coef := stage( prev_coef , 5)
+  io.coef := stage( prev_coef , 4)
 
   val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
 
