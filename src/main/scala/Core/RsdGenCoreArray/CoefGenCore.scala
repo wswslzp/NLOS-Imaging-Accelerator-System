@@ -26,8 +26,7 @@ case class CoefGenCore
 
   val wd_prod = stage(wave * distance, 1)
 
-  //TODO: Expfunc module may not be accurate enough
-  val exp_wd_prod = ExpFunc(wd_prod, samplePoint = 64) // with 2 stage pipeline inside.
+  val exp_wd_prod = ExpFunc(wd_prod, samplePoint = 32) // with 2 stage pipeline inside.
   exp_wd_prod.setWeakName("exp_wd_prod")
 
   val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 3) , 4) // D
