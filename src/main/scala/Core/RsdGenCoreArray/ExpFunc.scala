@@ -34,11 +34,11 @@ case class ExpFunc
     val position = ( lzc - 1 ).setWeakName("position")
     val y1 = pfunc_tb(position).setWeakName("y1")
     val y2 = pfunc_tb(lzc).setWeakName("y2")
-    exp_func_value := stage( meanApprox(y1, y2), 1) // y = (y1+y2)/2
+    exp_func_value := stage( meanApprox(y1, y2), 1 to 2) // y = (y1+y2)/2
   } elsewhen(lzc_t.msb === True) {
-    exp_func_value := stage( pfunc_tb.last, 1)
+    exp_func_value := stage( pfunc_tb.last, 1 to 2)
   } otherwise {
-    exp_func_value := stage( pfunc_tb.head, 1)
+    exp_func_value := stage( pfunc_tb.head, 1 to 2)
   }
 
   io.data_out := exp_func_value
