@@ -143,6 +143,8 @@ package object Util {
     (~(x1_lt_x2 ^ (x < mid_x))) ? y1 | y2
   }
 
+  def meanApprox(y1: HComplex, y2: HComplex): HComplex = (y1 + y2) >> 1
+
   def simpleCountLeadingZeros(x: BitVector): UInt = {
     // This is the simple version of counting leading zeros of bit vector
     // whose pattern has leading continuous zeros and trailing continuous ones, like 00001111.

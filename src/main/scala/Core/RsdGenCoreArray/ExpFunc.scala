@@ -42,7 +42,8 @@ case class ExpFunc
     val y2 = pfunc_tb(lzc).setWeakName("y2")
     val indx_r = stage(indx, 1)
 //    exp_func_value := stage( linearInterpolate(indx_r,x1,x2, y1, y2).setWeakName("pre_exp_indx"), 2 )
-    exp_func_value := stage( nearestInterpolate(indx_r,x1,x2, y1, y2).setWeakName("pre_exp_indx"), 2 )
+//    exp_func_value := stage( nearestInterpolate(indx_r,x1,x2, y1, y2).setWeakName("pre_exp_indx"), 2 )
+    exp_func_value := stage( meanApprox(y1, y2), 2 )
   } elsewhen(lzc_t.msb === True) {
     exp_func_value := stage( pfunc_tb.last, 1 to 2 )
   } otherwise {

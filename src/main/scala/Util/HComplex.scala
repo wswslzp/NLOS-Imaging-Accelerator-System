@@ -54,6 +54,13 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
     ret
   }
 
+  def >>(that: Int): HComplex = {
+    val ret = HComplex(this.config)
+    ret.real.assignFromBits(( real.asBits.asSInt |>> that ).asBits)
+    ret.imag.assignFromBits(( imag.asBits.asSInt |>> that ).asBits)
+    ret
+  }
+
   def +(that: SInt): HComplex = {
     val ret = HComplex(this.config)
     ret.real := (this.real + that.toSFix).fixTo(this.q_format)
