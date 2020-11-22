@@ -132,10 +132,15 @@ package object Util {
   def linearInterpolate(x: SFix, x1: SFix, x2: SFix, y1: HComplex, y2: HComplex): HComplex = {
     val xd = ( x1 - x2 ).setWeakName("xd")
     val yd = ( y1 - y2 ).setWeakName("yd")
-//    SpinalInfo(s"xd.width = ${xd.bitCount}; yd.width = ${yd.real.bitCount}")
     val k = ( yd / xd ).setWeakName("k")
     val deltax = HC(x - x1).setWeakName("deltax")
     k * deltax + y1
+  }
+
+  def nearestInterpolate(x: SFix, x1: SFix, x2: SFix, y1: HComplex, y2: HComplex): HComplex = {
+    val mid_x = (x1 + x2) >> 1
+    val x1_lt_x2 = x1 < x2
+    (~(x1_lt_x2 ^ (x < mid_x))) ? y1 | y2
   }
 
   def simpleCountLeadingZeros(x: BitVector): UInt = {

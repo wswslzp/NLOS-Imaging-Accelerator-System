@@ -221,8 +221,8 @@ object RsdGenCoreArrayMain extends App{
           }
 
           // Get the restored rsd hardware kernel
-          for(y <- 0 until rsd_cfg.kernel_size.last) {
-            for(x <- 0 until rsd_cfg.kernel_size.head) {
+          for(y <- rsd_cfg.colRange) {
+            for(x <- rsd_cfg.rowRange) {
               hard_rsd_kernel(x, y) = dut.io.rsd_kernel.payload(x).toComplex
             }
             dut.clockDomain.waitSampling()
@@ -231,10 +231,6 @@ object RsdGenCoreArrayMain extends App{
           uout(cur_d) += hard_rsd_kernel *:* uin_fft(cur_f)
           if(cur_f == rsd_cfg.freq_factor-1){
             uout(cur_d) = iFourierTr(uout(cur_d))
-//              csvwrite(
-//                new File(s"tb/RsdGenCoreArray/uout/uout_d${cur_d}_real.csv"),
-//                uout(cur_d).map(_.abs)
-//              )
             csvwrite(
               new File(s"tb/RsdGenCoreArray_rad/arr_rad_d$cur_d.csv"),
               rsd_rad.map(_.abs)
