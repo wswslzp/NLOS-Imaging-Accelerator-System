@@ -11,7 +11,7 @@ import spinal.core.sim._
 import Config.RsdKernelConfig._
 import breeze.signal._
 import java.io._
-
+import scala.sys.process._
 import SimTest.NlosSystemSimTest.write_image
 
 object RsdKernelGenMain1 extends App{
@@ -164,4 +164,11 @@ object RsdKernelGenMain1 extends App{
   val uout_abs_max_flip = fliplr(uout_abs_max)
   write_image(uout_abs_max_flip, "tb/RsdKernelGen1_tb/nlos_out.jpg")
 
+  if(withWave){
+    val nullLogger = ProcessLogger(line=>{})
+    println("Converting vcd to fsdb...")
+    Process("vcd2fsdb tb/RsdKernelGen1_tb/RsdKernelGen1_tb.vcd -o tb/RsdKernelGen1_tb/RsdKernelGen1_tb.fsdb") ! nullLogger
+    println("Convert done.")
+    Process("verdi -ssf tb/RsdKernelGen1_tb/RsdKernelGen1_tb.fsdb") !!
+  }
 }
