@@ -159,8 +159,8 @@ case class RsdGenCoreArray(
   // for d0, f < f_max-1, rsd kernel rad store into mem right after kernel valid
   // while for other df cycles, valid rsd kernel rad should wait for push ending
   // because the mem storing previous rsd kernel must not be overwritten.
-//  val rsd_store_en = dc_eq_0 ? rsd_kernel_gen.io.kernel.valid | push_ending // TODO: This behavior does not conform the comment!!
-  val rsd_store_en = (dc_eq_0 && io.fc < cfg.freq_factor-1) ? rsd_kernel_gen.io.kernel.valid | push_ending
+//  val rsd_store_en = dc_eq_0 ? rsd_kernel_gen.io.kernel.valid | push_ending
+  val rsd_store_en = (dc_eq_0 && io.fc < cfg.freq_factor-2) ? rsd_kernel_gen.io.kernel.valid | push_ending
   for(idx <- rsd_mem.indices){
     when(rsd_store_en){
       // TODO: When waiting for push ending, the rsd kernel data have been changed
