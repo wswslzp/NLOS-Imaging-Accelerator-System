@@ -20,6 +20,7 @@ case class PRsdKernelGen(cfg: RsdKernelConfig) extends Component {
     val rsd_prev = in (Vec(HComplex(kernel_cfg), Rlength))
     val rsd_next = out (Vec(HComplex(kernel_cfg), Rlength))
     val impulse_valid = in Bool()
+    val rsd_prev_en = in Bool()
   }
 
   val coef_gen_core = CoefGenCore(cfg)
@@ -37,12 +38,9 @@ case class PRsdKernelGen(cfg: RsdKernelConfig) extends Component {
   val delta_rsd_kernel_val_r = RegNext(delta_rsd_kernel_val)
   delta_rsd_kernel_val_r.foreach(_.init(HC(0, 0, io.rsd_prev.head.config)))
 
-//  val rsd_prev_r = RegNextWhen(
-//    next = io.rsd_prev,
-//    cond = RegNext(io.impulse_valid, False)
-//  )
   val rsd_prev_r = Reg(cloneOf(io.rsd_prev))
-  when(RegNext(io.impulse_valid, False)){
+  val rsd_prev_r_en = RegNext(io.impulse_valid, False) & io.rsd_prev_en
+  when(rsd_prev_r_en){
     rsd_prev_r := io.rsd_prev
   }otherwise {
     rsd_prev_r.foreach(_ := HC(0, 0, io.rsd_prev.head.config))

@@ -10,6 +10,7 @@ case class RsdKernelGen(cfg: RsdKernelConfig) extends Component {
   val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
   val Rlength = cfg.impulse_sample_point
   val io = new Bundle {
+    val rsd_comp_end = in Bool()
     val ring_impulse = slave(Flow(
       Vec(SFix(cfg.imp_cfg.intw-1 exp, -cfg.imp_cfg.fracw exp), Rlength)
     ))
@@ -20,6 +21,7 @@ case class RsdKernelGen(cfg: RsdKernelConfig) extends Component {
       Vec(HComplex(kernel_cfg), Rlength)
     ))
   }
+  val rsd_prev_en = io.ring_impulse.valid & (!io.rsd_comp_end)
 
   val pRsdKernelGen = PRsdKernelGen(cfg)
   pRsdKernelGen.io.ring_impulse := io.ring_impulse.toReg()
@@ -28,6 +30,7 @@ case class RsdKernelGen(cfg: RsdKernelConfig) extends Component {
   pRsdKernelGen.io.distance := io.distance.toReg()
   pRsdKernelGen.io.rsd_prev := pRsdKernelGen.io.rsd_next
   pRsdKernelGen.io.impulse_valid := RegNext(io.ring_impulse.valid, False)
+  pRsdKernelGen.io.rsd_prev_en := rsd_prev_en
   io.kernel.payload := pRsdKernelGen.io.rsd_next
   io.kernel.valid := Delay( io.ring_impulse.valid.fall(False), 1, init = False )
 

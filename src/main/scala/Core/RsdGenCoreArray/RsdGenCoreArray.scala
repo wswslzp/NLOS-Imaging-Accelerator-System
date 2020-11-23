@@ -104,6 +104,7 @@ case class RsdGenCoreArray(
   rsd_kernel_gen.io.distance <> distance_load_unit.io.distance
   rsd_kernel_gen.io.timeshift <> timeshift_load_unit.io.timeshift
   rsd_kernel_gen.io.ring_impulse <> impulse_load_unit.io.impulse_out
+  rsd_kernel_gen.io.rsd_comp_end := impulse_load_unit.io.rsd_comp_end
 
   val W2CLatency = rsd_kernel_gen.pRsdKernelGen.W2CLatency
 
@@ -179,7 +180,6 @@ case class RsdGenCoreArray(
   rad_addr_map.io.col_addr := col_addr.value
   val pixel_addrs = rad_addr_map.io.pixel_addrs
   pixel_addrs.simPublic()
-  count_col_addr.cond_period.simPublic()
 
   for(id <- 0 until row_num){
     when(count_col_addr.cond_period){

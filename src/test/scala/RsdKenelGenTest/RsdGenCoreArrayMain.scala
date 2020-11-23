@@ -183,16 +183,11 @@ object RsdGenCoreArrayMain extends App{
         // Monitor to catch the address map
         // TODO: Catch address map
         while(true){
-          if(dd == 0 && ff == 0) {
-            dut.clockDomain.waitActiveEdgeWhere(dut.count_col_addr.cond_period.toBoolean)
-            for(col <- rsd_cfg.colRange){
-              for(row <- rsd_cfg.rowRange){
-                h_addr_map(row, col) = dut.pixel_addrs(row).toInt.toDouble
-              }
-              dut.clockDomain.waitSampling()
+          dut.clockDomain.waitActiveEdgeWhere(dut.io.rsd_kernel.valid.toBoolean)
+          for(col <- rsd_cfg.colRange){
+            for(row <- rsd_cfg.rowRange){
+              h_addr_map(row, col) = dut.pixel_addrs(row).toInt.toDouble
             }
-          }
-          else {
             dut.clockDomain.waitSampling()
           }
         }
