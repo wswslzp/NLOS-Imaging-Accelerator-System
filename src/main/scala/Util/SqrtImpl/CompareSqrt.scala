@@ -17,7 +17,7 @@ case class CompareSqrt(width: Int) extends Component {
    * The Basic building block composing compare sqrt() function
    * @param index The index of process elements, starts from 0 to `width`.
    */
-  case class ProcessElement(index: Int) extends Component {
+  case class SqrtProcessElement(index: Int) extends Component {
     val io = new Bundle {
       val A_i = in UInt(2 bit)
       val R_i = in SInt(2*index+2 bit)
@@ -47,7 +47,7 @@ case class CompareSqrt(width: Int) extends Component {
   val R1 = ( A_list.head - d0 ).asSInt
   val Q_list = Vec(Bool(), width)
   val pe_array = Array.tabulate(width){idx=>
-    ProcessElement(idx)
+    SqrtProcessElement(idx)
   }
 
   for(idx <- 0 until width){
