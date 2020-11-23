@@ -6,7 +6,7 @@ import spinal.lib._
 import Core.RsdGenCoreArray._
 import Config.RsdKernelConfig._
 
-object RsdGenCoreArrayMain extends Component {
+object RsdGenCoreArrayMain extends App {
   new java.io.File("rtl/RsdGenCoreArray").mkdirs()
   SpinalConfig(
     targetDirectory = "rtl/RsdGenCoreArray",
