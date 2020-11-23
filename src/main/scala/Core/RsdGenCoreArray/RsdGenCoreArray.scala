@@ -155,6 +155,13 @@ case class RsdGenCoreArray(
   //********************************* RSD Kernel memory*************************
   // Store the rsd kernel memory
   val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength).simPublic()
+  val prev_rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength).simPublic()
+
+  when(rsd_kernel_gen.io.kernel.valid){
+    for(idx <- rsd_mem.indices){
+      prev_rsd_mem(idx) := rsd_kernel_gen.io.kernel.payload(idx)
+    }
+  }
 
   // for d0, f < f_max-1, rsd kernel rad store into mem right after kernel valid
   // while for other df cycles, valid rsd kernel rad should wait for push ending
@@ -162,9 +169,11 @@ case class RsdGenCoreArray(
   val rsd_store_en = dc_eq_0 ? rsd_kernel_gen.io.kernel.valid | push_ending
 //  val rsd_store_en = (dc_eq_0 && io.fc < cfg.freq_factor-2) ? rsd_kernel_gen.io.kernel.valid | push_ending
   for(idx <- rsd_mem.indices){
-    when(rsd_store_en){
+    when(dc_eq_0 && rsd_kernel_gen.io.kernel.valid){
       // TODO: When waiting for push ending, the rsd kernel data have been changed
       rsd_mem(idx) := rsd_kernel_gen.io.kernel.payload(idx)
+    } elsewhen (!dc_eq_0 && push_ending){
+      rsd_mem(idx) := prev_rsd_mem(idx)
     }
   }
 
