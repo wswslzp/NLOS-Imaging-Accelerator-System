@@ -150,6 +150,7 @@ case class RsdGenCoreArray(
   impulse_load_unit.io.dc_eq_0 := dc_eq_0
   wave_load_unit.io.fc_overflow := io.fc === cfg.freq_factor-1
 
+  // TODO: logic below should be isolated!!
   //********************************* RSD Kernel memory*************************
   // Store the rsd kernel memory
   val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength).simPublic()
@@ -157,7 +158,8 @@ case class RsdGenCoreArray(
   // for d0, f < f_max-1, rsd kernel rad store into mem right after kernel valid
   // while for other df cycles, valid rsd kernel rad should wait for push ending
   // because the mem storing previous rsd kernel must not be overwritten.
-  val rsd_store_en = dc_eq_0 ? rsd_kernel_gen.io.kernel.valid | push_ending // TODO: This behavior does not conform the comment!!
+//  val rsd_store_en = dc_eq_0 ? rsd_kernel_gen.io.kernel.valid | push_ending // TODO: This behavior does not conform the comment!!
+  val rsd_store_en = (dc_eq_0 && io.fc < cfg.freq_factor-1) ? rsd_kernel_gen.io.kernel.valid | push_ending
   for(idx <- rsd_mem.indices){
     when(rsd_store_en){
       // TODO: When waiting for push ending, the rsd kernel data have been changed
@@ -177,6 +179,7 @@ case class RsdGenCoreArray(
   rad_addr_map.io.col_addr := col_addr.value
   val pixel_addrs = rad_addr_map.io.pixel_addrs
   pixel_addrs.simPublic()
+  count_col_addr.cond_period.simPublic()
 
   for(id <- 0 until row_num){
     when(count_col_addr.cond_period){
