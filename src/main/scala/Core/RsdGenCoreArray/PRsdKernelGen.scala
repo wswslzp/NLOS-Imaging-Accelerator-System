@@ -40,7 +40,7 @@ case class PRsdKernelGen(cfg: RsdKernelConfig) extends Component {
 
   val rsd_prev_r = Reg(cloneOf(io.rsd_prev))
   val rsd_prev_r_en = RegNext(io.impulse_valid, False) & io.rsd_prev_en
-  when(rsd_prev_r_en){
+  when(RegNext(io.impulse_valid, False)){
     rsd_prev_r := io.rsd_prev
   }otherwise {
     rsd_prev_r.foreach(_ := HC(0, 0, io.rsd_prev.head.config))
