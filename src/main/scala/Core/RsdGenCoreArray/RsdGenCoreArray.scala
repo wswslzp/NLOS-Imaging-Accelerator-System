@@ -151,7 +151,6 @@ case class RsdGenCoreArray(
   impulse_load_unit.io.dc_eq_0 := dc_eq_0
   wave_load_unit.io.fc_overflow := io.fc === cfg.freq_factor-1
 
-  // TODO: logic below should be isolated!!
   //********************************* RSD Kernel memory*************************
   // Store the rsd kernel memory
   val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength).simPublic()
@@ -170,7 +169,6 @@ case class RsdGenCoreArray(
 //  val rsd_store_en = (dc_eq_0 && io.fc < cfg.freq_factor-2) ? rsd_kernel_gen.io.kernel.valid | push_ending
   for(idx <- rsd_mem.indices){
     when(dc_eq_0 && rsd_kernel_gen.io.kernel.valid){
-      // TODO: When waiting for push ending, the rsd kernel data have been changed
       rsd_mem(idx) := rsd_kernel_gen.io.kernel.payload(idx)
     } elsewhen (!dc_eq_0 && push_ending){
       rsd_mem(idx) := prev_rsd_mem(idx)

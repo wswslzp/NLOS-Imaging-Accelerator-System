@@ -14,7 +14,7 @@ import java.io._
 import scala.sys.process._
 import SimTest.NlosSystemSimTest.write_image
 
-object RsdKernelGenMain1 extends App{
+object RsdKernelGenTest1 extends App{
 
   val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)
   val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse)
