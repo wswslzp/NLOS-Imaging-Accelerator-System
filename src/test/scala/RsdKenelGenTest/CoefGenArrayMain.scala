@@ -28,14 +28,11 @@ object CoefGenArrayMain extends App{
 
   SpinalConfig(
     mode = Verilog,
-//    targetDirectory = "tb/CoefGenCore_tb/rtl",
-//    targetDirectory = "rtl",
     targetDirectory = "../NLOS_RTL",
     headerWithDate = true,
     oneFilePerComponent = true,
     rtlHeader = "Designer\t: Zhengpeng Liao"
   ).generate(
-//    CoefGenCore(rsd_cfg)
     CoefGenArray(
       rsd_cfg,
       freq_num = 1
