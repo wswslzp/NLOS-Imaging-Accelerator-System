@@ -8,7 +8,7 @@ import Config._
 object CoefGenCoreMain extends App{
   import RsdKernelConfig._
 
-  new java.io.File("rtl/CoefGenCore").mkdir()
+  new java.io.File("../rtl/CoefGenCore").mkdir()
   SpinalConfig(
     targetDirectory = "../rtl/CoefGenCore/",
     oneFilePerComponent = true
