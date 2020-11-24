@@ -119,6 +119,7 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
   // One stage multiplication
   // TODO: Multi-stage multiplication
   def *\*(that: HComplex)(implicit hComplexMulStage: HComplexMulStage): HComplex = {
+    SpinalInfo(s"Current multiplication stage is ${hComplexMulStage.stage}")
     val result = HComplex(this.config * that.config)
     if(config.useGauss) {
       if(hComplexMulStage.stage == 0){

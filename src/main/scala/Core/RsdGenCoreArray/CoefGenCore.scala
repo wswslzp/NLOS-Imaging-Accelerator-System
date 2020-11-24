@@ -10,6 +10,7 @@ case class CoefGenCore
 (
   cfg: RsdKernelConfig
 ) extends Component with Pipeline {
+  implicit val hComplexMulStage = new HComplexMulStage(5)
 
   val io = new Bundle {
     val wave = in SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp)// these two data are real
@@ -33,7 +34,8 @@ case class CoefGenCore
   val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 3) , 4) // D
 //  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 2) , 3) // D
 
-  val prev_coef = exp_wd_prod_divw * timeshift // TODO: Timing path too long
+//  val prev_coef = exp_wd_prod_divw * timeshift // TODO: Timing path too long
+  val prev_coef = exp_wd_prod_divw *\* timeshift
   prev_coef.simPublic()
 
   io.coef := stage( prev_coef , 5)
