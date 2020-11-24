@@ -6,7 +6,7 @@ case class HComplexConfig
 (
   intw: Int,
   fracw: Int,
-  useGauss: Boolean = false, // Use Gauss multiplication will decrease area but increase computation time.
+  useGauss: Boolean = true, // Use Gauss multiplication will decrease area but increase computation time.
   real_high: Boolean = false
 )
 {

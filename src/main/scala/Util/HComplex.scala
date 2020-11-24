@@ -166,11 +166,40 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
         result.real := RegNext( r1.fixTo(result.real.sq) )
         result.imag := RegNext( r2.fixTo(result.imag.sq) )
       } else {
-        SpinalError("Wrong stage number.")
+        SpinalError(s"Invalid stage ${hComplexMulStage.stage} for Gauss multiplication")
       }
     }else{
-      result.real := ( this.real * that.real - this.imag * that.imag ).fixTo(result.real.sq)
-      result.imag := ( this.real * that.imag + this.imag * that.real ).fixTo(result.imag.sq)
+      if(hComplexMulStage.stage == 0){
+        result.real := ( this.real * that.real - this.imag * that.imag ).fixTo(result.real.sq)
+        result.imag := ( this.real * that.imag + this.imag * that.real ).fixTo(result.imag.sq)
+      } else if (hComplexMulStage.stage == 1){
+        val rr = RegNext(this.real * that.real)
+        val ri = RegNext(this.real * that.imag)
+        val ir = RegNext(this.imag * that.real)
+        val ii = RegNext(this.imag * that.imag)
+        result.real := (rr - ii).fixTo(result.real.sq)
+        result.imag := (ri + ir).fixTo(result.imag.sq)
+      } else if (hComplexMulStage.stage == 2){
+        val rr = RegNext(this.real * that.real)
+        val ri = RegNext(this.real * that.imag)
+        val ir = RegNext(this.imag * that.real)
+        val ii = RegNext(this.imag * that.imag)
+        val k1 = RegNext(rr - ii)
+        val k2 = RegNext(ri + ir)
+        result.real := k1.fixTo(result.real.sq)
+        result.imag := k2.fixTo(result.imag.sq)
+      } else if (hComplexMulStage.stage == 3){
+        val rr = RegNext(this.real * that.real)
+        val ri = RegNext(this.real * that.imag)
+        val ir = RegNext(this.imag * that.real)
+        val ii = RegNext(this.imag * that.imag)
+        val k1 = RegNext(rr - ii)
+        val k2 = RegNext(ri + ir)
+        result.real := RegNext( k1.fixTo(result.real.sq) )
+        result.imag := RegNext( k2.fixTo(result.imag.sq) )
+      } else {
+        SpinalError(s"Invalid stage ${hComplexMulStage.stage} for non-Gauss multiplication")
+      }
     }
     result
   }

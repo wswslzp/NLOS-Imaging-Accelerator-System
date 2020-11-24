@@ -10,7 +10,7 @@ case class CoefGenCore
 (
   cfg: RsdKernelConfig
 ) extends Component with Pipeline {
-  implicit val hComplexMulStage = new HComplexMulStage(5)
+  implicit val hComplexMulStage = new HComplexMulStage(4)
 
   val io = new Bundle {
     val wave = in SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp)// these two data are real
