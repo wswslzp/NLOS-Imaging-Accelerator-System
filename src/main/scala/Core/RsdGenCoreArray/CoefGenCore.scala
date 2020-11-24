@@ -33,20 +33,19 @@ case class CoefGenCore
   val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 3) , 4) // D
 //  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 2) , 3) // D
 
-  val prev_coef = exp_wd_prod_divw * timeshift
+  val prev_coef = exp_wd_prod_divw * timeshift // TODO: Timing path too long
   prev_coef.simPublic()
 
   io.coef := stage( prev_coef , 5)
-//  io.coef := stage( prev_coef , 4)
 
   val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
 
-  val sim = new Bundle {
-    val exp_wd_prod_s = out(cloneOf(exp_wd_prod))
-    val exp_wd_prod_divw_s = out(cloneOf(exp_wd_prod_divw))
-    val prev_coef_s = out(cloneOf(prev_coef))
-  }
-  sim.exp_wd_prod_s := exp_wd_prod
-  sim.exp_wd_prod_divw_s := exp_wd_prod_divw
-  sim.prev_coef_s := prev_coef
+//  val sim = new Bundle {
+//    val exp_wd_prod_s = out(cloneOf(exp_wd_prod))
+//    val exp_wd_prod_divw_s = out(cloneOf(exp_wd_prod_divw))
+//    val prev_coef_s = out(cloneOf(prev_coef))
+//  }
+//  sim.exp_wd_prod_s := exp_wd_prod
+//  sim.exp_wd_prod_divw_s := exp_wd_prod_divw
+//  sim.prev_coef_s := prev_coef
 }

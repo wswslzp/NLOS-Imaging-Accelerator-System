@@ -208,10 +208,10 @@ case class RsdGenCoreArray(
   val wave_req = wave_load_unit.io.load_req
   io.load_req := impulse_load_unit.io.load_req ## wave_load_unit.io.load_req ## distance_load_unit.io.load_req ## timeshift_load_unit.io.load_req
 
-  val sim = new Bundle {
-    val coef = out(HComplex(rsd_kernel_gen.sim.coef.config))
-    val rsd_prev = out(cloneOf(rsd_kernel_gen.sim.rsd_prev))
-  }
-  sim.coef := rsd_kernel_gen.sim.coef
-  sim.rsd_prev := rsd_kernel_gen.sim.rsd_prev
+//  val sim = new Bundle {
+//    val coef = out(HComplex(rsd_kernel_gen.sim.coef.config))
+//    val rsd_prev = out(cloneOf(rsd_kernel_gen.sim.rsd_prev))
+//  }
+//  sim.coef := rsd_kernel_gen.sim.coef
+//  sim.rsd_prev := rsd_kernel_gen.sim.rsd_prev
 }

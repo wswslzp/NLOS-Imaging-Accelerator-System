@@ -12,6 +12,12 @@ object Synthesizable {
   def apply(flag: Boolean): Unit = {synthesizable.flag = flag}
 }
 
+class HComplexMulStage(var stage: Int)
+object HComplexMulStage {
+  implicit var hComplexMulStage = new HComplexMulStage(0)
+  def apply(stage: Int): Unit = {hComplexMulStage.stage = stage}
+}
+
 case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/{
   import MyUFix.toMyUFix
   import MySFix.toMySFix
@@ -80,6 +86,7 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
     ret
   }
 
+  // No pipeline for multiplication
   def *(that: HComplex)(implicit use_synthesizable_mul: Synthesizable): HComplex = {
     val result = HComplex(this.config * that.config)
     if (!use_synthesizable_mul.flag) {
@@ -105,6 +112,64 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
         result.real := (MulUnit(this.real, that.real) - MulUnit(this.imag, that.imag)).fixTo(result.real.sq)
         result.imag := (MulUnit(this.real, that.imag) + MulUnit(this.imag, that.real)).fixTo(result.imag.sq)
       }
+    }
+    result
+  }
+
+  // One stage multiplication
+  // TODO: Multi-stage multiplication
+  def *\*(that: HComplex)(implicit hComplexMulStage: HComplexMulStage): HComplex = {
+    val result = HComplex(this.config * that.config)
+    if(config.useGauss) {
+      if(hComplexMulStage.stage == 0){
+        val k1 = (this.real + this.imag) * that.real
+        val k2 = (that.imag - that.real) * this.real
+        val k3 = (that.real + that.imag) * this.imag
+        result.real := ( k1 - k3 ).fixTo(result.real.sq)
+        result.imag := ( k1 + k2 ).fixTo(result.imag.sq)
+      } else if (hComplexMulStage.stage == 1){
+        val k1 = RegNext( (this.real + this.imag) * that.real )
+        val k2 = RegNext( (that.imag - that.real) * this.real )
+        val k3 = RegNext( (that.real + that.imag) * this.imag )
+        result.real := ( k1 - k3 ).fixTo(result.real.sq)
+        result.imag := ( k1 + k2 ).fixTo(result.imag.sq)
+      } else if (hComplexMulStage.stage == 2){
+        val k1 = RegNext(this.real + this.imag)
+        val k2 = RegNext(that.imag - that.real)
+        val k3 = RegNext(that.real + that.imag)
+        val l1 = RegNext(k1 * that.real)
+        val l2 = RegNext(k2 * this.real)
+        val l3 = RegNext(k3 * this.imag)
+        result.real := (l1 - l3).fixTo(result.real.sq)
+        result.imag := (l1 + l2).fixTo(result.imag.sq)
+      } else if (hComplexMulStage.stage == 3){
+        val k1 = RegNext(this.real + this.imag)
+        val k2 = RegNext(that.imag - that.real)
+        val k3 = RegNext(that.real + that.imag)
+        val l1 = RegNext(k1 * that.real)
+        val l2 = RegNext(k2 * this.real)
+        val l3 = RegNext(k3 * this.imag)
+        val r1 = RegNext(l1 - l3)
+        val r2 = RegNext(l1 + l2)
+        result.real := r1.fixTo(result.real.sq)
+        result.imag := r2.fixTo(result.imag.sq)
+      } else if (hComplexMulStage.stage == 4){
+        val k1 = RegNext(this.real + this.imag)
+        val k2 = RegNext(that.imag - that.real)
+        val k3 = RegNext(that.real + that.imag)
+        val l1 = RegNext(k1 * that.real)
+        val l2 = RegNext(k2 * this.real)
+        val l3 = RegNext(k3 * this.imag)
+        val r1 = RegNext(l1 - l3)
+        val r2 = RegNext(l1 + l2)
+        result.real := RegNext( r1.fixTo(result.real.sq) )
+        result.imag := RegNext( r2.fixTo(result.imag.sq) )
+      } else {
+        SpinalError("Wrong stage number.")
+      }
+    }else{
+      result.real := ( this.real * that.real - this.imag * that.imag ).fixTo(result.real.sq)
+      result.imag := ( this.real * that.imag + this.imag * that.real ).fixTo(result.imag.sq)
     }
     result
   }
