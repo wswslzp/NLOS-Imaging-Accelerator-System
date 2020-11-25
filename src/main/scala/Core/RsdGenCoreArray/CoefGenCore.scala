@@ -28,17 +28,21 @@ case class CoefGenCore
 
   val wd_prod = stage(wave * distance, 1)
 
-  val exp_wd_prod = ExpFunc(wd_prod, samplePoint = 32) // with 2 stage pipeline inside.
-  exp_wd_prod.setWeakName("exp_wd_prod")
+  val hCfg = HComplexConfig(wd_prod.maxExp+1, -wd_prod.minExp)
+  val exp_func_core = ExpFunc(
+    cfg = hCfg, samplePoint = 32, period = 1
+  )
+  exp_func_core.io.data_in <> wd_prod
+  val exp_wd_prod = exp_func_core.io.data_out
 
-  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 3) , 4) // D
+  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to (1 + exp_func_core.expLatency)) , 2 + exp_func_core.expLatency) // D
 //  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 2) , 3) // D
 
 //  val prev_coef = exp_wd_prod_divw * timeshift // TODO: Timing path too long
   val prev_coef = exp_wd_prod_divw *\* timeshift
   prev_coef.simPublic()
 
-  io.coef := stage( prev_coef , 5)
+  io.coef := stage( prev_coef , 2+exp_func_core.expLatency+hComplexMulStage.stage)
 
   val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
 

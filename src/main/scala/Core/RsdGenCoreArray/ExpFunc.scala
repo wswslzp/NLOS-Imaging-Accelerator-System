@@ -49,10 +49,12 @@ case class ExpFunc
 
   io.data_out := exp_func_value
 
+  val expLatency = LatencyAnalysis(io.data_in.raw, io.data_out.real.raw)
+
 }
 
 object ExpFunc {
-  def apply(idat: SFix, samplePoint: Int = 128, period: Double = 1): HComplex = {
+  def exp(idat: SFix, samplePoint: Int = 128, period: Double = 1): HComplex = {
     val func_core = new ExpFunc(
       cfg = HComplexConfig(idat.maxExp + 1, -idat.minExp),
       samplePoint = samplePoint,
