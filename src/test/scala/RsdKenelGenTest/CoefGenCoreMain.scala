@@ -8,9 +8,9 @@ import Config._
 object CoefGenCoreMain extends App{
   import RsdKernelConfig._
 
-  new java.io.File("../rtl/CoefGenCore").mkdir()
+  new java.io.File("../rtl/CoefGenCore").mkdirs()
   SpinalConfig(
-    targetDirectory = "../rtl/CoefGenCore/",
+    targetDirectory = "../rtl/CoefGenCore",
     oneFilePerComponent = true
   ).generateVerilog(
     Core.RsdGenCoreArray.CoefGenCore(rsd_cfg)
