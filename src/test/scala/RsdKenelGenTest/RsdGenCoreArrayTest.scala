@@ -112,7 +112,6 @@ object RsdGenCoreArrayTest extends App{
               dut.clockDomain.waitSampling()
             }
             fork{
-              // TODO: DF logic needs to modify
               if(d == 0) {
                 // for d == 0, kernel pushing needs to wait for fft2d output valid.
                 // waiting cycle ~ K^2, so we set 100 cycles
@@ -125,7 +124,6 @@ object RsdGenCoreArrayTest extends App{
                 dut.clockDomain.waitSampling(10)
               }
             }
-            // TODO: master will change
             dut.clockDomain.waitActiveEdgeWhere(dut.io.cnt_incr.toBoolean)
           }
         }
@@ -181,7 +179,6 @@ object RsdGenCoreArrayTest extends App{
       ,
       () => {
         // Monitor to catch the address map
-        // TODO: Catch address map
         while(true){
           dut.clockDomain.waitActiveEdgeWhere(dut.io.rsd_kernel.valid.toBoolean)
           for(col <- rsd_cfg.colRange){
@@ -195,13 +192,6 @@ object RsdGenCoreArrayTest extends App{
       ,
       () => {
         // Monitor to catch the rsd kernel output
-        // TODO: uout didn't conform to RsdGenCore.
-        //  Now we know that the rsd mem store wrong rsd kernel rad.
-        //  Problems may be
-        //  1. cur_d and cur_f may wrong: Print the cur_d and cur_f every time? No
-        //  2. Wrong impulse/coef/timeshift/distance/wave loads in ?? No
-        //  3. Address map output wrong pixel address: Get the rsd kernel rad output and compare with the RsdGenCore output
-        //  4. Wrong middle result?? Check coefficients, rad inside memory, output rsd kernel.
         new File("tb/RsdGenCoreArray/uout").mkdir()
         new File("tb/RsdGenCoreArray_rad").mkdir()
         val rsd_rad = DenseMatrix.fill(rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)(Complex(0, 0))

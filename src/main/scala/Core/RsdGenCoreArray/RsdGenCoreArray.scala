@@ -107,22 +107,24 @@ case class RsdGenCoreArray(
   rsd_kernel_gen.io.rsd_comp_end := impulse_load_unit.io.rsd_comp_end
 
   val W2CLatency = rsd_kernel_gen.pRsdKernelGen.W2CLatency
+  val D2CLatency = rsd_kernel_gen.pRsdKernelGen.coef_gen_core.D2Clatency
 
   // Control when should push the wave and start computing rsd kernel
   val compute_stage = dc_eq_0 ## fc_eq_0
   val rsd_comp_start = RegInit(False) simPublic()
   val wave_hit = (data_in.w.fire & (data_in.aw.payload.addr === loadUnitAddrs(2))).rise(False)
   switch(compute_stage){
-    //TODO: it seems that except for compute_stage == 2'b11, others are identity.
     is(B"2'b00") { // d != 0 && f != 0
-      rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
+//      rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
+      rsd_comp_start := Delay(distance_load_unit.io.data_enable, D2CLatency, init = False) // The latency of coefGenCore is 6
     }
     is(B"2'b01") { // d != 0 && f == 0
       val wave_push_latency = cfg.radius_factor / 16 + 1
       rsd_comp_start := Delay(wave_hit, wave_push_latency, init = False) // RSD kernel compute as soon as wave has loaded 3 elements
     }
     is(B"2'b10") { // d == 0 && f != 0
-      rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
+//      rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
+      rsd_comp_start := Delay(distance_load_unit.io.data_enable, D2CLatency, init = False) // The latency of coefGenCore is 6
     }
     is(B"2'b11") { // d == 0 && d == 0
       rsd_comp_start := impulse_load_unit.io.data_enable // RSD kernel compute as soon as impulse loaded

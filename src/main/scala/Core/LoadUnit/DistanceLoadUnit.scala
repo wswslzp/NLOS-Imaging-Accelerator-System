@@ -15,9 +15,9 @@ case class DistanceLoadUnit(
   override val word_bit_count: Int = cfg.distance_cfg.getDataWidth
 
   val io = new Bundle {
-    val load_req = out Bool
-    val ready_for_store = out Bool // When the data store in the internal memory is all consumed, it will be high active.
-    val data_enable = out Bool // The signal's high active indicates that this transaction is done and data is loaded.
+    val load_req = out Bool()
+    val ready_for_store = out Bool() // When the data store in the internal memory is all consumed, it will be high active.
+    val data_enable = out Bool() // The signal's high active indicates that this transaction is done and data is loaded.
     val distance = master (Flow(
       SFix(cfg.distance_cfg.intw-1 exp, -cfg.distance_cfg.fracw exp)
     ))
