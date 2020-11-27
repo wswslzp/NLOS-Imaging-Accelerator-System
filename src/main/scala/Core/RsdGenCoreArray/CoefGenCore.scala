@@ -53,7 +53,7 @@ case class CoefGenCore
 //  val output_coef_stage = stage( prev_coef , 2+exp_func_core.expLatency+hComplexMulStage.stage)
   val output_coef_stage = prev_coef
 //  io.coef := Delay(output_coef_stage, 7)
-  io.coef := stage(output_coef_stage, 0 to (5 + expLatency + hComplexMulStage.stage))
+  io.coef := stage(output_coef_stage, 0 to (2 + expLatency + hComplexMulStage.stage))
 
   val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
 
