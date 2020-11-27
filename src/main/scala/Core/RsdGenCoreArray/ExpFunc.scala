@@ -38,8 +38,6 @@ case class ExpFunc
   when(lzc =/= U(0)) {
     val position = ( lzc - 1 ).setWeakName("position")
     val y1 = pfunc_tb(position).setWeakName("y1")
-//    val y2 = pfunc_tb(lzc).setWeakName("y2")
-//    exp_func_value := stage( meanApprox(y1, y2), 1 to 2) // TODO: NegSlack
     exp_func_value := stage(y1, 3 to 4)
   } elsewhen(lzc_t.msb === True) {
     exp_func_value := stage( pfunc_tb.last, 3 to 4)

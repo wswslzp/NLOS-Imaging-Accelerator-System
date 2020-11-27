@@ -23,8 +23,6 @@ case class CoefGenCore
 
   val wave = stage(io.wave, 0) //A
   val distance = stage(io.distance, 0) //B
-  val timeshift = stage(io.timeshift, 0 to 4) //C
-//  val timeshift = stage(io.timeshift, 0 to 3) //C
 
   val wd_prod = stage(wave * distance, 1)
 
@@ -34,11 +32,13 @@ case class CoefGenCore
   )
   exp_func_core.io.data_in <> wd_prod
   val exp_wd_prod = exp_func_core.io.data_out
+  val expLatency = exp_func_core.expLatency
 
-  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to (1 + exp_func_core.expLatency)) , 2 + exp_func_core.expLatency) // D
-//  val exp_wd_prod_divw = stage( exp_wd_prod / stage(wave, 1 to 2) , 3) // D
+  val exp_wd_prod_divw = stage(
+    exp_wd_prod / stage(wave, 1 to (1 + expLatency)) , 2 + expLatency
+  )
 
-//  val prev_coef = exp_wd_prod_divw * timeshift // TODO: Timing path too long
+  val timeshift = stage(io.timeshift, 0 to (2+expLatency)) //C
   val prev_coef = exp_wd_prod_divw *\* timeshift
   prev_coef.simPublic()
 
