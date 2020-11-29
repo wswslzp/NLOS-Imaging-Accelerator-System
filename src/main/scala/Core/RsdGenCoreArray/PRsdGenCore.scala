@@ -6,6 +6,7 @@ import spinal.core._
 import spinal.lib._
 
 // Partial RSD kernel generator core
+@deprecated
 case class PRsdGenCore(cfg: RsdKernelConfig) extends Component {
   import spinal.core.sim._
   val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg

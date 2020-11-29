@@ -5,6 +5,7 @@ import Util.HComplex
 import spinal.core._
 import spinal.lib._
 
+@deprecated
 case class RsdGenCore(cfg: RsdKernelConfig) extends Component {
   val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
   val io = new Bundle {

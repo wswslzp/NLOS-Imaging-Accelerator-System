@@ -25,10 +25,7 @@ case class CoefGenCore
 
   val wave = io.wave
   val distance = io.distance
-//  val wave = stage(io.wave, 0) //A
-//  val distance = stage(io.distance, 0) //B
 
-//  val wd_prod = stage(wave * distance, 1)
   val wd_prod = wave * distance
 
   val hCfg = HComplexConfig(wd_prod.maxExp+1, -wd_prod.minExp)
@@ -40,20 +37,13 @@ case class CoefGenCore
   val expLatency = exp_func_core.expLatency
 
   val exp_wd_prod_divw = exp_wd_prod / wave
-//  val exp_wd_prod_divw = stage(
-//    exp_wd_prod / stage(wave, 1 to (1 + expLatency)) , 2 + expLatency
-//  )
 
-//  val timeshift = stage(io.timeshift, 0 to (2+expLatency)) //C
   val timeshift = io.timeshift
-//  val prev_coef = exp_wd_prod_divw *\* timeshift
   val prev_coef = exp_wd_prod_divw * timeshift
   prev_coef.simPublic()
 
-//  val output_coef_stage = stage( prev_coef , 2+exp_func_core.expLatency+hComplexMulStage.stage)
   val output_coef_stage = prev_coef
-//  io.coef := Delay(output_coef_stage, 7)
-  io.coef := stage(output_coef_stage, 0 to (2 + expLatency + hComplexMulStage.stage))
+  io.coef := stage(output_coef_stage, 0 to (4 + expLatency + hComplexMulStage.stage))
 
   val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
 
