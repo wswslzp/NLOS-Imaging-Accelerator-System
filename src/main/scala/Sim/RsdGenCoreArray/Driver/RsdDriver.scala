@@ -1,7 +1,7 @@
 package Sim.RsdGenCoreArray.Driver
 
 import Config._
-import Core.RsdGenCoreArray.RsdGenCoreArray_old
+import Core.RsdGenCoreArray.RsdGenCoreArray
 import breeze.linalg._
 import breeze.math._
 import spinal.core._

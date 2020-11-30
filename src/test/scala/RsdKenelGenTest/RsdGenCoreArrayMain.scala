@@ -6,12 +6,12 @@ import spinal.lib._
 import Core.RsdGenCoreArray._
 import Config.RsdKernelConfig._
 
-object RsdGenCoreArrayMain_old extends App {
+object RsdGenCoreArrayMain extends App {
   new java.io.File("../rtl/RsdGenCoreArray").mkdirs()
   SpinalConfig(
     targetDirectory = "../rtl/RsdGenCoreArray",
     oneFilePerComponent = true
   ).generateVerilog(
-    RsdGenCoreArray_old(rsd_cfg, init_addr = 0)
+    RsdGenCoreArray(rsd_cfg, init_addr = 0)
   )
 }
