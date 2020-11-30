@@ -78,7 +78,6 @@ object DivUnit {
   }
 
   def mod(a: SFix, b:SFix): SFix = {
-    // TODO:
     import MySFix._
     val sq_res = SQ(
       Math.max(a.bitCount, b.bitCount),

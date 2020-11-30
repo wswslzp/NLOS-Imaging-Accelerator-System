@@ -45,8 +45,6 @@ case class WaveLoadUnit(
   arrangeRegMapAddr(wave_reg_addr_map, transfer_done_map)
   loadData()
 
-  //TODO: The code below may cause many trouble
-
   // When DC == 0, wave load unit needs new waves
   val transfer_done_rise = transfer_done_reg.rise(initAt = False)
   val transfer_req_reg = RegInit(True)

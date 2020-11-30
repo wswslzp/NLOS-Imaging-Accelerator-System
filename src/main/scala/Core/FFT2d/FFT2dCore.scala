@@ -15,6 +15,7 @@ import FFT2d._
 *  3. When df = (>0, x), it reads previous fft2d(image) results from internal memories and sends them to output
 *     `data_out`
 */
+@deprecated
 case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extends Component {
   val io = new Bundle {
     val dc = in UInt(log2Up(depth_factor) bit)
@@ -65,7 +66,6 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
   )
   int_mem.head.addSimulationModel("tmp/simtmp/fft2d9k32bit8bank_ikos.v")
 
-  // TODO: Timing degrading due to multiplication and addition
   val int_mem_address: UInt = io.fc * freq_factor + col_addr_cnt
 
   when(io.dc === 0) {

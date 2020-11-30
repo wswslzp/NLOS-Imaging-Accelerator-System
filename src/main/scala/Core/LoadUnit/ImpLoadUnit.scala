@@ -10,7 +10,6 @@ import spinal.lib.bus.amba3.apb.Apb3SlaveFactory
 import scala.collection.mutable.ArrayBuffer
 import spinal.core.sim._
 
-// TODO: Impulse will be real
 case class ImpLoadUnit(
                         cfg: RsdKernelConfig,
                         init_addr: Int
@@ -61,7 +60,7 @@ case class ImpLoadUnit(
 
   val transfer_req_reg = RegInit(True)
 
-  transfer_req_reg.setWhen(io.dc_eq_0 & io.fc_eq_0 & io.distance_enable) // TODO: Test it!
+  transfer_req_reg.setWhen(io.dc_eq_0 & io.fc_eq_0 & io.distance_enable)
   val transfer_done_rise = transfer_done_reg.rise(initAt = False)
   transfer_req_reg clearWhen transfer_done_rise
   io.load_req := transfer_req_reg

@@ -10,7 +10,6 @@ import breeze.linalg._
 
 import scala.collection.mutable.ArrayBuffer
 
-// TODO: impulse will be real
 package object Computation {
   import linalg.DenseMatrix
   import breeze.math.Complex

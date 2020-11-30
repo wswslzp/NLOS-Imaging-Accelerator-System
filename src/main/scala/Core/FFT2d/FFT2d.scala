@@ -5,9 +5,6 @@ import Util._
 import spinal.core._
 import spinal.lib._
 
-//TODO: The output image is the transpose matrix of the true fft2d result,
-//  i.e. the input line_in is the row of the input image but the output line_out
-//  is the col of the output image!
 case class FFT2d(cfg: FFTConfig) extends Component {
   import MyFFT.fft
   val io = new Bundle {

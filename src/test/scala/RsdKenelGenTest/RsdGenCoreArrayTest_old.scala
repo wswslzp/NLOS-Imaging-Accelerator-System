@@ -13,7 +13,7 @@ import SimTest.NlosSystemSimTest.{kernel_size, write_image}
 import breeze.signal._
 import java.io._
 
-object RsdGenCoreArrayTest extends App{
+object RsdGenCoreArrayTest_old extends App{
 
   import RsdGenCoreArray._
   import Sim.RsdGenCoreArray._
@@ -44,7 +44,7 @@ object RsdGenCoreArrayTest extends App{
   ).addTransformationPhase(
     new SwapTagPhase(SimPublic, Verilator.public)
   ).generateVerilog(
-    RsdGenCoreArray(rsd_cfg, init_addr)
+    RsdGenCoreArray_old(rsd_cfg, init_addr)
   )
 
   val withWave = false

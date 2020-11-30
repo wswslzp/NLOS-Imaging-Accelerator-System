@@ -5,7 +5,6 @@ import breeze.linalg.DenseMatrix
 import breeze.math.Complex
 import spinal.lib.bus.amba4.axi.Axi4Config
 
-// TODO: Impulse will be real
 case class RsdKernelConfig
 (
   wave_cfg: HComplexConfig,
