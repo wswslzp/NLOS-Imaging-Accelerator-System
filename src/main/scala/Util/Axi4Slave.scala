@@ -32,6 +32,7 @@ trait Axi4Slave extends Nameable {
     val awlen_r = RegNextWhen(data_in.aw.len, data_in.aw.valid) init 0
     val awsize_r = RegNextWhen(data_in.aw.size, data_in.aw.valid) init 0
     val awid_r = RegNextWhen(data_in.aw.id, data_in.aw.valid) init 0
+    val awburst_r = RegNextWhen(data_in.aw.burst, data_in.aw.valid) init 0
   }.setName("aw_area")
 
   val addr_reg_map: ListBuffer[(Range, Data)] = ListBuffer[(Range, Data)]()
@@ -58,7 +59,7 @@ trait Axi4Slave extends Nameable {
     val wvalid = RegNext(data_in.w.valid) init False
     val wlast = RegNext(data_in.w.last) init False
     val incr = Counter(0 until 16)
-    val transaction_first_addr = Axi4.incr(aw_area.awaddr_r, data_in.aw.burst, aw_area.awlen_r, aw_area.awsize_r, byte_per_word)
+    val transaction_first_addr = Axi4.incr(aw_area.awaddr_r, aw_area.awburst_r, aw_area.awlen_r, aw_area.awsize_r, byte_per_word)
     val current_addr: UInt = incr.value + transaction_first_addr -1
 
     when(wvalid) {

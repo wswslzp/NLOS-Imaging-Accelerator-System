@@ -186,8 +186,10 @@ case class RsdGenCoreArray(
   col_addr.setName("col_addr")
   val rad_addr_map = RadAddrMap(cfg)
   rad_addr_map.io.col_addr := col_addr.value
-  val pixel_addrs = rad_addr_map.io.pixel_addrs
-  pixel_addrs.simPublic()
+//  val pixel_addrs = rad_addr_map.io.pixel_addrs
+  val pixel_addrs = rad_addr_map.io.pixel_addrs.map(
+    RegNext(_, init = U(0)) simPublic()
+  )
 
   for(id <- 0 until row_num){
     when(count_col_addr.cond_period){
@@ -197,8 +199,10 @@ case class RsdGenCoreArray(
     }
   }
 
-  io.rsd_kernel.valid := count_col_addr.cond_period
-  push_ending := count_col_addr.cnt.willOverflow
+//  io.rsd_kernel.valid := count_col_addr.cond_period
+  io.rsd_kernel.valid := RegNext(count_col_addr.cond_period, init = False)
+//  push_ending := count_col_addr.cnt.willOverflow
+  push_ending := RegNext(count_col_addr.cnt.willOverflow, init = False)
 
   io.push_ending := push_ending // Push ending is the true increment signal tb used.
 
