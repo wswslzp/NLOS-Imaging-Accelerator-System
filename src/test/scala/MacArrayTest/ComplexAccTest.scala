@@ -42,6 +42,8 @@ object ComplexAccTest extends App{
       dut.clockDomain.waitSampling()
       dut.io.clear #= false
 
+      dut.clockDomain.waitSampling(10)
+
       simSuccess()
     }
 
