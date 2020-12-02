@@ -10,6 +10,7 @@ import breeze.math._
 
 object ComplexAccTest extends App{
   import Config.RsdKernelConfig.rsd_cfg
+  val cfg = Config.HComplexConfig(8, 8)
 
   val test_vec = DenseVector.tabulate(10)(Complex(_, 0))
   val acc_result = test_vec.reduce(_ + _)
@@ -19,7 +20,7 @@ object ComplexAccTest extends App{
     .withWave
     .allOptimisation
     .workspacePath("tb")
-    .compile(ComplexAcc(rsd_cfg.getKernelConfig))
+    .compile(ComplexAcc(cfg))
     .doSim("ComplexAcc_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
       dut.io.data_in.valid #= false
