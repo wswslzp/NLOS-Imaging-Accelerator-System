@@ -33,6 +33,7 @@ object ComplexAccTest extends App{
         println(s"the hardware input is ${dut.io.data_in.payload.toComplex}")
       }
       dut.io.data_in.valid #= false
+      dut.clockDomain.waitSampling()
       println(s"the hardware acc result is ${dut.io.data_out.toComplex}")
 
       dut.clockDomain.waitSampling(5)
