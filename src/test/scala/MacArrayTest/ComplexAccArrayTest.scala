@@ -49,6 +49,7 @@ object ComplexAccArrayTest extends App{
             () => {
               for(d <- rsd_cfg.depthRange){
                 for(f <- rsd_cfg.freqRange){
+                  println(s"Now is ($d, $f).")
                   depth = d
                   dut.io.fft_out.valid #= true
                   for(y <- 0 until rsd_cfg.kernel_size.last){
