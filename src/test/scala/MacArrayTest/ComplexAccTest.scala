@@ -24,6 +24,7 @@ object ComplexAccTest extends App{
     .doSim("ComplexAcc_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
       dut.io.data_in.valid #= false
+      dut.io.clear #= false
       dut.clockDomain.waitSampling()
 
       test_vec.foreach{dat=>
@@ -37,6 +38,9 @@ object ComplexAccTest extends App{
       println(s"the hardware acc result is ${dut.io.data_out.toComplex}")
 
       dut.clockDomain.waitSampling(5)
+      dut.io.clear #= true
+      dut.clockDomain.waitSampling()
+      dut.io.clear #= false
 
       simSuccess()
     }
