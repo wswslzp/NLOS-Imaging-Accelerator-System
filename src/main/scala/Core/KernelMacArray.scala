@@ -5,6 +5,10 @@ import spinal.lib._
 import Config._
 import Util._
 
+/** The MAC array for multiply fft2d out and rsd kernel and accumulate
+ *
+ * @param cfg RSD kernel configuration
+ */
 case class KernelMacArray(cfg: RsdKernelConfig) extends Component {
   val row_num = cfg.kernel_size.last
   val col_num = cfg.kernel_size.head
