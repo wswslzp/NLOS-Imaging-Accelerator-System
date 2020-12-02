@@ -49,7 +49,6 @@ case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
   io.mac_result.valid := pipe_out_en
   for(r <- cfg.rowRange){
     io.mac_result.payload(r) := pipe_out_col_addr.muxList(
-      HC(0, 0, rsd_fft_prod.head.config),
       for(i <- cfg.colRange) yield i -> mac_array(r)(i).io.data_out
     )
     for(c <- cfg.colRange){
