@@ -122,8 +122,7 @@ object ComplexAccArrayTest extends App{
   write_image(uout_abs_max_flip, "tb/ComplexAccArray/nlos_hard_out.jpg")
 
   val tb_path = "tb/ComplexAccArray"
-  Process(s"vcd2vpd ${tb_path}/ComplexAccArray_tb.vcd tb/ComplexAccArray_tb.vpd").!
-  Process(s"vpd2fsdb ${tb_path}/ComplexAccArray_tb.vpd -o ${tb_path}/ComplexAccArray_tb.fsdb").!
+  Process(s"vcd2fsdb ${tb_path}/ComplexAccArray_tb.vcd -o ${tb_path}/ComplexAccArray_tb.fsdb").!
   Process(s"verdi -ssf ${tb_path}/ComplexAccArray_tb.fsdb").!!
 
 }
