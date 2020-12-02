@@ -12,17 +12,11 @@ import breeze.signal._
 
 import scala.sys.process.Process
 
-object KernelMacArrayMain extends App{
+object KernelMacArrayTest extends App{
   import RsdKernelConfig._
 
   val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)//(d, f, r)
   val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse)//(d, f, R)
-  val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
-    LoadData.loadComplexMatrix(
-      real_part_filename = s"src/test/resource/data/real/uin_${idx+1}.csv",
-      imag_part_filename = s"src/test/resource/data/imag/uin_${idx+1}.csv"
-    )
-  }
   val rsd_kernel = Computation.restoreRSD(rsd, (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last))//(d, f, x, y)
   val uin_fft = uin.map(fourierTr(_))
   val uout_f = Array.fill(rsd_cfg.depth_factor)(
