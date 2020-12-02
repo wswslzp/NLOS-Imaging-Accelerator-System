@@ -38,70 +38,81 @@ object ComplexAccArrayTest extends App{
       dut.clockDomain.waitSampling()
 
       var depth = 0
-      // Driver
-      fork{
-        for(d <- rsd_cfg.depthRange){
-          depth = d
-          for(f <- rsd_cfg.freqRange){
-            println(s"Now is ($d, $f).")
 
-            forkJoin(
-              //fft_out driver
-              ()=>{
-                dut.io.fft_out.valid #= true
-                for(y <- 0 until rsd_cfg.kernel_size.last){
-                  dut.io.fft_out.payload.zipWithIndex.foreach{ case (complex, i) =>
-                    complex #= uin_fft(f)(i, y)
+      forkJoin(
+
+        //Driver
+        () => {
+          forkJoin(
+
+            // fft out driver
+            () => {
+              for(d <- rsd_cfg.depthRange){
+                for(f <- rsd_cfg.freqRange){
+                  depth = d
+                  dut.io.fft_out.valid #= true
+                  for(y <- 0 until rsd_cfg.kernel_size.last){
+                    dut.io.fft_out.payload.zipWithIndex.foreach{ case (complex, i) =>
+                      complex #= uin_fft(f)(i, y)
+                    }
+                    dut.clockDomain.waitSampling()
                   }
-                  dut.clockDomain.waitSampling()
-                }
-                dut.io.fft_out.valid #= false
-                if(d == 0) {
-                  dut.clockDomain.waitSampling(100)
-                }
-                else{
-                  dut.clockDomain.waitSampling(2)
+                  dut.io.fft_out.valid #= false
+                  if(d == 0) {
+                    dut.clockDomain.waitSampling(100)
+                  }
+                  else{
+                    dut.clockDomain.waitSampling(2)
+                  }
                 }
               }
-              ,
+            }
+            ,
 
-              // kernel driver
-              ()=>{
-                dut.io.rsd_kernel.valid #= true
-                for(y <- 0 until rsd_cfg.kernel_size.last){
-                  dut.io.rsd_kernel.payload.zipWithIndex.foreach{ case (complex, i) =>
-                    complex #= rsd_kernel(d)(f)(i, y)
+            // kernel driver
+            () => {
+              for(d <- rsd_cfg.depthRange){
+                for(f <- rsd_cfg.freqRange){
+                  dut.io.rsd_kernel.valid #= true
+                  for(y <- 0 until rsd_cfg.kernel_size.last){
+                    dut.io.rsd_kernel.payload.zipWithIndex.foreach{ case (complex, i) =>
+                      complex #= rsd_kernel(d)(f)(i, y)
+                    }
+                    dut.clockDomain.waitSampling()
                   }
-                  dut.clockDomain.waitSampling()
+                  dut.io.rsd_kernel.valid #= false
+                  if(d == 0) {
+                    dut.clockDomain.waitSampling(100)
+                  }
+                  else{
+                    dut.clockDomain.waitSampling(2)
+                  }
+                  dut.clockDomain.waitSampling(10)
                 }
-                dut.io.rsd_kernel.valid #= false
-                if(d == 0) {
-                  dut.clockDomain.waitSampling(100)
-                }
-                else{
-                  dut.clockDomain.waitSampling(2)
-                }
-                dut.clockDomain.waitSampling(10)
               }
-            )
+              dut.clockDomain.waitSampling(10)
+              simSuccess()
+            }
+          )
+        }
+        ,
 
+        // Monitor
+        () => {
+          var col = 0
+          while(true){
+            dut.clockDomain.waitActiveEdgeWhere(dut.io.mac_result.valid.toBoolean)
+            for(row <- 0 until rsd_cfg.kernel_size.head){
+              // The result(d) comes at (d+1)'s first f cycle.
+              // Maybe ???
+              uout_f(depth-1)(row, col) = dut.io.mac_result.payload(row).toComplex
+            }
+            dut.clockDomain.waitSampling()
+            col += 1
           }
         }
-        simSuccess()
-      }
+      )
 
-      // Monitor
-      fork{
-        var col = 0
-        while(true){
-          dut.clockDomain.waitActiveEdgeWhere(dut.io.mac_result.valid.toBoolean)
-          for(row <- rsd_cfg.rowRange){
-            uout_f(depth-1)(row, col) = dut.io.mac_result.payload(row).toComplex
-          }
-          dut.clockDomain.waitSampling()
-          col += 1
-        }
-      }
 
     }
 
