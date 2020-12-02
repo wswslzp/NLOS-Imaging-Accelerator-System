@@ -11,7 +11,7 @@ case class ComplexAcc(cfg: HComplexConfig) extends Component {
     val data_out = out(HComplex(cfg))
     val clear = in Bool()
   }
-  val result_reg = Reg(cloneOf(io.data_in.payload))
+  val result_reg = Reg(cloneOf(io.data_in.payload)) init HC(0, 0, cfg)
   when(io.data_in.valid){
     result_reg := result_reg + io.data_in.payload
   } elsewhen(io.clear) {
