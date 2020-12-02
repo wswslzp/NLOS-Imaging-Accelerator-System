@@ -56,4 +56,8 @@ case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
     }
   }
 
+  val sim = new Bundle {
+    val dc = in UInt(4 bit)
+    val fc = in UInt(4 bit)
+  }
 }

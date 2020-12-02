@@ -13,7 +13,7 @@ import breeze.linalg.{DenseMatrix, DenseVector, fliplr}
 import breeze.math.Complex
 import breeze.signal.{fourierTr, iFourierTr}
 
-import scala.sys.process.Process
+import scala.sys.process.{Process, ProcessLogger}
 
 object ComplexAccArrayTest extends App{
   val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)//(d, f, r)
@@ -48,10 +48,13 @@ object ComplexAccArrayTest extends App{
             // fft out driver
             () => {
               for(d <- rsd_cfg.depthRange){
+                dut.sim.dc #= d
                 for(f <- rsd_cfg.freqRange){
+                  dut.sim.fc #= f
                   println(s"Now is ($d, $f).")
                   depth = d
                   dut.io.fft_out.valid #= true
+                  dut.io.fc_overflow #= (f == rsd_cfg.freq_factor-1)
                   for(y <- 0 until rsd_cfg.kernel_size.last){
                     dut.io.fft_out.payload.zipWithIndex.foreach{ case (complex, i) =>
                       complex #= uin_fft(f)(i, y)
@@ -104,8 +107,6 @@ object ComplexAccArrayTest extends App{
           while(true){
             dut.clockDomain.waitActiveEdgeWhere(dut.io.mac_result.valid.toBoolean)
             for(row <- 0 until rsd_cfg.kernel_size.head){
-              // The result(d) comes at (d+1)'s first f cycle.
-              // Maybe ???
               uout_f(depth-1)(row, col) = dut.io.mac_result.payload(row).toComplex
             }
             dut.clockDomain.waitSampling()
@@ -134,7 +135,8 @@ object ComplexAccArrayTest extends App{
   write_image(uout_abs_max_flip, "tb/ComplexAccArray/nlos_hard_out.jpg")
 
   val tb_path = "tb/ComplexAccArray"
-  Process(s"vcd2fsdb ${tb_path}/ComplexAccArray_tb.vcd -o ${tb_path}/ComplexAccArray_tb.fsdb").!
+  val nullLogger = ProcessLogger(line=>{})
+  Process(s"vcd2fsdb ${tb_path}/ComplexAccArray_tb.vcd -o ${tb_path}/ComplexAccArray_tb.fsdb").!(nullLogger)
   Process(s"verdi -ssf ${tb_path}/ComplexAccArray_tb.fsdb").!!
 
 }

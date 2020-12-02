@@ -1,12 +1,11 @@
-package Core.FFT2d
+package Fpga
 
-import spinal.core._
-import spinal.lib._
-import Core._
-import Util._
 import Config._
 import Util.MemManager._
-import FFT2d._
+import Util._
+import spinal.core._
+import spinal.lib._
+import Core.FFT2d.FFT2d._
 
 /** FFT2d core does following three things
 *  1. When df = (0, x), it computes the fft2d of input image, sends the result to both output `data_out` and the
@@ -15,9 +14,6 @@ import FFT2d._
 *  3. When df = (>0, x), it reads previous fft2d(image) results from internal memories and sends them to output
 *     `data_out`
 */
-// TODO: Do angle quantization;
-//  Need verification for actual running result.
-//  Need verification for integration
 case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extends Component {
   val io = new Bundle {
     val dc = in UInt(log2Up(depth_factor) bit)
@@ -28,7 +24,6 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
     val data_in = slave(Flow(HComplex(cfg.hComplexConfig)))
     val data_from_mac = slave(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
     val data_to_mac = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
-//    val data_to_mac = master(Flow(Vec(Bool(), cfg.row)))
     val data_to_final = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
   }
 
@@ -41,13 +36,6 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
   val fft_data_in = inverse ? io.data_from_mac | s2p_flow
   val fft_out = fft2(fft_data_in, cfg.row)
 
-//  // Binarize the `fft_out`
-//  val fft_bin_out = fft_out.translateWith(
-//    Vec.tabulate(fft_out.payload.length){i=>
-//      fft_out.payload(i).real > 0
-//    }
-//  )
-//
   io.fft2d_comp_done := fft_out.valid
   val fft2d_out_sync = fft_out.valid.rise(False)
   io.fft2d_out_sync := fft2d_out_sync
@@ -66,43 +54,26 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
   val push_period = col_addr_cnt_area.cond_period
   push_period.setName("push_period")
 
-//  val int_mem = Array.fill(cfg.row)(
-  val int_mem = Array.fill(4)(
-    Ram1rw(MemConfig(
-      dw = 32, //cfg.hComplexConfig.getComplexWidth,
-      aw = log2Up(cfg.row * freq_factor), // quantize into one bit per pixel
-      vendor = Huali,
-      name = "fft2d9k32bit8bank",
-      needBwe = false
-    ))
+  val int_mem = Array.fill(cfg.row)(
+    Mem(Bits(cfg.hComplexConfig.getComplexWidth bit), BigInt(cfg.point*freq_factor))
   )
-  int_mem.head.addSimulationModel("tmp/simtmp/fft2d9k32bit8bank_ikos.v")
-
+  int_mem.foreach(_.addAttribute("ramstyle", "M20K"))
   val int_mem_address: UInt = io.fc * freq_factor + col_addr_cnt
+  val dc_eq_0 = io.dc === 0
+  for(i <- int_mem.indices){
+    int_mem(i).readWriteSync(
+      address = int_mem_address,
+      data = dc_eq_0 ? fft_out.payload(i).asBits | B(0).resized,
+      enable = push_period,
+      write = push_period & dc_eq_0
+    )
+  }
 
   when(io.dc === 0) {
     // The fft2d output is directly sent to output and int_mem
     // Delay one cycle after push_period
-//    io.data_to_mac <-< fft_bin_out.takeWhen(push_period)
     io.data_to_mac <-< fft_out.takeWhen(push_period)
-    // When push start
-    int_mem.zipWithIndex.foreach { case (ram1rw, i) =>
-      ram1rw.io.ap.addr := int_mem_address
-      ram1rw.io.ap.cs := push_period
-      ram1rw.io.dp.we := push_period
-      ram1rw.io.dp.din := fft_out.payload(i).asBits
-      // TODO:
-    }
   } otherwise {
-    // The stored fft results are read out from internal SRAM.
-    int_mem.zipWithIndex.foreach { case (ram1rw, i) =>
-      ram1rw.io.ap.addr := int_mem_address
-      ram1rw.io.ap.cs := push_period
-      ram1rw.io.dp.we := False
-      ram1rw.io.dp.din := B(0).resized
-      // TODO:
-      io.data_to_mac.payload(i) := ram1rw.io.dp.dout
-    }
     io.data_to_mac.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
   }
 
