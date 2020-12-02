@@ -18,7 +18,8 @@ case class RsdKernelConfig
   kernel_size: List[Int] = 128 :: 128 :: Nil,
   impulse_sample_point: Int = 101,
   less_mem_size: Boolean = true,
-  sub_mem_tag: Int = 0
+  sub_mem_tag: Int = 0,
+  fpga_impl: Boolean = false
 ){
   require(kernel_size.length == 2)
   def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg
@@ -68,7 +69,8 @@ object RsdKernelConfig {
     imp_cfg = HComplexConfig(5, 11),
     depth_factor = wave.cols,
     radius_factor = wave.rows,
-    freq_factor = distance.rows
+    freq_factor = distance.rows,
+    fpga_impl = true
   )
   val timeshift = LoadData.loadComplexMatrix(
     "src/test/resource/data/timeshift_real.csv",

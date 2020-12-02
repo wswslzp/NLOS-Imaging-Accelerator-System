@@ -15,7 +15,9 @@ import FFT2d._
 *  3. When df = (>0, x), it reads previous fft2d(image) results from internal memories and sends them to output
 *     `data_out`
 */
-@deprecated
+// TODO: Do angle quantization;
+//  Need verification for actual running result.
+//  Need verification for integration
 case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extends Component {
   val io = new Bundle {
     val dc = in UInt(log2Up(depth_factor) bit)
@@ -25,7 +27,8 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
     val fft2d_out_sync = out Bool
     val data_in = slave(Flow(HComplex(cfg.hComplexConfig)))
     val data_from_mac = slave(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
-    val data_to_mac = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
+//    val data_to_mac = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
+    val data_to_mac = master(Flow(Vec(Bool(), cfg.row)))
     val data_to_final = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
   }
 
@@ -37,6 +40,14 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
   s2p_flow.payload := Vec(History(io.data_in.payload, cfg.point, io.data_in.valid).reverse)
   val fft_data_in = inverse ? io.data_from_mac | s2p_flow
   val fft_out = fft2(fft_data_in, cfg.row)
+
+  // Binarize the `fft_out`
+  val fft_bin_out = fft_out.translateWith(
+    Vec.tabulate(fft_out.payload.length){i=>
+      fft_out.payload(i).real > 0
+    }
+  )
+
   io.fft2d_comp_done := fft_out.valid
   val fft2d_out_sync = fft_out.valid.rise(False)
   io.fft2d_out_sync := fft2d_out_sync
@@ -55,10 +66,11 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
   val push_period = col_addr_cnt_area.cond_period
   push_period.setName("push_period")
 
-  val int_mem = Array.fill(cfg.row)(
+//  val int_mem = Array.fill(cfg.row)(
+  val int_mem = Array.fill(4)(
     Ram1rw(MemConfig(
       dw = 32, //cfg.hComplexConfig.getComplexWidth,
-      aw = log2Up(cfg.row * freq_factor),
+      aw = log2Up(cfg.row * freq_factor), // quantize into one bit per pixel
       vendor = Huali,
       name = "fft2d9k32bit8bank",
       needBwe = false
@@ -71,13 +83,14 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
   when(io.dc === 0) {
     // The fft2d output is directly sent to output and int_mem
     // Delay one cycle after push_period
-    io.data_to_mac <-< fft_out.takeWhen(push_period)
+    io.data_to_mac <-< fft_bin_out.takeWhen(push_period)
     // When push start
     int_mem.zipWithIndex.foreach { case (ram1rw, i) =>
       ram1rw.io.ap.addr := int_mem_address
       ram1rw.io.ap.cs := push_period
       ram1rw.io.dp.we := push_period
       ram1rw.io.dp.din := fft_out.payload(i).asBits
+      // TODO:
     }
   } otherwise {
     // The stored fft results are read out from internal SRAM.
@@ -86,7 +99,8 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
       ram1rw.io.ap.cs := push_period
       ram1rw.io.dp.we := False
       ram1rw.io.dp.din := B(0).resized
-      io.data_to_mac.payload(i) := ram1rw.io.dp.dout
+      // TODO:
+//      io.data_to_mac.payload(i) := ram1rw.io.dp.dout
     }
     io.data_to_mac.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
   }

@@ -11,7 +11,7 @@ object IFFT2dMain extends App{
     row = 128
   )
   val config = SpinalConfig(
-    targetDirectory = "rtl"
+    targetDirectory = "../rtl/IFFT2d"
   )
   SpinalVerilog(config)(
     IFFT2d(fft_config)
