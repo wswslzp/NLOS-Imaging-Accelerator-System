@@ -91,7 +91,6 @@ object ComplexAccArrayTest extends App{
                   else{
                     dut.clockDomain.waitSampling(2)
                   }
-                  dut.clockDomain.waitSampling(10)
                 }
               }
               dut.clockDomain.waitSampling(10)
