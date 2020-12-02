@@ -18,7 +18,7 @@ object ComplexAccTest extends App{
   SimConfig
     .withWave
     .allOptimisation
-    .workspaceName("tb")
+    .workspacePath("tb")
     .compile(ComplexAcc(rsd_cfg.getKernelConfig))
     .doSim("ComplexAcc_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
@@ -37,5 +37,5 @@ object ComplexAccTest extends App{
       simSuccess()
     }
 
-  
+
 }
