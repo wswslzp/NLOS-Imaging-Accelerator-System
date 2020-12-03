@@ -51,6 +51,7 @@ object ComplexAccArrayTest extends App{
                 dut.sim.dc #= d
                 for(f <- rsd_cfg.freqRange){
                   dut.sim.fc #= f
+                  dut.io.fc_overflow #= (f == rsd_cfg.freq_factor-1)
                   println(s"Now is ($d, $f).")
                   depth = d
                   if(d == 0) {
@@ -60,7 +61,6 @@ object ComplexAccArrayTest extends App{
                     dut.clockDomain.waitSampling(1)
                   }
                   dut.io.fft_out.valid #= true
-                  dut.io.fc_overflow #= (f == rsd_cfg.freq_factor-1)
                   for(y <- 0 until rsd_cfg.kernel_size.last){
                     dut.io.fft_out.payload.zipWithIndex.foreach{ case (complex, i) =>
                       complex #= uin_fft(f)(i, y)
