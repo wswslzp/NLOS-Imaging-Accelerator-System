@@ -28,8 +28,7 @@ object ComplexAccArrayTest extends App{
   val soft_fft_out = uin_fft.head
   val hard_fft_out_f = new File("tmp/ComplexAccArray/hard_fft_out.csv")
   val soft_fft_out_f = new File("tmp/ComplexAccArray/soft_fft_out.csv")
-  hard_fft_out_f.mkdirs()
-  soft_fft_out_f.mkdirs()
+  new File("tmp/ComplexAccArray").mkdir()
   csvwrite(
     soft_fft_out_f, soft_fft_out.map(_.real)
   )
@@ -144,6 +143,10 @@ object ComplexAccArrayTest extends App{
 
 
     }
+
+  csvwrite(
+    hard_fft_out_f, hard_fft_out.map(_.real)
+  )
 
   val uout = uout_f.map(iFourierTr(_))
   val uout_abs = uout.map(_.map(_.abs))
