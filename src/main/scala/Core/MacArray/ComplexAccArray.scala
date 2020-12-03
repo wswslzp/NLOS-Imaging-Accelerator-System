@@ -12,7 +12,6 @@ import spinal.lib._
 case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
   val row_num = cfg.kernel_size.head
   val col_num = cfg.kernel_size.last
-  // TODO: fft_out config and kernel config are not same
   val result_config = cfg.getUinConfig * cfg.getKernelConfig / 2
   val io = new Bundle {
     val fc_overflow = in Bool()
@@ -36,9 +35,9 @@ case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
   //*************** MAC array *********************
   val mac_array = Array.fill(row_num, col_num)(ComplexAcc(rsd_fft_prod.head.config))
   for(c <- cfg.colRange){
-    var col_addr_hit = (col_addr.value === c).setName(s"col_addr_hit_$c")
+    val col_addr_hit = ((col_addr.value === c) & rsd_fft_prod_valid).setName(s"col_addr_hit_$c")
     for(r <- cfg.rowRange){
-      mac_array(r)(c).io.data_in.valid := col_addr_hit & rsd_fft_prod_valid
+      mac_array(r)(c).io.data_in.valid := col_addr_hit
       mac_array(r)(c).io.data_in.payload := rsd_fft_prod(r)
     }
   }

@@ -33,7 +33,7 @@ object ComplexAccArrayTest extends App{
     soft_fft_out_f, soft_fft_out.map(_.real)
   )
 
-  val withWave = false
+  val withWave = true
   val compiled = if(withWave){
     SimConfig
       .withWave(1)
@@ -125,7 +125,6 @@ object ComplexAccArrayTest extends App{
         // Monitor for fft out
         () => {
           dut.clockDomain.waitActiveEdgeWhere(dut.io.fft_out.valid.toBoolean)
-//          waitUntil(depth == 1)
           for(c <- rsd_cfg.colRange){
             for(r <- rsd_cfg.rowRange){
               hard_fft_out(r, c) = dut.io.fft_out.payload(r).toComplex
@@ -179,8 +178,8 @@ object ComplexAccArrayTest extends App{
   val tb_path = "tb/ComplexAccArray"
   val tmp_path = "tmp/ComplexAccArray"
   val nullLogger = ProcessLogger(line=>{})
-  Process(s"tar -zcvf $tmp_path/fft_out.tgz $tmp_path/hard_fft_out.csv $tmp_path/soft_fft_out.csv").!
-  Process(s"mv $tmp_path/fft_out.tgz /home/Workspace/Zhengpeng/transfer").!
+//  Process(s"tar -zcvf $tmp_path/fft_out.tgz $tmp_path/hard_fft_out.csv $tmp_path/soft_fft_out.csv").!
+//  Process(s"mv $tmp_path/fft_out.tgz /home/Workspace/Zhengpeng/transfer").!
 
   if(withWave){
     Process(s"vcd2fsdb ${tb_path}/ComplexAccArray_tb.vcd -o ${tb_path}/ComplexAccArray_tb.fsdb").!(nullLogger)

@@ -94,6 +94,7 @@ object NlosSystemSimTest extends App{
     }
     umax
   }
+  csvwrite(new File("tmp/soft_uout_abs_max.csv"), uout_abs_max)
   println("Output image has been generated!")
   println(s"output size: cols = ${uout_abs_max.cols}")
 
