@@ -157,19 +157,14 @@ object ComplexAccArrayTest extends App{
 
         // Monitor
         () => {
-          var col = 0
           while(true){
             dut.clockDomain.waitActiveEdgeWhere(dut.io.mac_result.valid.toBoolean)
-            for(row <- rsd_cfg.rowRange){
-              println(s"current col is $col")
-              uout_f(depth-1)(row, col) = dut.io.mac_result.payload(row).toComplex
-              if(col < rsd_cfg.kernel_size.last-1){
-                col += 1
-              } else {
-                col = 0
+            for(col <- rsd_cfg.colRange){
+              for(row <- rsd_cfg.rowRange){
+                uout_f(depth-1)(row, col) = dut.io.mac_result.payload(row).toComplex
               }
+              dut.clockDomain.waitSampling()
             }
-            dut.clockDomain.waitSampling()
           }
         }
       )
