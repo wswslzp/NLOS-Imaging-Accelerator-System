@@ -34,7 +34,7 @@ object ComplexAccArrayTest extends App{
   )
 
   SimConfig
-    .withWave(1)
+//    .withWave(1)
     .allOptimisation
     .workspacePath("tb")
     .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
@@ -113,7 +113,8 @@ object ComplexAccArrayTest extends App{
 
         // Monitor for fft out
         () => {
-          waitUntil(depth == 1)
+          dut.clockDomain.waitActiveEdgeWhere(dut.io.fft_out.valid.toBoolean)
+//          waitUntil(depth == 1)
           for(c <- rsd_cfg.colRange){
             for(r <- rsd_cfg.rowRange){
               hard_fft_out(r, c) = dut.io.fft_out.payload(r).toComplex
