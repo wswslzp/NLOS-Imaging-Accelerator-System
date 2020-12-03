@@ -179,7 +179,7 @@ object ComplexAccArrayTest extends App{
   val tb_path = "tb/ComplexAccArray"
   val tmp_path = "tmp/ComplexAccArray"
   val nullLogger = ProcessLogger(line=>{})
-  Process(s"tar -zcvf $tmp_path/fft_out.tgz $tmp_path/*.csv").!
+  Process(s"tar -zcvf $tmp_path/fft_out.tgz $tmp_path/hard_fft_out.csv $tmp_path/soft_fft_out.csv").!
   Process(s"mv $tmp_path/fft_out.tgz /home/Workspace/Zhengpeng/transfer").!
 
   if(withWave){
