@@ -32,7 +32,7 @@ object SimComplexTest extends App{
     io.xout := RegNext(vec_hcomp_10(3).conj)
   }
 
-  val cfg = HComplexConfig(1, 8)
+  val cfg = HComplexConfig(8, 8)
 
   new File("tmp/test_sc").mkdir()
   val report = SpinalConfig(
@@ -57,7 +57,7 @@ object SimComplexTest extends App{
     }
 
     for(i <- 0 to 5) {
-      val inputData = Complex(Math.exp(-i*2), Math.exp(-i*2-1))
+      val inputData = Complex(Math.exp(i*2), Math.exp(i*2-1))
       dut.io.xin #= inputData
       println(s"input: $inputData")
       dut.clockDomain.waitSampling()
