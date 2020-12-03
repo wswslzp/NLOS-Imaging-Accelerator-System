@@ -24,7 +24,7 @@ case class RsdKernelConfig
   require(kernel_size.length == 2)
   def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg
   def getUinConfig: HComplexConfig = HComplexConfig(19, -3)
-  def getFUinConfig: HComplexConfig = HComplexConfig(23, -7)
+  def getFUinConfig: HComplexConfig = HComplexConfig(25, -9)
   def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, kernel_size(1), kernel_size(0))
   def depthRange: Range = 0 until depth_factor
   def radiusRange: Range = 0 until radius_factor

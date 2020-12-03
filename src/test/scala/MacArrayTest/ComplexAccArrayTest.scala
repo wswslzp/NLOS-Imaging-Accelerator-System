@@ -33,12 +33,23 @@ object ComplexAccArrayTest extends App{
     soft_fft_out_f, soft_fft_out.map(_.real)
   )
 
-  SimConfig
-//    .withWave(1)
-    .allOptimisation
-    .workspacePath("tb")
-    .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
-    .compile(ComplexAccArray(rsd_cfg))
+  val withWave = false
+  val compiled = if(withWave){
+    SimConfig
+      .withWave(1)
+      .allOptimisation
+      .workspacePath("tb")
+      .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
+      .compile(ComplexAccArray(rsd_cfg))
+  } else {
+    SimConfig
+      .allOptimisation
+      .workspacePath("tb")
+      .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
+      .compile(ComplexAccArray(rsd_cfg))
+  }
+
+  compiled
     .doSim("ComplexAccArray_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
       dut.io.fc_overflow #= false
@@ -166,8 +177,14 @@ object ComplexAccArrayTest extends App{
   write_image(uout_abs_max_flip, "tb/ComplexAccArray/nlos_hard_out.jpg")
 
   val tb_path = "tb/ComplexAccArray"
+  val tmp_path = "tmp/ComplexAccArray"
   val nullLogger = ProcessLogger(line=>{})
-  Process(s"vcd2fsdb ${tb_path}/ComplexAccArray_tb.vcd -o ${tb_path}/ComplexAccArray_tb.fsdb").!(nullLogger)
-  Process(s"verdi -ssf ${tb_path}/ComplexAccArray_tb.fsdb").!!
+  Process(s"tar -zcvf $tmp_path/fft_out.tgz $tmp_path/*.csv").!
+  Process(s"mv $tmp_path/fft_out.tgz /home/Workspace/Zhengpeng/transfer").!
+
+  if(withWave){
+    Process(s"vcd2fsdb ${tb_path}/ComplexAccArray_tb.vcd -o ${tb_path}/ComplexAccArray_tb.fsdb").!(nullLogger)
+    Process(s"verdi -ssf ${tb_path}/ComplexAccArray_tb.fsdb").!!
+  }
 
 }
