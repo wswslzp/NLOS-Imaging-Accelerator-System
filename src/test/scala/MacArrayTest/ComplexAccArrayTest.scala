@@ -111,7 +111,7 @@ object ComplexAccArrayTest extends App{
               uout_f(depth-1)(row, col) = dut.io.mac_result.payload(row).toComplex
             }
             dut.clockDomain.waitSampling()
-            col += 1
+            if(col < 128) col += 1 else col = 0
           }
         }
       )
