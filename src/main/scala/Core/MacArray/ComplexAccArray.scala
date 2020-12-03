@@ -12,11 +12,13 @@ import spinal.lib._
 case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
   val row_num = cfg.kernel_size.head
   val col_num = cfg.kernel_size.last
+  // TODO: fft_out config and kernel config are not same
+  val result_config = cfg.getUinConfig * cfg.getKernelConfig / 2
   val io = new Bundle {
     val fc_overflow = in Bool()
     val rsd_kernel = slave(Flow(Vec(HComplex(cfg.getKernelConfig), row_num)))
-    val fft_out = slave(Flow(Vec(HComplex(cfg.getKernelConfig), row_num)))
-    val mac_result = master(Flow(Vec(HComplex(cfg.getKernelConfig), row_num)))
+    val fft_out = slave(Flow(Vec(HComplex(cfg.getUinConfig), row_num)))
+    val mac_result = master(Flow(Vec(HComplex(result_config), row_num)))
   }
   val valid = io.rsd_kernel.valid & io.fft_out.valid
 
