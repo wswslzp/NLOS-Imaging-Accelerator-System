@@ -32,7 +32,7 @@ object SimComplexTest extends App{
     io.xout := RegNext(vec_hcomp_10(3).conj)
   }
 
-  val cfg = HComplexConfig(8, 8)
+  val cfg = HComplexConfig(16, -8)
 
   new File("tmp/test_sc").mkdir()
   val report = SpinalConfig(
