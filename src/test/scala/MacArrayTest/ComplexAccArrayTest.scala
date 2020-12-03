@@ -9,10 +9,10 @@ import RsdKernelConfig._
 import Sim.RsdGenCoreArray._
 import Sim.SimComplex._
 import SimTest.NlosSystemSimTest.write_image
-import breeze.linalg.{DenseMatrix, DenseVector, fliplr}
+import breeze.linalg.{DenseMatrix, DenseVector, csvwrite, fliplr}
 import breeze.math.Complex
 import breeze.signal.{fourierTr, iFourierTr}
-
+import java.io._
 import scala.sys.process.{Process, ProcessLogger}
 
 object ComplexAccArrayTest extends App{
@@ -22,6 +22,16 @@ object ComplexAccArrayTest extends App{
   val uin_fft = uin.map(fourierTr(_))
   val uout_f = Array.fill(rsd_cfg.depth_factor)(
     DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
+  )
+
+  val hard_fft_out = DenseMatrix.zeros[Complex](uin_fft.head.rows, uin_fft.head.cols)
+  val soft_fft_out = uin_fft.head
+  val hard_fft_out_f = new File("tmp/ComplexAccArray/hard_fft_out.csv")
+  val soft_fft_out_f = new File("tmp/ComplexAccArray/soft_fft_out.csv")
+  hard_fft_out_f.mkdirs()
+  soft_fft_out_f.mkdirs()
+  csvwrite(
+    soft_fft_out_f, soft_fft_out.map(_.real)
   )
 
   SimConfig
@@ -99,6 +109,18 @@ object ComplexAccArrayTest extends App{
               simSuccess()
             }
           )
+        }
+        ,
+
+        // Monitor for fft out
+        () => {
+          waitUntil(depth == 1)
+          for(c <- rsd_cfg.colRange){
+            for(r <- rsd_cfg.rowRange){
+              hard_fft_out(r, c) = dut.io.fft_out.payload(r).toComplex
+            }
+            dut.clockDomain.waitSampling()
+          }
         }
         ,
 
