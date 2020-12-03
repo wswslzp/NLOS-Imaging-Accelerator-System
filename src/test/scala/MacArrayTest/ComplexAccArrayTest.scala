@@ -25,7 +25,7 @@ object ComplexAccArrayTest extends App{
   )
 
   SimConfig
-    .withWave
+    .withWave(1)
     .allOptimisation
     .workspacePath("tb")
     .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
