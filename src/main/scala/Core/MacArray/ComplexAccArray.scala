@@ -34,8 +34,9 @@ case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
   //*************** MAC array *********************
   val mac_array = Array.fill(row_num, col_num)(ComplexAcc(rsd_fft_prod.head.config))
   for(c <- cfg.colRange){
+    var col_addr_hit = (col_addr.value === c).setName(s"col_addr_hit_$c")
     for(r <- cfg.rowRange){
-      mac_array(r)(c).io.data_in.valid := col_addr.value === c
+      mac_array(r)(c).io.data_in.valid := col_addr_hit
       mac_array(r)(c).io.data_in.payload := rsd_fft_prod(r)
     }
   }
@@ -48,7 +49,7 @@ case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
   val pipe_out_en = RegNext(pipe_out_cnt_area.cond_period) init False
   io.mac_result.valid := pipe_out_en
   for(r <- cfg.rowRange){
-    io.mac_result.payload(r) := pipe_out_col_addr.muxList(
+    io.mac_result.payload(r) := pipe_out_col_addr.muxList( // mac_array(r)(pipe_out_col_addr).io.data_out
       for(i <- cfg.colRange) yield i -> mac_array(r)(i).io.data_out
     )
     for(c <- cfg.colRange){
