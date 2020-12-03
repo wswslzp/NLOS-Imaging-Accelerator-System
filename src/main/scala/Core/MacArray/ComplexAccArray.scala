@@ -36,7 +36,7 @@ case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
   for(c <- cfg.colRange){
     var col_addr_hit = (col_addr.value === c).setName(s"col_addr_hit_$c")
     for(r <- cfg.rowRange){
-      mac_array(r)(c).io.data_in.valid := col_addr_hit
+      mac_array(r)(c).io.data_in.valid := col_addr_hit & rsd_fft_prod_valid
       mac_array(r)(c).io.data_in.payload := rsd_fft_prod(r)
     }
   }
