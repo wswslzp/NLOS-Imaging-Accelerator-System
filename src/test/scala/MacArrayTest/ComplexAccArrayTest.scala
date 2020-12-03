@@ -107,7 +107,7 @@ object ComplexAccArrayTest extends App{
           var col = 0
           while(true){
             dut.clockDomain.waitActiveEdgeWhere(dut.io.mac_result.valid.toBoolean)
-            for(row <- 0 until rsd_cfg.kernel_size.head){
+            for(row <- rsd_cfg.rowRange){
               uout_f(depth-1)(row, col) = dut.io.mac_result.payload(row).toComplex
             }
             dut.clockDomain.waitSampling()
