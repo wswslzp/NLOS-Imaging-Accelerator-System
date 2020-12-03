@@ -171,6 +171,7 @@ object ComplexAccArrayTest extends App{
     }
     umax
   }
+  csvwrite(new File("tmp/hard_uout_abs_max.csv"), uout_abs_max)
 
   val uout_abs_max_flip = fliplr(uout_abs_max)
   write_image(uout_abs_max_flip, "tb/ComplexAccArray/nlos_hard_out.jpg")
