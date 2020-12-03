@@ -78,6 +78,12 @@ object NlosSystemSimTest extends App{
       val rsd_kernel = Computation.restoreRSD(rsd_kernel_rad, kernel_size)
       uout_f += rsd_kernel *:* uin_fft(f)
     }
+    if(depth == 30){
+      csvwrite(
+        new File("tmp/soft_uoutf30.csv"),
+        uout_f.map(_.real)
+      )
+    }
     iFourierTr(uout_f)
   }
   println("Done RSD kernel convolution!")
