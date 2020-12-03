@@ -42,7 +42,7 @@ object ComplexAccArrayTest extends App{
     soft_fft_out_f, soft_fft_out.map(_.real)
   )
 
-  val withWave = true
+  val withWave = false
   val compiled = if(withWave){
     SimConfig
       .withWave(1)
