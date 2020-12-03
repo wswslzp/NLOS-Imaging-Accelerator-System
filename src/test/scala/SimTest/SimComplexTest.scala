@@ -20,16 +20,17 @@ object SimComplexTest extends App{
       val xout = out(HComplex(cfg))
     }
 
-    val xin2 = io.xin * io.xin
-    val xin2_p_xin = io.xin + xin2
-    xin2_p_xin.simPublic()
-    val xin2_p_xin_10: Vec[HComplex] = History(xin2_p_xin, 256)
-    val vec_hcomp_10 = Vec(Reg(HComplex(xin2_p_xin.config)), 256) simPublic()
-    for(i <- vec_hcomp_10.indices){
-      vec_hcomp_10(i) := xin2_p_xin_10(i)
-    }
+//    val xin2 = io.xin * io.xin
+//    val xin2_p_xin = io.xin + xin2
+//    xin2_p_xin.simPublic()
+//    val xin2_p_xin_10: Vec[HComplex] = History(xin2_p_xin, 256)
+//    val vec_hcomp_10 = Vec(Reg(HComplex(xin2_p_xin.config)), 256) simPublic()
+//    for(i <- vec_hcomp_10.indices){
+//      vec_hcomp_10(i) := xin2_p_xin_10(i)
+//    }
 
-    io.xout := RegNext(vec_hcomp_10(3).conj)
+//    io.xout := RegNext(vec_hcomp_10(3).conj)
+    io.xout := io.xin.conj
   }
 
   val cfg = HComplexConfig(16, -8)
@@ -63,9 +64,9 @@ object SimComplexTest extends App{
       dut.clockDomain.waitSampling()
       println(s"dat2input: ${dut.io.xin.toComplex}")
       dut.clockDomain.waitSampling(2)
-      for(i <- 0 until 10){
-        println(s"inside[$i] = ${dut.vec_hcomp_10(i).toComplex}")
-      }
+//      for(i <- 0 until 10){
+//        println(s"inside[$i] = ${dut.vec_hcomp_10(i).toComplex}")
+//      }
       println(s"output: ${dut.io.xout.toComplex}")
     }
     simSuccess()
