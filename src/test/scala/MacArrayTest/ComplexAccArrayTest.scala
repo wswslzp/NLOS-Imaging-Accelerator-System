@@ -25,12 +25,12 @@ object ComplexAccArrayTest extends App{
   )
 
   val hard_kernel = DenseMatrix.zeros[Complex](uin_fft.head.rows, uin_fft.head.cols)
-  val soft_kernel = uin_fft.head
+  val soft_kernel = rsd_kernel.head.head
   val hard_kernel_f = new File("tmp/ComplexAccArray/hard_kernel.csv")
   val soft_kernel_f = new File("tmp/ComplexAccArray/soft_kernel.csv")
   new File("tmp/ComplexAccArray").mkdir()
   csvwrite(
-    soft_fft_out_f, soft_fft_out.map(_.real)
+    soft_kernel_f, soft_kernel.map(_.real)
   )
 
   val hard_fft_out = DenseMatrix.zeros[Complex](uin_fft.head.rows, uin_fft.head.cols)
@@ -178,6 +178,9 @@ object ComplexAccArrayTest extends App{
 
   csvwrite(
     hard_fft_out_f, hard_fft_out.map(_.real)
+  )
+  csvwrite(
+    hard_kernel_f, hard_kernel.map(_.real)
   )
 
   val uout = uout_f.map(iFourierTr(_))
