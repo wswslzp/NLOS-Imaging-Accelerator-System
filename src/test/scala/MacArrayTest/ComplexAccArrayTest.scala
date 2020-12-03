@@ -161,6 +161,7 @@ object ComplexAccArrayTest extends App{
           while(true){
             dut.clockDomain.waitActiveEdgeWhere(dut.io.mac_result.valid.toBoolean)
             for(row <- rsd_cfg.rowRange){
+              println(s"current col is $col")
               uout_f(depth-1)(row, col) = dut.io.mac_result.payload(row).toComplex
             }
             dut.clockDomain.waitSampling()
@@ -170,6 +171,7 @@ object ComplexAccArrayTest extends App{
               col = 0
             }
           }
+          simSuccess()
         }
       )
 
