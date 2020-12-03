@@ -59,6 +59,7 @@ object NlosSystemSimTest extends App{
 
   println("Doing input image's FFT2d...")
   val uin_fft = uin.map(fourierTr(_))
+  println(s"${uin_fft(0)(0 to 5, 0 to 5)}")
   println("Done input image FFT2d!")
 
   val kernel_size = (uin.head.rows, uin.head.cols)
