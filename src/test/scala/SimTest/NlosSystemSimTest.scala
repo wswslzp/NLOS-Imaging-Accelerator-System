@@ -78,9 +78,9 @@ object NlosSystemSimTest extends App{
       val rsd_kernel = Computation.restoreRSD(rsd_kernel_rad, kernel_size)
       uout_f += rsd_kernel *:* uin_fft(f)
     }
-    if(depth == 30){
+    if(depth == 10){
       csvwrite(
-        new File("tmp/soft_uoutf30.csv"),
+        new File("tmp/soft_uoutf10.csv"),
         uout_f.map(_.real)
       )
     }

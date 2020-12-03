@@ -186,8 +186,8 @@ object ComplexAccArrayTest extends App{
     hard_kernel_f, hard_kernel.map(_.real)
   )
   csvwrite(
-    new File("tmp/ComplexAccArray/hard_uoutf30.csv"),
-    uout_f(30).map(_.real)
+    new File("tmp/ComplexAccArray/hard_uoutf10.csv"),
+    uout_f(10).map(_.real)
   )
 
   val uout = uout_f.map(iFourierTr(_))
