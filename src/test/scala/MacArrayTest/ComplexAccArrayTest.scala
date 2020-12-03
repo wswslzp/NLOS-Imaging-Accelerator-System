@@ -24,6 +24,15 @@ object ComplexAccArrayTest extends App{
     DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
   )
 
+  val hard_kernel = DenseMatrix.zeros[Complex](uin_fft.head.rows, uin_fft.head.cols)
+  val soft_kernel = uin_fft.head
+  val hard_kernel_f = new File("tmp/ComplexAccArray/hard_kernel.csv")
+  val soft_kernel_f = new File("tmp/ComplexAccArray/soft_kernel.csv")
+  new File("tmp/ComplexAccArray").mkdir()
+  csvwrite(
+    soft_fft_out_f, soft_fft_out.map(_.real)
+  )
+
   val hard_fft_out = DenseMatrix.zeros[Complex](uin_fft.head.rows, uin_fft.head.cols)
   val soft_fft_out = uin_fft.head
   val hard_fft_out_f = new File("tmp/ComplexAccArray/hard_fft_out.csv")
@@ -128,6 +137,18 @@ object ComplexAccArrayTest extends App{
           for(c <- rsd_cfg.colRange){
             for(r <- rsd_cfg.rowRange){
               hard_fft_out(r, c) = dut.io.fft_out.payload(r).toComplex
+            }
+            dut.clockDomain.waitSampling()
+          }
+        }
+        ,
+
+        // Monitor for rsd kernel
+        () => {
+          dut.clockDomain.waitActiveEdgeWhere(dut.io.rsd_kernel.valid.toBoolean)
+          for(c <- rsd_cfg.colRange){
+            for(r <- rsd_cfg.rowRange){
+              hard_kernel(r, c) = dut.io.rsd_kernel.payload(r).toComplex
             }
             dut.clockDomain.waitSampling()
           }
