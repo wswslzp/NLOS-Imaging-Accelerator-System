@@ -163,15 +163,14 @@ object ComplexAccArrayTest extends App{
             for(row <- rsd_cfg.rowRange){
               println(s"current col is $col")
               uout_f(depth-1)(row, col) = dut.io.mac_result.payload(row).toComplex
+              if(col < rsd_cfg.kernel_size.last-1){
+                col += 1
+              } else {
+                col = 0
+              }
             }
             dut.clockDomain.waitSampling()
-            if(col < rsd_cfg.kernel_size.last-1){
-              col += 1
-            } else {
-              col = 0
-            }
           }
-          simSuccess()
         }
       )
 
