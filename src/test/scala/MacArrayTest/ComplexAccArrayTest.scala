@@ -53,6 +53,12 @@ object ComplexAccArrayTest extends App{
                   dut.sim.fc #= f
                   println(s"Now is ($d, $f).")
                   depth = d
+                  if(d == 0) {
+                    dut.clockDomain.waitSampling(100)
+                  }
+                  else{
+                    dut.clockDomain.waitSampling(1)
+                  }
                   dut.io.fft_out.valid #= true
                   dut.io.fc_overflow #= (f == rsd_cfg.freq_factor-1)
                   for(y <- 0 until rsd_cfg.kernel_size.last){
@@ -62,12 +68,7 @@ object ComplexAccArrayTest extends App{
                     dut.clockDomain.waitSampling()
                   }
                   dut.io.fft_out.valid #= false
-                  if(d == 0) {
-                    dut.clockDomain.waitSampling(100)
-                  }
-                  else{
-                    dut.clockDomain.waitSampling(2)
-                  }
+                  dut.clockDomain.waitSampling()
                 }
               }
             }
@@ -77,6 +78,12 @@ object ComplexAccArrayTest extends App{
             () => {
               for(d <- rsd_cfg.depthRange){
                 for(f <- rsd_cfg.freqRange){
+                  if(d == 0) {
+                    dut.clockDomain.waitSampling(100)
+                  }
+                  else{
+                    dut.clockDomain.waitSampling()
+                  }
                   dut.io.rsd_kernel.valid #= true
                   for(y <- 0 until rsd_cfg.kernel_size.last){
                     dut.io.rsd_kernel.payload.zipWithIndex.foreach{ case (complex, i) =>
@@ -85,12 +92,7 @@ object ComplexAccArrayTest extends App{
                     dut.clockDomain.waitSampling()
                   }
                   dut.io.rsd_kernel.valid #= false
-                  if(d == 0) {
-                    dut.clockDomain.waitSampling(100)
-                  }
-                  else{
-                    dut.clockDomain.waitSampling(2)
-                  }
+                  dut.clockDomain.waitSampling()
                 }
               }
               dut.clockDomain.waitSampling(10)
