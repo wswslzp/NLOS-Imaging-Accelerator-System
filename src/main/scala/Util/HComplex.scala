@@ -245,8 +245,10 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
       this.real := that.real.fixTo(this.real.sq)
       this.imag := that.imag.fixTo(this.imag.sq)
     } else {
-      this.real := that.real
-      this.imag := that.imag
+      this.real := that.real.fixTo(this.real.sq)
+      this.imag := that.imag.fixTo(this.imag.sq)
+//      this.real := that.real
+//      this.imag := that.imag
     }
   }
 
