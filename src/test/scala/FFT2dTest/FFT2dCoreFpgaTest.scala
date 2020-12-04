@@ -32,7 +32,7 @@ object FFT2dCoreFpgaTest extends App{
       .allOptimisation
       .withWave(waveDepth)
       .workspacePath("tb")
-      .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
+      .addSimulatorFlag("-j 48 --threads 48 --trace-threads 48")
       .compile(FFT2dCore(rsd_cfg.getFFT2dConfig, rsd_cfg.freq_factor, rsd_cfg.depth_factor))
   } else {
     SimConfig
