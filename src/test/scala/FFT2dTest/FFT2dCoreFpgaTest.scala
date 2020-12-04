@@ -115,7 +115,9 @@ object FFT2dCoreFpgaTest extends App{
                   dut.clockDomain.waitSampling()
                 }
               }
+              dut.io.push_ending #= true
               dut.clockDomain.waitSampling()
+              dut.io.push_ending #= false
             }
           }
 
