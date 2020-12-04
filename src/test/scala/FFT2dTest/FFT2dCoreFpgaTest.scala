@@ -157,6 +157,8 @@ object FFT2dCoreFpgaTest extends App{
                 }
               }
             }
+          }else{
+            dut.clockDomain.waitSampling()
           }
         }
       }
