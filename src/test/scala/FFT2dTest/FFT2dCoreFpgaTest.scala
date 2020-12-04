@@ -69,6 +69,7 @@ object FFT2dCoreFpgaTest extends App{
         for(d <- rsd_cfg.depthRange){
           depth = d
           dut.io.dc #= d
+          if(d == 3) simSuccess()
 
           //Driver
           // For d == 0, pipe in `uin`
