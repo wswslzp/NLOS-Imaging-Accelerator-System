@@ -8,16 +8,19 @@ package object Util {
     // cond is a one-cycle impulse, when the cond is active, counter inside will
     // count up from cond's falling edge to a specific number(0 until x)
     // useful tool for scheduling the task.
-    val cnt: Counter = Counter(range).setName(name + "_cnt")
+//    val cnt: Counter = Counter(range).setName(name + "_cnt")
+    val cnt: Counter = Counter(range).setCompositeName(cond, name, weak = true)
     val cond_period_minus_1: Bool = Reg(Bool()) init(False)
-    cond_period_minus_1.setName(name + "_cond_period_minus_1")
+//    cond_period_minus_1.setName(name + "_cond_period_minus_1")
+    cond_period_minus_1.setCompositeName(cond, name+"_cond_period_minus_1", weak = true)
     when(cond) {
       cond_period_minus_1 := True
     }.elsewhen(cnt.willOverflow) {
       cond_period_minus_1 := False
     }
     val cond_period: Bool = cond | cond_period_minus_1
-    cond_period.setName(name + "_cond_period")
+//    cond_period.setName(name + "_cond_period")
+    cond_period.setCompositeName(cond, name+"_cond_period")
     when(cond_period) {
       // TODO: the counter in spinal lib is not support step increment
       // DO NOT USE delta factor
@@ -30,12 +33,14 @@ package object Util {
 //  def countUpFrom(cond: Bool, length: Int, name: String = "") = countUpFrom(cond, 0 until length, name)
 
   def countUpInside(cond: Bool, length: Int, name: String = "") = new Area {
-    val cnt = Counter(0, length-1).setName(s"${name}_cnt")
+//    val cnt = Counter(0, length-1).setName(s"${name}_cnt")
+    val cnt = Counter(0, length-1).setCompositeName(cond, name, weak = true)
     when(cond) {
       cnt.increment()
     }
     val last = cnt.willOverflow
-    last.setName(s"${name}_last")
+//    last.setName(s"${name}_last")
+    last.setCompositeName(cond, name+"_last")
   }
 
   def countLtUInt(cond: Bool, stop: UInt): UInt =  {

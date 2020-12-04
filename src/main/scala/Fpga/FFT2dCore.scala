@@ -36,7 +36,7 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
   s2p_flow.valid := countUpInside(io.data_in.valid, cfg.point).last
   s2p_flow.payload := Vec(History(io.data_in.payload, cfg.point, io.data_in.valid).reverse)
   val fft_data_in = inverse ? io.data_from_mac | s2p_flow
-  val fft_out = fft2(fft_data_in, cfg.row)
+  val fft_out = fft2(fft_data_in, inverse, cfg.row)
 
   io.fft2d_comp_done := fft_out.valid
   val fft2d_out_sync = fft_out.valid.rise(False)

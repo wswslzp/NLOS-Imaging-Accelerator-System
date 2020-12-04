@@ -97,20 +97,20 @@ object FFT2dCoreFpgaTest extends App{
               freq = f
               dut.io.fc #= f
               dut.clockDomain.waitSampling()
-              dut.io.data_from_mac.valid #= true
               if(f == 0){
+                dut.io.data_from_mac.valid #= true
                 for(c <- rsd_cfg.colRange){
                   for(r <- rsd_cfg.rowRange){
                     dut.io.data_from_mac.payload(r) #= huout_f(depth-1)(r, c)
                   }
                   dut.clockDomain.waitSampling()
                 }
+                dut.io.data_from_mac.valid #= false
               }else{
                 for(c <- rsd_cfg.colRange){
                   dut.clockDomain.waitSampling()
                 }
               }
-              dut.io.data_from_mac.valid #= false
               dut.clockDomain.waitSampling()
             }
           }

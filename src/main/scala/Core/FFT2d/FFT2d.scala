@@ -64,6 +64,22 @@ object FFT2d {
     fft2d_core.io.line_out
   }
 
+  def fft2(input: Flow[Vec[HComplex]], inverse: Bool, row: Int): Flow[Vec[HComplex]] = {
+    val hcfg = input.payload(0).config
+    val point = input.payload.length
+    val fft_config = FFTConfig(hcfg, point, row)
+    val fft2d_core = FFT2d(fft_config)
+    fft2d_core.io.line_in <> input.translateWith(
+      Vec(input.payload.map{dat=>
+        inverse ? dat.conj | dat
+      })
+    )
+    fft2d_core.io.line_out.translateWith(
+      Vec(fft2d_core.io.line_out.payload.map{dat=>
+        inverse ? dat.conj | dat
+      })
+    )
+  }
   /**
    * Do fft2d for an image. Input one pixel per cycle, while activating `input.valid`
    * @param input input data flow carry with `valid` and `payload` data. The data is a

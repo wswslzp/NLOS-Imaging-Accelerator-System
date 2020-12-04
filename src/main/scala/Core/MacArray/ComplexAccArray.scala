@@ -44,7 +44,7 @@ case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
 
   //************** pipe out logic *******************
   val pipe_out_start = io.fc_overflow.fall(False)
-  val pipe_out_cnt_area = countUpFrom(pipe_out_start, 0 until row_num)
+  val pipe_out_cnt_area = countUpFrom(pipe_out_start, 0 until row_num, "cnt")
   val pipe_out_col_addr = RegNext(pipe_out_cnt_area.cnt.value)
   pipe_out_col_addr.setName("pipe_out_col_addr")
   val pipe_out_en = RegNext(pipe_out_cnt_area.cond_period) init False
