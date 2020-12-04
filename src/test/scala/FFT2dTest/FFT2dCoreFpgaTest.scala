@@ -51,6 +51,9 @@ object FFT2dCoreFpgaTest extends App{
   val huout_d = Array.fill(rsd_cfg.depth_factor)(
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   )
+  val hdata_from_mac = Array.fill(rsd_cfg.depth_factor)(
+    DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
+  )
 
   var depth = 0
   var freq = 0
@@ -111,7 +114,7 @@ object FFT2dCoreFpgaTest extends App{
                 }
                 dut.io.data_from_mac.valid #= false
               }else{
-                for(c <- rsd_cfg.colRange){
+                for(_ <- rsd_cfg.colRange){
                   dut.clockDomain.waitSampling()
                 }
               }
@@ -140,6 +143,20 @@ object FFT2dCoreFpgaTest extends App{
         dut.clockDomain.waitSampling(100)
         simSuccess()
 
+      }
+      ,
+
+      // Monitor for data from mac
+      () => {
+        while(true){
+          dut.clockDomain.waitActiveEdgeWhere(dut.io.data_from_mac.valid.toBoolean)
+          for(c <- rsd_cfg.colRange){
+            for(r <- rsd_cfg.rowRange){
+              hdata_from_mac(depth)(r, c) = dut.io.data_from_mac.payload(r).toComplex
+            }
+            dut.clockDomain.waitSampling()
+          }
+        }
       }
       ,
 
@@ -178,6 +195,8 @@ object FFT2dCoreFpgaTest extends App{
           println(s"current uout_depth = $uout_depth")
           for(r <- rsd_cfg.rowRange){
             for(c <- rsd_cfg.colRange){
+              //TODO: Now we know that `huout_f` is correct.
+              //  problem comes from ifft
               huout_d(uout_depth)(r, c) = dut.io.data_to_final.payload(c).toComplex
             }
             dut.clockDomain.waitSampling()
@@ -191,33 +210,44 @@ object FFT2dCoreFpgaTest extends App{
 
   }
   // Test `huout_f`
-  val huout = huout_f.map(iFourierTr(_))
-  val huout_abs = huout.map(_.map(_.abs))
-  val huout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
-    var umax = 0d
-    for(d <- rsd_cfg.depthRange) {
-      if (huout_abs(d)(x, y) > umax) {
-        umax = huout_abs(d)(x, y)
-      }
-    }
-    umax
-  }
-
-//  val uout_abs = huout_d.map(_.map(_.abs))
-//  val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
+  // Now we have huout_f correct
+//  val huout = huout_f.map(iFourierTr(_))
+//  val huout_abs = huout.map(_.map(_.abs))
+//  val huout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
 //    var umax = 0d
 //    for(d <- rsd_cfg.depthRange) {
-//      if (uout_abs(d)(x, y) > umax) {
-//        umax = uout_abs(d)(x, y)
+//      if (huout_abs(d)(x, y) > umax) {
+//        umax = huout_abs(d)(x, y)
 //      }
 //    }
 //    umax
 //  }
-////  csvwrite(new File("tmp/soft_uout_abs_max.csv"), uout_abs_max)
+
+  // Test `hdata_from_mac`
+  csvwrite(
+    new File("tb/FFT2dCore/huout_f20.csv"),
+    huout_f(20).map(_.real)
+  )
+  csvwrite(
+    new File("tb/FFT2dCore/hdata_from_mac20.csv"),
+    hdata_from_mac(20).map(_.real)
+  )
+
+  val uout_abs = huout_d.map(_.map(_.abs))
+  val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
+    var umax = 0d
+    for(d <- rsd_cfg.depthRange) {
+      if (uout_abs(d)(x, y) > umax) {
+        umax = uout_abs(d)(x, y)
+      }
+    }
+    umax
+  }
+//  csvwrite(new File("tmp/soft_uout_abs_max.csv"), uout_abs_max)
   println("Output image has been generated!")
-//  println(s"output size: cols = ${uout_abs_max.cols}")
-//
-  val uout_abs_max_flip = fliplr(huout_abs_max)
+  println(s"output size: cols = ${uout_abs_max.cols}")
+
+  val uout_abs_max_flip = fliplr(uout_abs_max)
   write_image(uout_abs_max_flip, "tb/FFT2dCore/nlos_test_huout_out.jpg")
 
   if(withWave){
