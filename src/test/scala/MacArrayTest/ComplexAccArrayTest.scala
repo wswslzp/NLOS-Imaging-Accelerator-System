@@ -100,6 +100,7 @@ object ComplexAccArrayTest extends App{
                   dut.clockDomain.waitSampling()
                 }
               }
+              dut.io.fc_overflow #= false
             }
             ,
 
@@ -124,7 +125,7 @@ object ComplexAccArrayTest extends App{
                   dut.clockDomain.waitSampling()
                 }
               }
-              dut.clockDomain.waitSampling(10)
+              dut.clockDomain.waitSampling(1000)
               simSuccess()
             }
           )

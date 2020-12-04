@@ -56,35 +56,35 @@ object FFTMain extends App{
     fft_out
   }
 
-  case class SFFT2d(cfg: FFTConfig) extends Component {
-    import FFT2d._
-    val io = new Bundle {
-      val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
-      val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
-    }
-
-    io.line_out <> fft2(io.line_in, cfg.row, cfg.point)
-  }
-
-  case class FFT2IFFT_2d(cfg: FFTConfig) extends Component {
-    import FFT2d._
-    import IFFT2d._
-    val io = new Bundle {
-      val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
-      val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
-    }
-
-    io.line_out <> ifft2(
-      fft2(io.line_in, cfg.row, cfg.point), cfg.point
-    )
-  }
-
+//  case class SFFT2d(cfg: FFTConfig) extends Component {
+//    import FFT2d._
+//    val io = new Bundle {
+//      val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
+//      val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
+//    }
+//
+//    io.line_out <> fft2(io.line_in, cfg.row, cfg.point)
+//  }
+//
+//  case class FFT2IFFT_2d(cfg: FFTConfig) extends Component {
+//    import FFT2d._
+//    import IFFT2d._
+//    val io = new Bundle {
+//      val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
+//      val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
+//    }
+//
+//    io.line_out <> ifft2(
+//      fft2(io.line_in, cfg.row, cfg.point), cfg.point
+//    )
+//  }
+//
   SimConfig
     .withWave
     .allOptimisation
     .workspacePath("tb/FFT2d_tb")
     .compile(FFT2d(fft_config))
-    .doSim("FFT2IFFT2d_tb") {dut =>
+    .doSim("FFT2d_tb") {dut =>
       import linalg._
       val fft2_in = load_image("tb/FFT2d_tb/data/t1.png")
       write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
