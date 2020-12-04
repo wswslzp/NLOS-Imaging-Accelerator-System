@@ -83,7 +83,7 @@ object FFTMain extends App{
     .withWave
     .allOptimisation
     .workspacePath("tb/FFT2d_tb")
-    .compile(SFFT2d(fft_config))
+    .compile(FFT2d(fft_config))
     .doSim("FFT2IFFT2d_tb") {dut =>
       import linalg._
       val fft2_in = load_image("tb/FFT2d_tb/data/t1.png")
@@ -100,10 +100,10 @@ object FFTMain extends App{
       dut.io.line_in.valid #= true
       for (i <- 0 until fft_config.row) {
         for (j <- 0 until fft_config.point) {
-          dut.io.line_in.payload.real #= fft2_in(i, j)
-          dut.io.line_in.payload.imag #= 0
-          dut.clockDomain.waitSampling()
+          dut.io.line_in.payload(j).real #= fft2_in(i, j)
+          dut.io.line_in.payload(j).imag #= 0
         }
+        dut.clockDomain.waitSampling()
       }
 //      println("input success")
       dut.io.line_in.valid #= false

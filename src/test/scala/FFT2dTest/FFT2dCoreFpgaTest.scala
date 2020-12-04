@@ -169,13 +169,13 @@ object FFT2dCoreFpgaTest extends App{
         var uout_depth = 0
         while(true){
           dut.clockDomain.waitActiveEdgeWhere(dut.io.data_to_final.valid.toBoolean)
+          println(s"current uout_depth = $uout_depth")
           for(r <- rsd_cfg.rowRange){
             for(c <- rsd_cfg.colRange){
               huout_d(uout_depth)(r, c) = dut.io.data_to_final.payload(c).toComplex
             }
             dut.clockDomain.waitSampling()
           }
-          println(s"current uout_depth = $uout_depth")
           uout_depth += 1
         }
       }
