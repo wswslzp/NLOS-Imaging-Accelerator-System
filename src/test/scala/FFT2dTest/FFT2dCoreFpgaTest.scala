@@ -70,7 +70,6 @@ object FFT2dCoreFpgaTest extends App{
         for(d <- rsd_cfg.depthRange){
           depth = d
           dut.io.dc #= d
-          if(d == 5) simSuccess()
 
           //Driver
           // For d == 0, pipe in `uin`
@@ -209,7 +208,7 @@ object FFT2dCoreFpgaTest extends App{
 
   if(withWave){
     Process("vcd2vpd tb/FFT2dCore/FFT2dCore_FPGA_tb.vcd tb/FFT2dCore/FFT2dCore_FPGA_tb.vpd").!
-    Process("dve -full64 tb/FFT2dCore/FFT2dCore_FPGA_tb.vpd").!!
+    Process("dve -full64 -vpd tb/FFT2dCore/FFT2dCore_FPGA_tb.vpd").!!
   }
 
 }
