@@ -63,7 +63,7 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
   val int_mem_address: UInt = io.fc * freq_factor + col_addr_cnt
   val dc_eq_0 = io.dc === 0
   for(i <- int_mem.indices){
-    int_mem(i).readWriteSync(
+    io.data_to_mac.payload(i) := int_mem(i).readWriteSync(
       address = int_mem_address,
       data = dc_eq_0 ? fft_out.payload(i).asBits | B(0).resized,
       enable = push_period,
