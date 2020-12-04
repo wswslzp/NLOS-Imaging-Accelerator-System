@@ -33,13 +33,13 @@ object FFT2dCoreFpgaTest extends App{
       .withWave(waveDepth)
       .workspacePath("tb")
       .addSimulatorFlag("-j 48 --threads 48 --trace-threads 48")
-      .compile(FFT2dCore(rsd_cfg.getFFT2dConfig, rsd_cfg.freq_factor, rsd_cfg.depth_factor))
+      .compile(FFT2dCore(rsd_cfg, rsd_cfg.freq_factor, rsd_cfg.depth_factor))
   } else {
     SimConfig
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32")
-      .compile(FFT2dCore(rsd_cfg.getFFT2dConfig, rsd_cfg.freq_factor, rsd_cfg.depth_factor))
+      .compile(FFT2dCore(rsd_cfg, rsd_cfg.freq_factor, rsd_cfg.depth_factor))
   }
 
   val huin_fft = Array.fill(rsd_cfg.freq_factor)(
@@ -152,6 +152,8 @@ object FFT2dCoreFpgaTest extends App{
           dut.clockDomain.waitActiveEdgeWhere(dut.io.data_from_mac.valid.toBoolean)
           for(c <- rsd_cfg.colRange){
             for(r <- rsd_cfg.rowRange){
+              // TODO: The data from mac input to the FFt2dCore is wrong.
+              //  The config we use here is not suitable.
               hdata_from_mac(depth)(r, c) = dut.io.data_from_mac.payload(r).toComplex
             }
             dut.clockDomain.waitSampling()

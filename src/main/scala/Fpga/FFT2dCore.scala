@@ -14,7 +14,9 @@ import Core.FFT2d.FFT2d._
 *  3. When df = (>0, x), it reads previous fft2d(image) results from internal memories and sends them to output
 *     `data_out`
 */
-case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extends Component {
+case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: Int) extends Component {
+  val cfg = rsd_cfg.getFFT2dConfig
+
   val io = new Bundle {
     val dc = in UInt(log2Up(depth_factor) bit)
     val fc = in UInt(log2Up(freq_factor) bit)
@@ -22,9 +24,10 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
     val fft2d_comp_done = out Bool()
     val fft2d_out_sync = out Bool
     val data_in = slave(Flow(HComplex(cfg.hComplexConfig)))
-    val data_from_mac = slave(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
-    val data_to_rgca = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
-    val data_to_final = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
+    // TODO: `data_from_mac` config needs to be modified.
+    val data_from_mac = slave(Flow(Vec(HComplex(rsd_cfg.getMACDatConfig), cfg.row)))
+    val data_to_rgca = master(Flow(Vec(HComplex(rsd_cfg.getFUinConfig), cfg.row)))
+    val data_to_final = master(Flow(Vec(HComplex(rsd_cfg.getResultConfig), cfg.point)))
   }
 
   val inverse = io.dc > 0 //&& !(io.dc === 1 && io.fc === 0)
@@ -70,12 +73,12 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
     )
   }
 
-  val to_rgca_channel = fft_out.takeWhen(push_period)
-  val to_final_channel = fft_out.takeWhen(inverse)
+  val fft_to_rgca_channel = fft_out.takeWhen(push_period)
+  val fft_to_final_channel = fft_out.takeWhen(inverse)
   when(io.dc === 0) {
     // The fft2d output is directly sent to output and int_mem
     // Delay one cycle after push_period
-    io.data_to_rgca <-< to_rgca_channel
+    io.data_to_rgca <-< fft_to_rgca_channel
   } otherwise {
     io.data_to_rgca.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
     io.data_to_rgca.payload := mem_out
@@ -83,7 +86,7 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
 
   // When inverse is activated, the ifft results will directly be sent to
   // output `data_to_final`
-  io.data_to_final << to_final_channel // o_valid = i_valid & inverse
+  io.data_to_final << fft_to_final_channel // o_valid = i_valid & inverse
 
 
 }
