@@ -74,7 +74,10 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
     )
   }
 
-  val fft_to_rgca_channel = fft_out.takeWhen(push_period)
+//  val fft_to_rgca_channel = fft_out.takeWhen(push_period)
+  val fft_to_rgca_channel = cloneOf(io.data_to_rgca).translateFrom(fft_out){(this_chn, that_chn)=>
+    for(i <- this_chn.indices) this_chn(i) := that_chn(i)
+  }.takeWhen(push_period)
   val fft_to_final_channel = cloneOf(io.data_to_final).translateFrom(fft_out){(this_chn, that_chn)=>
     for(i <- this_chn.indices) this_chn(i) := that_chn(i)
   }.takeWhen(inverse)
