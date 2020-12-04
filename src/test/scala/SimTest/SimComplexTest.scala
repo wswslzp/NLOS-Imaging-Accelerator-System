@@ -18,7 +18,11 @@ object SimComplexTest extends App{
     val io = new Bundle {
       val xin = in(HComplex(cfg))
       val xout = out(HComplex(cfg))
+      val xin1 = in(HComplex(HComplexConfig(9, 7)))
+      val xout1 = out(HComplex(HComplexConfig(17, -1)))
     }
+
+    io.xout1 := io.xin1
 
 //    val xin2 = io.xin * io.xin
 //    val xin2_p_xin = io.xin + xin2
@@ -60,6 +64,7 @@ object SimComplexTest extends App{
     for(i <- 0 to 5) {
       val inputData = Complex(Math.exp(i*2), Math.exp(i*2-1))
       dut.io.xin #= inputData
+      dut.io.xin1 #= inputData
       println(s"input: $inputData")
       dut.clockDomain.waitSampling()
       println(s"dat2input: ${dut.io.xin.toComplex}")
