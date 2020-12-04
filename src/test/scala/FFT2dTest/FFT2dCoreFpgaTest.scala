@@ -14,6 +14,7 @@ import SimTest.NlosSystemSimTest.write_image
 import breeze.linalg.{DenseMatrix, DenseVector, csvwrite, fliplr}
 import breeze.math.Complex
 import breeze.signal.{fourierTr, iFourierTr}
+import scala.sys.process._
 
 object FFT2dCoreFpgaTest extends App{
   val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)//(d, f, r)
@@ -206,5 +207,9 @@ object FFT2dCoreFpgaTest extends App{
   val uout_abs_max_flip = fliplr(uout_abs_max)
   write_image(uout_abs_max_flip, "tb/FFT2dCore/nlos_hard_out.jpg")
 
+  if(withWave){
+    Process("vcd2vpd tb/FFT2dCore/FFT2dCore_FPGA_tb.vcd tb/FFT2dCore/FFT2dCore_FPGA_tb.vpd").!
+    Process("dve -full64 tb/FFT2dCore/FFT2dCore_FPGA_tb.vpd").!!
+  }
 
 }
