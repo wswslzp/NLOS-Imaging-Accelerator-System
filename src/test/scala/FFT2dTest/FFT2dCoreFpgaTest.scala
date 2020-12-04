@@ -25,7 +25,7 @@ object FFT2dCoreFpgaTest extends App{
     DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
   )
 
-  val withWave = true
+  val withWave = false
   val waveDepth = 1
   val compiled = if(withWave){
     SimConfig
@@ -190,23 +190,35 @@ object FFT2dCoreFpgaTest extends App{
     )
 
   }
-
-  val uout_abs = huout_d.map(_.map(_.abs))
-  val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
+  // Test `huout_f`
+  val huout = huout_f.map(iFourierTr(_))
+  val huout_abs = huout.map(_.map(_.abs))
+  val huout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
     var umax = 0d
     for(d <- rsd_cfg.depthRange) {
-      if (uout_abs(d)(x, y) > umax) {
-        umax = uout_abs(d)(x, y)
+      if (huout_abs(d)(x, y) > umax) {
+        umax = huout_abs(d)(x, y)
       }
     }
     umax
   }
-//  csvwrite(new File("tmp/soft_uout_abs_max.csv"), uout_abs_max)
-  println("Output image has been generated!")
-  println(s"output size: cols = ${uout_abs_max.cols}")
 
-  val uout_abs_max_flip = fliplr(uout_abs_max)
-  write_image(uout_abs_max_flip, "tb/FFT2dCore/nlos_hard_out.jpg")
+//  val uout_abs = huout_d.map(_.map(_.abs))
+//  val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
+//    var umax = 0d
+//    for(d <- rsd_cfg.depthRange) {
+//      if (uout_abs(d)(x, y) > umax) {
+//        umax = uout_abs(d)(x, y)
+//      }
+//    }
+//    umax
+//  }
+////  csvwrite(new File("tmp/soft_uout_abs_max.csv"), uout_abs_max)
+  println("Output image has been generated!")
+//  println(s"output size: cols = ${uout_abs_max.cols}")
+//
+  val uout_abs_max_flip = fliplr(huout_abs_max)
+  write_image(uout_abs_max_flip, "tb/FFT2dCore/nlos_test_huout_out.jpg")
 
   if(withWave){
     Process("vcd2vpd tb/FFT2dCore/FFT2dCore_FPGA_tb.vcd tb/FFT2dCore/FFT2dCore_FPGA_tb.vpd").!
