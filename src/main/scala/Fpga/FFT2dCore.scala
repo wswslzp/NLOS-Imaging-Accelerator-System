@@ -22,9 +22,11 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
     val fft2d_comp_done = out Bool()
     val fft2d_out_sync = out Bool
     val data_in = slave(Flow(HComplex(cfg.hComplexConfig)))
-    val data_from_mac = slave(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
+//    val data_from_mac = slave(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
+    val data_from_mac = slave(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
     val data_to_mac = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
-    val data_to_final = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
+//    val data_to_final = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
+    val data_to_final = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
   }
 
   val inverse = io.dc > 0 //&& !(io.dc === 1 && io.fc === 0)
