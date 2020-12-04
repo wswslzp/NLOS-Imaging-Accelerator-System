@@ -70,10 +70,12 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
     )
   }
 
+  val to_rgca_channel = fft_out.takeWhen(push_period)
+  val to_final_channel = fft_out.takeWhen(inverse)
   when(io.dc === 0) {
     // The fft2d output is directly sent to output and int_mem
     // Delay one cycle after push_period
-    io.data_to_rgca <-< fft_out.takeWhen(push_period)
+    io.data_to_rgca <-< to_rgca_channel
   } otherwise {
     io.data_to_rgca.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
     io.data_to_rgca.payload := mem_out
@@ -81,7 +83,7 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
 
   // When inverse is activated, the ifft results will directly be sent to
   // output `data_to_final`
-  io.data_to_final << fft_out.takeWhen(inverse) // o_valid = i_valid & inverse
+  io.data_to_final << to_final_channel // o_valid = i_valid & inverse
 
 
 }
