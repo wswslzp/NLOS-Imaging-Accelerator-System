@@ -69,7 +69,7 @@ object FFT2dCoreFpgaTest extends App{
         for(d <- rsd_cfg.depthRange){
           depth = d
           dut.io.dc #= d
-          if(d == 3) simSuccess()
+          if(d == 5) simSuccess()
 
           //Driver
           // For d == 0, pipe in `uin`
@@ -86,8 +86,11 @@ object FFT2dCoreFpgaTest extends App{
                 }
               }
               dut.io.data_in.valid #= false
+              dut.clockDomain.waitActiveEdgeWhere(dut.io.fft2d_out_sync.toBoolean)
+              dut.clockDomain.waitSampling(rsd_cfg.kernel_size.head - 2)
               dut.io.push_ending #= true
               dut.clockDomain.waitSampling()
+              dut.io.push_ending #= false
             }
           }
 
@@ -142,10 +145,10 @@ object FFT2dCoreFpgaTest extends App{
       () => {
         while(true){
           if(depth == 0){
-            dut.clockDomain.waitActiveEdgeWhere(dut.io.data_to_mac.valid.toBoolean)
+            dut.clockDomain.waitActiveEdgeWhere(dut.io.data_to_rgca.valid.toBoolean)
             for(c <- rsd_cfg.colRange){
               for(r <- rsd_cfg.rowRange){
-                huin_fft(freq)(r, c) = dut.io.data_to_mac.payload(r).toComplex
+                huin_fft(freq)(r, c) = dut.io.data_to_rgca.payload(r).toComplex
               }
               dut.clockDomain.waitSampling()
             }

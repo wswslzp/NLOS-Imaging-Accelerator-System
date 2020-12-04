@@ -56,15 +56,15 @@ object FFTMain extends App{
     fft_out
   }
 
-//  case class SFFT2d(cfg: FFTConfig) extends Component {
-//    import FFT2d._
-//    val io = new Bundle {
-//      val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
-//      val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
-//    }
-//
-//    io.line_out <> fft2(io.line_in, cfg.row, cfg.point)
-//  }
+  case class SFFT2d(cfg: FFTConfig) extends Component {
+    import FFT2d._
+    val io = new Bundle {
+      val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
+      val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
+    }
+
+    io.line_out <> fft2(io.line_in, cfg.row, cfg.point)
+  }
 //
 //  case class FFT2IFFT_2d(cfg: FFTConfig) extends Component {
 //    import FFT2d._
