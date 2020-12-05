@@ -23,20 +23,7 @@ object SimComplexTest extends App{
     }
 
     io.xout1 := io.xin1
-    val b = Vec.fill(5)(Bits(3 bit))
-    val c = Vec.fill(5)(Bits(3 bit))
 
-//    val xin2 = io.xin * io.xin
-//    val xin2_p_xin = io.xin + xin2
-//    xin2_p_xin.simPublic()
-//    val xin2_p_xin_10: Vec[HComplex] = History(xin2_p_xin, 256)
-//    val vec_hcomp_10 = Vec(Reg(HComplex(xin2_p_xin.config)), 256) simPublic()
-//    for(i <- vec_hcomp_10.indices){
-//      vec_hcomp_10(i) := xin2_p_xin_10(i)
-//    }
-
-//    io.xout := RegNext(vec_hcomp_10(3).conj)
-    val a = Array.fill(3)(UInt(3 bit))
     io.xout := Delay(io.xin, 1)
   }
 
