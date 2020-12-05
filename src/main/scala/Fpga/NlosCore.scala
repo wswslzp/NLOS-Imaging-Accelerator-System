@@ -52,6 +52,6 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
     Vec(mac_array.io.mac_result.payload.map(_.fixTo(fft2d_core.io.data_from_mac.payload.head.config)))
   )
 
-  io.done := (io.dc === 0) && (io.fc === 0) && io.result.valid.rise(False)
+  io.done := (io.dc === 0) && (io.fc === 0) && io.result.valid.fall(False)
   val loadUnitAddrs = rgca.loadUnitAddrs
 }
