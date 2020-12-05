@@ -38,10 +38,13 @@ object FFT2dCoreFpgaTest extends App{
     SimConfig
       .allOptimisation
       .workspacePath("tb")
-      .addSimulatorFlag("-j 32 --threads 32")
+      .addSimulatorFlag("-j 48 --threads 48")
       .compile(FFT2dCore(rsd_cfg, rsd_cfg.freq_factor, rsd_cfg.depth_factor))
   }
 
+  val huin = Array.fill(rsd_cfg.freq_factor)(
+    DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
+  )
   val huin_fft = Array.fill(rsd_cfg.freq_factor)(
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   )
@@ -162,6 +165,20 @@ object FFT2dCoreFpgaTest extends App{
       }
       ,
 
+      // Monitor for data in
+      () => {
+        while(true){
+          dut.clockDomain.waitActiveEdgeWhere(dut.io.data_in.valid.toBoolean)
+          for(x <- rsd_cfg.rowRange){
+            for(y <- rsd_cfg.colRange){
+              huin(freq)(x, y)  = dut.io.data_in.payload.toComplex
+              dut.clockDomain.waitSampling()
+            }
+          }
+        }
+      }
+      ,
+
       // Monitor to catch `uin_fft`
       () => {
         while(true){
@@ -240,6 +257,11 @@ object FFT2dCoreFpgaTest extends App{
     new File("tb/FFT2dCore/huin_fft10.csv"),
     huin_fft(10).map(_.real)
   )
+  csvwrite(
+    new File("tb/FFT2dCore/huin10.csv"),
+    huin(10).map(_.real)
+  )
+
 
   val uout_abs = huout_d.map(_.map(_.abs))
   val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
