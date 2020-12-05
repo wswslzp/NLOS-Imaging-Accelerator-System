@@ -183,10 +183,10 @@ object FFT2dCoreFpgaTest extends App{
       () => {
         while(true){
           if(depth == 0){
-            dut.clockDomain.waitActiveEdgeWhere(dut.io.data_to_rgca.valid.toBoolean)
+            dut.clockDomain.waitActiveEdgeWhere(dut.io.data_to_mac.valid.toBoolean)
             for(c <- rsd_cfg.colRange){
               for(r <- rsd_cfg.rowRange){
-                huin_fft(freq)(r, c) = dut.io.data_to_rgca.payload(r).toComplex
+                huin_fft(freq)(r, c) = dut.io.data_to_mac.payload(r).toComplex
               }
               dut.clockDomain.waitSampling()
             }

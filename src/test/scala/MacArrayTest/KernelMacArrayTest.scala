@@ -1,23 +1,24 @@
-import Config._
-import Sim.RsdGenCoreArray._
-import breeze.linalg._
-import breeze.math._
+package MacArrayTest
+
+import Config.RsdKernelConfig
+import Core.KernelMacArray
+import Sim.RsdGenCoreArray.Computation
+import SimTest.NlosSystemSimTest.write_image
+import breeze.linalg.{DenseMatrix, DenseVector, fliplr}
+import breeze.math.Complex
+import breeze.signal.{fourierTr, iFourierTr}
 import spinal.core._
 import spinal.core.sim._
-import spinal.lib._
-import spinal.core.sim._
-import Core.KernelMacArray
-import SimTest.NlosSystemSimTest.write_image
-import breeze.signal._
 
 import scala.sys.process.Process
 
-object KernelMacArrayTest extends App{
+object KernelMacArrayTest extends App {
+
   import RsdKernelConfig._
 
-  val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)//(d, f, r)
-  val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse)//(d, f, R)
-  val rsd_kernel = Computation.restoreRSD(rsd, (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last))//(d, f, x, y)
+  val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift) //(d, f, r)
+  val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse) //(d, f, R)
+  val rsd_kernel = Computation.restoreRSD(rsd, (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)) //(d, f, x, y)
   val uin_fft = uin.map(fourierTr(_))
   val uout_f = Array.fill(rsd_cfg.depth_factor)(
     DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
@@ -35,7 +36,7 @@ object KernelMacArrayTest extends App{
     .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
     .workspacePath("tb")
     .compile(KernelMacArray(rsd_cfg))
-    .doSim("KernelMacArray_tb"){dut=>
+    .doSim("KernelMacArray_tb") { dut =>
       import Sim.SimComplex._
       dut.clockDomain.forkStimulus(2)
       dut.io.fft_out.valid #= false
@@ -44,25 +45,25 @@ object KernelMacArrayTest extends App{
       var depth = 0
 
       // Driver
-      fork{
-        for(d <- 0 until rsd_cfg.depth_factor){
-          for(f <- 0 until rsd_cfg.freq_factor){
+      fork {
+        for (d <- 0 until rsd_cfg.depth_factor) {
+          for (f <- 0 until rsd_cfg.freq_factor) {
             depth = d
             forkJoin(
               // fft_out driver
-              () =>{
+              () => {
                 dut.io.fft_out.valid #= true
-                for(y <- 0 until rsd_cfg.kernel_size.last){
-                  dut.io.fft_out.payload.zipWithIndex.foreach{ case (complex, i) =>
+                for (y <- 0 until rsd_cfg.kernel_size.last) {
+                  dut.io.fft_out.payload.zipWithIndex.foreach { case (complex, i) =>
                     complex #= uin_fft(f)(i, y)
                   }
                   dut.clockDomain.waitSampling()
                 }
                 dut.io.fft_out.valid #= false
-                if(d == 0) {
+                if (d == 0) {
                   dut.clockDomain.waitSampling(100)
                 }
-                else{
+                else {
                   dut.clockDomain.waitSampling(2)
                 }
               }
@@ -70,17 +71,17 @@ object KernelMacArrayTest extends App{
               // kernel driver
               () => {
                 dut.io.rsd_kernel.valid #= true
-                for(y <- 0 until rsd_cfg.kernel_size.last){
-                  dut.io.rsd_kernel.payload.zipWithIndex.foreach{ case (complex, i) =>
+                for (y <- 0 until rsd_cfg.kernel_size.last) {
+                  dut.io.rsd_kernel.payload.zipWithIndex.foreach { case (complex, i) =>
                     complex #= rsd_kernel(d)(f)(i, y)
                   }
                   dut.clockDomain.waitSampling()
                 }
                 dut.io.rsd_kernel.valid #= false
-                if(d == 0) {
+                if (d == 0) {
                   dut.clockDomain.waitSampling(100)
                 }
-                else{
+                else {
                   dut.clockDomain.waitSampling(2)
                 }
                 dut.clockDomain.waitSampling(10)
@@ -91,14 +92,14 @@ object KernelMacArrayTest extends App{
         simSuccess()
       }
 
-      fork{
+      fork {
         var col = 0
-        while(true){
+        while (true) {
           dut.clockDomain.waitActiveEdgeWhere(dut.io.mac_result.valid.toBoolean)
-          for(row <- 0 until rsd_cfg.kernel_size.head){
+          for (row <- 0 until rsd_cfg.kernel_size.head) {
             // The result(d) comes at (d+1)'s first f cycle.
             // Maybe ???
-            uout_f(depth-1)(row, col) = dut.io.mac_result.payload(row).toComplex
+            uout_f(depth - 1)(row, col) = dut.io.mac_result.payload(row).toComplex
           }
           dut.clockDomain.waitSampling()
           col += 1
@@ -110,9 +111,9 @@ object KernelMacArrayTest extends App{
   val uout = uout_f.map(iFourierTr(_))
   val uout_abs = uout.map(_.map(_.abs))
 
-  val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
+  val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y) =>
     var umax = 0d
-    for(d <- 0 until rsd_cfg.depth_factor) {
+    for (d <- 0 until rsd_cfg.depth_factor) {
       if (uout_abs(d)(x, y) > umax) {
         umax = uout_abs(d)(x, y)
       }

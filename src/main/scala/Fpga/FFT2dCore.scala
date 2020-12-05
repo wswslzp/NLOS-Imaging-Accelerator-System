@@ -24,10 +24,8 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
     val fft2d_comp_done = out Bool()
     val fft2d_out_sync = out Bool
     val data_in = slave(Flow(HComplex(rsd_cfg.getUinConfig)))
-    // TODO: `data_from_mac` config needs to be modified.
     val data_from_mac = slave(Flow(Vec(HComplex(rsd_cfg.getMACDatConfig), cfg.row)))
-    // TODO: `data_to_rgca` not Fuin
-    val data_to_rgca = master(Flow(Vec(HComplex(rsd_cfg.getUinConfig), cfg.row)))
+    val data_to_mac = master(Flow(Vec(HComplex(rsd_cfg.getUinConfig), cfg.row)))
     val data_to_final = master(Flow(Vec(HComplex(rsd_cfg.getResultConfig), cfg.point)))
   }
 
@@ -73,7 +71,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val int_mem_address: UInt = io.fc * freq_factor + col_addr_cnt
   val dc_eq_0 = io.dc === 0
 //  val mem_out = Vec.fill(cfg.row)(HComplex(cfg.hComplexConfig))
-  val mem_out = Vec.fill(cfg.row)(HComplex(io.data_to_rgca.payload.head.config))
+  val mem_out = Vec.fill(cfg.row)(HComplex(io.data_to_mac.payload.head.config))
   for(i <- int_mem.indices){
     mem_out(i) := int_mem(i).readWriteSync(
       address = int_mem_address,
@@ -92,7 +90,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
 //  }.takeWhen(inverse)
 
   val fft_to_rgca_channel = fft_out.translateWith(
-    Vec(fft_out.payload.map(_.fixTo(io.data_to_rgca.payload.head.config)))
+    Vec(fft_out.payload.map(_.fixTo(io.data_to_mac.payload.head.config)))
   ).takeWhen(push_period)
   val fft_to_final_channel = fft_out.translateWith(
     Vec(fft_out.payload.map(_.fixTo(io.data_to_final.payload.head.config)))
@@ -100,10 +98,10 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   when(io.dc === 0) {
     // The fft2d output is directly sent to output and int_mem
     // Delay one cycle after push_period
-    io.data_to_rgca <-< fft_to_rgca_channel
+    io.data_to_mac <-< fft_to_rgca_channel
   } otherwise {
-    io.data_to_rgca.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
-    io.data_to_rgca.payload := mem_out
+    io.data_to_mac.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
+    io.data_to_mac.payload := mem_out
   }
 
   // When inverse is activated, the ifft results will directly be sent to

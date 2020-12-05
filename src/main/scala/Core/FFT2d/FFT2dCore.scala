@@ -27,7 +27,7 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
     val fft2d_out_sync = out Bool
     val data_in = slave(Flow(HComplex(cfg.hComplexConfig)))
     val data_from_mac = slave(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
-    val data_to_rgca = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
+    val data_to_mac = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
 //    val data_to_mac = master(Flow(Vec(Bool(), cfg.row)))
     val data_to_final = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))
   }
@@ -84,7 +84,7 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
     // The fft2d output is directly sent to output and int_mem
     // Delay one cycle after push_period
 //    io.data_to_mac <-< fft_bin_out.takeWhen(push_period)
-    io.data_to_rgca <-< fft_out.takeWhen(push_period)
+    io.data_to_mac <-< fft_out.takeWhen(push_period)
     // When push start
     int_mem.zipWithIndex.foreach { case (ram1rw, i) =>
       ram1rw.io.ap.addr := int_mem_address
@@ -101,9 +101,9 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
       ram1rw.io.dp.we := False
       ram1rw.io.dp.din := B(0).resized
       // TODO:
-      io.data_to_rgca.payload(i) := ram1rw.io.dp.dout
+      io.data_to_mac.payload(i) := ram1rw.io.dp.dout
     }
-    io.data_to_rgca.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
+    io.data_to_mac.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
   }
 
   // When inverse is activated, the ifft results will directly be sent to
