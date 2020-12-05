@@ -19,7 +19,6 @@ case class NlosFpgaSys(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config
     val result = master(Flow(Vec(HComplex(cfg.getResultConfig), cfg.kernel_size.last)))
     val done = out Bool()
   }
-  val loadUnitAddrs = rgca.loadUnitAddrs
 
   // ************* RGCA ***************
   val rgca = RsdGenCoreArray(cfg, 0)
@@ -50,4 +49,5 @@ case class NlosFpgaSys(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config
   fft2d_core.io.data_from_mac << mac_array.io.mac_result
 
   io.done := (io.dc === 0) && (io.fc === 0) && io.result.valid.rise(False)
+  val loadUnitAddrs = rgca.loadUnitAddrs
 }
