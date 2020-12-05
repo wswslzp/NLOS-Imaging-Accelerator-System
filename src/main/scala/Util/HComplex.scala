@@ -254,6 +254,12 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
     }
   }
 
+  def fixTo(cfg: HComplexConfig): HComplex = {
+    val ret = HComplex(cfg)
+    ret := this
+    ret
+  }
+
   def :=(that: Bits): Unit = {
     this := HComplex(this.config, that.resize(this.config.getComplexWidth))
   }

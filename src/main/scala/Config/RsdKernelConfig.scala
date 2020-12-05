@@ -30,6 +30,7 @@ case class RsdKernelConfig
   def getMACDatConfig: HComplexConfig = HComplexConfig(9, 7)
   def getResultConfig: HComplexConfig = HComplexConfig(3, 13)
 
+//  def getFFT2dConfig: FFTConfig = FFTConfig(getKernelConfig/2, kernel_size(1), kernel_size(0))
   def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, kernel_size(1), kernel_size(0))
 
   def depthRange: Range = 0 until depth_factor

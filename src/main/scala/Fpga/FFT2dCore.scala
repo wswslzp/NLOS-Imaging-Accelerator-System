@@ -37,7 +37,15 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val s2p_flow = Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point))
   s2p_flow.valid := countUpInside(io.data_in.valid, cfg.point).last
   s2p_flow.payload := Vec(History(io.data_in.payload, cfg.point, io.data_in.valid).reverse)
-  val fft_data_in = inverse ? io.data_from_mac | s2p_flow
+  val unified_cfg = io.data_from_mac.payload.head.config + io.data_in.payload.config
+  val data_from_mac = io.data_from_mac.translateWith(
+    Vec(io.data_from_mac.payload.map(_.fixTo(unified_cfg)))
+  )
+  val data_from_in = s2p_flow.translateWith(
+    Vec(s2p_flow.payload.map(_.fixTo(unified_cfg)))
+  )
+//  val fft_data_in = inverse ? io.data_from_mac | s2p_flow
+  val fft_data_in = inverse ? data_from_mac | data_from_in
   val fft_out = fft2(fft_data_in, inverse, cfg.row)
 
   io.fft2d_comp_done := fft_out.valid
@@ -76,12 +84,19 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   }
 
 //  val fft_to_rgca_channel = fft_out.takeWhen(push_period)
-  val fft_to_rgca_channel = cloneOf(io.data_to_rgca).translateFrom(fft_out){(this_chn, that_chn)=>
-    for(i <- this_chn.indices) this_chn(i) := that_chn(i)
-  }.takeWhen(push_period)
-  val fft_to_final_channel = cloneOf(io.data_to_final).translateFrom(fft_out){(this_chn, that_chn)=>
-    for(i <- this_chn.indices) this_chn(i) := that_chn(i)
-  }.takeWhen(inverse)
+//  val fft_to_rgca_channel = cloneOf(io.data_to_rgca).translateFrom(fft_out){(this_chn, that_chn)=>
+//    for(i <- this_chn.indices) this_chn(i) := that_chn(i)
+//  }.takeWhen(push_period)
+//  val fft_to_final_channel = cloneOf(io.data_to_final).translateFrom(fft_out){(this_chn, that_chn)=>
+//    for(i <- this_chn.indices) this_chn(i) := that_chn(i)
+//  }.takeWhen(inverse)
+
+  val fft_to_rgca_channel = fft_out.translateWith(
+    Vec(fft_out.payload.map(_.fixTo(io.data_to_rgca.payload.head.config)))
+  ).takeWhen(push_period)
+  val fft_to_final_channel = fft_out.translateWith(
+    Vec(fft_out.payload.map(_.fixTo(io.data_to_final.payload.head.config)))
+  )
   when(io.dc === 0) {
     // The fft2d output is directly sent to output and int_mem
     // Delay one cycle after push_period

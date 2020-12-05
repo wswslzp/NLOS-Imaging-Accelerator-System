@@ -32,13 +32,13 @@ object FFT2dCoreFpgaTest extends App{
       .allOptimisation
       .withWave(waveDepth)
       .workspacePath("tb")
-      .addSimulatorFlag("-j 48 --threads 48 --trace-threads 48")
+      .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
       .compile(FFT2dCore(rsd_cfg, rsd_cfg.freq_factor, rsd_cfg.depth_factor))
   } else {
     SimConfig
       .allOptimisation
       .workspacePath("tb")
-      .addSimulatorFlag("-j 48 --threads 48")
+      .addSimulatorFlag("-j 32 --threads 32")
       .compile(FFT2dCore(rsd_cfg, rsd_cfg.freq_factor, rsd_cfg.depth_factor))
   }
 
@@ -228,7 +228,7 @@ object FFT2dCoreFpgaTest extends App{
     )
 
   }
-  // Test `huout_f`
+  // Test `huout_f`, which is kernel * uin_fft and accumulated.
   // Now we have huout_f correct
   val huout = huout_f.map(iFourierTr(_))
   val huout_abs = huout.map(_.map(_.abs))
@@ -242,7 +242,7 @@ object FFT2dCoreFpgaTest extends App{
     umax
   }
   val huout_abs_max_flip = fliplr(huout_abs_max)
-  write_image(huout_abs_max_flip, "tb/FFT2dCore/nlos_test_uinfft_out.jpg")
+  write_image(huout_abs_max_flip, "tb/FFT2dCore/nlos_test_houtf_out.jpg")
 
   // Test `hdata_from_mac`
   csvwrite(
@@ -278,7 +278,7 @@ object FFT2dCoreFpgaTest extends App{
   println(s"output size: cols = ${uout_abs_max.cols}")
 
   val uout_abs_max_flip = fliplr(uout_abs_max)
-  write_image(uout_abs_max_flip, "tb/FFT2dCore/nlos_test_huout_out.jpg")
+  write_image(uout_abs_max_flip, "tb/FFT2dCore/nlos_test_huoutd_out.jpg")
 
   if(withWave){
     Process("vcd2vpd tb/FFT2dCore/FFT2dCore_FPGA_tb.vcd tb/FFT2dCore/FFT2dCore_FPGA_tb.vpd").!
