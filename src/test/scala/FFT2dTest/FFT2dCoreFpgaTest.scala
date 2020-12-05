@@ -214,8 +214,6 @@ object FFT2dCoreFpgaTest extends App{
           println(s"current uout_depth = $uout_depth")
           for(r <- rsd_cfg.rowRange){
             for(c <- rsd_cfg.colRange){
-              //TODO: Now we know that `huout_f` is correct.
-              //  problem comes from ifft
               huout_d(uout_depth)(r, c) = dut.io.data_to_final.payload(c).toComplex
             }
             dut.clockDomain.waitSampling()
