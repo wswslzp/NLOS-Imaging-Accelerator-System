@@ -65,7 +65,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val int_mem_address: UInt = io.fc * freq_factor + col_addr_cnt
   val dc_eq_0 = io.dc === 0
 //  val mem_out = Vec.fill(cfg.row)(HComplex(cfg.hComplexConfig))
-  val mem_out = Vec.fill(cfg.row)(HComplex(rsd_cfg.getFUinConfig))
+  val mem_out = Vec.fill(cfg.row)(HComplex(io.data_to_rgca.payload.head.config))
   for(i <- int_mem.indices){
     mem_out(i) := int_mem(i).readWriteSync(
       address = int_mem_address,
