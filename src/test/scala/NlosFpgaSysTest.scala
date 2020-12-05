@@ -66,6 +66,7 @@ object NlosFpgaSysTest extends App{
       dut.io.dc #= d
       for(f <- dut.cfg.freqRange) {
         ff = f
+        println(s"Now is ($d, $f)")
         dut.io.fc #= f
         dut.clockDomain.waitSampling()
         if((dut.io.load_req.toInt & 1) == 1) {
