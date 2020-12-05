@@ -8,7 +8,7 @@ import Core.RsdGenCoreArray._
 import Core.MacArray._
 import Util._
 
-case class NlosFpgaSys(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) extends Component {
+case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) extends Component {
   val io = new Bundle {
     val dc = in UInt(log2Up(cfg.depth_factor) bit)
     val fc = in UInt(log2Up(cfg.freq_factor) bit)

@@ -12,7 +12,7 @@ import SimTest.NlosSystemSimTest.write_image
 
 import scala.sys.process.{Process, ProcessLogger}
 
-object NlosFpgaSysTest extends App{
+object NlosCoreTest extends App{
   import Sim.RsdGenCoreArray.Driver._
 
   val withWave = true
@@ -24,13 +24,13 @@ object NlosFpgaSysTest extends App{
       .withWave(waveDepth)
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
-      .compile(NlosFpgaSys(rsd_cfg))
+      .compile(NlosCore(rsd_cfg))
   }else{
     SimConfig
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32")
-      .compile(NlosFpgaSys(rsd_cfg))
+      .compile(NlosCore(rsd_cfg))
   }
   var dd = 0
   var ff = 0
@@ -39,7 +39,7 @@ object NlosFpgaSysTest extends App{
    * Initialize the DUT at the beginning of test bench
    * @param dut DUT
    */
-  def dutInit(dut: NlosFpgaSys): Unit = {
+  def dutInit(dut: NlosCore): Unit = {
     dut.io.data_in.aw.valid #= false
     dut.io.data_in.aw.burst #= 0
     dut.io.data_in.aw.len #= 0
@@ -58,7 +58,7 @@ object NlosFpgaSysTest extends App{
    * ring impulse, timeshift, distance and wave.
    * @param dut
    */
-  def driveRsdData(dut: NlosFpgaSys): Unit = {
+  def driveRsdData(dut: NlosCore): Unit = {
     val rsdDriver = RsdDriver(dut.io.data_in, dut.clockDomain)
 
     for(d <- dut.cfg.depthRange) {
@@ -107,7 +107,7 @@ object NlosFpgaSysTest extends App{
    * Drive the input image into the DUT that fft2d will use.
    * @param dut
    */
-  def driveImage(dut: NlosFpgaSys): Unit = {
+  def driveImage(dut: NlosCore): Unit = {
     for(f <- rsd_cfg.freqRange){
       dut.io.img_in.valid #= true
       for(x <- rsd_cfg.rowRange){
@@ -125,7 +125,7 @@ object NlosFpgaSysTest extends App{
    * @param dut
    * @return An output image result of a depth
    */
-  def catchResult(dut: NlosFpgaSys): DenseMatrix[Complex] = {
+  def catchResult(dut: NlosCore): DenseMatrix[Complex] = {
     val ret = DenseMatrix.zeros[Complex](dut.cfg.kernel_size.head, dut.cfg.kernel_size.last)
     dut.clockDomain.waitActiveEdgeWhere(dut.io.result.valid.toBoolean)
     for(r <- dut.cfg.rowRange){
@@ -140,7 +140,7 @@ object NlosFpgaSysTest extends App{
   val uout = Array.fill(rsd_cfg.depth_factor)(
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   )
-  compiled.doSim("NlosFpgaSys_tb"){dut=>
+  compiled.doSim("NlosCore_tb"){dut=>
     dut.clockDomain.forkStimulus(2)
     dutInit(dut)
     dut.clockDomain.waitSampling()
@@ -178,14 +178,14 @@ object NlosFpgaSysTest extends App{
   }
 
   val uout_abs_max_flip = fliplr(uout_abs_max)
-  write_image(uout_abs_max_flip, "tb/NlosFpgaSys/nlos_hard_out.jpg")
+  write_image(uout_abs_max_flip, "tb/NlosCore/nlos_hard_out.jpg")
 
   if(withWave){
     val nullLogger = ProcessLogger(_=>{})
     println("Converting vcd to vpd...")
-    Process("vcd2fsdb tb/NlosFpgaSys/NlosFpgaSys_tb.vcd tb/NlosFpgaSys/NlosFpgaSys_tb.vpd") ! nullLogger
+    Process("vcd2fsdb tb/NlosCore/NlosCore_tb.vcd tb/NlosCore/NlosCore_tb.vpd") ! nullLogger
     println("Convert done.")
-    Process("dve -full64 -vpd tb/NlosFpgaSys/NlosFpgaSys_tb.vpd") !!
+    Process("dve -full64 -vpd tb/NlosCore/NlosCore_tb.vpd") !!
   }
 
 }
