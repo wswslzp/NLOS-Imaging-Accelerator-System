@@ -25,7 +25,8 @@ case class RsdKernelConfig
 
   def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg
   def getUinConfig: HComplexConfig = HComplexConfig(19, -3)
-  def getFUinConfig: HComplexConfig = HComplexConfig(11, 5)
+//  def getFUinConfig: HComplexConfig = HComplexConfig(11, 5)
+  def getFUinConfig: HComplexConfig = HComplexConfig(23, -7)
   def getMACDatConfig: HComplexConfig = HComplexConfig(9, 7)
   def getResultConfig: HComplexConfig = HComplexConfig(3, 13)
 
