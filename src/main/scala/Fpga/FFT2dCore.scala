@@ -96,7 +96,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   ).takeWhen(push_period)
   val fft_to_final_channel = fft_out.translateWith(
     Vec(fft_out.payload.map(_.fixTo(io.data_to_final.payload.head.config)))
-  )
+  ).takeWhen(inverse)
   when(io.dc === 0) {
     // The fft2d output is directly sent to output and int_mem
     // Delay one cycle after push_period
