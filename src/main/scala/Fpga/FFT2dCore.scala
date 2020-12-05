@@ -67,7 +67,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   push_period.setName("push_period")
 
   val int_mem = Array.fill(cfg.row)(
-    Mem(Bits(cfg.hComplexConfig.getComplexWidth bit), BigInt(cfg.point*freq_factor))
+    Mem(Bits(fft_out.payload.head.config.getComplexWidth bit), BigInt(cfg.point*freq_factor))
   )
   int_mem.foreach(_.addAttribute("ramstyle", "M20K"))
   val int_mem_address: UInt = io.fc * freq_factor + col_addr_cnt
