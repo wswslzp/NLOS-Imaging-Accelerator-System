@@ -25,7 +25,7 @@ object FFT2dCoreFpgaTest extends App{
     DenseMatrix.fill(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)(Complex(0, 0))
   )
 
-  val withWave = false
+  val withWave = true
   val waveDepth = 1
   val compiled = if(withWave){
     SimConfig

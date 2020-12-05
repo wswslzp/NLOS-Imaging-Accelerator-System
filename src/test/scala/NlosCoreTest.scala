@@ -96,6 +96,7 @@ object NlosCoreTest extends App{
     }
 
     // All the data to rgca now is completed
+    println(s"Now waiting for result pipe out.")
     dut.io.dc #= 0
     dut.io.fc #= 0
     dut.clockDomain.waitActiveEdgeWhere(dut.io.done.toBoolean)
