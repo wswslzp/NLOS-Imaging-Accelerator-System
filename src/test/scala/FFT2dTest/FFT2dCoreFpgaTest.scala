@@ -143,7 +143,7 @@ object FFT2dCoreFpgaTest extends App{
         dut.clockDomain.waitSampling()
 
         // All done
-        dut.clockDomain.waitSampling(100)
+        dut.clockDomain.waitSampling(201)
         simSuccess()
 
       }

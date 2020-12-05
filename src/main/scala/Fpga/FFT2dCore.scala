@@ -108,5 +108,4 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   // output `data_to_final`
   io.data_to_final << fft_to_final_channel // o_valid = i_valid & inverse
 
-
 }
