@@ -238,6 +238,8 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
     ret
   }
 
+  // TODO: When using assignment `:=` provided by spinallib e.g. Flow/Stream/Vec assignment
+  //  This assignment method below will be skip and directly use the assignment from SFix.
   def :=(that: HComplex): Unit = {
     if (this.real.sq.fraction < that.real.sq.fraction) {
 //      SpinalInfo(s"this.sq = ${this.real.sq.toString()}")

@@ -234,6 +234,10 @@ object FFT2dCoreFpgaTest extends App{
     new File("tb/FFT2dCore/hdata_from_mac20.csv"),
     hdata_from_mac(20).map(_.real)
   )
+  csvwrite(
+    new File("tb/FFT2dCore/huin_fft20.csv"),
+    huin_fft(20).map(_.real)
+  )
 
   val uout_abs = huout_d.map(_.map(_.abs))
   val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
