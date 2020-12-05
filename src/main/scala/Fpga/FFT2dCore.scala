@@ -38,7 +38,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val inverse = io.dc > 0 //&& !(io.dc === 1 && io.fc === 0)
 
   //********* FFT2d Core *************
-  val s2p_flow = Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point))
+  val s2p_flow = Flow(Vec(HComplex(io.data_in.payload.config), cfg.point))
   s2p_flow.valid := countUpInside(io.data_in.valid, cfg.point).last
   s2p_flow.payload := Vec(History(io.data_in.payload, cfg.point, io.data_in.valid).reverse)
   val unified_cfg = io.data_from_mac.payload.head.config + io.data_in.payload.config
