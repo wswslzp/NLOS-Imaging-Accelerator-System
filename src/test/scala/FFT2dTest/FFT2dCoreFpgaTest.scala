@@ -213,30 +213,32 @@ object FFT2dCoreFpgaTest extends App{
   }
   // Test `huout_f`
   // Now we have huout_f correct
-//  val huout = huout_f.map(iFourierTr(_))
-//  val huout_abs = huout.map(_.map(_.abs))
-//  val huout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
-//    var umax = 0d
-//    for(d <- rsd_cfg.depthRange) {
-//      if (huout_abs(d)(x, y) > umax) {
-//        umax = huout_abs(d)(x, y)
-//      }
-//    }
-//    umax
-//  }
+  val huout = huout_f.map(iFourierTr(_))
+  val huout_abs = huout.map(_.map(_.abs))
+  val huout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
+    var umax = 0d
+    for(d <- rsd_cfg.depthRange) {
+      if (huout_abs(d)(x, y) > umax) {
+        umax = huout_abs(d)(x, y)
+      }
+    }
+    umax
+  }
+  val huout_abs_max_flip = fliplr(huout_abs_max)
+  write_image(huout_abs_max_flip, "tb/FFT2dCore/nlos_test_uinfft_out.jpg")
 
   // Test `hdata_from_mac`
   csvwrite(
-    new File("tb/FFT2dCore/huout_f20.csv"),
-    huout_f(20).map(_.real)
+    new File("tb/FFT2dCore/huout_f10.csv"),
+    huout_f(10).map(_.real)
   )
   csvwrite(
-    new File("tb/FFT2dCore/hdata_from_mac20.csv"),
-    hdata_from_mac(20).map(_.real)
+    new File("tb/FFT2dCore/hdata_from_mac10.csv"),
+    hdata_from_mac(10).map(_.real)
   )
   csvwrite(
-    new File("tb/FFT2dCore/huin_fft20.csv"),
-    huin_fft(20).map(_.real)
+    new File("tb/FFT2dCore/huin_fft10.csv"),
+    huin_fft(10).map(_.real)
   )
 
   val uout_abs = huout_d.map(_.map(_.abs))

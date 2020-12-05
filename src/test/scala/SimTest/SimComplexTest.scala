@@ -23,6 +23,8 @@ object SimComplexTest extends App{
     }
 
     io.xout1 := io.xin1
+    val b = Vec.fill(5)(Bits(3 bit))
+    val c = Vec.fill(5)(Bits(3 bit))
 
 //    val xin2 = io.xin * io.xin
 //    val xin2_p_xin = io.xin + xin2
