@@ -34,7 +34,8 @@ object SimComplexTest extends App{
 //    }
 
 //    io.xout := RegNext(vec_hcomp_10(3).conj)
-    io.xout := RegNext(io.xin)
+    val a = Array.fill(3)(UInt(3 bit))
+    io.xout := Delay(io.xin, 1)
   }
 
   val cfg = HComplexConfig(16, -8)
