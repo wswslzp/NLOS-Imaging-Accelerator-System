@@ -54,6 +54,7 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
 //    Vec(fft2d_core.io.data_to_mac.payload.map(_.fixTo(mac_array.io.fft_out.payload.head.config)))
 //  )
   mac_array.io.rsd_kernel << rgca.io.rsd_kernel
+  mac_array.io.rsd_kernel.simPublic()
   fft2d_core.io.data_from_mac << mac_array.io.mac_result
   mac_array.io.mac_result.simPublic()
 //  fft2d_core.io.data_from_mac << mac_array.io.mac_result.translateWith(
