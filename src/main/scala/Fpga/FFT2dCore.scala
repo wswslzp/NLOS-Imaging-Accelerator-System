@@ -25,7 +25,9 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
     val fft2d_out_sync = out Bool
     val data_in = slave(Flow(HComplex(rsd_cfg.getUinConfig)))
     val data_from_mac = slave(Flow(Vec(HComplex(rsd_cfg.getMACDatConfig), cfg.row)))
-    val data_to_mac = master(Flow(Vec(HComplex(rsd_cfg.getUinConfig), cfg.row)))
+    // TODO: Here `data_to_mac` use Uin Config but in mac array it use FUin Config
+//    val data_to_mac = master(Flow(Vec(HComplex(rsd_cfg.getUinConfig), cfg.row)))
+    val data_to_mac = master(Flow(Vec(HComplex(rsd_cfg.getFUinConfig), cfg.row)))
     val data_to_final = master(Flow(Vec(HComplex(rsd_cfg.getResultConfig), cfg.point)))
   }
 
