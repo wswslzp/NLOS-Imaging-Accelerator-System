@@ -100,8 +100,8 @@ object NlosCoreTest extends App{
     fork{
       SimTimeout(1000)
     }
-    dut.io.dc #= 0
-    dut.io.fc #= 0
+    dut.io.dc #= (1 << dut.io.dc.getWidth)-1
+    dut.io.fc #= (1 << dut.io.fc.getWidth)-1
     dut.clockDomain.waitActiveEdgeWhere(dut.io.done.toBoolean)
     dut.clockDomain.waitSampling(10)
     simSuccess()
