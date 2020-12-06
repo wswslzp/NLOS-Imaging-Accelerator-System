@@ -198,14 +198,14 @@ object NlosCoreTest extends App{
           uout_d += 1
         }
       }
-//      ,
+      ,
 
       // Monitor Mac result
-//      () => {
-//        while(true){
-////          h_mac_result(dd) =
-//        }
-//      }
+      () => {
+        while(true){
+//          h_mac_result(dd) =
+        }
+      }
     )
   }
 
