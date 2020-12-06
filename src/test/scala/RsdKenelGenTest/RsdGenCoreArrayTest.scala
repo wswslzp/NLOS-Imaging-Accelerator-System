@@ -265,10 +265,10 @@ object RsdGenCoreArrayTest extends App{
 
   if(withWave){
     val nullLogger = ProcessLogger(line=>{})
-    println("Converting vcd to fsdb...")
-    Process("vcd2fsdb tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd -o tb/RsdGenCoreArray/RsdGenCoreArray_tb.fsdb") ! nullLogger
+    println("Converting vcd to vpd...")
+    Process("vcd2vpd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vpd") ! nullLogger
     println("Convert done.")
-    Process("verdi -ssf tb/RsdGenCoreArray/RsdGenCoreArray_tb.fsdb") !!
+    Process("dve -full64 -vpd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vpd") !!
   }
 
 }
