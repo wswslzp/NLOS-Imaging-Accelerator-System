@@ -133,6 +133,7 @@ object NlosCoreTest extends App{
   def catchResult(dut: NlosCore): DenseMatrix[Complex] = {
     val ret = DenseMatrix.zeros[Complex](dut.cfg.kernel_size.head, dut.cfg.kernel_size.last)
     dut.clockDomain.waitActiveEdgeWhere(dut.io.result.valid.toBoolean)
+    println(s"Got depth ${dd}th output image.")
     for(r <- dut.cfg.rowRange){
       for(c <- dut.cfg.colRange){
         ret(r, c) = dut.io.result.payload(c).toComplex
