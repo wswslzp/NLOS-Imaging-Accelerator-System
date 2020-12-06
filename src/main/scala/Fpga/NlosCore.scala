@@ -46,6 +46,7 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   // ************ MacArray *************
   val mac_array = ComplexAccArray(cfg)
   mac_array.io.fc_overflow := io.fc === ( cfg.freq_factor-1 )
+  // TODO: The two channels here may have problems
   mac_array.io.fft_out << fft2d_core.io.data_to_mac.translateWith(
     Vec(fft2d_core.io.data_to_mac.payload.map(_.fixTo(mac_array.io.fft_out.payload.head.config)))
   )
