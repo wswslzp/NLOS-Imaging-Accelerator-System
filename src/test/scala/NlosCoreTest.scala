@@ -9,6 +9,7 @@ import breeze.linalg.{DenseMatrix, DenseVector, csvwrite, fliplr}
 import breeze.math.Complex
 import Sim.SimComplex._
 import SimTest.NlosSystemSimTest.write_image
+import Util.HComplex
 
 import scala.sys.process.{Process, ProcessLogger}
 
@@ -125,6 +126,27 @@ object NlosCoreTest extends App{
     }
   }
 
+  def catchFlowData(dut: NlosCore, flow: Flow[Vec[HComplex]], row_out: Boolean = true): DenseMatrix[Complex] = {
+    val ret = DenseMatrix.zeros[Complex](dut.cfg.kernel_size.head, dut.cfg.kernel_size.last)
+    dut.clockDomain.waitActiveEdgeWhere(flow.valid.toBoolean)
+    if(row_out){
+      for(r <- dut.cfg.rowRange){
+        for(c <- dut.cfg.colRange){
+          ret(r, c) = flow.payload(c).toComplex
+        }
+        dut.clockDomain.waitSampling()
+      }
+    }else{
+      for(c <- dut.cfg.colRange){
+        for(r <- dut.cfg.rowRange){
+          ret(r, c) = flow.payload(r).toComplex
+        }
+        dut.clockDomain.waitSampling()
+      }
+    }
+    ret
+  }
+
   /**
    * catch the result from NLOS system only once per invocation
    * @param dut
@@ -133,7 +155,6 @@ object NlosCoreTest extends App{
   def catchResult(dut: NlosCore): DenseMatrix[Complex] = {
     val ret = DenseMatrix.zeros[Complex](dut.cfg.kernel_size.head, dut.cfg.kernel_size.last)
     dut.clockDomain.waitActiveEdgeWhere(dut.io.result.valid.toBoolean)
-    println(s"Got depth ${dd}th output image.")
     for(r <- dut.cfg.rowRange){
       for(c <- dut.cfg.colRange){
         ret(r, c) = dut.io.result.payload(c).toComplex
@@ -143,7 +164,14 @@ object NlosCoreTest extends App{
     ret
   }
 
+  def catchMacResult(dut: NlosCore): DenseMatrix[Complex] = {
+    catchFlowData(dut, dut.mac_array.io.mac_result, row_out = false)
+  }
+
   val uout = Array.fill(rsd_cfg.depth_factor)(
+    DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
+  )
+  val h_mac_result = Array.fill(rsd_cfg.depth_factor)(
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   )
   compiled.doSim("NlosCore_tb"){dut=>
@@ -163,10 +191,21 @@ object NlosCoreTest extends App{
 
       // Monitor result
       () => {
+        var uout_d = 0
         while(true){
-          uout(dd) = catchResult(dut)
+          uout(uout_d) = catchResult(dut)
+          println(s"Get the ${uout_d}th output image.")
+          uout_d += 1
         }
       }
+//      ,
+
+      // Monitor Mac result
+//      () => {
+//        while(true){
+////          h_mac_result(dd) =
+//        }
+//      }
     )
   }
 

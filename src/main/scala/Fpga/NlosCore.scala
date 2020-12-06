@@ -2,6 +2,7 @@ package Fpga
 
 import spinal.core._
 import spinal.lib._
+import spinal.core.sim._
 import Config._
 import spinal.lib.bus.amba4.axi._
 import Core.RsdGenCoreArray._
@@ -53,6 +54,7 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
 //  )
   mac_array.io.rsd_kernel << rgca.io.rsd_kernel
   fft2d_core.io.data_from_mac << mac_array.io.mac_result
+  mac_array.io.mac_result.simPublic()
 //  fft2d_core.io.data_from_mac << mac_array.io.mac_result.translateWith(
 //    Vec(mac_array.io.mac_result.payload.map(_.fixTo(fft2d_core.io.data_from_mac.payload.head.config)))
 //  )
