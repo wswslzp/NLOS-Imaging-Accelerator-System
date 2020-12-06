@@ -17,6 +17,7 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
     val img_in = slave(Flow(HComplex(cfg.getUinConfig)))
     val load_req = out Bits(4 bit)
     val result = master(Flow(Vec(HComplex(cfg.getResultConfig), cfg.kernel_size.last)))
+    val fft_comp_end = out Bool()
     val done = out Bool()
   }
 
@@ -40,6 +41,7 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   rgca.io.fft2d_out_sync := fft2d_core.io.fft2d_out_sync
   fft2d_core.io.data_in << io.img_in
   io.result << fft2d_core.io.data_to_final
+  io.fft_comp_end := fft2d_core.io.fft2d_comp_done
 
   // ************ MacArray *************
   val mac_array = ComplexAccArray(cfg)

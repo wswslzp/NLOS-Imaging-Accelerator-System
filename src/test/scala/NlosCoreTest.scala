@@ -121,6 +121,7 @@ object NlosCoreTest extends App{
         }
       }
       dut.io.img_in.valid #= false
+      dut.clockDomain.waitActiveEdgeWhere(dut.io.fft_comp_end.toBoolean)
     }
   }
 
@@ -187,7 +188,7 @@ object NlosCoreTest extends App{
   if(withWave){
     val nullLogger = ProcessLogger(_=>{})
     println("Converting vcd to vpd...")
-    Process("vcd2fsdb tb/NlosCore/NlosCore_tb.vcd tb/NlosCore/NlosCore_tb.vpd") ! nullLogger
+    Process("vcd2vpd tb/NlosCore/NlosCore_tb.vcd tb/NlosCore/NlosCore_tb.vpd") ! nullLogger
     println("Convert done.")
     Process("dve -full64 -vpd tb/NlosCore/NlosCore_tb.vpd") !!
   }
