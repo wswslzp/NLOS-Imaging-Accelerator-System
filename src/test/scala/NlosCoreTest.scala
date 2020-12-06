@@ -168,6 +168,25 @@ object NlosCoreTest extends App{
     catchFlowData(dut, dut.mac_array.io.mac_result, row_out = false)
   }
 
+  def testMacResult(mac_result: Array[DenseMatrix[Complex]]): Unit = {
+    import breeze.signal.iFourierTr
+    val uout = mac_result.map(iFourierTr(_))
+    val uout_abs = uout.map(_.map(_.abs))
+
+    val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
+      var umax = 0d
+      for(d <- 0 until rsd_cfg.depth_factor) {
+        if (uout_abs(d)(x, y) > umax) {
+          umax = uout_abs(d)(x, y)
+        }
+      }
+      umax
+    }
+
+    val uout_abs_max_flip = fliplr(uout_abs_max)
+    write_image(uout_abs_max_flip, "tb/NlosCore/mac_res_test.jpg")
+  }
+
   val uout = Array.fill(rsd_cfg.depth_factor)(
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   )
@@ -202,12 +221,17 @@ object NlosCoreTest extends App{
 
       // Monitor Mac result
       () => {
+        var uout_d = 0
         while(true){
-//          h_mac_result(dd) =
+          h_mac_result(uout_d) = catchMacResult(dut)
+          println(s"Get the ${uout_d}th mac result.")
+          uout_d += 1
         }
       }
     )
   }
+
+  testMacResult(h_mac_result)
 
 
   val uout_abs = uout.map(_.map(_.abs))
