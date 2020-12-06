@@ -46,6 +46,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val fft_data_in = inverse ? data_from_mac | data_from_in
   val fft_out = fft2(fft_data_in, inverse, cfg.row)
 
+  // TODO: The fft2d comp done signal have problem.
   io.fft2d_comp_done := fft_out.valid.fall(False)
   val fft2d_out_sync = fft_out.valid.rise(False)
   io.fft2d_out_sync := fft2d_out_sync
