@@ -24,13 +24,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
     val fft2d_comp_done = out Bool()
     val fft2d_out_sync = out Bool
     val data_in = slave(Flow(HComplex(rsd_cfg.getUinConfig)))
-    // TODO: Here `data_from_mac` use MAC Config but in mac array it use
-    //  Kernel config * FUin config
-    //  Now they are same and it is also fine.
     val data_from_mac = slave(Flow(Vec(HComplex(rsd_cfg.getMACDatConfig), cfg.row)))
-    // TODO: Here `data_to_mac` use Uin Config but in mac array it use FUin Config
-    //  it seems that use FUin Config is also fine.
-//    val data_to_mac = master(Flow(Vec(HComplex(rsd_cfg.getUinConfig), cfg.row)))
     val data_to_mac = master(Flow(Vec(HComplex(rsd_cfg.getFUinConfig), cfg.row)))
     val data_to_final = master(Flow(Vec(HComplex(rsd_cfg.getResultConfig), cfg.point)))
   }
@@ -52,7 +46,6 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val fft_data_in = inverse ? data_from_mac | data_from_in
   val fft_out = fft2(fft_data_in, inverse, cfg.row)
 
-  // TODO: The fft2d comp done signal have problem.
   io.fft2d_comp_done := fft_out.valid.fall(False)
   val fft2d_out_sync = fft_out.valid.rise(False)
   io.fft2d_out_sync := fft2d_out_sync
@@ -99,6 +92,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val fft_to_rgca_channel = fft_out.translateWith(
     Vec(fft_out.payload.map(_.fixTo(io.data_to_mac.payload.head.config)))
   ).takeWhen(push_period)
+  // TODO: Final result's channel seems broken
   val fft_to_final_channel = fft_out.translateWith(
     Vec(fft_out.payload.map(_.fixTo(io.data_to_final.payload.head.config)))
   ).takeWhen(inverse)

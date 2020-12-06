@@ -12,15 +12,12 @@ import spinal.lib._
 case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
   val row_num = cfg.kernel_size.head
   val col_num = cfg.kernel_size.last
-  val result_config = cfg.getFUinConfig * cfg.getKernelConfig
+//  val result_config = cfg.getFUinConfig * cfg.getKernelConfig
   val io = new Bundle {
     val fc_overflow = in Bool()
     val rsd_kernel = slave(Flow(Vec(HComplex(cfg.getKernelConfig), row_num)))
-    // TODO: Here the fft out channel use FUin config but in FFT2dCore it use Uin Config.
-    //  But if use Uin config as fft out config, result corrupt.
     val fft_out = slave(Flow(Vec(HComplex(cfg.getFUinConfig), row_num)))
-//    val fft_out = slave(Flow(Vec(HComplex(cfg.getUinConfig), row_num)))
-    val mac_result = master(Flow(Vec(HComplex(result_config), row_num)))
+    val mac_result = master(Flow(Vec(HComplex(cfg.getMACDatConfig), row_num)))
   }
   val valid = io.rsd_kernel.valid & io.fft_out.valid
 
