@@ -191,9 +191,7 @@ case class RsdGenCoreArray(
     RegNext(_, init = U(0)) simPublic()
   )
 
-  // TODO: rsd kernel now fall below 1 cycle of kernel valid
   for(id <- 0 until row_num){
-//    when(count_col_addr.cond_period){
     when(io.rsd_kernel.valid){
       io.rsd_kernel.payload(id) := rsd_mem(pixel_addrs(id))
     } otherwise {
