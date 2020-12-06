@@ -26,6 +26,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
     val data_in = slave(Flow(HComplex(rsd_cfg.getUinConfig)))
     // TODO: Here `data_from_mac` use MAC Config but in mac array it use
     //  Kernel config * FUin config
+    //  Now they are same and it is also fine.
     val data_from_mac = slave(Flow(Vec(HComplex(rsd_cfg.getMACDatConfig), cfg.row)))
     // TODO: Here `data_to_mac` use Uin Config but in mac array it use FUin Config
     //  it seems that use FUin Config is also fine.

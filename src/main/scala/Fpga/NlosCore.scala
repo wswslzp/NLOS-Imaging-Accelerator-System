@@ -47,13 +47,15 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   val mac_array = ComplexAccArray(cfg)
   mac_array.io.fc_overflow := io.fc === ( cfg.freq_factor-1 )
   // TODO: The two channels here may have problems
-  mac_array.io.fft_out << fft2d_core.io.data_to_mac.translateWith(
-    Vec(fft2d_core.io.data_to_mac.payload.map(_.fixTo(mac_array.io.fft_out.payload.head.config)))
-  )
+  mac_array.io.fft_out << fft2d_core.io.data_to_mac
+//  mac_array.io.fft_out << fft2d_core.io.data_to_mac.translateWith(
+//    Vec(fft2d_core.io.data_to_mac.payload.map(_.fixTo(mac_array.io.fft_out.payload.head.config)))
+//  )
   mac_array.io.rsd_kernel << rgca.io.rsd_kernel
-  fft2d_core.io.data_from_mac << mac_array.io.mac_result.translateWith(
-    Vec(mac_array.io.mac_result.payload.map(_.fixTo(fft2d_core.io.data_from_mac.payload.head.config)))
-  )
+  fft2d_core.io.data_from_mac << mac_array.io.mac_result
+//  fft2d_core.io.data_from_mac << mac_array.io.mac_result.translateWith(
+//    Vec(mac_array.io.mac_result.payload.map(_.fixTo(fft2d_core.io.data_from_mac.payload.head.config)))
+//  )
 
   io.done := (io.dc === ((1 << io.dc.getWidth)-1)) && (io.fc === ((1<<io.fc.getWidth)-1)) && io.result.valid.fall(False)
   val loadUnitAddrs = rgca.loadUnitAddrs
