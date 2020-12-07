@@ -109,6 +109,7 @@ object NlosCoreTest extends App{
 
   testRSDK(h_rsdk)
   testFUin(h_fft_out)
+  testFUinAndRSDK(h_fft_out, h_rsdk)
   csvwrite(
     new File("tb/NlosCore/hrsdk_10_10.csv"),
     h_rsdk(10)(10).map(_.real)
@@ -118,8 +119,7 @@ object NlosCoreTest extends App{
     rsd_kernel(10)(10).map(_.real)
   )
 
-  // TODO: Noticed that when (1, 0), fft to mac valid didn't assert
-  //  as rsd kernel valid do.
+  // TODO: The mac result is huge.
   testMacResult(h_mac_result)
   csvwrite(
     new File("tb/NlosCore/hmac_res10.csv"),
