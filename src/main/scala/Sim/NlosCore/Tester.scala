@@ -1,5 +1,7 @@
 package Sim.NlosCore
 
+import java.io.File
+
 import Config.RsdKernelConfig._
 import Sim.RsdGenCoreArray.Computation
 import Sim.write_image
@@ -57,6 +59,10 @@ object Tester {
         val rsd_kernel = rsdk(d)(f)
         uout_f += rsd_kernel *:* fuin(f)
       }
+      if(d == 10) csvwrite(
+        new File("tb/NlosCore/soft_mac_res10.csv"),
+        uout_f.map(_.real)
+      )
       iFourierTr(uout_f)
     }
     val uout_abs = uout.map(_.map(_.abs))
