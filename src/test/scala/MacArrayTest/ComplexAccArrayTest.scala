@@ -79,9 +79,9 @@ object ComplexAccArrayTest extends App{
             // fft out driver
             () => {
               for(d <- rsd_cfg.depthRange){
-//                dut.sim.dc #= d
+                dut.sim.dc #= d
                 for(f <- rsd_cfg.freqRange){
-//                  dut.sim.fc #= f
+                  dut.sim.fc #= f
                   dut.io.fc_overflow #= (f == rsd_cfg.freq_factor-1)
                   println(s"Now is ($d, $f).")
                   depth = d
