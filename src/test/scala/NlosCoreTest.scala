@@ -84,8 +84,8 @@ object NlosCoreTest extends App{
 
       // Monitor for fft out
       () => {
+        var hf = 0
         while(true){
-          var hf = 0
           if(dd == 0) {
             val tmp = catchFUin(dut)
             h_fft_out(hf) = tmp
