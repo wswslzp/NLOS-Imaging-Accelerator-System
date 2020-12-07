@@ -85,8 +85,11 @@ object NlosCoreTest extends App{
       // Monitor for fft out
       () => {
         while(true){
+          // TODO: Here the fft uin sample wrong!
+          //  It should be tb's fault. DUT should be right.
           if(dd == 0) {
             h_fft_out(ff) = catchFUin(dut)
+            println(s"Got the ${ff}th fft uin image.")
           }else{
             dut.clockDomain.waitSampling()
           }
