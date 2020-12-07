@@ -27,7 +27,7 @@ object SimComplexTest extends App{
     io.xout := Delay(io.xin, 1)
   }
 
-  val cfg = HComplexConfig(16, -8)
+  val cfg = HComplexConfig(38, 26)
 
   new File("tmp/test_sc").mkdir()
   val report = SpinalConfig(
@@ -52,16 +52,13 @@ object SimComplexTest extends App{
     }
 
     for(i <- 0 to 5) {
-      val inputData = Complex(Math.exp(i*2), Math.exp(i*2-1))
+      val inputData = Complex(-Math.exp(i*2), Math.exp(i*2-1))
       dut.io.xin #= inputData
       dut.io.xin1 #= inputData
       println(s"input: $inputData")
       dut.clockDomain.waitSampling()
       println(s"dat2input: ${dut.io.xin.toComplex}")
       dut.clockDomain.waitSampling(2)
-//      for(i <- 0 until 10){
-//        println(s"inside[$i] = ${dut.vec_hcomp_10(i).toComplex}")
-//      }
       println(s"output: ${dut.io.xout.toComplex}")
     }
     simSuccess()

@@ -58,10 +58,6 @@ object NlosCoreTest extends App{
 
       // Drive data
       () => driveRsdData(dut),
-
-      // TODO:
-      //  Here another one problem, next image immediately pipe in
-      //  as soon as previous fft out valid fall.
       () => driveImage(dut),
 
       // Monitor result
@@ -89,14 +85,12 @@ object NlosCoreTest extends App{
       // Monitor for fft out
       () => {
         while(true){
-          // TODO: Here the fft uin sample wrong!
-          //  It should be tb's fault. DUT should be right.
-          //  1. (0, 0) fft out is not caught.
-          //  2. mistake (1, 2) ifft out as fft out (0,2)
+          var hf = 0
           if(dd == 0) {
             val tmp = catchFUin(dut)
-            if(dd == 0) h_fft_out(ff-1) = tmp
-            println(s"Got the ${ff-1}th fft uin image.")
+            h_fft_out(hf) = tmp
+            hf += 1
+            println(s"Got the ${hf}th fft uin image.")
           }else{
             dut.clockDomain.waitSampling()
           }
@@ -113,9 +107,17 @@ object NlosCoreTest extends App{
     )
   }
 
-  testRSDK(h_rsdk)
-  testFUin(h_fft_out)
+//  testRSDK(h_rsdk)
+//  testFUin(h_fft_out)
+
+  // TODO: Noticed that when (1, 0), fft to mac valid didn't assert
+  //  as rsd kernel valid do.
   testMacResult(h_mac_result)
+  csvwrite(
+    new File("tb/NlosCore/hmac_res10.csv"),
+    h_mac_result(10).map(_.real)
+  )
+
   testFinal(uout)
 
   if(withWave){

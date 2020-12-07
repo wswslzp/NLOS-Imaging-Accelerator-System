@@ -34,6 +34,7 @@ package object SimFix {
         x.raw.toInt / scala.math.pow(2, fraction_bit)
       }
       else {
+        // TODO: Test when bit count == 64
         x.raw.toLong / scala.math.pow(2, fraction_bit)
       }
     }

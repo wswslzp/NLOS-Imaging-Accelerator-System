@@ -42,7 +42,8 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val data_from_in = s2p_flow.translateWith(
     Vec(s2p_flow.payload.map(_.fixTo(unified_cfg)))
   )
-//  val fft_data_in = inverse ? io.data_from_mac | s2p_flow
+  // TODO:
+  //
   val fft_data_in = inverse ? data_from_mac | data_from_in
   val fft_out = fft2(fft_data_in, inverse, cfg.row)
 
@@ -50,7 +51,20 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val fft2d_out_sync = fft_out.valid.rise(False)
   io.fft2d_out_sync := fft2d_out_sync
 
+  // *************** internal memory ***********************
   val push_start1 = RegNext(io.push_ending, init = False)
+  // TODO: (Final?) problem here:
+  //  1.  When the timer is in (d0, fm), timer will immediately switch to (d1, f0)
+  //      so the fft2d_out_sync for (d0, fm) would actually located in (d1, f0) while
+  //      at this time `col_addr_cnt_area` cannot catch the start signal.
+  //  2.  So the fft out sync is now actually the first cycle of d0 ifft2d push period!
+  //      RGCA will then see the fft out sync asserted and push the rsd kernel but now
+  //      the mac array cannot receive the `fft_to_mac` but only the `rsd_kernel`
+  //  3.  Mac result for d0 should not come as soon as timer enter (d1, f0). Because
+  //      now the fft2d still computing the (d0, fm). Mac results will overwrite the
+  //      `fft_data_in` channel and the (d0, fm) image will be lost. And consequently,
+  //      the mac results for d0 will not being stored. Then, mac array still try to
+  //      pipe out the d0 mac result to the ifft.
   val col_addr_cnt_area = countUpFrom(
     (io.dc === 0) ? fft2d_out_sync | push_start1, // reuse the counter
     0 until cfg.point,
@@ -80,14 +94,6 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
       write = push_period & dc_eq_0
     )
   }
-
-//  val fft_to_rgca_channel = fft_out.takeWhen(push_period)
-//  val fft_to_rgca_channel = cloneOf(io.data_to_rgca).translateFrom(fft_out){(this_chn, that_chn)=>
-//    for(i <- this_chn.indices) this_chn(i) := that_chn(i)
-//  }.takeWhen(push_period)
-//  val fft_to_final_channel = cloneOf(io.data_to_final).translateFrom(fft_out){(this_chn, that_chn)=>
-//    for(i <- this_chn.indices) this_chn(i) := that_chn(i)
-//  }.takeWhen(inverse)
 
   val fft_to_rgca_channel = fft_out.translateWith(
     Vec(fft_out.payload.map(_.fixTo(io.data_to_mac.payload.head.config)))

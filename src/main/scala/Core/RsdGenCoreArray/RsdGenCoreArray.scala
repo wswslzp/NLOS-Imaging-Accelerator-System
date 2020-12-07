@@ -166,8 +166,6 @@ case class RsdGenCoreArray(
   // for d0, f < f_max-1, rsd kernel rad store into mem right after kernel valid
   // while for other df cycles, valid rsd kernel rad should wait for push ending
   // because the mem storing previous rsd kernel must not be overwritten.
-//  val rsd_store_en = dc_eq_0 ? rsd_kernel_gen.io.kernel.valid | push_ending
-//  val rsd_store_en = (dc_eq_0 && io.fc < cfg.freq_factor-2) ? rsd_kernel_gen.io.kernel.valid | push_ending
   for(idx <- rsd_mem.indices){
     when(dc_eq_0 && rsd_kernel_gen.io.kernel.valid){
       rsd_mem(idx) := rsd_kernel_gen.io.kernel.payload(idx)
@@ -178,7 +176,8 @@ case class RsdGenCoreArray(
 
   // Push_start: A one-cycle square impulse active one cycle of actually push start
   // fft2d_out_sync is active at the first one cycle of the fft2d_valid
-  val push_start = (dc_eq_0 || (io.dc === 1 && fc_eq_0)) ? io.fft2d_out_sync | push_ending_1
+//  val push_start = (dc_eq_0 || (io.dc === 1 && fc_eq_0)) ? io.fft2d_out_sync | push_ending_1
+  val push_start = dc_eq_0 ? io.fft2d_out_sync | push_ending_1
 
   // count for row_num cycles from push_start signal active
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
@@ -186,7 +185,6 @@ case class RsdGenCoreArray(
   col_addr.setName("col_addr")
   val rad_addr_map = RadAddrMap(cfg)
   rad_addr_map.io.col_addr := col_addr.value
-//  val pixel_addrs = rad_addr_map.io.pixel_addrs
   val pixel_addrs = rad_addr_map.io.pixel_addrs.map(
     RegNext(_, init = U(0)) simPublic()
   )
@@ -199,15 +197,14 @@ case class RsdGenCoreArray(
     }
   }
 
-//  io.rsd_kernel.valid := count_col_addr.cond_period
   io.rsd_kernel.valid := RegNext(count_col_addr.cond_period, init = False)
-//  push_ending := count_col_addr.cnt.willOverflow
   push_ending := RegNext(count_col_addr.cnt.willOverflow, init = False)
 
   io.push_ending := push_ending // Push ending is the true increment signal tb used.
 
   // indicate when the controller to do counter increment.
-  io.cnt_incr := (dc_eq_0 && io.fc === cfg.freq_factor-1) ? rsd_kernel_gen.io.kernel.valid | push_ending
+//  io.cnt_incr := (dc_eq_0 && io.fc === cfg.freq_factor-1) ? rsd_kernel_gen.io.kernel.valid | push_ending
+  io.cnt_incr := push_ending
 
   // define new load req
   val wave_req = wave_load_unit.io.load_req

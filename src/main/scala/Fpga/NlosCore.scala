@@ -50,16 +50,10 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   // TODO: The two channels here may have problems
   mac_array.io.fft_out << fft2d_core.io.data_to_mac
   fft2d_core.io.data_to_mac.simPublic()
-//  mac_array.io.fft_out << fft2d_core.io.data_to_mac.translateWith(
-//    Vec(fft2d_core.io.data_to_mac.payload.map(_.fixTo(mac_array.io.fft_out.payload.head.config)))
-//  )
   mac_array.io.rsd_kernel << rgca.io.rsd_kernel
   rgca.io.rsd_kernel.simPublic()
   fft2d_core.io.data_from_mac << mac_array.io.mac_result
   mac_array.io.mac_result.simPublic()
-//  fft2d_core.io.data_from_mac << mac_array.io.mac_result.translateWith(
-//    Vec(mac_array.io.mac_result.payload.map(_.fixTo(fft2d_core.io.data_from_mac.payload.head.config)))
-//  )
 
   io.done := (io.dc === ((1 << io.dc.getWidth)-1)) && (io.fc === ((1<<io.fc.getWidth)-1)) && io.result.valid.fall(False)
   val loadUnitAddrs = rgca.loadUnitAddrs
