@@ -26,8 +26,8 @@ case class RsdKernelConfig
   def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg
   def getUinConfig: HComplexConfig = HComplexConfig(19, -3)
 //  def getFUinConfig: HComplexConfig = HComplexConfig(11, 5)
-  def getFUinConfig: HComplexConfig = HComplexConfig(23, -7)
-  // TODO: Change MAC config into kernel * Fuin
+//  def getFUinConfig: HComplexConfig = HComplexConfig(23, -7)
+  def getFUinConfig: HComplexConfig = getUinConfig * getUinConfig
 //  def getMACDatConfig: HComplexConfig = HComplexConfig(9, 7)
   def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig // HComplexConfig(23, 25)
 //  def getResultConfig: HComplexConfig = HComplexConfig(3, 13)

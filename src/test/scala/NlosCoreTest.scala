@@ -58,6 +58,10 @@ object NlosCoreTest extends App{
 
       // Drive data
       () => driveRsdData(dut),
+
+      // TODO:
+      //  Here another one problem, next image immediately pipe in
+      //  as soon as previous fft out valid fall.
       () => driveImage(dut),
 
       // Monitor result
@@ -87,9 +91,12 @@ object NlosCoreTest extends App{
         while(true){
           // TODO: Here the fft uin sample wrong!
           //  It should be tb's fault. DUT should be right.
+          //  1. (0, 0) fft out is not caught.
+          //  2. mistake (1, 2) ifft out as fft out (0,2)
           if(dd == 0) {
-            h_fft_out(ff) = catchFUin(dut)
-            println(s"Got the ${ff}th fft uin image.")
+            val tmp = catchFUin(dut)
+            if(dd == 0) h_fft_out(ff-1) = tmp
+            println(s"Got the ${ff-1}th fft uin image.")
           }else{
             dut.clockDomain.waitSampling()
           }
