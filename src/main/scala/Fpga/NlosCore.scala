@@ -46,12 +46,13 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
 
   // ************ MacArray *************
   val mac_array = ComplexAccArray(cfg)
-  mac_array.io.fc_overflow := io.fc === ( cfg.freq_factor-1 )
-  // TODO: The two channels here may have problems
+  val fc_ov = io.fc === (cfg.freq_factor-1)
+  mac_array.io.fc_overflow := fc_ov
   mac_array.io.fft_out << fft2d_core.io.data_to_mac
   fft2d_core.io.data_to_mac.simPublic()
   mac_array.io.rsd_kernel << rgca.io.rsd_kernel
   rgca.io.rsd_kernel.simPublic()
+  // TODO: The mac result channel has problem.
   fft2d_core.io.data_from_mac << mac_array.io.mac_result
   mac_array.io.mac_result.simPublic()
 
