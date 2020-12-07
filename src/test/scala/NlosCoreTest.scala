@@ -107,8 +107,8 @@ object NlosCoreTest extends App{
     )
   }
 
-//  testRSDK(h_rsdk)
-//  testFUin(h_fft_out)
+  testRSDK(h_rsdk)
+  testFUin(h_fft_out)
 
   // TODO: Noticed that when (1, 0), fft to mac valid didn't assert
   //  as rsd kernel valid do.
