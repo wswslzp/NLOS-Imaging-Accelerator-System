@@ -15,6 +15,8 @@ import breeze.linalg.{DenseMatrix, DenseVector, csvwrite, fliplr}
 import breeze.math.Complex
 import breeze.signal.{fourierTr, iFourierTr}
 import scala.sys.process._
+import Sim.FFT2dCore.Driver._
+import Sim.FFT2dCore.Monitor._
 
 object FFT2dCoreFpgaTest extends App{
   val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)//(d, f, r)
@@ -62,105 +64,20 @@ object FFT2dCoreFpgaTest extends App{
   var freq = 0
   compiled.doSim("FFT2dCore_FPGA_tb"){dut=>
     dut.clockDomain.forkStimulus(2)
-    dut.io.dc #= 0
-    dut.io.fc #= 0
-    dut.io.push_ending #= false
-    dut.io.data_in.valid #= false
-    dut.io.data_from_mac.valid #= false
+    dutInit(dut)
     dut.clockDomain.waitSampling()
 
     forkJoin(
       // Driver
-      () => {
-
-        for(d <- rsd_cfg.depthRange){
-          depth = d
-          dut.io.dc #= d
-
-          //Driver
-          // For d == 0, pipe in `uin`
-          if (d == 0) {
-            for(f <- rsd_cfg.freqRange){
-              println(s"Now is ($d, $f)")
-              freq = f
-              dut.io.fc #= f
-              dut.io.data_in.valid #= true
-              for(x <- rsd_cfg.rowRange){
-                for(y <- rsd_cfg.colRange){
-                  dut.io.data_in.payload #= uin(f)(x, y)
-                  dut.clockDomain.waitSampling()
-                }
-              }
-              dut.io.data_in.valid #= false
-              dut.clockDomain.waitActiveEdgeWhere(dut.io.fft2d_out_sync.toBoolean)
-              dut.clockDomain.waitSampling(rsd_cfg.kernel_size.head - 2)
-              dut.io.push_ending #= true
-              dut.clockDomain.waitSampling()
-              dut.io.push_ending #= false
-            }
-          }
-
-          // For d > 0, reuse the `uin_fft`
-          else {
-            for(f <- rsd_cfg.freqRange){
-              println(s"Now is ($d, $f)")
-              freq = f
-              dut.io.fc #= f
-              dut.clockDomain.waitSampling()
-              if(f == 0){
-                dut.io.data_from_mac.valid #= true
-                for(c <- rsd_cfg.colRange){
-                  for(r <- rsd_cfg.rowRange){
-                    dut.io.data_from_mac.payload(r) #= huout_f(depth-1)(r, c)
-                  }
-                  dut.clockDomain.waitSampling()
-                }
-                dut.io.data_from_mac.valid #= false
-              }else{
-                for(_ <- rsd_cfg.colRange){
-                  dut.clockDomain.waitSampling()
-                }
-              }
-              dut.io.push_ending #= true
-              dut.clockDomain.waitSampling()
-              dut.io.push_ending #= false
-            }
-          }
-
-        }
-
-        // After all depth gone
-        println("Final pipe in")
-        dut.clockDomain.waitSampling()
-        dut.io.data_from_mac.valid #= true
-        for(c <- rsd_cfg.colRange){
-          for(r <- rsd_cfg.rowRange){
-            dut.io.data_from_mac.payload(r) #= huout_f(depth)(r, c)
-          }
-          dut.clockDomain.waitSampling()
-        }
-        dut.io.data_from_mac.valid #= false
-        dut.clockDomain.waitSampling()
-
-        // All done
-        dut.clockDomain.waitSampling(201)
-        simSuccess()
-
-      }
-      ,
+      () => driveData(dut, huout_f),
 
       // Monitor for data from mac
       () => {
+        var d = 0
         while(true){
-          dut.clockDomain.waitActiveEdgeWhere(dut.io.data_from_mac.valid.toBoolean)
-          for(c <- rsd_cfg.colRange){
-            for(r <- rsd_cfg.rowRange){
-              // TODO: The data from mac input to the FFt2dCore is wrong.
-              //  The config we use here is not suitable.
-              hdata_from_mac(depth)(r, c) = dut.io.data_from_mac.payload(r).toComplex
-            }
-            dut.clockDomain.waitSampling()
-          }
+          hdata_from_mac(d) = catchMacResult(dut)
+          println(s"Got ${d}th mac result")
+          d += 1
         }
       }
       ,

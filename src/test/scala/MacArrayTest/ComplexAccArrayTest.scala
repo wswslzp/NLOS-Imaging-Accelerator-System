@@ -175,9 +175,6 @@ object ComplexAccArrayTest extends App{
 
     }
 
-  // TODO: Both input fft out and kernel are correct
-  //  still the result is wrong. The pixels' positions
-  //  are strange.
   csvwrite(
     hard_fft_out_f, hard_fft_out.map(_.real)
   )

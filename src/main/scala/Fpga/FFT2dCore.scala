@@ -53,18 +53,6 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
 
   // *************** internal memory ***********************
   val push_start1 = RegNext(io.push_ending, init = False)
-  // TODO: (Final?) problem here:
-  //  1.  When the timer is in (d0, fm), timer will immediately switch to (d1, f0)
-  //      so the fft2d_out_sync for (d0, fm) would actually located in (d1, f0) while
-  //      at this time `col_addr_cnt_area` cannot catch the start signal.
-  //  2.  So the fft out sync is now actually the first cycle of d0 ifft2d push period!
-  //      RGCA will then see the fft out sync asserted and push the rsd kernel but now
-  //      the mac array cannot receive the `fft_to_mac` but only the `rsd_kernel`
-  //  3.  Mac result for d0 should not come as soon as timer enter (d1, f0). Because
-  //      now the fft2d still computing the (d0, fm). Mac results will overwrite the
-  //      `fft_data_in` channel and the (d0, fm) image will be lost. And consequently,
-  //      the mac results for d0 will not being stored. Then, mac array still try to
-  //      pipe out the d0 mac result to the ifft.
   val col_addr_cnt_area = countUpFrom(
     (io.dc === 0) ? fft2d_out_sync | push_start1, // reuse the counter
     0 until cfg.point,

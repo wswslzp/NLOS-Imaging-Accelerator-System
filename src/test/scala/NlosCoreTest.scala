@@ -89,8 +89,8 @@ object NlosCoreTest extends App{
           if(dd == 0) {
             val tmp = catchFUin(dut)
             h_fft_out(hf) = tmp
-            hf += 1
             println(s"Got the ${hf}th fft uin image.")
+            hf += 1
           }else{
             dut.clockDomain.waitSampling()
           }
@@ -116,6 +116,10 @@ object NlosCoreTest extends App{
   csvwrite(
     new File("tb/NlosCore/hmac_res10.csv"),
     h_mac_result(10).map(_.real)
+  )
+  csvwrite(
+    new File("tb/NlosCore/hfftout10.csv"),
+    h_fft_out(10).map(_.real)
   )
 
   testFinal(uout)
