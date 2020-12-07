@@ -17,19 +17,19 @@ object Monitor {
    * @return An output image result of a depth
    */
   def catchResult(dut: NlosCore): DenseMatrix[Complex] = {
-    catchFlowVecData(dut, dut.io.result)
+    catchFlowVecData(dut.clockDomain, dut.io.result)
   }
 
   def catchMacResult(dut: NlosCore): DenseMatrix[Complex] = {
-    catchFlowVecData(dut, dut.mac_array.io.mac_result, row_out = false)
+    catchFlowVecData(dut.clockDomain, dut.mac_array.io.mac_result, row_out = false)
   }
 
   def catchFUin(dut: NlosCore): DenseMatrix[Complex] = {
-    catchFlowVecData(dut, dut.mac_array.io.fft_out, row_out = false)
+    catchFlowVecData(dut.clockDomain, dut.mac_array.io.fft_out, row_out = false)
   }
 
   def catchRSDK(dut: NlosCore): DenseMatrix[Complex] = {
-    catchFlowVecData(dut, dut.rgca.io.rsd_kernel, row_out = false)
+    catchFlowVecData(dut.clockDomain, dut.rgca.io.rsd_kernel, row_out = false)
   }
 
 }

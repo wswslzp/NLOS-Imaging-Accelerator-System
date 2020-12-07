@@ -87,6 +87,8 @@ object NlosCoreTest extends App{
         while(true){
           if(dd == 0) {
             h_fft_out(ff) = catchFUin(dut)
+          }else{
+            dut.clockDomain.waitSampling()
           }
         }
       }
