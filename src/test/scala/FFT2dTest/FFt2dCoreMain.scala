@@ -15,6 +15,7 @@ object FFt2dCoreMain extends App{
   import Sim.SimComplex._
   import Config.RsdKernelConfig.rsd_cfg
 
+  new File("rtl/fft2d_core").mkdir()
   SpinalConfig(
     targetDirectory = "rtl/fft2d_core",
     oneFilePerComponent = true
