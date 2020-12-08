@@ -5,7 +5,8 @@ import RsdKernelConfig._
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
-import Core.FFT2d._
+//import Core.FFT2d._
+import Fpga.FFT2dCore
 import java.io._
 import breeze.math._
 
@@ -19,7 +20,7 @@ object FFt2dCoreMain extends App{
     oneFilePerComponent = true
   ).generateVerilog(
     FFT2dCore(
-      rsd_cfg.getFFT2dConfig,
+      rsd_cfg,
       rsd_cfg.freq_factor,
       rsd_cfg.depth_factor
     )
