@@ -31,11 +31,11 @@ package object SimFix {
     }
     def toDouble: Double = {
       if (x.bitCount < 32){
-        x.raw.toInt / scala.math.pow(2, fraction_bit)
+        x.raw.toInt.toDouble / scala.math.pow(2, fraction_bit)
       }
       else {
         // TODO: Test when bit count == 64
-        x.raw.toLong / scala.math.pow(2, fraction_bit)
+        x.raw.toLong.toDouble / scala.math.pow(2, fraction_bit)
       }
     }
   }
@@ -61,10 +61,10 @@ package object SimFix {
     }
     def toDouble: Double = {
       if (x.bitCount < 32){
-        x.raw.toInt / scala.math.pow(2, fraction_bit)
+        x.raw.toInt.toDouble / scala.math.pow(2, fraction_bit)
       }
       else {
-        x.raw.toLong / scala.math.pow(2, fraction_bit)
+        x.raw.toLong.toDouble / scala.math.pow(2, fraction_bit)
       }
     }
   }
