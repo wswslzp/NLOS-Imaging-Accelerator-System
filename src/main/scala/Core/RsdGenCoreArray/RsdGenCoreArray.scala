@@ -19,8 +19,6 @@ case class RsdGenCoreArray(
   val col_num: Int = cfg.kernel_size(1)
   val Rlength = cfg.impulse_sample_point
 
-  private val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
-
   val io = new Bundle {
     val dc = in UInt(log2Up(cfg.depth_factor) bit)
     val fc = in UInt(log2Up(cfg.freq_factor) bit)
@@ -29,7 +27,7 @@ case class RsdGenCoreArray(
     val cnt_incr = out Bool
     val load_req = out Bits(4 bit)
     val rsd_kernel: Flow[Vec[HComplex]] = master (
-      Flow(Vec(HComplex(kernel_cfg), row_num))
+      Flow(Vec(HComplex(cfg.getKernelConfig), row_num))
     )
   }
   val fc_eq_0 = io.fc === 0
