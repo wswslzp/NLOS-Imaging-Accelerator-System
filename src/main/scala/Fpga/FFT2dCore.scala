@@ -87,21 +87,24 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val fft_to_rgca_channel = fft_out.translateWith(
     Vec(fft_out.payload.map(_.fixTo(io.data_to_mac.payload.head.config))) // HCC(38,-6)
   ).takeWhen(push_period)
-  // TODO: Final result's channel seems broken
-  val fft_to_final_channel = fft_out.translateWith(
-    Vec(fft_out.payload.map(_.fixTo(io.data_to_final.payload.head.config))) // HCC(38,26)
-  ).takeWhen(inverse)
   when(io.dc === 0) {
     // The fft2d output is directly sent to output and int_mem
     // Delay one cycle after push_period
     io.data_to_mac <-< fft_to_rgca_channel
   } otherwise {
     io.data_to_mac.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
-    io.data_to_mac.payload := mem_out
+//    io.data_to_mac.payload := mem_out
+    io.data_to_mac.payload := Vec.tabulate(mem_out.length){idx =>
+      mem_out(idx).fixTo(io.data_to_mac.payload.head.config)
+    }
   }
 
   // When inverse is activated, the ifft results will directly be sent to
   // output `data_to_final`
+  // TODO: Final result's channel seems broken
+  val fft_to_final_channel = fft_out.translateWith(
+    Vec(fft_out.payload.map(_.fixTo(io.data_to_final.payload.head.config))) // HCC(38,26)
+  ).takeWhen(inverse)
   io.data_to_final << fft_to_final_channel // o_valid = i_valid & inverse
 
 }
