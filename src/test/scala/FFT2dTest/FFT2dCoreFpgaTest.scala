@@ -89,10 +89,10 @@ object FFT2dCoreFpgaTest extends App{
           for(x <- rsd_cfg.rowRange){
             for(y <- rsd_cfg.colRange){
               huin(freq)(x, y)  = dut.io.data_in.payload.toComplex
-              println(s"current freq is $freq")
               dut.clockDomain.waitSampling()
             }
           }
+          println(s"current freq is $freq")
         }
       }
       ,
