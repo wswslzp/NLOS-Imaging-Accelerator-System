@@ -23,15 +23,13 @@ case class RsdKernelConfig
 ){
   require(kernel_size.length == 2)
 
-//  def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg // HCC(0, 32)
-  def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg/2 // HCC(0, 32)
+  def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg/2 // HCC(0, 16)
 
-//  def getFUinConfig: HComplexConfig = getUinConfig * getUinConfig // HCC(38, -6)
-  def getUinConfig: HComplexConfig = HComplexConfig(19, -3)
+//  def getUinConfig: HComplexConfig = HComplexConfig(19, -3)
+  def getUinConfig: HComplexConfig = HComplexConfig(8, 0)
 
   def getFUinConfig: HComplexConfig = getUinConfig // HCC(19,-3)
 
-//  def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig // HCC(38, 26)
   def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig/2 // HCC(19,13)
 
   def getResultConfig: HComplexConfig = getMACDatConfig
