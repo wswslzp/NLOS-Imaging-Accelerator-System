@@ -60,8 +60,6 @@ object FFT2dCoreFpgaTest extends App{
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   )
 
-  var depth = 0
-  var freq = 0
   compiled.doSim("FFT2dCore_FPGA_tb"){dut=>
     dut.clockDomain.forkStimulus(2)
     dutInit(dut)
