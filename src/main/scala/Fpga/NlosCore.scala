@@ -52,7 +52,6 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   fft2d_core.io.data_to_mac.simPublic()
   mac_array.io.rsd_kernel << rgca.io.rsd_kernel
   rgca.io.rsd_kernel.simPublic()
-  // TODO: The mac result channel has problem.
   fft2d_core.io.data_from_mac << mac_array.io.mac_result
   mac_array.io.mac_result.simPublic()
 

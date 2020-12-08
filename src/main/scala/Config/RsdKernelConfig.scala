@@ -23,11 +23,17 @@ case class RsdKernelConfig
 ){
   require(kernel_size.length == 2)
 
-  def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg // HCC(0, 32)
+//  def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg // HCC(0, 32)
+  def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg/2 // HCC(0, 32)
+
+//  def getFUinConfig: HComplexConfig = getUinConfig * getUinConfig // HCC(38, -6)
   def getUinConfig: HComplexConfig = HComplexConfig(19, -3)
-  def getFUinConfig: HComplexConfig = getUinConfig * getUinConfig // HCC(38, -6)
-  // TODO: Now RCGA and FFT are correct but MAC is not.
-  def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig // HCC(38, 26)
+
+  def getFUinConfig: HComplexConfig = getUinConfig // HCC(19,-3)
+
+//  def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig // HCC(38, 26)
+  def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig/2 // HCC(19,13)
+
   def getResultConfig: HComplexConfig = getMACDatConfig
 
   def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, kernel_size(1), kernel_size(0))

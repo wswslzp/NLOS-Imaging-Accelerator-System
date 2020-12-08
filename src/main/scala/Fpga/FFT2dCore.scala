@@ -42,8 +42,6 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val data_from_in = s2p_flow.translateWith(
     Vec(s2p_flow.payload.map(_.fixTo(unified_cfg)))
   )
-  // TODO:
-  //
   val fft_data_in = inverse ? data_from_mac | data_from_in
   val fft_out = fft2(fft_data_in, inverse, cfg.row) // HCC(38,26)
 
@@ -72,8 +70,6 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   int_mem.foreach(_.addAttribute("ramstyle", "M20K"))
   val int_mem_address: UInt = io.fc * freq_factor + col_addr_cnt
   val dc_eq_0 = io.dc === 0
-  // TODO: Check mem out's content
-//  val mem_out = Vec.fill(cfg.row)(HComplex(io.data_to_mac.payload.head.config))//HCC(38,-6)
   val mem_out = Vec.fill(cfg.row)(HComplex(fft_out.payload.head.config))//HCC(38,26)
   for(i <- int_mem.indices){
     mem_out(i) := int_mem(i).readWriteSync(
@@ -93,7 +89,6 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
     io.data_to_mac <-< fft_to_rgca_channel
   } otherwise {
     io.data_to_mac.valid := RegNext(push_period, False) // data valid one cycle after address stream in.
-//    io.data_to_mac.payload := mem_out
     io.data_to_mac.payload := Vec.tabulate(mem_out.length){idx =>
       mem_out(idx).fixTo(io.data_to_mac.payload.head.config)
     }
@@ -101,7 +96,6 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
 
   // When inverse is activated, the ifft results will directly be sent to
   // output `data_to_final`
-  // TODO: Final result's channel seems broken
   val fft_to_final_channel = fft_out.translateWith(
     Vec(fft_out.payload.map(_.fixTo(io.data_to_final.payload.head.config))) // HCC(38,26)
   ).takeWhen(inverse)
