@@ -152,8 +152,8 @@ case class RsdGenCoreArray(
 
   //********************************* RSD Kernel memory*************************
   // Store the rsd kernel memory
-  val rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength).simPublic()
-  val prev_rsd_mem = Vec(Reg(HComplex(kernel_cfg)), Rlength).simPublic()
+  val rsd_mem = Vec(Reg(HComplex(cfg.getKernelConfig)), Rlength).simPublic()
+  val prev_rsd_mem = Vec(Reg(HComplex(cfg.getKernelConfig)), Rlength).simPublic()
 
   when(rsd_kernel_gen.io.kernel.valid){
     for(idx <- rsd_mem.indices){
