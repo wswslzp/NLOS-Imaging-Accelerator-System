@@ -25,14 +25,13 @@ case class RsdKernelConfig
 
   def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg/2 // HCC(0, 16)
 
-//  def getUinConfig: HComplexConfig = HComplexConfig(19, -3)
   def getUinConfig: HComplexConfig = HComplexConfig(14, -6)
 
-  def getFUinConfig: HComplexConfig = getUinConfig <> 2
+  def getFUinConfig: HComplexConfig = getUinConfig <> 2 // HCC(16, -4)
 
-  def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig // HCC(14, 10)
+  def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig/2 // HCC(16, 12)
 
-  def getResultConfig: HComplexConfig = getMACDatConfig
+  def getResultConfig: HComplexConfig = getMACDatConfig <> 2
 
   def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, kernel_size(1), kernel_size(0))
 

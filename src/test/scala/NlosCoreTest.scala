@@ -119,7 +119,6 @@ object NlosCoreTest extends App{
     rsd_kernel(10)(10).map(_.real)
   )
 
-  // TODO: The mac result is huge.
   testMacResult(h_mac_result)
   csvwrite(
     new File("tb/NlosCore/hmac_res10.csv"),
