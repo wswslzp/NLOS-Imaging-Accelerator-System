@@ -12,7 +12,6 @@ import spinal.lib._
 case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
   val row_num = cfg.kernel_size.head
   val col_num = cfg.kernel_size.last
-//  val result_config = cfg.getFUinConfig * cfg.getKernelConfig
   val io = new Bundle {
     val fc_overflow = in Bool()
     val rsd_kernel = slave(Flow(Vec(HComplex(cfg.getKernelConfig), row_num)))
