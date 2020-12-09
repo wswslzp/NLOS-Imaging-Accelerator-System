@@ -15,7 +15,7 @@ case class PostProcess(cfg: RsdKernelConfig) extends Component{
   val col_num = cfg.kernel_size.last
   val io = new Bundle {
     val ifft_in = slave(Flow(
-      Vec(HComplex(cfg.getKernelConfig), col_num)
+      Vec(HComplex(cfg.getResultConfig), col_num)
     ))
     val result_out1 = master(Flow(
       Vec(UInt(8 bit), col_num)
@@ -24,4 +24,14 @@ case class PostProcess(cfg: RsdKernelConfig) extends Component{
       Vec(UInt(8 bit), col_num)
     ))
   }
+
+  val ifft_in_1 = io.ifft_in.stage()
+  val ifft_in_abs = ifft_in_1.translateWith(Vec.tabulate(ifft_in_1.payload.length){idx=>
+    val realp = ifft_in_1.payload(idx).real
+    val imagp = ifft_in_1.payload(idx).imag
+    val abs_real = (realp < 0) ? (-realp.asBits.asSInt) | realp.asBits.asSInt
+    val abs_imag = (imagp < 0) ? (-imagp.asBits.asSInt) | imagp.asBits.asSInt
+    abs_real + abs_imag
+  })
+
 }

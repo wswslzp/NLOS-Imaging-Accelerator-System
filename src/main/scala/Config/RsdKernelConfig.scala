@@ -28,7 +28,7 @@ case class RsdKernelConfig
 //  def getUinConfig: HComplexConfig = HComplexConfig(19, -3)
   def getUinConfig: HComplexConfig = HComplexConfig(14, -6)
 
-  def getFUinConfig: HComplexConfig = getUinConfig << 2
+  def getFUinConfig: HComplexConfig = getUinConfig <> 2
 
   def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig // HCC(14, 10)
 

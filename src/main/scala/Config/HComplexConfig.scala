@@ -56,6 +56,23 @@ case class HComplexConfig
 
   def >>(rank: Int): HComplexConfig = this.<<(-rank)
 
+  def <(rank: Int): HComplexConfig = HComplexConfig(
+    intw = this.intw + rank,
+    fracw, useGauss, real_high
+  )
+
+  def >(rank: Int): HComplexConfig = HComplexConfig(
+    intw, this.fracw + rank, useGauss, real_high
+  )
+
+  def <>(rank: Int): HComplexConfig = HComplexConfig(
+    this.intw+rank, this.fracw+rank, useGauss, real_high
+  )
+
+  def ><(rank: Int): HComplexConfig = HComplexConfig(
+    this.intw-rank, this.fracw-rank, useGauss, real_high
+  )
+
   def *(that: HComplexConfig): HComplexConfig = {
     require(this.useGauss == that.useGauss && this.real_high == that.real_high)
     HComplexConfig(
