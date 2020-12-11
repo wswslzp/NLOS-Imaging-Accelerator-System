@@ -9,16 +9,6 @@ import RsdKernelConfig._
 import breeze.math.Complex
 
 case class NlosDriver(cfg: RsdKernelConfig) extends Component {
-  private def complexToBits(dat: Complex, cfg: HComplexConfig): Bits = {
-    val ret = Bits(cfg.getComplexWidth bit)
-    val real_p = ( dat.real * scala.math.pow(2, cfg.fracw) ).toInt
-    val imag_p = ( dat.imag * scala.math.pow(2, cfg.fracw) ).toInt
-    ret := if(cfg.real_high){
-      B(real_p) ## B(imag_p)
-    }
-    ret
-  }
-
   val io = new Bundle {
     val original_img = master Flow HComplex(cfg.getUinConfig)
     val kernel_in = master(Axi4WriteOnly(axi_config))
