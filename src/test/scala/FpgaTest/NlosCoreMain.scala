@@ -6,7 +6,8 @@ import spinal.lib._
 
 import java.io.File
 import Fpga.NlosCore
-import Config.RsdKernelConfig._
+import Config._
+import RsdKernelConfig._
 
 object NlosCoreMain extends App{
   new File("../rtl/NlosCore").mkdir()
