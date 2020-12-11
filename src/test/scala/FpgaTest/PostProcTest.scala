@@ -36,6 +36,7 @@ object PostProcTest extends App{
     iFourierTr(uout_f)
   }
 
+  val ov = 1
   val withWave = false
   val waveDepth = 1
 
@@ -45,16 +46,16 @@ object PostProcTest extends App{
       .withWave(waveDepth)
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
-      .compile(PostProcess(rsd_cfg))
+      .compile(PostProcess(rsd_cfg, over_sample_factor = ov))
   } else {
     SimConfig
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32")
-      .compile(PostProcess(rsd_cfg))
+      .compile(PostProcess(rsd_cfg, over_sample_factor = ov))
   }
 
-  val h_img_out = DenseMatrix.zeros[Int](256, 256)
+  val h_img_out = DenseMatrix.zeros[Int](rsd_cfg.rows*ov, rsd_cfg.cols*ov)
   var done = false
 
   compiled.doSim("PostProcess_tb"){dut=>
@@ -92,8 +93,8 @@ object PostProcTest extends App{
       () => {
         while(true){
           dut.clockDomain.waitActiveEdgeWhere(dut.io.img_out.valid.toBoolean)
-          for(r <- 0 until 256){
-            for(c <- 0 until 128){
+          for(r <- 0 until rsd_cfg.rows*ov){
+            for(c <- 0 until rsd_cfg.cols*ov/2){
               h_img_out(r, 2*c) = dut.io.img_out.payload(0).toInt
               h_img_out(r, 2*c+1) = dut.io.img_out.payload(1).toInt
               dut.clockDomain.waitSampling()
