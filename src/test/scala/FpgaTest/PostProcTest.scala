@@ -6,6 +6,7 @@ import spinal.lib._
 import Config._
 import RsdKernelConfig._
 import Sim.RsdGenCoreArray._
+import Sim.SimComplex._
 import breeze.linalg._
 import breeze.signal._
 import breeze.math._
@@ -35,7 +36,7 @@ object PostProcTest extends App{
   }
 
   val withWave = false
-  val waveDepth = 2
+  val waveDepth = 1
 
   val compiled = if (withWave) {
     SimConfig
@@ -50,6 +51,57 @@ object PostProcTest extends App{
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32")
       .compile(PostProcess(rsd_cfg))
+  }
+
+  val h_img_out = DenseMatrix.zeros[Int](256, 256)
+  var done = false
+
+  compiled.doSim("PostProcess_tb"){dut=>
+    dut.clockDomain.forkStimulus(2)
+    dut.io.img_in.valid #= false
+    dut.io.img_out.ready #= true
+    dut.io.done #= false
+    dut.clockDomain.waitSampling()
+
+    forkJoin(
+      // Driver
+      () => {
+        for(d <- rsd_cfg.depthRange){
+          dut.io.img_in.valid #= true
+          for(r <- rsd_cfg.rowRange){
+            for(c <- rsd_cfg.colRange){
+              dut.io.img_in.payload(c) #= uout(d)(r, c)
+            }
+            dut.clockDomain.waitSampling()
+          }
+          dut.io.img_in.valid #= false
+          if(d == rsd_cfg.depth_factor-1) {
+            dut.io.done #= true
+            dut.clockDomain.waitSampling()
+            dut.io.done #= false
+          }
+          dut.clockDomain.waitSampling(1000)
+        }
+        waitUntil(done)
+        simSuccess()
+      }
+      ,
+
+      // Monitor
+      () => {
+        while(true){
+          dut.clockDomain.waitActiveEdgeWhere(dut.io.img_out.valid.toBoolean)
+          for(r <- 0 until 256){
+            for(c <- 0 until 128){
+              h_img_out(r, 2*c) = dut.io.img_out.payload(0).toInt
+              h_img_out(r, 2*c+1) = dut.io.img_out.payload(1).toInt
+              dut.clockDomain.waitSampling()
+            }
+          }
+          done = true
+        }
+      }
+    )
   }
 
 }

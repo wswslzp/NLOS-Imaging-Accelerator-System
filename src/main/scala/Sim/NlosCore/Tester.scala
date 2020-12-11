@@ -47,6 +47,11 @@ object Tester {
       umax
     }
 
+    csvwrite(
+      new File("tb/NlosCore/hard_out.csv"),
+      uout_abs_max
+    )
+
     val uout_abs_max_flip = fliplr(uout_abs_max)
     write_image(uout_abs_max_flip, "tb/NlosCore/nlos_hard_out.jpg")
   }
