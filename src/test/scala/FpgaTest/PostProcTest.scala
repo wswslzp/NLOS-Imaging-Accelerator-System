@@ -12,6 +12,7 @@ import breeze.signal._
 import breeze.math._
 import java.io._
 import Fpga._
+import SimTest.NlosSystemSimTest.write_image
 
 object PostProcTest extends App{
   // Generating input data
@@ -103,5 +104,7 @@ object PostProcTest extends App{
       }
     )
   }
+
+  write_image(h_img_out.map(_.toDouble), "tb/PostProcess/h_img_out.jpg")
 
 }
