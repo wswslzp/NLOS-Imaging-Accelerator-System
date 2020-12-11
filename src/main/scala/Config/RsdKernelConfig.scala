@@ -22,6 +22,8 @@ case class RsdKernelConfig
   fpga_impl: Boolean = false
 ){
   require(kernel_size.length == 2)
+  def rows: Int = kernel_size.head
+  def cols: Int = kernel_size.last
 
   def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg/2 // HCC(0, 16)
 
@@ -33,14 +35,14 @@ case class RsdKernelConfig
 
   def getResultConfig: HComplexConfig = getMACDatConfig <> 2
 
-  def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, kernel_size(1), kernel_size(0))
+  def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, cols, rows)
 
   def depthRange: Range = 0 until depth_factor
   def radiusRange: Range = 0 until radius_factor
   def freqRange: Range = 0 until freq_factor
   def rLengthRange: Range = 0 until impulse_sample_point
-  def rowRange: Range = 0 until kernel_size.head
-  def colRange: Range = 0 until kernel_size.last
+  def rowRange: Range = 0 until rows
+  def colRange: Range = 0 until cols
 
   override def toString: String = {
     s"""

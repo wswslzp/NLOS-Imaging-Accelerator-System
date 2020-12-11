@@ -9,6 +9,16 @@ import Core.RsdGenCoreArray._
 import Core.MacArray._
 import Util._
 
+/**
+ * The nlos core still needs to be redesigned.
+ *  1. The design next could try to store the wave, timeshift and distance inside SRAM.
+ *  After all these three things have been loaded, only the master have to do is to pipe in
+ *  the image.
+ *
+ *  2. TODO
+ * @param cfg RSD Kernel configuration
+ * @param axi_config Configuration for AXI4 write only bus
+ */
 case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) extends Component {
   val io = new Bundle {
     val dc = in UInt(log2Up(cfg.depth_factor) bit)
