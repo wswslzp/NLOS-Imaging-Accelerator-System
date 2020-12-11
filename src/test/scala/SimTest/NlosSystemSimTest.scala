@@ -43,7 +43,6 @@ object NlosSystemSimTest extends App{
   println("Begin loading...")
   println("Begin input generation...")
   val coef = Computation.generateCoef(wave, distance, timeshift)
-
   val rsd = Computation.generateRSDRadKernel(coef, impulse)
   println("Generation done!")
 
@@ -59,16 +58,11 @@ object NlosSystemSimTest extends App{
 
   println("Doing input image's FFT2d...")
   val uin_fft = uin.map(fourierTr(_))
-  println(s"${uin_fft(0)(0 to 5, 0 to 5)}")
+//  println(s"${uin_fft(0)(0 to 5, 0 to 5)}")
   println("Done input image FFT2d!")
 
   val kernel_size = (uin.head.rows, uin.head.cols)
   println(kernel_size)
-////
-//  val tt = DenseVector.tabulate(rsd.head.head.length)(Complex(_, 0))
-//  val rsd1 = Computation.restoreRSD(tt, kernel_size)
-//  println(s"rsd1 size is (${rsd1.rows}, ${rsd1.cols})")
-//  csvwrite(new File("src/test/scala/SimTest/my_map.csv"), rsd1.map(_.real))
 
   println("Multiply RSD kernel with input image's freq...")
   val uout = Array.tabulate(depth_num) {depth =>

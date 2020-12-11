@@ -39,5 +39,6 @@ case class KernelDriver(cfg: RsdKernelConfig) extends Component with DataTransfo
   })
 
   // ************** Driver logic *****************
+  // TODO: finish the kernel axi4 driver logic
 
 }

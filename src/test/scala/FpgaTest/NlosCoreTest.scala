@@ -1,31 +1,30 @@
-import java.io.File
+package FpgaTest
 
-import spinal.core._
-import spinal.core.sim._
-import spinal.lib._
 import Config.RsdKernelConfig._
-import Fpga._
-import breeze.linalg._
-import breeze.math.Complex
+import Fpga.NlosCore
+import Sim.NlosCore.Driver._
 import Sim.NlosCore.Monitor._
 import Sim.NlosCore.Tester._
-import Sim.NlosCore.Driver._
+import breeze.linalg._
+import breeze.math._
+import spinal.core.sim._
 
+import java.io.File
 import scala.sys.process.{Process, ProcessLogger}
 
-object NlosCoreTest extends App{
+object NlosCoreTest extends App {
 
-  val withWave = false
-  val waveDepth = 2
+  val withWave = true
+  val waveDepth = 1
 
-  val compiled = if(withWave){
+  val compiled = if (withWave) {
     SimConfig
       .allOptimisation
       .withWave(waveDepth)
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
       .compile(NlosCore(rsd_cfg))
-  }else{
+  } else {
     SimConfig
       .allOptimisation
       .workspacePath("tb")
@@ -39,13 +38,13 @@ object NlosCoreTest extends App{
   val h_mac_result = Array.fill(rsd_cfg.depth_factor)(
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   )
-  val h_fft_out = Array.fill(rsd_cfg.freq_factor){
+  val h_fft_out = Array.fill(rsd_cfg.freq_factor) {
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   }
-  val h_rsdk = Array.fill(rsd_cfg.depth_factor, rsd_cfg.freq_factor){
+  val h_rsdk = Array.fill(rsd_cfg.depth_factor, rsd_cfg.freq_factor) {
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   }
-  compiled.doSim("NlosCore_tb"){dut=>
+  compiled.doSim("NlosCore_tb") { dut =>
     dut.clockDomain.forkStimulus(2)
     dutInit(dut)
     dut.clockDomain.waitSampling()
@@ -63,7 +62,7 @@ object NlosCoreTest extends App{
       // Monitor result
       () => {
         var uout_d = 0
-        while(true){
+        while (true) {
           uout(uout_d) = catchResult(dut)
           println(s"Get the ${uout_d}th output image.")
           uout_d += 1
@@ -74,7 +73,7 @@ object NlosCoreTest extends App{
       // Monitor Mac result
       () => {
         var uout_d = 0
-        while(true){
+        while (true) {
           h_mac_result(uout_d) = catchMacResult(dut)
           println(s"Get the ${uout_d}th mac result.")
           uout_d += 1
@@ -85,13 +84,13 @@ object NlosCoreTest extends App{
       // Monitor for fft out
       () => {
         var hf = 0
-        while(true){
-          if(dd == 0) {
+        while (true) {
+          if (dd == 0) {
             val tmp = catchFUin(dut)
             h_fft_out(hf) = tmp
             println(s"Got the ${hf}th fft uin image.")
             hf += 1
-          }else{
+          } else {
             dut.clockDomain.waitSampling()
           }
         }
@@ -100,7 +99,7 @@ object NlosCoreTest extends App{
 
       // Monitor for rsdk
       () => {
-        while(true){
+        while (true) {
           h_rsdk(dd)(ff) = catchRSDK(dut)
         }
       }
@@ -131,8 +130,8 @@ object NlosCoreTest extends App{
 
   testFinal(uout)
 
-  if(withWave){
-    val nullLogger = ProcessLogger(_=>{})
+  if (withWave) {
+    val nullLogger = ProcessLogger(_ => {})
     println("Converting vcd to vpd...")
     Process("vcd2vpd tb/NlosCore/NlosCore_tb.vcd tb/NlosCore/NlosCore_tb.vpd") ! nullLogger
     println("Convert done.")

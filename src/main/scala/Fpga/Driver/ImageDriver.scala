@@ -7,6 +7,7 @@ import breeze.math.Complex
 import spinal.core._
 import spinal.lib._
 
+// TODO: Need verification
 case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransform {
   val io = new Bundle {
     val original_img = master Flow HComplex(cfg.getUinConfig)
@@ -22,12 +23,12 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
       val row = idx / cfg.rows
       val col = idx % cfg.rows
       complexToBits(uin(freq)(row, col), cfg.getUinConfig)
-    })
+    }).addAttribute("ramstyle", "M20K")
   }
 
   // ************** driver logic **********************
   val pixel_index_cnt = Counter(0, cfg.kernel_size.product)
-  val pixel_index_incr = Bool().setWhen(io.sys_init || io.fft_comp_end).clearWhen(pixel_index_cnt.willOverflow)
+  val pixel_index_incr = Reg(Bool()).init(False).setWhen(io.sys_init || io.fft_comp_end).clearWhen(pixel_index_cnt.willOverflow)
   when(io.dc === 0) {
     when(pixel_index_incr) {
       pixel_index_cnt.increment()

@@ -3,7 +3,6 @@ package FpgaTest
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
-
 import java.io.File
 import Fpga.NlosCore
 import Config._

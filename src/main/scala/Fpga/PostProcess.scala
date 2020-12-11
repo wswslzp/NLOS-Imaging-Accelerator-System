@@ -13,6 +13,9 @@ import Util._
  * @param quant_bit_width The color depth of output image. Same as its bit width
  * @param over_sample_factor The up-sampling factor of output image.
  */
+// TODO: Need verification
+//  1. Do integration verification
+//  2. Do single module verification
 case class PostProcess(
                         cfg: RsdKernelConfig,
                         quant_bit_width: Int = 8,
@@ -49,33 +52,40 @@ case class PostProcess(
   img_in_q.simPublic()
 
   // ***************** store and compare **************
-  val result_mem = Vec.fill(cfg.rows*over_sample_factor)(
-    Vec.fill(cfg.cols*over_sample_factor)(Reg(UInt(quant_bit_width bit)))
+  val os_rows = cfg.rows * over_sample_factor
+  val os_cols = cfg.cols * over_sample_factor
+  val result_mem = Vec.fill(os_rows)(
+    Vec.fill(os_cols)(Reg(UInt(quant_bit_width bit)))
   )
   val row_addr = Counter(0, cfg.rows)
+  val os_row_addr = ( row_addr.value * over_sample_factor ).resize(log2Up(os_rows))
   when(img_in_q.valid){
     row_addr.increment()
   }
   when(img_in_q.valid){
     for(c <- cfg.colRange){
-      val mem_lt_img_in = result_mem(row_addr.value * over_sample_factor)(c * over_sample_factor) < img_in_q.payload(c)
+      val os_col_addr = c * over_sample_factor
+      val mem_lt_img_in = result_mem(os_row_addr)(os_col_addr) < img_in_q.payload(c)
       mem_lt_img_in.setName(s"mem_lt_img_in_$c")
+
       when(mem_lt_img_in){
         for(delta_c <- 0 until over_sample_factor){
           for(delta_r <- 0 until over_sample_factor){
-            result_mem(row_addr.value+delta_r)(c+delta_c) := img_in_q.payload(c)
+            result_mem(os_row_addr + delta_r)(os_col_addr + delta_c) := img_in_q.payload(c)
           }
         }
       }
+
     }
   }
   result_mem.foreach(_.simPublic())
 
   // ***************** signal status *******************
   //  `nlos_comp_done` signal that previous NLOS task is done
-  val nlos_comp_done = Bool().setWhen(io.done)
+  val nlos_comp_done = Reg(Bool()).init(False).setWhen(io.done).clearWhen(io.img_in.valid.rise(False))
   //  `result_ready` signal that all NLOS results have been stored and is ready to output
-  val result_ready = nlos_comp_done & Bool().setWhen(img_in_q.valid.fall(False))
+  val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(img_in_q.valid.fall(False))
+  val result_ready = RegNext(result_ready_prev) init False
 
   // ***************** interpolate and output **********
   // Counter for image ( osf * cfg.rows * osf * cfg.cols/pixel_parallel )
@@ -84,10 +94,11 @@ case class PostProcess(
   val pixel_cnt_col = pixel_cnt.value % (cfg.cols/pixel_parallel)
   io.img_out.valid := result_ready
   for(i <- 0 until pixel_parallel){
-    io.img_out.payload(i) := result_mem(pixel_cnt_row)(pixel_cnt_col * pixel_parallel + i)
+    io.img_out.payload(i) := result_mem(pixel_cnt_row.resized)(( pixel_cnt_col * pixel_parallel + i ).resized)
   }
   when(io.img_out.fire){
     pixel_cnt.increment()
   }
+  result_ready.clearWhen(pixel_cnt.willOverflow)
 
 }
