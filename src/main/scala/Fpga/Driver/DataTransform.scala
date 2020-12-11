@@ -6,14 +6,12 @@ import spinal.core._
 
 trait DataTransform {
   protected def complexToBits(dat: Complex, cfg: HComplexConfig): Bits = {
-    val ret = Bits(cfg.getComplexWidth bit)
     val real_p = (dat.real * scala.math.pow(2, cfg.fracw)).toInt
     val imag_p = (dat.imag * scala.math.pow(2, cfg.fracw)).toInt
-    ret := if (cfg.real_high) {
-      B(real_p) ## B(imag_p)
+    if (cfg.real_high) {
+      B(real_p, cfg.getDataWidth bit) ## B(imag_p, cfg.getDataWidth bit)
     } else {
-      B(imag_p) ## B(real_p)
+      B(imag_p, cfg.getDataWidth bit) ## B(real_p, cfg.getDataWidth bit)
     }
-    ret
   }
 }
