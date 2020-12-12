@@ -28,7 +28,7 @@ object IFFT2d {
     val hcfg = input.payload(0).config
     val length = input.payload.length
     val cfg = FFTConfig(
-      hComplexConfig = hcfg, point = length, row = row
+      hComplexConfig = hcfg, point = length, row = row, row_pipeline = true, col_pipeline = true
     )
     val ifft2_core = IFFT2d(cfg)
     ifft2_core.io.line_in << input
