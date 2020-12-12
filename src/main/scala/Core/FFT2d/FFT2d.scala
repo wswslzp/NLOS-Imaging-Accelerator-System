@@ -95,7 +95,7 @@ object FFT2d {
     val data_in_row = Vec( History(input.payload, point, input.valid).reverse )
     fft2_in_flow.payload := data_in_row
     fft2_in_flow.valid := countUpInside(input.valid, point).last
-    val fft_config = FFTConfig(hcfg, point, row)
+    val fft_config = FFTConfig(hcfg, point, row, use_pipeline = false)
     val fft2d_core = FFT2d(fft_config)
     fft2d_core.io.line_in <> fft2_in_flow
     fft2d_core.io.line_out

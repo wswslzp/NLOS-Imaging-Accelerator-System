@@ -65,25 +65,25 @@ object FFTMain extends App{
 
     io.line_out <> fft2(io.line_in, cfg.row, cfg.point)
   }
-//
-//  case class FFT2IFFT_2d(cfg: FFTConfig) extends Component {
-//    import FFT2d._
-//    import IFFT2d._
-//    val io = new Bundle {
-//      val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
-//      val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
-//    }
-//
-//    io.line_out <> ifft2(
-//      fft2(io.line_in, cfg.row, cfg.point), cfg.point
-//    )
-//  }
-//
+
+  case class FFT2IFFT_2d(cfg: FFTConfig) extends Component {
+    import FFT2d._
+    import IFFT2d._
+    val io = new Bundle {
+      val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
+      val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
+    }
+
+    io.line_out <> ifft2(
+      fft2(io.line_in, cfg.row, cfg.point), cfg.point
+    )
+  }
+
   SimConfig
     .withWave
     .allOptimisation
     .workspacePath("tb/FFT2d_tb")
-    .compile(FFT2d(fft_config))
+    .compile(FFT2IFFT_2d(fft_config))
     .doSim("FFT2d_tb") {dut =>
       import linalg._
       val fft2_in = load_image("tb/FFT2d_tb/data/t1.png")
@@ -100,10 +100,13 @@ object FFTMain extends App{
       dut.io.line_in.valid #= true
       for (i <- 0 until fft_config.row) {
         for (j <- 0 until fft_config.point) {
-          dut.io.line_in.payload(j).real #= fft2_in(i, j)
-          dut.io.line_in.payload(j).imag #= 0
+          dut.io.line_in.payload.real #= fft2_in(i, j)
+          dut.io.line_in.payload.imag #= 0
+//          dut.io.line_in.payload(j).real #= fft2_in(i, j)
+//          dut.io.line_in.payload(j).imag #= 0
+          dut.clockDomain.waitSampling()
         }
-        dut.clockDomain.waitSampling()
+//        dut.clockDomain.waitSampling()
       }
 //      println("input success")
       dut.io.line_in.valid #= false
@@ -129,7 +132,7 @@ object FFTMain extends App{
           println("The output image has been collected.")
           val out_img = fft2_out//.t
 //          println(s"The true result: ${true_res_abs(0 to 2, 0 to 2).toString()}\nThe output: ${out_img(0 to 2, 0 to 2).toString()}")
-          println(s"The output: ${out_img(0 to 2, 0 to 2).toString()}\nThe input: ${fft2_in(0 to 2, 0 to 2).toString()}")
+//          println(s"The output: ${out_img(0 to 2, 0 to 2).toString()}\nThe input: ${fft2_in(0 to 2, 0 to 2).toString()}")
           write_image(out_img, "tb/FFT2d_tb/fft_hw.jpg")
         }
       }

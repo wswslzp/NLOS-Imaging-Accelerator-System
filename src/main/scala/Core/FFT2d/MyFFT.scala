@@ -20,7 +20,6 @@ case class MyFFT(length: Int,
   } else {
     io.data_in.toReg()
   }
-//  val data_in: Vec[HComplex] = io.data_in.toReg()
 
   val twiddle_factor_table: Vec[HComplex] = TwiddleFactorTable.getw(length)
 
