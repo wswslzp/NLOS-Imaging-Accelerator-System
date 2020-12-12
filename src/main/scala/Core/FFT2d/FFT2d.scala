@@ -19,11 +19,8 @@ case class FFT2d(cfg: FFTConfig) extends Component {
       col_addr := col_addr_area.cnt.value
       col_addr_vld := col_addr_area.cond_period
     } else {
-      val cnt = Counter(0, cfg.point)
+      val cnt = Counter(0 until cfg.point, inc = row_addr_ov || fft_out_vld)
       cnt.setCompositeName(this, "col_addr_cnt")
-      when(row_addr_ov || fft_out_vld) {
-        cnt.increment()
-      }
       val cond_period_minus_1 = Reg(Bool()) setWhen row_addr_ov clearWhen cnt.willOverflow
       col_addr_vld := cond_period_minus_1 | row_addr_ov
       col_addr := cnt.value
