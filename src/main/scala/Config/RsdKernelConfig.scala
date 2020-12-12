@@ -21,7 +21,7 @@ case class RsdKernelConfig
   less_mem_size: Boolean = true,
   sub_mem_tag: Int = 0,
   fpga_impl: Boolean = false,
-  fft_use_pipeline: Boolean = false
+  fft_use_pipeline: Boolean = true
 ){
   require(kernel_size.length == 2)
   def rows: Int = kernel_size.head
@@ -37,7 +37,7 @@ case class RsdKernelConfig
 
   def getResultConfig: HComplexConfig = getMACDatConfig <> 2
 
-  def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, cols, rows, fft_use_pipeline)
+  def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, cols, rows, fft_use_pipeline, fft_use_pipeline)
 
   def depthRange: Range = 0 until depth_factor
   def radiusRange: Range = 0 until radius_factor
