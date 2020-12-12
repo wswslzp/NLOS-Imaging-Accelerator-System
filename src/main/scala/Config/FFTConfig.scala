@@ -5,5 +5,6 @@ case class FFTConfig
   hComplexConfig: HComplexConfig,
   point:Int,
   row:Int,
-  use_pipeline: Boolean = true
+  row_pipeline: Boolean = false,
+  col_pipeline: Boolean = true
 )

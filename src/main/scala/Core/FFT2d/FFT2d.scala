@@ -7,6 +7,29 @@ import spinal.lib._
 
 case class FFT2d(cfg: FFTConfig) extends Component {
   import MyFFT.fft
+
+  case class ColAddrArea(use_pip: Boolean) extends Component {
+    val row_addr_ov = in Bool()
+    val fft_out_vld = in Bool() allowPruning()
+    val col_addr = out UInt(log2Up(cfg.point) bit)
+    val col_addr_vld = out Bool()
+
+    if(use_pip){
+      val col_addr_area = countUpFrom(row_addr_ov, 0 until cfg.point, "col_addr")
+      col_addr := col_addr_area.cnt.value
+      col_addr_vld := col_addr_area.cond_period
+    } else {
+      val cnt = Counter(0, cfg.point)
+      cnt.setCompositeName(this, "col_addr_cnt")
+      when(row_addr_ov || fft_out_vld) {
+        cnt.increment()
+      }
+      val cond_period_minus_1 = Reg(Bool()) setWhen row_addr_ov clearWhen cnt.willOverflow
+      col_addr_vld := cond_period_minus_1 | row_addr_ov
+      col_addr := cnt.value
+    }
+  }
+
   val io = new Bundle {
     val line_in = slave(
       Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point))
@@ -17,7 +40,7 @@ case class FFT2d(cfg: FFTConfig) extends Component {
   }
 
   // do the row fft
-  val fft_row: Flow[Vec[HComplex]] = fft(io.line_in, cfg.use_pipeline)
+  val fft_row: Flow[Vec[HComplex]] = fft(io.line_in, cfg.row_pipeline)
   fft_row.setName("fft_row")
 
   // declare a reg array, and push the data into it
@@ -29,17 +52,21 @@ case class FFT2d(cfg: FFTConfig) extends Component {
     img_reg_array(row_addr) := fft_row.payload
   }
 
-  val col_addr_area = countUpFrom(row_addr.willOverflow, 0 until cfg.point, "col_addr")
-  val col_addr = RegNext( col_addr_area.cnt.value )
+  // TODO: When not using pipeline, fft cannot read data in pipeline,
+  //  Data piped in fft should be hold until the result is valid
+  val col_addr_area = ColAddrArea(cfg.col_pipeline)
+
+  val col_addr_vld = col_addr_area.col_addr_vld
+  val col_addr = RegNext( col_addr_area.col_addr )
   val fft_col_in = Flow(
     Vec(HComplex(cfg.hComplexConfig), cfg.row)
   )
   fft_col_in.payload.zipWithIndex.foreach { case(dat, idx) =>
     dat := img_reg_array(idx)(col_addr)
   }
-  fft_col_in.valid := RegNext( col_addr_area.cond_period ) init False
+  fft_col_in.valid := RegNext(col_addr_vld) init False
 
-  val fft_col_out: Flow[Vec[HComplex]] = fft(fft_col_in, cfg.use_pipeline)
+  val fft_col_out: Flow[Vec[HComplex]] = fft(fft_col_in, cfg.col_pipeline)
   fft_col_out.setName("fft_col_out")
   fft_col_out >-> io.line_out
 
@@ -64,10 +91,10 @@ object FFT2d {
     fft2d_core.io.line_out
   }
 
-  def fft2(input: Flow[Vec[HComplex]], inverse: Bool, row: Int, use_pipeline: Boolean = true): Flow[Vec[HComplex]] = {
+  def fft2(input: Flow[Vec[HComplex]], inverse: Bool, row: Int, row_pipeline: Boolean = true, col_pipeline: Boolean = true): Flow[Vec[HComplex]] = {
     val hcfg = input.payload(0).config
     val point = input.payload.length
-    val fft_config = FFTConfig(hcfg, point, row, use_pipeline)
+    val fft_config = FFTConfig(hcfg, point, row, row_pipeline, col_pipeline)
     val fft2d_core = FFT2d(fft_config)
     fft2d_core.io.line_in <> input.translateWith(
       Vec(input.payload.map{dat=>
@@ -95,7 +122,7 @@ object FFT2d {
     val data_in_row = Vec( History(input.payload, point, input.valid).reverse )
     fft2_in_flow.payload := data_in_row
     fft2_in_flow.valid := countUpInside(input.valid, point).last
-    val fft_config = FFTConfig(hcfg, point, row, use_pipeline = false)
+    val fft_config = FFTConfig(hcfg, point, row, row_pipeline = false, col_pipeline = false)
     val fft2d_core = FFT2d(fft_config)
     fft2d_core.io.line_in <> fft2_in_flow
     fft2d_core.io.line_out
