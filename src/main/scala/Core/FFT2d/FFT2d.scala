@@ -52,6 +52,7 @@ case class FFT2d(cfg: FFTConfig) extends Component {
   // TODO: When not using pipeline, fft cannot read data in pipeline,
   //  Data piped in fft should be hold until the result is valid
   val col_addr_area = ColAddrArea(cfg.col_pipeline)
+  col_addr_area.row_addr_ov := row_addr.willOverflow
 
   val col_addr_vld = col_addr_area.col_addr_vld
   val col_addr = RegNext( col_addr_area.col_addr )
@@ -64,6 +65,7 @@ case class FFT2d(cfg: FFTConfig) extends Component {
   fft_col_in.valid := RegNext(col_addr_vld) init False
 
   val fft_col_out: Flow[Vec[HComplex]] = fft(fft_col_in, cfg.col_pipeline)
+  col_addr_area.fft_out_vld := fft_col_out.valid
   fft_col_out.setName("fft_col_out")
   fft_col_out >-> io.line_out
 
