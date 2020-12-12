@@ -73,7 +73,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val mem_out = Vec.fill(cfg.row)(HComplex(fft_out.payload.head.config))//HCC(38,26)
   for(i <- int_mem.indices){
     mem_out(i) := int_mem(i).readWriteSync(
-      address = int_mem_address,
+      address = int_mem_address.resize(log2Up(cfg.point * freq_factor)),
       data = dc_eq_0 ? fft_out.payload(i).asBits | B(0).resized,
       enable = push_period,
       write = push_period & dc_eq_0
