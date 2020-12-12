@@ -43,6 +43,8 @@ case class CoefGenCore
   prev_coef.simPublic()
 
   val output_coef_stage = prev_coef
+  // TODO: For FPGA, No pipeline retiming technology.
+  //  All pipeline should be handcrafted.
   io.coef := stage(output_coef_stage, 0 to (7 + expLatency + hComplexMulStage.stage))
 
   val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
