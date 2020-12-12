@@ -22,7 +22,8 @@ case class ComplexAccArray(cfg: RsdKernelConfig) extends Component {
 
   // Pipeline the complex multiplication for good timing. Trade off between area and timing.
   val rsd_fft_prod = Vec.tabulate(row_num){idx=>
-    RegNext(io.rsd_kernel.payload(idx) * io.fft_out.payload(idx))
+    val tmp = io.rsd_kernel.payload(idx) * io.fft_out.payload(idx)
+    RegNext(tmp.fixTo(cfg.getMACDatConfig))
   }
   val rsd_fft_prod_valid = RegNext(valid) init False
 

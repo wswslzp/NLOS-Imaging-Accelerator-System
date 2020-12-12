@@ -31,6 +31,7 @@ case class PixelAddrTransform(
 
   val g_sqrt_addr = CompareSqrt.sqrt(g_tmp_addr)
 
+  // TODO: The factor of 1.125 is only suitable for kernel size of 128
   io.rad_addr := ( g_sqrt_addr + (g_sqrt_addr >> 3) ).resized // multiply with 1.1
 
 }

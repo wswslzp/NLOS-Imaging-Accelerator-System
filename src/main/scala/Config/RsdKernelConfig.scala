@@ -15,11 +15,13 @@ case class RsdKernelConfig
   depth_factor: Int,
   radius_factor: Int,
   freq_factor: Int = 1,
-  kernel_size: List[Int] = 64 :: 64 :: Nil,
+//  kernel_size: List[Int] = 64 :: 64 :: Nil,
+  kernel_size: List[Int] = 128 :: 128 :: Nil,
   impulse_sample_point: Int = 101,
   less_mem_size: Boolean = true,
   sub_mem_tag: Int = 0,
-  fpga_impl: Boolean = false
+  fpga_impl: Boolean = false,
+  fft_use_pipeline: Boolean = false
 ){
   require(kernel_size.length == 2)
   def rows: Int = kernel_size.head
@@ -35,7 +37,7 @@ case class RsdKernelConfig
 
   def getResultConfig: HComplexConfig = getMACDatConfig <> 2
 
-  def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, cols, rows)
+  def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, cols, rows, fft_use_pipeline)
 
   def depthRange: Range = 0 until depth_factor
   def radiusRange: Range = 0 until radius_factor

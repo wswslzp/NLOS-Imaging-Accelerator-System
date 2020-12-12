@@ -17,7 +17,7 @@ case class FFT2d(cfg: FFTConfig) extends Component {
   }
 
   // do the row fft
-  val fft_row: Flow[Vec[HComplex]] = fft(io.line_in)
+  val fft_row: Flow[Vec[HComplex]] = fft(io.line_in, cfg.use_pipeline)
   fft_row.setName("fft_row")
 
   // declare a reg array, and push the data into it
@@ -39,7 +39,7 @@ case class FFT2d(cfg: FFTConfig) extends Component {
   }
   fft_col_in.valid := RegNext( col_addr_area.cond_period ) init False
 
-  val fft_col_out: Flow[Vec[HComplex]] = fft(fft_col_in)
+  val fft_col_out: Flow[Vec[HComplex]] = fft(fft_col_in, cfg.use_pipeline)
   fft_col_out.setName("fft_col_out")
   fft_col_out >-> io.line_out
 
@@ -55,19 +55,19 @@ object FFT2d {
    * @return the output data flow carry with output data `payload` and `valid` signal.
    *         output one row per cycle
    */
-  def fft2(input: Flow[Vec[HComplex]], row: Int): Flow[Vec[HComplex]] = {
+  def fft2(input: Flow[Vec[HComplex]], row: Int, use_pipeline: Boolean = true): Flow[Vec[HComplex]] = {
     val hcfg = input.payload(0).config
     val point = input.payload.length
-    val fft_config = FFTConfig(hcfg, point, row)
+    val fft_config = FFTConfig(hcfg, point, row, use_pipeline)
     val fft2d_core = FFT2d(fft_config)
     fft2d_core.io.line_in <> input
     fft2d_core.io.line_out
   }
 
-  def fft2(input: Flow[Vec[HComplex]], inverse: Bool, row: Int): Flow[Vec[HComplex]] = {
+  def fft2(input: Flow[Vec[HComplex]], inverse: Bool, row: Int, use_pipeline: Boolean = true): Flow[Vec[HComplex]] = {
     val hcfg = input.payload(0).config
     val point = input.payload.length
-    val fft_config = FFTConfig(hcfg, point, row)
+    val fft_config = FFTConfig(hcfg, point, row, use_pipeline)
     val fft2d_core = FFT2d(fft_config)
     fft2d_core.io.line_in <> input.translateWith(
       Vec(input.payload.map{dat=>
@@ -88,14 +88,14 @@ object FFT2d {
    * @param point indicate the total column number of one row of the input image
    * @return output one row per cycle
    */
-  def fft2(input: Flow[HComplex], row: Int, point: Int): Flow[Vec[HComplex]] = {
+  def fft2(input: Flow[HComplex], row: Int, point: Int, use_pipeline: Boolean = true): Flow[Vec[HComplex]] = {
     // The valid of input should be active during all the cycles of effective value.
     val hcfg = input.payload.config
     val fft2_in_flow = Flow(Vec(HComplex(hcfg), point))
     val data_in_row = Vec( History(input.payload, point, input.valid).reverse )
     fft2_in_flow.payload := data_in_row
     fft2_in_flow.valid := countUpInside(input.valid, point).last
-    val fft_config = FFTConfig(hcfg, point, row)
+    val fft_config = FFTConfig(hcfg, point, row, use_pipeline)
     val fft2d_core = FFT2d(fft_config)
     fft2d_core.io.line_in <> fft2_in_flow
     fft2d_core.io.line_out
@@ -111,7 +111,7 @@ object FFT2d {
    * @param point indicate the total column number of one row of the input image
    * @return output one row per cycle
    */
-  def fft2(input: Flow[HComplex], inverse: Bool, row: Int, point: Int): Flow[Vec[HComplex]] = {
+  def fft2(input: Flow[HComplex], inverse: Bool, row: Int, point: Int, use_pipeline: Boolean = true): Flow[Vec[HComplex]] = {
     // The valid of input should be active during all the cycles of effective value.
     val hcfg = input.payload.config
     val fft2_in_flow = Flow(Vec(HComplex(hcfg), point))
@@ -119,7 +119,7 @@ object FFT2d {
     fft2_in_flow.payload := Vec(History(input.payload, point, input.valid).reverse.map{hcomp=>
       inverse ? hcomp.conj | hcomp
     })
-    val fft_config = FFTConfig(hcfg, point, row)
+    val fft_config = FFTConfig(hcfg, point, row, use_pipeline)
     val fft2d_core = FFT2d(fft_config)
     fft2d_core.io.line_in <> fft2_in_flow
     fft2d_core.io.line_out.translateWith(
