@@ -133,7 +133,7 @@ object FFTMain extends App{
           val out_img = fft2_out//.t
 //          println(s"The true result: ${true_res_abs(0 to 2, 0 to 2).toString()}\nThe output: ${out_img(0 to 2, 0 to 2).toString()}")
 //          println(s"The output: ${out_img(0 to 2, 0 to 2).toString()}\nThe input: ${fft2_in(0 to 2, 0 to 2).toString()}")
-          write_image(out_img, "tb/FFT2d_tb/fft_hw.jpg")
+          write_image(out_img, "tb/FFT2d_tb/fft_hw1.jpg")
         }
       }
 
