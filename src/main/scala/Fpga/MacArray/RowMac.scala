@@ -14,7 +14,7 @@ case class RowMac(cfg: RsdKernelConfig) extends Component {
     val col_addr = in UInt(log2Up(cfg.cols) bit)
   }
 
-  val row_mem = Mem(HComplex(complex_cfg), BigInt(cfg.cols))
+  val row_mem = Mem(HComplex(complex_cfg), BigInt(cfg.cols)).init(Array.fill(cfg.cols)(HC(0, 0, complex_cfg)))
   val prev_data = row_mem(io.col_addr)
   when(io.data_in.valid){
     row_mem.write(io.col_addr, prev_data + io.data_in.payload)
