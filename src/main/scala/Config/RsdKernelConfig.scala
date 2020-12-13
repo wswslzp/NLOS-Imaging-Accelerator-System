@@ -15,13 +15,13 @@ case class RsdKernelConfig
   depth_factor: Int,
   radius_factor: Int,
   freq_factor: Int = 1,
-  kernel_size: List[Int] = 64 :: 64 :: Nil,
-//  kernel_size: List[Int] = 128 :: 128 :: Nil,
+//  kernel_size: List[Int] = 64 :: 64 :: Nil,
+  kernel_size: List[Int] = 128 :: 128 :: Nil,
   impulse_sample_point: Int = 101,
   less_mem_size: Boolean = true,
   sub_mem_tag: Int = 0,
   fpga_impl: Boolean = false,
-  fft_use_pipeline: Boolean = true
+  fft_use_pipeline: Boolean = false
 ){
   require(kernel_size.length == 2)
   def rows: Int = kernel_size.head
@@ -33,7 +33,7 @@ case class RsdKernelConfig
 
   def getFUinConfig: HComplexConfig = getUinConfig <> 2 // HCC(16, -4)
 
-  def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig/2 // HCC(16, 12)
+  def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig/4 // HCC(8, 6)
 
   def getResultConfig: HComplexConfig = getMACDatConfig <> 2
 
