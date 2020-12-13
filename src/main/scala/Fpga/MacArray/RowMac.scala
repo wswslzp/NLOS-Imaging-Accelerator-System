@@ -20,10 +20,9 @@ case class RowMac(cfg: RsdKernelConfig) extends Component {
   prev_data := row_mem(io.col_addr)
   when(io.data_in.valid) {
     row_mem(io.col_addr) := (prev_data + io.data_in.payload).fixTo(complex_cfg).asBits
+  } elsewhen(io.clear){
+    row_mem(io.col_addr) := B(0, complex_cfg.getComplexWidth bit)
   }
-//  } elsewhen(io.clear){
-//    row_mem(io.col_addr) := B(0)
-//  }
   io.data_out := row_mem(io.col_addr)
 
 }
