@@ -21,7 +21,7 @@ case class RsdKernelConfig
   less_mem_size: Boolean = true,
   sub_mem_tag: Int = 0,
   fpga_impl: Boolean = false,
-  fft_use_pipeline: Boolean = false
+  fft_use_pipeline: Boolean = true
 ){
   require(kernel_size.length == 2)
   def rows: Int = kernel_size.head
