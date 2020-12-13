@@ -52,14 +52,15 @@ object ComplexAccArrayTest extends App{
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
-//      .compile(ComplexAccArray(rsd_cfg))
-      .compile(RowMacArray(rsd_cfg))
+      .compile(ComplexAccArray(rsd_cfg))
+//      .compile(RowMacArray(rsd_cfg))
   } else {
     SimConfig
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
-      .compile(RowMacArray(rsd_cfg))
+      .compile(ComplexAccArray(rsd_cfg))
+//      .compile(RowMacArray(rsd_cfg))
   }
 
   compiled
@@ -203,9 +204,11 @@ object ComplexAccArrayTest extends App{
   csvwrite(new File("tmp/hard_uout_abs_max.csv"), uout_abs_max)
 
   val uout_abs_max_flip = fliplr(uout_abs_max)
-  write_image(uout_abs_max_flip, "tb/RowMacArray/nlos_hard_out.jpg")
+//  write_image(uout_abs_max_flip, "tb/RowMacArray/nlos_hard_out.jpg")
+  write_image(uout_abs_max_flip, "tb/ComplexAccArray/nlos_hard_out.jpg")
 
-  val tb_path = "tb/RowMacArray"
+//  val tb_path = "tb/RowMacArray"
+  val tb_path = "tb/ComplexAccArray"
   val tmp_path = "tmp/ComplexAccArray"
 //  val nullLogger = ProcessLogger(line=>{})
 

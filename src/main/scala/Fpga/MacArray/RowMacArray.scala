@@ -40,7 +40,7 @@ case class RowMacArray(cfg: RsdKernelConfig) extends Component {
     when(rsd_fft_prod_valid){
       mac_array(r).io.acc_in_addr := col_addr.value
     } otherwise {
-      mac_array(r).io.acc_in_addr := col_addr.value
+      mac_array(r).io.acc_in_addr := 0
     }
   }
 
