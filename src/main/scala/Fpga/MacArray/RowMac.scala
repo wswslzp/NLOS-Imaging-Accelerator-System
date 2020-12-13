@@ -15,13 +15,15 @@ case class RowMac(cfg: RsdKernelConfig) extends Component {
   }
 
   // TODO: Memory has problem of decoding HComplex?
-  val row_mem = Mem(Bits(complex_cfg.getComplexWidth bit), BigInt(cfg.cols))//.init(Array.fill(cfg.cols)(B(0)))
+  val row_mem = Mem(Bits(complex_cfg.getComplexWidth bit), BigInt(cfg.cols)).init(Array.fill(cfg.cols)(B(0)))
   val prev_data = HComplex(complex_cfg)
   prev_data := row_mem(io.col_addr)
   when(io.data_in.valid){
-    row_mem(io.col_addr) := ( prev_data + io.data_in.payload ).fixTo(complex_cfg).asBits
+//    row_mem(io.col_addr) := ( prev_data + io.data_in.payload ).fixTo(complex_cfg).asBits
+    row_mem.write(io.col_addr, (prev_data + io.data_in.payload).fixTo(complex_cfg).asBits)
   } elsewhen(io.clear){
-    row_mem(io.col_addr) := B(0)
+//    row_mem(io.col_addr) := B(0)
+    row_mem.write(io.col_addr, B(0))
   }
   io.data_out := row_mem(io.col_addr)
 
