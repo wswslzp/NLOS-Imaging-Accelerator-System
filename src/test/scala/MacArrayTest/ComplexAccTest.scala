@@ -28,7 +28,7 @@ object ComplexAccTest extends App{
       dut.io.data_in.valid #= false
       dut.io.clear #= false
       dut.io.acc_in_addr #= 2
-      dut.io.pipe_out_addr #= 2
+      dut.io.pipe_out_addr #= 1
       dut.clockDomain.waitSampling()
 
       test_vec.foreach{dat=>
