@@ -207,10 +207,10 @@ object ComplexAccArrayTest extends App{
 
   val tb_path = "tb/RowMacArray"
   val tmp_path = "tmp/ComplexAccArray"
-  val nullLogger = ProcessLogger(line=>{})
+//  val nullLogger = ProcessLogger(line=>{})
 
   if(withWave){
-    Process(s"vcd2vpd ${tb_path}/ComplexAccArray_tb.vcd ${tb_path}/ComplexAccArray_tb.vpd").!(nullLogger)
+    Process(s"vcd2vpd ${tb_path}/ComplexAccArray_tb.vcd ${tb_path}/ComplexAccArray_tb.vpd").!
     Process(s"dve -full64 -vpd ${tb_path}/ComplexAccArray_tb.vpd").!!
   }
 
