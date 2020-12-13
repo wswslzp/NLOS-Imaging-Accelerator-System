@@ -22,7 +22,7 @@ case class RowMac(cfg: RsdKernelConfig) extends Component {
   when(io.data_in.valid) {
     row_mem(io.acc_in_addr) := (prev_data + io.data_in.payload).fixTo(complex_cfg).asBits
   } elsewhen(io.clear){
-    row_mem(io.pipe_out_addr) := 0
+    row_mem(io.pipe_out_addr) := B(0, complex_cfg.getComplexWidth bit)
   }
   io.data_out := row_mem(io.pipe_out_addr)
 
