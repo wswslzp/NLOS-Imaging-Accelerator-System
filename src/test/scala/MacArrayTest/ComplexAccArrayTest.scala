@@ -4,6 +4,7 @@ import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
 import Core.MacArray._
+import Fpga.MacArray._
 import Config._
 import RsdKernelConfig._
 import Sim.RsdGenCoreArray._
@@ -51,13 +52,14 @@ object ComplexAccArrayTest extends App{
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
-      .compile(ComplexAccArray(rsd_cfg))
+//      .compile(ComplexAccArray(rsd_cfg))
+      .compile(RowMacArray(rsd_cfg))
   } else {
     SimConfig
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
-      .compile(ComplexAccArray(rsd_cfg))
+      .compile(RowMacArray(rsd_cfg))
   }
 
   compiled
@@ -79,9 +81,9 @@ object ComplexAccArrayTest extends App{
             // fft out driver
             () => {
               for(d <- rsd_cfg.depthRange){
-                dut.sim.dc #= d
+//                dut.sim.dc #= d
                 for(f <- rsd_cfg.freqRange){
-                  dut.sim.fc #= f
+//                  dut.sim.fc #= f
                   dut.io.fc_overflow #= (f == rsd_cfg.freq_factor-1)
                   println(s"Now is ($d, $f).")
                   depth = d
