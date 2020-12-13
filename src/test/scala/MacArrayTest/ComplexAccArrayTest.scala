@@ -48,7 +48,7 @@ object ComplexAccArrayTest extends App{
   val withWave = true
   val compiled = if(withWave){
     SimConfig
-      .withWave(2)
+      .withWave(1)
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
