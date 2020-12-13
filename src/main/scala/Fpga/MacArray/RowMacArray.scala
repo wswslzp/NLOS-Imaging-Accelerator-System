@@ -46,7 +46,7 @@ case class RowMacArray(cfg: RsdKernelConfig) extends Component {
     when(rsd_fft_prod_valid){
       mac_array(r).io.col_addr := col_addr.value
     } elsewhen(pipe_out_en) {
-      mac_array(r).io.col_addr := pipe_out_col_addr
+      mac_array(r).io.col_addr := RegNext(pipe_out_col_addr)
     } otherwise {
       mac_array(r).io.col_addr := 0
     }
