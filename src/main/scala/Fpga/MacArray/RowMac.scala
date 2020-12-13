@@ -15,7 +15,7 @@ case class RowMac(cfg: RsdKernelConfig) extends Component {
   }
 
   // TODO: Memory has problem of decoding HComplex?
-  val row_mem = Mem(Bits(complex_cfg.getComplexWidth bit), BigInt(cfg.cols)).init(Array.fill(cfg.cols)(B(0)))
+  val row_mem = Mem(Bits(complex_cfg.getComplexWidth bit), BigInt(cfg.cols))//.init(Array.fill(cfg.cols)(B(0)))
   val prev_data = HComplex(complex_cfg)
   prev_data := row_mem(io.col_addr)
   when(io.data_in.valid){
