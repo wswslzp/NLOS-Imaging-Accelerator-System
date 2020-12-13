@@ -81,9 +81,9 @@ object ComplexAccArrayTest extends App{
             // fft out driver
             () => {
               for(d <- rsd_cfg.depthRange){
-//                dut.sim.dc #= d
+                dut.sim.dc #= d
                 for(f <- rsd_cfg.freqRange){
-//                  dut.sim.fc #= f
+                  dut.sim.fc #= f
                   dut.io.fc_overflow #= (f == rsd_cfg.freq_factor-1)
                   println(s"Now is ($d, $f).")
                   depth = d
@@ -203,9 +203,9 @@ object ComplexAccArrayTest extends App{
   csvwrite(new File("tmp/hard_uout_abs_max.csv"), uout_abs_max)
 
   val uout_abs_max_flip = fliplr(uout_abs_max)
-  write_image(uout_abs_max_flip, "tb/ComplexAccArray/nlos_hard_out.jpg")
+  write_image(uout_abs_max_flip, "tb/RowMacArray/nlos_hard_out.jpg")
 
-  val tb_path = "tb/ComplexAccArray"
+  val tb_path = "tb/RowMacArray"
   val tmp_path = "tmp/ComplexAccArray"
   val nullLogger = ProcessLogger(line=>{})
 

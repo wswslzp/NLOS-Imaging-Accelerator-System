@@ -54,4 +54,8 @@ case class RowMacArray(cfg: RsdKernelConfig) extends Component {
     mac_array(r).io.clear := pipe_out_en
     io.mac_result.payload(r) := mac_array(r).io.data_out
   }
+  val sim = new Bundle {
+    val dc = in UInt(8 bit)
+    val fc = in UInt(8 bit)
+  }
 }
