@@ -27,7 +27,8 @@ object ComplexAccTest extends App{
       dut.clockDomain.forkStimulus(2)
       dut.io.data_in.valid #= false
       dut.io.clear #= false
-      dut.io.col_addr #= 2
+      dut.io.acc_in_addr #= 2
+      dut.io.pipe_out_addr #= 2
       dut.clockDomain.waitSampling()
 
       test_vec.foreach{dat=>
