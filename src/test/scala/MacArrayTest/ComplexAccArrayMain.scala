@@ -6,6 +6,7 @@ import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
 import Core.MacArray.ComplexAccArray
+import Fpga.MacArray.RowMacArray
 import Config.RsdKernelConfig._
 
 object ComplexAccArrayMain extends App{
@@ -13,5 +14,5 @@ object ComplexAccArrayMain extends App{
   SpinalConfig(
     targetDirectory = "rtl/ComplexAccArray",
     oneFilePerComponent = true
-  ).generateVerilog(ComplexAccArray(rsd_cfg))
+  ).generateVerilog(RowMacArray(rsd_cfg))
 }
