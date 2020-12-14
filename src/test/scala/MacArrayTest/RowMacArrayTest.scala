@@ -45,7 +45,7 @@ object RowMacArrayTest extends App{
   val withWave = true
   val compiled = if(withWave){
     SimConfig
-      .withWave(1)
+      .withWave(2)
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16")
