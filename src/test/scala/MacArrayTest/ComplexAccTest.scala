@@ -51,6 +51,10 @@ object ComplexAccTest extends App{
         dut.clockDomain.waitSampling(10)
       }
 //      println(s"the hardware acc result is ${dut.io.data_out.toComplex}")
+      for(c <- 0 until 10) {
+        dut.io.pipe_out_addr #= c
+        dut.clockDomain.waitSampling()
+      }
 
       dut.clockDomain.waitSampling(5)
       dut.io.clear #= true
