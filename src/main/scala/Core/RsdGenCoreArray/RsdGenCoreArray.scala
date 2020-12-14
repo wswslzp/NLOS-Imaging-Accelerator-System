@@ -178,6 +178,7 @@ case class RsdGenCoreArray(
   // fft2d_out_sync is active at the first one cycle of the fft2d_valid
 //  val push_start = (dc_eq_0 || (io.dc === 1 && fc_eq_0)) ? io.fft2d_out_sync | push_ending_1
 //  val push_start = dc_eq_0 ? io.fft2d_out_sync | push_ending_1
+  val cnt_incr_1 = RegNext(io.cnt_incr) init False
   val push_start = dc_eq_0 ? io.fft2d_out_sync | io.cnt_incr // TODO:Check
 
   // count for row_num cycles from push_start signal active
