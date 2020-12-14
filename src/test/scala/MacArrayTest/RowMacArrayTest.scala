@@ -126,9 +126,7 @@ object RowMacArrayTest extends App{
                     dut.clockDomain.waitSampling()
                   }
                   dut.io.rsd_kernel.valid #= false
-                  dut.io.push_ending #= true
                   dut.clockDomain.waitSampling()
-                  dut.io.push_ending #= false
                 }
                 dut.clockDomain.waitActiveEdgeWhere(dut.io.clear_confirm.toBoolean)
               }
@@ -165,14 +163,16 @@ object RowMacArrayTest extends App{
 
         // Monitor
         () => {
+          var dd = 0
           while(true){
             dut.clockDomain.waitActiveEdgeWhere(dut.io.mac_result.valid.toBoolean)
             for(col <- rsd_cfg.colRange){
               for(row <- rsd_cfg.rowRange){
-                uout_f(depth-1)(row, col) = dut.io.mac_result.payload(row).toComplex
+                uout_f(dd)(row, col) = dut.io.mac_result.payload(row).toComplex
               }
               dut.clockDomain.waitSampling()
             }
+            dd += 1
           }
         }
       )
