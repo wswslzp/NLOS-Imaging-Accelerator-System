@@ -6,7 +6,7 @@ import Config.RsdKernelConfig
 import Util._
 
 case class RowAcc(cfg: RsdKernelConfig) extends Component {
-  val complex_cfg = cfg.getMACDatConfig * cfg.getMACDatConfig
+  var complex_cfg = cfg.getMACDatConfig * cfg.getMACDatConfig
   val io = new Bundle {
     val data_in = slave(Flow(HComplex(complex_cfg)))
     val data_out = out(HComplex(complex_cfg))

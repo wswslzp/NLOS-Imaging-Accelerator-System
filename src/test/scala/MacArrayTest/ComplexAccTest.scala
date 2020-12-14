@@ -11,7 +11,7 @@ import Fpga.MacArray.RowAcc
 
 object ComplexAccTest extends App{
   import Config.RsdKernelConfig.rsd_cfg
-  val cfg = Config.HComplexConfig(8, 8)
+  val cfg = Config.HComplexConfig(8, 0)
 
   val test_vec = DenseVector.tabulate(10)(Complex(_, 0))
   val acc_result = test_vec.reduce(_ + _)
@@ -22,7 +22,11 @@ object ComplexAccTest extends App{
     .allOptimisation
     .workspacePath("tb")
 //    .compile(ComplexAcc(cfg))
-    .compile(RowAcc(rsd_cfg))
+    .compile{
+      val dut = RowAcc(rsd_cfg)
+      dut.complex_cfg = cfg
+      dut
+    }
     .doSim("ComplexAcc_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
       dut.io.data_in.valid #= false
