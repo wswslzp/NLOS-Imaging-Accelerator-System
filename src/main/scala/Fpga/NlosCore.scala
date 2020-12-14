@@ -60,6 +60,7 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   val mac_array = RowMacArray(cfg)
   val fc_ov = io.fc === (cfg.freq_factor-1)
   mac_array.io.fc_overflow := fc_ov
+  mac_array.io.push_ending := rgca.io.push_ending
   rgca.io.clear_confirm := mac_array.io.clear_confirm
   mac_array.io.fft_out << fft2d_core.io.data_to_mac
   fft2d_core.io.data_to_mac.simPublic()
