@@ -7,7 +7,7 @@ import Core.MacArray._
 import Sim.SimComplex._
 import breeze.linalg.DenseVector
 import breeze.math._
-import Fpga.MacArray.RowMac
+import Fpga.MacArray.RowAcc
 
 object ComplexAccTest extends App{
   import Config.RsdKernelConfig.rsd_cfg
@@ -22,13 +22,13 @@ object ComplexAccTest extends App{
     .allOptimisation
     .workspacePath("tb")
 //    .compile(ComplexAcc(cfg))
-    .compile(RowMac(rsd_cfg))
+    .compile(RowAcc(rsd_cfg))
     .doSim("ComplexAcc_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
       dut.io.data_in.valid #= false
       dut.io.clear #= false
       dut.io.acc_in_addr #= 2
-      dut.io.pipe_out_addr #= 1
+      dut.io.pipe_out_addr #= 2
       dut.clockDomain.waitSampling()
 
       test_vec.foreach{dat=>

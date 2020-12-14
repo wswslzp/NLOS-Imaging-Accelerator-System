@@ -33,7 +33,7 @@ case class RowMacArray(cfg: RsdKernelConfig) extends Component {
   //  the same place. Another pair of WR port, is used to read out the data and clear the data
   //  at the same time/place. The two pair of transaction happens in different phase in most of time
   //  but at f0, they overlaps.
-  val mac_array = Array.fill(cfg.rows)(RowMac(cfg))
+  val mac_array = Array.fill(cfg.rows)(RowAcc(cfg))
   for(r <- cfg.rowRange){
     mac_array(r).io.data_in.valid := rsd_fft_prod_valid
     mac_array(r).io.data_in.payload := rsd_fft_prod(r)

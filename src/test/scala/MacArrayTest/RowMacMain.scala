@@ -10,6 +10,6 @@ object RowMacMain extends App{
   SpinalConfig(
     targetDirectory = "rtl"
   ).generateVerilog(
-    RowMac(Config.RsdKernelConfig.rsd_cfg)
+    RowAcc(Config.RsdKernelConfig.rsd_cfg)
   )
 }
