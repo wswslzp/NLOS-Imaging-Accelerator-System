@@ -47,7 +47,7 @@ case class RowMacArray(cfg: RsdKernelConfig) extends Component {
   val pipe_out_col_addr = RegNext(pipe_out_cnt_area.cnt.value)
   pipe_out_col_addr.setName("pipe_out_col_addr")
   val pipe_out_en = RegNext(pipe_out_cnt_area.cond_period) init False
-  io.mac_result.valid := RegNext(pipe_out_en) init False // read sync
+  io.mac_result.valid := RegNext(pipe_out_en) init False // read sync and TODO: 1 reg
   val clear_start = io.mac_result.valid.fall(False)
   io.clear_confirm := Delay(clear_start, cfg.cols, init = False)
 

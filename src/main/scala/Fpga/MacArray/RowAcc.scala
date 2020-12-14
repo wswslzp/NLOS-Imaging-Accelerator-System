@@ -17,31 +17,28 @@ case class RowAcc(cfg: HComplexConfig, cols: Int) extends Component {
 
   // Note: Dual port SRAM/BRAM.
   val row_mem = Mem(Bits(cfg.getComplexWidth bit), BigInt(cols)).init(Array.fill(cols)(B(0)))
-  row_mem.addAttribute("ramstyle", "M20K")
 
   // Get the previous data
-  val prev_data = HComplex(cfg)
-  prev_data := row_mem.readSync(io.acc_in_addr)
+  val mem_out = HComplex(cfg)
+  val read_addr = io.data_in.valid ? io.acc_in_addr | io.pipe_out_addr
+  mem_out := row_mem.readSync(read_addr)
 
   val data_in = io.data_in.toReg(HC(0, 0, cfg))
-  val sum = ( prev_data + data_in ).fixTo(cfg).asBits
-//  val sum_1 = RegNext(sum) init B(0, cfg.getComplexWidth bit)
+  val sum = ( mem_out + data_in ).fixTo(cfg).asBits
   val data_in_valid_1 = Delay(io.data_in.valid, 1, init = False)
-
-  when(data_in_valid_1) {
-//    row_mem(acc_in_addr_1) := sum_1
-    row_mem(acc_in_addr_1) := sum
-  }
 
   // When clear assert, all the pixel in row clears
   val clear_addr_area = countUpFrom(io.clear.rise(False), 0 until cols)
   val clear_addr = clear_addr_area.cnt.value
-  when(clear_addr_area.cond_period){
-    row_mem(clear_addr) := B(0, cfg.getComplexWidth bit)
+  val clear_valid = clear_addr_area.cond_period
+
+  val write_addr = cloneOf(clear_addr).setAllTo(clear_valid) & clear_addr | cloneOf(acc_in_addr_1).setAllTo(data_in_valid_1) & acc_in_addr_1
+  val write_data = cloneOf(sum).setAllTo(data_in_valid_1) & sum
+  when(clear_valid | data_in_valid_1) {
+    row_mem(write_addr) := write_data
   }
 
   // Output data out
-//  io.data_out := row_mem(io.pipe_out_addr)
-  io.data_out := row_mem.readSync(io.pipe_out_addr)
+  io.data_out := mem_out
 
 }

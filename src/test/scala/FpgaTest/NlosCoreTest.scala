@@ -14,7 +14,7 @@ import scala.sys.process.{Process, ProcessLogger}
 
 object NlosCoreTest extends App {
 
-  val withWave = false
+  val withWave = true
   val waveDepth = 1
 
   val compiled = if (withWave) {
