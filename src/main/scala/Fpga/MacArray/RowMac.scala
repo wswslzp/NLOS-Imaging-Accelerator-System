@@ -15,32 +15,23 @@ case class RowMac(cfg: RsdKernelConfig) extends Component {
     val pipe_out_addr = in UInt(log2Up(cfg.cols) bit)
   }
 
+  // TODO: Change the read during write policy
+  val acc_in_addr_1 = RegNext(io.acc_in_addr) init 0
+  val pipe_out_addr_1 = RegNext(io.pipe_out_addr) init 0
+
   // Note: Dual port SRAM/BRAM.
   val row_mem = Mem(Bits(complex_cfg.getComplexWidth bit), BigInt(cfg.cols)).init(Array.fill(cfg.cols)(B(0)))
   row_mem.addAttribute("ramstyle", "M20K")
   val prev_data = HComplex(complex_cfg)
+  val data_in = io.data_in.toReg()
 
-  prev_data := row_mem.readWriteSync(
-    address = io.acc_in_addr,
-    data = (prev_data + io.data_in.payload).fixTo(complex_cfg).asBits,
-    enable = io.data_in.valid,
-    write = io.data_in.valid
-  )
-
-  io.data_out := row_mem.readWriteSync(
-    address = io.pipe_out_addr,
-    data = B(0, complex_cfg.getComplexWidth bit),
-    enable = io.clear,
-    write = io.clear
-  )
-
-//  prev_data := row_mem(io.acc_in_addr)
-//  when(io.data_in.valid) {
-//    row_mem(io.acc_in_addr) := (prev_data + io.data_in.payload).fixTo(complex_cfg).asBits
-//  }
-//  when(io.clear){
-//    row_mem(io.pipe_out_addr) := B(0, complex_cfg.getComplexWidth bit)
-//  }
-//  io.data_out := row_mem(io.pipe_out_addr)
+  prev_data := row_mem(acc_in_addr_1)
+  when(io.data_in.valid) {
+    row_mem(io.acc_in_addr) := (prev_data + data_in).fixTo(complex_cfg).asBits
+  }
+  when(io.clear){
+    row_mem(io.pipe_out_addr) := B(0, complex_cfg.getComplexWidth bit)
+  }
+  io.data_out := row_mem(io.pipe_out_addr)
 
 }
