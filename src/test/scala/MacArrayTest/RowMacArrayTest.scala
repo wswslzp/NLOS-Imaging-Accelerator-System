@@ -62,6 +62,7 @@ object RowMacArrayTest extends App{
     .doSim("RowMacArray_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
       dut.io.fc_overflow #= false
+      dut.io.push_ending #= false
       dut.io.fft_out.valid #= false
       dut.io.rsd_kernel.valid #= false
       dut.clockDomain.waitSampling()
@@ -101,6 +102,7 @@ object RowMacArrayTest extends App{
                 }
               }
               dut.io.fc_overflow #= false
+              dut.clockDomain.waitActiveEdgeWhere(dut.io.clear_confirm.toBoolean)
             }
             ,
 
@@ -124,6 +126,7 @@ object RowMacArrayTest extends App{
                   dut.io.rsd_kernel.valid #= false
                   dut.clockDomain.waitSampling()
                 }
+                dut.clockDomain.waitActiveEdgeWhere(dut.io.clear_confirm.toBoolean)
               }
               dut.clockDomain.waitSampling(1000)
               simSuccess()
