@@ -25,9 +25,9 @@ case class RowAcc(cfg: HComplexConfig, cols: Int) extends Component {
 //  prev_data := row_mem(io.acc_in_addr)
   prev_data := row_mem.readSync(io.acc_in_addr)
 
-  val data_in = io.data_in.toReg()
+  val data_in = io.data_in.toReg(HC(0, 0, cfg))
   val sum = ( prev_data + data_in ).fixTo(cfg).asBits
-  val sum_1 = RegNext(sum) init 0
+  val sum_1 = RegNext(sum) init B(0, cfg.getComplexWidth bit)
   val data_in_valid_1 = RegNext(io.data_in.valid) init False
 
   when(data_in_valid_1) {
