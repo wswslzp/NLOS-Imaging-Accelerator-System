@@ -72,6 +72,7 @@ object RsdGenCoreArrayTest extends App{
     dut.io.fft2d_out_sync #= false
     dut.io.dc #= 0
     dut.io.fc #= 0
+    dut.io.clear_confirm #= false
     val rsdDriver = RsdDriver(dut.data_in, dut.clockDomain)
     dut.clockDomain.waitSampling()
 
@@ -122,6 +123,12 @@ object RsdGenCoreArrayTest extends App{
                 dut.clockDomain.waitSampling(120) // simulate the fft
               } else {
                 dut.clockDomain.waitSampling(10)
+              }
+              if(f == rsd_cfg.freq_factor-1){
+                dut.clockDomain.waitSampling(2*128)
+                dut.io.clear_confirm #= true
+                dut.clockDomain.waitSampling()
+                dut.io.clear_confirm #= false
               }
             }
             dut.clockDomain.waitActiveEdgeWhere(dut.io.cnt_incr.toBoolean)

@@ -20,7 +20,7 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   val io = new Bundle {
     val dc = in UInt(log2Up(depth_factor) bit)
     val fc = in UInt(log2Up(freq_factor) bit)
-    val push_ending = in Bool
+    val push_start = in Bool() // TODO Check
     val fft2d_comp_done = out Bool()
     val fft2d_out_sync = out Bool
     val data_in = slave(Flow(HComplex(rsd_cfg.getUinConfig))) // HCC(19,-3)
@@ -50,9 +50,8 @@ case class FFT2dCore(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor: I
   io.fft2d_out_sync := fft2d_out_sync
 
   // *************** internal memory ***********************
-  val push_start1 = RegNext(io.push_ending, init = False)
   val col_addr_cnt_area = countUpFrom(
-    (io.dc === 0) ? fft2d_out_sync | push_start1, // reuse the counter
+    (io.dc === 0) ? fft2d_out_sync | io.push_start, // reuse the counter // TODO Check
     0 until cfg.point,
     "col_addr_cnt"
   )

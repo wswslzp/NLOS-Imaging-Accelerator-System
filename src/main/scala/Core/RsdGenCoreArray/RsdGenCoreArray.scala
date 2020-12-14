@@ -23,7 +23,9 @@ case class RsdGenCoreArray(
     val dc = in UInt(log2Up(cfg.depth_factor) bit)
     val fc = in UInt(log2Up(cfg.freq_factor) bit)
     val fft2d_out_sync = in Bool
+    val clear_confirm = in Bool() // TODO Check
     val push_ending = out Bool()
+    val push_start = out Bool() // TODO Check
     val cnt_incr = out Bool
     val load_req = out Bits(4 bit)
     val rsd_kernel: Flow[Vec[HComplex]] = master (
@@ -175,7 +177,8 @@ case class RsdGenCoreArray(
   // Push_start: A one-cycle square impulse active one cycle of actually push start
   // fft2d_out_sync is active at the first one cycle of the fft2d_valid
 //  val push_start = (dc_eq_0 || (io.dc === 1 && fc_eq_0)) ? io.fft2d_out_sync | push_ending_1
-  val push_start = dc_eq_0 ? io.fft2d_out_sync | push_ending_1
+//  val push_start = dc_eq_0 ? io.fft2d_out_sync | push_ending_1
+  val push_start = dc_eq_0 ? io.fft2d_out_sync | io.cnt_incr // TODO:Check
 
   // count for row_num cycles from push_start signal active
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
@@ -199,10 +202,12 @@ case class RsdGenCoreArray(
   push_ending := RegNext(count_col_addr.cnt.willOverflow, init = False)
 
   io.push_ending := push_ending // Push ending is the true increment signal tb used.
+  io.push_start := push_start //TODO: Check
 
   // indicate when the controller to do counter increment.
 //  io.cnt_incr := (dc_eq_0 && io.fc === cfg.freq_factor-1) ? rsd_kernel_gen.io.kernel.valid | push_ending
-  io.cnt_incr := push_ending
+//  io.cnt_incr := push_ending // TODO: Check
+  io.cnt_incr := ( io.fc === cfg.freq_factor-1 ) ? io.clear_confirm | push_ending
 
   // define new load req
   val wave_req = wave_load_unit.io.load_req

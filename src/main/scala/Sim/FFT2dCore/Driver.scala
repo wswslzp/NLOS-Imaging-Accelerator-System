@@ -19,7 +19,7 @@ object Driver {
   def dutInit(dut: FFT2dCore): Unit = {
     dut.io.dc #= 0
     dut.io.fc #= 0
-    dut.io.push_ending #= false
+    dut.io.push_start #= false
     dut.io.data_in.valid #= false
     dut.io.data_from_mac.valid #= false
   }
@@ -52,9 +52,9 @@ object Driver {
           dut.io.data_in.valid #= false
           dut.clockDomain.waitActiveEdgeWhere(dut.io.fft2d_out_sync.toBoolean)
           dut.clockDomain.waitSampling(rsd_cfg.kernel_size.head - 2)
-          dut.io.push_ending #= true
+          dut.io.push_start #= true
           dut.clockDomain.waitSampling()
-          dut.io.push_ending #= false
+          dut.io.push_start #= false
         }
       }
 
@@ -79,9 +79,9 @@ object Driver {
               dut.clockDomain.waitSampling()
             }
           }
-          dut.io.push_ending #= true
+          dut.io.push_start #= true
           dut.clockDomain.waitSampling()
-          dut.io.push_ending #= false
+          dut.io.push_start #= false
         }
       }
 

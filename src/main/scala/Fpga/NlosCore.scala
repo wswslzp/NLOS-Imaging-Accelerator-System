@@ -49,7 +49,7 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   )
   fft2d_core.io.dc := io.dc
   fft2d_core.io.fc := io.fc
-  fft2d_core.io.push_ending := rgca.io.push_ending
+  fft2d_core.io.push_start := rgca.io.push_start
   rgca.io.fft2d_out_sync := fft2d_core.io.fft2d_out_sync
   fft2d_core.io.data_in << io.img_in
   io.result << fft2d_core.io.data_to_final
@@ -60,6 +60,7 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   val mac_array = RowMacArray(cfg)
   val fc_ov = io.fc === (cfg.freq_factor-1)
   mac_array.io.fc_overflow := fc_ov
+  rgca.io.clear_confirm := mac_array.io.clear_confirm
   mac_array.io.fft_out << fft2d_core.io.data_to_mac
   fft2d_core.io.data_to_mac.simPublic()
   mac_array.io.rsd_kernel << rgca.io.rsd_kernel
