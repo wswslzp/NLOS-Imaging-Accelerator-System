@@ -21,7 +21,7 @@ object ComplexAccTest extends App{
   val acc_result = DenseVector.tabulate(10){i =>
     test_mat(0, i) + test_mat(1, i) + test_mat(2, i)
   }
-  println(s"The test vector is $test_vec. And the acc result is $acc_result")
+  println(s"The test vector is $test_mat. And the acc result is $acc_result")
 
   SimConfig
     .withWave
