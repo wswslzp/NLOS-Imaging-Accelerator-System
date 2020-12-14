@@ -5,7 +5,7 @@ import spinal.core.sim._
 import spinal.lib._
 import Core.MacArray._
 import Sim.SimComplex._
-import breeze.linalg.DenseVector
+import breeze.linalg._
 import breeze.math._
 import Fpga.MacArray.RowAcc
 
@@ -14,7 +14,13 @@ object ComplexAccTest extends App{
   val cfg = Config.HComplexConfig(8, 0)
 
   val test_vec = DenseVector.tabulate(10)(Complex(_, 0))
-  val acc_result = test_vec.reduce(_ + _)
+  val test_mat = DenseMatrix.tabulate(3, 10)(
+    Complex(_, _)
+  )
+//  val acc_result = test_vec.reduce(_ + _)
+  val acc_result = DenseVector.tabulate(10){i =>
+    test_mat(0, i) + test_mat(1, i) + test_mat(2, i)
+  }
   println(s"The test vector is $test_vec. And the acc result is $acc_result")
 
   SimConfig
@@ -23,34 +29,35 @@ object ComplexAccTest extends App{
     .workspacePath("tb")
 //    .compile(ComplexAcc(cfg))
     .compile{
-      val dut = RowAcc(rsd_cfg)
-      dut.complex_cfg = cfg
+      val dut = RowAcc(cfg, 10)
       dut
     }
-    .doSim("ComplexAcc_tb"){dut=>
+    .doSim("RowAcc_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
       dut.io.data_in.valid #= false
       dut.io.clear #= false
-      dut.io.acc_in_addr #= 2
-      dut.io.pipe_out_addr #= 2
+      dut.io.acc_in_addr #= 0
+      dut.io.pipe_out_addr #= 0
       dut.clockDomain.waitSampling()
 
-      test_vec.foreach{dat=>
-        dut.io.data_in.valid #= true
-        dut.io.data_in.payload #= dat
-        dut.clockDomain.waitSampling()
-        println(s"the hardware input is ${dut.io.data_in.payload.toComplex}")
+      for(i <- 0 until 3){
+        for(c <- 0 until 10){
+          dut.io.data_in.valid #= true
+          dut.io.data_in.payload #= test_mat(i, c)
+          dut.io.acc_in_addr #= c
+          dut.clockDomain.waitSampling()
+        }
+        dut.io.data_in.valid #= false
+        dut.clockDomain.waitSampling(10)
       }
-      dut.io.data_in.valid #= false
-      dut.clockDomain.waitSampling()
-      println(s"the hardware acc result is ${dut.io.data_out.toComplex}")
+//      println(s"the hardware acc result is ${dut.io.data_out.toComplex}")
 
       dut.clockDomain.waitSampling(5)
       dut.io.clear #= true
       dut.clockDomain.waitSampling()
       dut.io.clear #= false
 
-      dut.clockDomain.waitSampling(10)
+      dut.clockDomain.waitSampling(150)
 
       simSuccess()
     }
