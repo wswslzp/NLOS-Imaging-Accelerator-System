@@ -16,6 +16,6 @@ object FFTConfig {
     val col_parallel, row_serial = newElement()
   }
   object ConjMode extends SpinalEnum(binarySequential) {
-    val former_conj, back_conj = newElement()
+    val former_conj, back_conj, no_conj = newElement()
   }
 }

@@ -9,45 +9,6 @@ import FFTConfig._
 
 case class FFT2dv1(cfg: FFTConfig) extends Component {
 
-  case class PartialFFT(cfg: FFTConfig) extends Component {
-    val io = new Bundle {
-      val col_line_in = slave(
-        Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point))
-      )
-      val row_pix_in = slave(
-        Flow(HComplex(cfg.hComplexConfig))
-      )
-      val col_line_out = master(
-        Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point))
-      )
-      val row_pix_out = master(
-        Flow(HComplex(cfg.hComplexConfig))
-      )
-      val mode = in (FFTMode())
-      val inverse = in Bool()
-    }
-
-
-  }
-
-  case class ColAddrArea(use_pip: Boolean = true) extends Component {
-    val row_addr_ov = in Bool()
-    val fft_out_vld = in Bool() allowPruning()
-    val col_addr = out UInt(log2Up(cfg.point) bit)
-    val col_addr_vld = out Bool()
-
-    if(use_pip){
-      val col_addr_area = countUpFrom(row_addr_ov, 0 until cfg.point, "col_addr")
-      col_addr := col_addr_area.cnt.value
-      col_addr_vld := col_addr_area.cond_period
-    } else {
-      val cnt = Counter(0 until cfg.point, inc = row_addr_ov || fft_out_vld)
-      cnt.setCompositeName(this, "col_addr_cnt")
-      val cond_period_minus_1 = Reg(Bool()) setWhen row_addr_ov clearWhen cnt.willOverflow
-      col_addr_vld := cond_period_minus_1 | row_addr_ov
-      col_addr := cnt.value
-    }
-  }
 
   val io = new Bundle {
     val col_line_in = slave(
@@ -62,9 +23,30 @@ case class FFT2dv1(cfg: FFTConfig) extends Component {
     val row_pix_out = master(
       Flow(HComplex(cfg.hComplexConfig))
     )
-    val mode = in Bool()
-    val inverse = in Bool()
+    val mode = in Bool() // 0: row pixel in/col line out; 1: col line in/row pixel out
+    val inverse = in Bool() // 0: FFT; 1: IFFT
   }
+
+  val first_fft = PartialFFT(cfg)
+  first_fft.io.col_line_in << io.col_line_in
+  first_fft.io.row_pix_in << io.row_pix_in
+  first_fft.io.mode := io.mode
+  first_fft.io.conj_mode := io.inverse ? ConjMode.former_conj | ConjMode.no_conj
+
+  val int_mem = IntMem(cfg)
+  int_mem.io.col_line_in << first_fft.io.col_line_out
+  int_mem.io.row_pix_in << first_fft.io.row_pix_out
+  int_mem.io.mode := io.mode
+
+  val last_fft = PartialFFT(cfg)
+  last_fft.io.col_line_in << int_mem.io.col_line_out
+  last_fft.io.row_pix_in << int_mem.io.row_pix_out
+  io.col_line_out << last_fft.io.col_line_out
+  io.row_pix_out << last_fft.io.row_pix_out
+  last_fft.io.mode := io.mode
+  last_fft.io.conj_mode := io.inverse ? ConjMode.back_conj | ConjMode.no_conj
+
+
 //
 //  // do the row fft
 //  val fft_row: Flow[Vec[HComplex]] = fft(io.line_in, cfg.row_pipeline)
