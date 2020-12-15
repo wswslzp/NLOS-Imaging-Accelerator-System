@@ -4,6 +4,7 @@ import Config._
 import Core.FFT2d._
 import Fpga.FFT2d._
 import Sim.SimFix._
+import Sim.SimComplex._
 import Util._
 import breeze._
 import breeze.math.Complex
@@ -73,6 +74,7 @@ object FFT2dv1Test extends App{
     val io = new Bundle {
       val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
       val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
+      val pixel_out = master(Flow(HComplex(cfg.hComplexConfig)))
     }
 
     val fft2_inst = FFT2dv1(cfg)
@@ -82,6 +84,14 @@ object FFT2dv1Test extends App{
     fft2_inst.io.mode := True
     fft2_inst.io.inverse := False
     val fft_out = fft2_inst.io.col_line_out
+
+    val ifft2_inst = FFT2dv1(cfg)
+    ifft2_inst.io.col_line_in << fft_out
+    ifft2_inst.io.mode := False
+    ifft2_inst.io.inverse := True
+    ifft2_inst.io.row_pix_in.valid := False
+    ifft2_inst.io.row_pix_in.payload := HC(0, 0, cfg.hComplexConfig)
+    io.pixel_out << ifft2_inst.io.row_pix_out
 
 //    io.line_out <> fft2(fft2(io.line_in, cfg.row, cfg.point), True, cfg.row)
     io.line_out <> fft2(fft_out, True, cfg.row)
@@ -120,8 +130,25 @@ object FFT2dv1Test extends App{
       dut.io.line_in.valid #= false
 
       val fft2_out = DenseMatrix.zeros[Double](fft_config.row, fft_config.point)
+      val fft2_out_1 = DenseMatrix.zeros[Double](fft_config.row, fft_config.point)
       var row_addr = 0
       var flag = false
+      var pixel_addr = 0
+
+      dut.clockDomain.onSamplings {
+        if (dut.io.pixel_out.valid.toBoolean) {
+          val row = pixel_addr / fft_config.point
+          val col = pixel_addr % fft_config.point
+          fft2_out_1(row, col) = dut.io.pixel_out.payload.toComplex.abs
+          pixel_addr += 1
+        }
+
+        if (pixel_addr == (fft_config.row * fft_config.point)) {
+          println("The output image from pixel out has been collected.")
+          write_image(fft2_out_1, "tb/FFT2d_tb/fft_hw2.jpg")
+        }
+      }
+
       dut.clockDomain onSamplings {
         if (dut.io.line_out.valid.toBoolean) {
 //          println(s"current row is $row_addr")
@@ -146,7 +173,7 @@ object FFT2dv1Test extends App{
       }
 
       fork {
-        waitUntil(row_addr == fft_config.row)
+        waitUntil(pixel_addr == ( fft_config.row * fft_config.point ))
         dut.clockDomain.waitSampling(10)
         simSuccess()
       }
