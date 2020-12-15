@@ -117,7 +117,7 @@ object FFT2dv1Test extends App{
   val last_fft_col_out = mutable.Queue[Complex]()
   val last_fft_pix_out = mutable.Queue[Complex]()
 
-//  val last_fft_out = DenseMatrix.zeros[Complex](fft_config.row, fft_config.point)
+  val last_fft_in = DenseMatrix.zeros[Complex](fft_config.row, fft_config.point)
   val last_fft_out = Array.fill(5)(DenseMatrix.zeros[Complex](fft_config.row, fft_config.point))
 
   val compiled = SimConfig .withWave .allOptimisation .workspacePath("tb/FFT2d_tb") .compile(FFT2IFFT_2d(fft_config))
@@ -136,6 +136,16 @@ object FFT2dv1Test extends App{
       dut.io.line_in.valid #= false
       dut.clockDomain.forkStimulus(2)
       dut.clockDomain.waitSampling()
+
+      var pix_addr_1 = 0
+      dut.clockDomain onSamplings {
+        if (dut.fft2_inst.int_mem.io.row_pix_out.valid.toBoolean) {
+          val row = pix_addr_1 / fft_config.point
+          val col = pix_addr_1 % fft_config.point
+          last_fft_in(row, col) = dut.fft2_inst.int_mem.io.row_pix_out.payload.toComplex
+          pix_addr_1 += 1
+        }
+      }
 
       var pix_addr = 0
       dut.clockDomain onSamplings {
@@ -281,6 +291,11 @@ object FFT2dv1Test extends App{
       dut.clockDomain.waitSampling(100000)
     }
   }
+
+  for(r <- 0 until fft_config.row) {
+    last_fft_in(r, ::).t := fourierTr(last_fft_in(r, ::).t).toDenseVector
+  }
+  write_image(iFourierTr(last_fft_in).map(_.abs), "tb/FFT2d_tb/last_fft_in_res.jpg")
 
   val tmp = last_fft_out.map(iFourierTr(_).map(_.abs))
   tmp.zipWithIndex.foreach{ case (img, i) =>
