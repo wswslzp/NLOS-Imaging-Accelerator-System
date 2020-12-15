@@ -116,6 +116,8 @@ object FFT2dv1Test extends App{
   val compiled = SimConfig .withWave .allOptimisation .workspacePath("tb/FFT2d_tb") .compile(FFT2IFFT_2d(fft_config))
 
   for (_ <- 0 until 5) {
+    first_fft_col_out.clear()
+    int_mem_pix_out.clear()
 
     compiled.doSim("FFT2IFFT2d_tb") {dut =>
 
@@ -214,16 +216,13 @@ object FFT2dv1Test extends App{
           flag = true
           println("The output image has been collected.")
           val out_img = fft2_out//.t
-//          println(s"The true result: ${true_res_abs(0 to 2, 0 to 2).toString()}\nThe output: ${out_img(0 to 2, 0 to 2).toString()}")
-//          println(s"The output: ${out_img(0 to 2, 0 to 2).toString()}\nThe input: ${fft2_in(0 to 2, 0 to 2).toString()}")
           write_image(out_img, "tb/FFT2d_tb/fft_hw1.jpg")
-          dut.clockDomain.waitSampling(10)
-          simSuccess()
         }
       }
 
       fork {
-        waitUntil(pixel_addr == ( fft_config.row * fft_config.point ))
+//        waitUntil(pixel_addr == ( fft_config.row * fft_config.point ))
+        waitUntil(flag)
         dut.clockDomain.waitSampling(10)
         simSuccess()
       }
