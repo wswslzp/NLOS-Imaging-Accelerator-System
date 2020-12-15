@@ -200,18 +200,18 @@ object FFT2dv1Test extends App{
       }
 
       forkJoin(
-        () => {
-          dut.io.pixel_in.valid #= true
-          for (i <- 0 until fft_config.row) {
-            for (j <- 0 until fft_config.point) {
-              dut.io.pixel_in.payload.real #= fft2_in(i, j)
-              dut.io.pixel_in.payload.imag #= 0
-              dut.clockDomain.waitSampling()
-            }
-          }
-          dut.io.pixel_in.valid #= false
-        }
-        ,
+//        () => {
+//          dut.io.pixel_in.valid #= true
+//          for (i <- 0 until fft_config.row) {
+//            for (j <- 0 until fft_config.point) {
+//              dut.io.pixel_in.payload.real #= fft2_in(i, j)
+//              dut.io.pixel_in.payload.imag #= 0
+//              dut.clockDomain.waitSampling()
+//            }
+//          }
+//          dut.io.pixel_in.valid #= false
+//        }
+//        ,
 
         () => {
           dut.io.line_in.valid #= true
@@ -220,7 +220,7 @@ object FFT2dv1Test extends App{
               dut.io.line_in.payload(j).real #= fft2_in(i, j)
               dut.io.line_in.payload(j).imag #= 0
             }
-              dut.clockDomain.waitSampling()
+            dut.clockDomain.waitSampling()
           }
           dut.io.line_in.valid #= false
         }
