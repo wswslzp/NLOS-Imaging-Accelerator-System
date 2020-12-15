@@ -130,20 +130,28 @@ object FFT2dv1Test extends App{
 
       var t1 = 0
       dut.clockDomain onSamplings {
-        val cond1 = dut.fft2_inst.first_fft.io.col_line_out.valid.toBoolean | dut.fft2_inst.first_fft.io.row_pix_out.valid.toBoolean
+        val cond1 = dut.fft2_inst.first_fft.io.col_line_out.valid.toBoolean
+        val cond2 = dut.fft2_inst.first_fft.io.row_pix_out.valid.toBoolean
         if (cond1 && t1 < 10) {
           t1 += 1
           first_fft_col_out.enqueue(dut.fft2_inst.first_fft.io.col_line_out.payload(2).toComplex)
+        }
+        if (cond2 && t1 < 10) {
+          t1 += 1
           first_fft_row_out.enqueue(dut.fft2_inst.first_fft.io.row_pix_out.payload.toComplex)
         }
       }
 
       var t2 = 0
       dut.clockDomain onSamplings {
-        val cond2 = dut.fft2_inst.int_mem.io.row_pix_out.valid.toBoolean | dut.fft2_inst.int_mem.io.col_line_out.valid.toBoolean
-        if (cond2 && t2 < 10) {
+        val cond1 = dut.fft2_inst.int_mem.io.row_pix_out.valid.toBoolean
+        val cond2 = dut.fft2_inst.int_mem.io.col_line_out.valid.toBoolean
+        if (cond1 && t2 < 10) {
           t2 += 1
           int_mem_pix_out.enqueue(dut.fft2_inst.int_mem.io.row_pix_out.payload.toComplex)
+        }
+        if (cond2 && t2 < 10) {
+          t2 += 1
           int_mem_col_out.enqueue(dut.fft2_inst.int_mem.io.col_line_out.payload(2).toComplex)
         }
       }
@@ -184,10 +192,10 @@ object FFT2dv1Test extends App{
 
       fork {
         waitUntil(flag)
-        println(s"first fft col out 0 to 9 is ${first_fft_col_out}")
-        println(s"first fft row out 0 to 9 is ${first_fft_row_out}")
-        println(s"int mem row out 0 to 9 is ${int_mem_pix_out}")
-        println(s"int mem col out 0 to 9 is ${int_mem_col_out}")
+        println(s"first fft col out 0 to 9 is ${first_fft_col_out}\n")
+        println(s"first fft row out 0 to 9 is ${first_fft_row_out}\n")
+        println(s"int mem row out 0 to 9 is ${int_mem_pix_out}\n")
+        println(s"int mem col out 0 to 9 is ${int_mem_col_out}\n")
       }
 
 //      dut.clockDomain.onSamplings {
