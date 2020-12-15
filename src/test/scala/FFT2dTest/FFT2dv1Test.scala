@@ -212,12 +212,12 @@ object FFT2dv1Test extends App{
 
       fork {
         waitUntil(flag)
+        println(s"first fft col out 0 to 9 is ${first_fft_col_out}\n")
+        println(s"first fft row out 0 to 9 is ${first_fft_row_out}\n")
+        println(s"int mem row out 0 to 9 is ${int_mem_pix_out}\n")
+        println(s"int mem col out 0 to 9 is ${int_mem_col_out}\n")
         println(s"last fft col out 0 to 9 is $last_fft_col_out")
         println(s"last fft row out 0 to 9 is $last_fft_pix_out")
-//        println(s"first fft col out 0 to 9 is ${first_fft_col_out}\n")
-//        println(s"first fft row out 0 to 9 is ${first_fft_row_out}\n")
-//        println(s"int mem row out 0 to 9 is ${int_mem_pix_out}\n")
-//        println(s"int mem col out 0 to 9 is ${int_mem_col_out}\n")
       }
 
 //      dut.clockDomain.onSamplings {
