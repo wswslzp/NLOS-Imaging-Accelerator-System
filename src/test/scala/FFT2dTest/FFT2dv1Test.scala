@@ -16,7 +16,7 @@ import org.bytedeco.opencv.opencv_core._
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
-
+import signal._
 import scala.collection.mutable
 
 object FFT2dv1Test extends App{
@@ -117,9 +117,12 @@ object FFT2dv1Test extends App{
   val last_fft_col_out = mutable.Queue[Complex]()
   val last_fft_pix_out = mutable.Queue[Complex]()
 
+//  val last_fft_out = DenseMatrix.zeros[Complex](fft_config.row, fft_config.point)
+  val last_fft_out = Array.fill(5)(DenseMatrix.zeros[Complex](fft_config.row, fft_config.point))
+
   val compiled = SimConfig .withWave .allOptimisation .workspacePath("tb/FFT2d_tb") .compile(FFT2IFFT_2d(fft_config))
 
-  for (_ <- 0 until 5) {
+  for (i <- 0 until 5) {
     first_fft_col_out.clear()
     first_fft_row_out.clear()
     int_mem_col_out.clear()
@@ -133,6 +136,16 @@ object FFT2dv1Test extends App{
       dut.io.line_in.valid #= false
       dut.clockDomain.forkStimulus(2)
       dut.clockDomain.waitSampling()
+
+      var pix_addr = 0
+      dut.clockDomain onSamplings {
+        if (dut.fft2_inst.last_fft.io.row_pix_out.valid.toBoolean) {
+          val row = pix_addr / fft_config.point
+          val col = pix_addr % fft_config.point
+          last_fft_out(i)(row, col) = dut.fft2_inst.last_fft.io.row_pix_out.payload.toComplex
+          pix_addr += 1
+        }
+      }
 
       var t1 = 0
       dut.clockDomain onSamplings {
@@ -267,6 +280,11 @@ object FFT2dv1Test extends App{
 
       dut.clockDomain.waitSampling(100000)
     }
+  }
+
+  val tmp = last_fft_out.map(iFourierTr(_).map(_.abs))
+  tmp.zipWithIndex.foreach{ case (img, i) =>
+    write_image(img, s"tb/FFT2d_tb/last_fft_out_res_$i.jpg")
   }
 
 }
