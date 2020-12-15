@@ -76,6 +76,8 @@ object FFT2dv1Test extends App{
     }
 
     val fft2_inst = FFT2dv1(cfg)
+    fft2_inst.io.col_line_in.valid := False
+    fft2_inst.io.col_line_in.payload.foreach(_ := HC(0, 0, cfg.hComplexConfig))
     fft2_inst.io.row_pix_in << io.line_in
     fft2_inst.io.mode := False
     fft2_inst.io.inverse := False
