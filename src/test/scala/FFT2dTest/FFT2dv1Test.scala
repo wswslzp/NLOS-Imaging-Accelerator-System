@@ -119,6 +119,8 @@ object FFT2dv1Test extends App{
 
   for (_ <- 0 until 5) {
     first_fft_col_out.clear()
+    first_fft_row_out.clear()
+    int_mem_col_out.clear()
     int_mem_pix_out.clear()
 
     compiled.doSim("FFT2IFFT2d_tb") {dut =>
