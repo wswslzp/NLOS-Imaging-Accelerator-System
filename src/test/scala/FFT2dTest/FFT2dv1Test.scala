@@ -133,6 +133,7 @@ object FFT2dv1Test extends App{
       val fft2_out_1 = DenseMatrix.zeros[Double](fft_config.row, fft_config.point)
       var row_addr = 0
       var flag = false
+      var flag1 = false
       var pixel_addr = 0
 
       dut.clockDomain.onSamplings {
@@ -143,7 +144,8 @@ object FFT2dv1Test extends App{
           pixel_addr += 1
         }
 
-        if (pixel_addr == (fft_config.row * fft_config.point)) {
+        if (pixel_addr == (fft_config.row * fft_config.point) & !flag1) {
+          flag1 = true
           println("The output image from pixel out has been collected.")
           write_image(fft2_out_1, "tb/FFT2d_tb/fft_hw2.jpg")
         }
