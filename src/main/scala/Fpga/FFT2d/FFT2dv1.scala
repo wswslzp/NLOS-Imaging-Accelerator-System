@@ -53,6 +53,9 @@ case class FFT2dv1(cfg: FFTConfig) extends Component {
   last_fft.io.mode := ~io.mode
   last_fft.io.conj_mode := io.inverse ? ConjMode.back_conj | ConjMode.no_conj
 
+  last_fft.io.col_line_out.simPublic()
+  last_fft.io.row_pix_out.simPublic()
+
 
 //
 //  // do the row fft
