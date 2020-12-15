@@ -62,10 +62,10 @@ case class IntMem(cfg: FFTConfig) extends Component {
     read_datas(r) := read_data
   }
 
-  io.col_line_out.valid := r_col_line_addr_area.cond_period & io.mode
+  io.col_line_out.valid := RegNext(r_col_line_addr_area.cond_period & io.mode) init False
   io.col_line_out.payload := read_datas
 
-  io.row_pix_out.valid := r_pixel_addr_area.cond_period & (~io.mode)
+  io.row_pix_out.valid := RegNext(r_pixel_addr_area.cond_period & (~io.mode)) init False
   io.row_pix_out.payload := read_datas(r_row_addr.resized)
 
 }

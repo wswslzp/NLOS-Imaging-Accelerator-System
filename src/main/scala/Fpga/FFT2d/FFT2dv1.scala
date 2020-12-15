@@ -43,7 +43,7 @@ case class FFT2dv1(cfg: FFTConfig) extends Component {
   last_fft.io.row_pix_in << int_mem.io.row_pix_out
   io.col_line_out << last_fft.io.col_line_out
   io.row_pix_out << last_fft.io.row_pix_out
-  last_fft.io.mode := io.mode
+  last_fft.io.mode := ~io.mode
   last_fft.io.conj_mode := io.inverse ? ConjMode.back_conj | ConjMode.no_conj
 
 
