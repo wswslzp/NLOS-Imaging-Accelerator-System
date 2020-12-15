@@ -85,7 +85,8 @@ object FFT2dv1Test extends App{
     fft2_inst.io.col_line_in << io.line_in
     fft2_inst.io.row_pix_in.valid := False
     fft2_inst.io.row_pix_in.payload := HC(0, 0, cfg.hComplexConfig)
-    fft2_inst.io.mode := True
+//    fft2_inst.io.mode := True
+    fft2_inst.io.mode := False
     fft2_inst.io.inverse := False
 //    val fft_out = fft2_inst.io.col_line_out
     val fft_out = fft2_inst.io.row_pix_out
@@ -116,9 +117,8 @@ object FFT2dv1Test extends App{
       val true_res_abs = true_res.map(_.abs)
 
       dut.io.pixel_in.valid #= false
-      dut.clockDomain.doStimulus(2)
-      //NOTE: after doStimulus(), test bench must wait a clock cycle!!
-      // otherwise the bench will fail.
+      dut.io.line_in.valid #= true
+      dut.clockDomain.forkStimulus(2)
       dut.clockDomain.waitSampling()
 
       forkJoin(
