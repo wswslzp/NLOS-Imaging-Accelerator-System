@@ -17,6 +17,8 @@ import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
 
+import scala.collection.mutable
+
 object FFT2dv1Test extends App{
   val fft_config = FFTConfig(
     hComplexConfig = HComplexConfig(9, 9),
@@ -104,22 +106,39 @@ object FFT2dv1Test extends App{
     io.line_out <> fft2(fft_out, True, cfg.row, cfg.point)
   }
 
-  SimConfig
-    .withWave
-    .allOptimisation
-    .workspacePath("tb/FFT2d_tb")
-    .compile(FFT2IFFT_2d(fft_config))
-    .doSim("FFT2IFFT2d_tb") {dut =>
-      import linalg._
-      val fft2_in = load_image("tb/FFT2d_tb/data/t1.png")
-      write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
-      val true_res: DenseMatrix[Complex] = fft2d_func(fft2_in)
-      val true_res_abs = true_res.map(_.abs)
+  import linalg._
+  val fft2_in = load_image("tb/FFT2d_tb/data/t1.png")
+  write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
+
+  val first_fft_col_out = mutable.Queue[Complex]()
+  val int_mem_pix_out = mutable.Queue[Complex]()
+
+  val compiled = SimConfig .withWave .allOptimisation .workspacePath("tb/FFT2d_tb") .compile(FFT2IFFT_2d(fft_config))
+
+  for (_ <- 0 until 5) {
+
+    compiled.doSim("FFT2IFFT2d_tb") {dut =>
 
       dut.io.pixel_in.valid #= false
       dut.io.line_in.valid #= false
       dut.clockDomain.forkStimulus(2)
       dut.clockDomain.waitSampling()
+
+      var t1 = 0
+      dut.clockDomain onSamplings {
+        if (dut.fft2_inst.first_fft.io.col_line_out.valid.toBoolean && t1 < 10) {
+          t1 += 1
+          first_fft_col_out.enqueue(dut.fft2_inst.first_fft.io.col_line_out.payload(2).toComplex)
+        }
+      }
+
+      var t2 = 0
+      dut.clockDomain onSamplings {
+        if (dut.fft2_inst.first_fft.io.col_line_out.valid.toBoolean && t2 < 10) {
+          t2 += 1
+          int_mem_pix_out.enqueue(dut.fft2_inst.int_mem.io.row_pix_out.payload.toComplex)
+        }
+      }
 
       forkJoin(
         () => {
@@ -148,13 +167,18 @@ object FFT2dv1Test extends App{
         }
       )
 
-
       val fft2_out = DenseMatrix.zeros[Double](fft_config.row, fft_config.point)
       val fft2_out_1 = DenseMatrix.zeros[Double](fft_config.row, fft_config.point)
       var row_addr = 0
       var flag = false
       var flag1 = false
       var pixel_addr = 0
+
+      fork {
+        waitUntil(flag)
+        println(s"first fft col out 0 to 9 is ${first_fft_col_out}")
+        println(s"int mem row out 0 to 9 is ${int_mem_pix_out}")
+      }
 
 //      dut.clockDomain.onSamplings {
 //        if (dut.io.pixel_out.valid.toBoolean) {
@@ -168,6 +192,8 @@ object FFT2dv1Test extends App{
 //          flag1 = true
 //          println("The output image from pixel out has been collected.")
 //          write_image(fft2_out_1, "tb/FFT2d_tb/fft_hw2.jpg")
+//          dut.clockDomain.waitSampling(10)
+//          simSuccess()
 //        }
 //      }
 //
@@ -191,6 +217,8 @@ object FFT2dv1Test extends App{
 //          println(s"The true result: ${true_res_abs(0 to 2, 0 to 2).toString()}\nThe output: ${out_img(0 to 2, 0 to 2).toString()}")
 //          println(s"The output: ${out_img(0 to 2, 0 to 2).toString()}\nThe input: ${fft2_in(0 to 2, 0 to 2).toString()}")
           write_image(out_img, "tb/FFT2d_tb/fft_hw1.jpg")
+          dut.clockDomain.waitSampling(10)
+          simSuccess()
         }
       }
 
@@ -202,5 +230,6 @@ object FFT2dv1Test extends App{
 
       dut.clockDomain.waitSampling(100000)
     }
+  }
 
 }

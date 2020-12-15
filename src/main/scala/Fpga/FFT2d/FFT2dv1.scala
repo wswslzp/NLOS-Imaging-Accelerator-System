@@ -1,6 +1,7 @@
 package Fpga.FFT2d
 
 import spinal.core._
+import spinal.core.sim._
 import spinal.lib._
 import Config._
 import Util._
@@ -33,10 +34,16 @@ case class FFT2dv1(cfg: FFTConfig) extends Component {
   first_fft.io.mode := io.mode
   first_fft.io.conj_mode := io.inverse ? ConjMode.former_conj | ConjMode.no_conj
 
+  first_fft.io.col_line_out.simPublic()
+  first_fft.io.row_pix_out.simPublic()
+
   val int_mem = IntMem(cfg)
   int_mem.io.col_line_in << first_fft.io.col_line_out
   int_mem.io.row_pix_in << first_fft.io.row_pix_out
   int_mem.io.mode := io.mode
+
+  int_mem.io.row_pix_out.simPublic()
+  int_mem.io.col_line_out.simPublic()
 
   val last_fft = PartialFFT(cfg)
   last_fft.io.col_line_in << int_mem.io.col_line_out
