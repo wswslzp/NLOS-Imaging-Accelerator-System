@@ -114,6 +114,8 @@ object FFT2dv1Test extends App{
   val first_fft_row_out = mutable.Queue[Complex]()
   val int_mem_pix_out = mutable.Queue[Complex]()
   val int_mem_col_out = mutable.Queue[Complex]()
+  val last_fft_col_out = mutable.Queue[Complex]()
+  val last_fft_pix_out = mutable.Queue[Complex]()
 
   val compiled = SimConfig .withWave .allOptimisation .workspacePath("tb/FFT2d_tb") .compile(FFT2IFFT_2d(fft_config))
 
@@ -158,6 +160,20 @@ object FFT2dv1Test extends App{
         }
       }
 
+      var t3 = 0
+      dut.clockDomain onSamplings {
+        val cond1 = dut.fft2_inst.last_fft.io.row_pix_out.valid.toBoolean
+        val cond2 = dut.fft2_inst.last_fft.io.col_line_out.valid.toBoolean
+        if (cond1 && t3 < 10) {
+          t3 += 1
+          last_fft_pix_out.enqueue(dut.fft2_inst.last_fft.io.row_pix_out.payload.toComplex)
+        }
+        if (cond2 && t3 < 10) {
+          t3 += 1
+          last_fft_col_out.enqueue(dut.fft2_inst.last_fft.io.col_line_out.payload(2).toComplex)
+        }
+      }
+
       forkJoin(
         () => {
           dut.io.pixel_in.valid #= true
@@ -194,10 +210,12 @@ object FFT2dv1Test extends App{
 
       fork {
         waitUntil(flag)
-        println(s"first fft col out 0 to 9 is ${first_fft_col_out}\n")
-        println(s"first fft row out 0 to 9 is ${first_fft_row_out}\n")
-        println(s"int mem row out 0 to 9 is ${int_mem_pix_out}\n")
-        println(s"int mem col out 0 to 9 is ${int_mem_col_out}\n")
+        println(s"last fft col out 0 to 9 is $last_fft_col_out")
+        println(s"last fft row out 0 to 9 is $last_fft_pix_out")
+//        println(s"first fft col out 0 to 9 is ${first_fft_col_out}\n")
+//        println(s"first fft row out 0 to 9 is ${first_fft_row_out}\n")
+//        println(s"int mem row out 0 to 9 is ${int_mem_pix_out}\n")
+//        println(s"int mem col out 0 to 9 is ${int_mem_col_out}\n")
       }
 
 //      dut.clockDomain.onSamplings {
