@@ -117,7 +117,7 @@ object FFT2dv1Test extends App{
       val true_res_abs = true_res.map(_.abs)
 
       dut.io.pixel_in.valid #= false
-      dut.io.line_in.valid #= true
+      dut.io.line_in.valid #= false
       dut.clockDomain.forkStimulus(2)
       dut.clockDomain.waitSampling()
 
