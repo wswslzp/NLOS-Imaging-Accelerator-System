@@ -24,11 +24,11 @@ case class IntMem(cfg: FFTConfig) extends Component {
 
   // Counter for column address
   val w_col_addr_incr = io.mode ? io.row_pix_in.valid | io.col_line_in.valid
-  val w_col_addr = Counter(0, cfg.point, inc = w_col_addr_incr)
+  val w_col_addr = Counter(0 until cfg.point, inc = w_col_addr_incr)
 
   // Counter for row address
   val w_row_addr_incr = io.mode & w_col_addr.willOverflow
-  val w_row_addr = Counter(0, cfg.row, inc = w_row_addr_incr)
+  val w_row_addr = Counter(0 until cfg.row, inc = w_row_addr_incr)
 
   val int_mem = Array.fill(cfg.row)(Mem(Bits(cfg.hComplexConfig.getComplexWidth bit), BigInt(cfg.point)))
 
