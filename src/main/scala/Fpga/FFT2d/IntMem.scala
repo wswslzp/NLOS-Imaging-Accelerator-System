@@ -46,7 +46,7 @@ case class IntMem(cfg: FFTConfig) extends Component {
   // read out from int mem
   // When half of int mem has been loaded for column line in or half of last row has been loaded
   //  for row pixel in, it's ready. mode = 0, col line in & row pixel out; 1: row pixel in & col line out
-  val int_mem_ready = (w_col_addr === cfg.point/2) & ((!io.mode) | (w_row_addr === cfg.row))
+  val int_mem_ready = (w_col_addr === cfg.point/2) & ((!io.mode) | (w_row_addr === cfg.row-1))
   val r_pixel_addr_area = countUpFrom(int_mem_ready & (!io.mode), 0 until (cfg.row*cfg.point))
   val r_col_line_addr_area = countUpFrom(int_mem_ready & io.mode , 0 until cfg.point)
 
