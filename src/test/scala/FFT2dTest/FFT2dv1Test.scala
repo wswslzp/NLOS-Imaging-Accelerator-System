@@ -72,29 +72,35 @@ object FFT2dv1Test extends App{
     import FFT2d._
     import IFFT2d._
     val io = new Bundle {
-      val line_in = slave(Flow(HComplex(cfg.hComplexConfig)))
+      val line_in = slave(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
+      val pixel_in = slave(Flow(HComplex(cfg.hComplexConfig)))
       val line_out = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
-      val pixel_out = master(Flow(HComplex(cfg.hComplexConfig)))
+//      val pixel_out = master(Flow(HComplex(cfg.hComplexConfig)))
     }
 
     val fft2_inst = FFT2dv1(cfg)
-    fft2_inst.io.col_line_in.valid := False
-    fft2_inst.io.col_line_in.payload.foreach(_ := HC(0, 0, cfg.hComplexConfig))
-    fft2_inst.io.row_pix_in << io.line_in
+//    fft2_inst.io.col_line_in.valid := False
+//    fft2_inst.io.col_line_in.payload.foreach(_ := HC(0, 0, cfg.hComplexConfig))
+//    fft2_inst.io.row_pix_in << io.pixel_in
+    fft2_inst.io.col_line_in << io.line_in
+    fft2_inst.io.row_pix_in.valid := False
+    fft2_inst.io.row_pix_in.payload := HC(0, 0, cfg.hComplexConfig)
     fft2_inst.io.mode := True
     fft2_inst.io.inverse := False
-    val fft_out = fft2_inst.io.col_line_out
+//    val fft_out = fft2_inst.io.col_line_out
+    val fft_out = fft2_inst.io.row_pix_out
 
-    val ifft2_inst = FFT2dv1(cfg)
-    ifft2_inst.io.col_line_in << fft_out
-    ifft2_inst.io.mode := False
-    ifft2_inst.io.inverse := True
-    ifft2_inst.io.row_pix_in.valid := False
-    ifft2_inst.io.row_pix_in.payload := HC(0, 0, cfg.hComplexConfig)
-    io.pixel_out << ifft2_inst.io.row_pix_out
+//    val ifft2_inst = FFT2dv1(cfg)
+//    ifft2_inst.io.col_line_in << fft_out
+//    ifft2_inst.io.mode := False
+//    ifft2_inst.io.inverse := True
+//    ifft2_inst.io.row_pix_in.valid := False
+//    ifft2_inst.io.row_pix_in.payload := HC(0, 0, cfg.hComplexConfig)
+//    io.pixel_out << ifft2_inst.io.row_pix_out
 
 //    io.line_out <> fft2(fft2(io.line_in, cfg.row, cfg.point), True, cfg.row)
-    io.line_out <> fft2(fft_out, True, cfg.row)
+//    io.line_out <> fft2(fft_out, True, cfg.row)
+    io.line_out <> fft2(fft_out, True, cfg.row, cfg.point)
   }
 
   SimConfig
@@ -109,25 +115,39 @@ object FFT2dv1Test extends App{
       val true_res: DenseMatrix[Complex] = fft2d_func(fft2_in)
       val true_res_abs = true_res.map(_.abs)
 
-      dut.io.line_in.valid #= false
+      dut.io.pixel_in.valid #= false
       dut.clockDomain.doStimulus(2)
       //NOTE: after doStimulus(), test bench must wait a clock cycle!!
       // otherwise the bench will fail.
       dut.clockDomain.waitSampling()
 
-      dut.io.line_in.valid #= true
-      for (i <- 0 until fft_config.row) {
-        for (j <- 0 until fft_config.point) {
-          dut.io.line_in.payload.real #= fft2_in(i, j)
-          dut.io.line_in.payload.imag #= 0
-//          dut.io.line_in.payload(j).real #= fft2_in(i, j)
-//          dut.io.line_in.payload(j).imag #= 0
-          dut.clockDomain.waitSampling()
+      forkJoin(
+        () => {
+          dut.io.pixel_in.valid #= true
+          for (i <- 0 until fft_config.row) {
+            for (j <- 0 until fft_config.point) {
+              dut.io.pixel_in.payload.real #= fft2_in(i, j)
+              dut.io.pixel_in.payload.imag #= 0
+              dut.clockDomain.waitSampling()
+            }
+          }
+          dut.io.pixel_in.valid #= false
         }
-//        dut.clockDomain.waitSampling()
-      }
-//      println("input success")
-      dut.io.line_in.valid #= false
+        ,
+
+        () => {
+          dut.io.line_in.valid #= true
+          for (i <- 0 until fft_config.row) {
+            for (j <- 0 until fft_config.point) {
+              dut.io.line_in.payload(j).real #= fft2_in(i, j)
+              dut.io.line_in.payload(j).imag #= 0
+            }
+              dut.clockDomain.waitSampling()
+          }
+          dut.io.line_in.valid #= false
+        }
+      )
+
 
       val fft2_out = DenseMatrix.zeros[Double](fft_config.row, fft_config.point)
       val fft2_out_1 = DenseMatrix.zeros[Double](fft_config.row, fft_config.point)
@@ -136,21 +156,21 @@ object FFT2dv1Test extends App{
       var flag1 = false
       var pixel_addr = 0
 
-      dut.clockDomain.onSamplings {
-        if (dut.io.pixel_out.valid.toBoolean) {
-          val row = pixel_addr / fft_config.point
-          val col = pixel_addr % fft_config.point
-          fft2_out_1(row, col) = dut.io.pixel_out.payload.toComplex.abs
-          pixel_addr += 1
-        }
-
-        if (pixel_addr == (fft_config.row * fft_config.point) & !flag1) {
-          flag1 = true
-          println("The output image from pixel out has been collected.")
-          write_image(fft2_out_1, "tb/FFT2d_tb/fft_hw2.jpg")
-        }
-      }
-
+//      dut.clockDomain.onSamplings {
+//        if (dut.io.pixel_out.valid.toBoolean) {
+//          val row = pixel_addr / fft_config.point
+//          val col = pixel_addr % fft_config.point
+//          fft2_out_1(row, col) = dut.io.pixel_out.payload.toComplex.abs
+//          pixel_addr += 1
+//        }
+//
+//        if (pixel_addr == (fft_config.row * fft_config.point) & !flag1) {
+//          flag1 = true
+//          println("The output image from pixel out has been collected.")
+//          write_image(fft2_out_1, "tb/FFT2d_tb/fft_hw2.jpg")
+//        }
+//      }
+//
       dut.clockDomain onSamplings {
         if (dut.io.line_out.valid.toBoolean) {
 //          println(s"current row is $row_addr")
