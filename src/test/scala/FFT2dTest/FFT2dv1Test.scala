@@ -81,17 +81,17 @@ object FFT2dv1Test extends App{
     }
 
     val fft2_inst = FFT2dv1(cfg)
-    fft2_inst.io.col_line_in.valid := False
-    fft2_inst.io.col_line_in.payload.foreach(_ := HC(0, 0, cfg.hComplexConfig))
-    fft2_inst.io.row_pix_in << io.pixel_in
-//    fft2_inst.io.col_line_in << io.line_in
-//    fft2_inst.io.row_pix_in.valid := False
-//    fft2_inst.io.row_pix_in.payload := HC(0, 0, cfg.hComplexConfig)
-    fft2_inst.io.mode := True // row pixel in
-//    fft2_inst.io.mode := False // col line in
+//    fft2_inst.io.col_line_in.valid := False
+//    fft2_inst.io.col_line_in.payload.foreach(_ := HC(0, 0, cfg.hComplexConfig))
+//    fft2_inst.io.row_pix_in << io.pixel_in
+    fft2_inst.io.col_line_in << io.line_in
+    fft2_inst.io.row_pix_in.valid := False
+    fft2_inst.io.row_pix_in.payload := HC(0, 0, cfg.hComplexConfig)
+//    fft2_inst.io.mode := True // row pixel in
+    fft2_inst.io.mode := False // col line in
     fft2_inst.io.inverse := False
-    val fft_out = fft2_inst.io.col_line_out
-//    val fft_out = fft2_inst.io.row_pix_out
+//    val fft_out = fft2_inst.io.col_line_out
+    val fft_out = fft2_inst.io.row_pix_out
 
 //    val ifft2_inst = FFT2dv1(cfg)
 //    ifft2_inst.io.col_line_in << fft_out
@@ -102,8 +102,8 @@ object FFT2dv1Test extends App{
 //    io.pixel_out << ifft2_inst.io.row_pix_out
 
 //    io.line_out <> fft2(fft2(io.line_in, cfg.row, cfg.point), True, cfg.row)
-    io.line_out <> fft2(fft_out, True, cfg.row)
-//    io.line_out <> fft2(fft_out, True, cfg.row, cfg.point)
+//    io.line_out <> fft2(fft_out, True, cfg.row)
+    io.line_out <> fft2(fft_out, True, cfg.row, cfg.point)
   }
 
   import linalg._
