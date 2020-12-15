@@ -91,7 +91,7 @@ object FFT2dv1Test extends App{
     .allOptimisation
     .workspacePath("tb/FFT2d_tb")
     .compile(FFT2IFFT_2d(fft_config))
-    .doSim("FFT2d_tb") {dut =>
+    .doSim("FFT2IFFT2d_tb") {dut =>
       import linalg._
       val fft2_in = load_image("tb/FFT2d_tb/data/t1.png")
       write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
