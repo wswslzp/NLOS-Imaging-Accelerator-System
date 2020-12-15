@@ -111,7 +111,9 @@ object FFT2dv1Test extends App{
   write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
 
   val first_fft_col_out = mutable.Queue[Complex]()
+  val first_fft_row_out = mutable.Queue[Complex]()
   val int_mem_pix_out = mutable.Queue[Complex]()
+  val int_mem_col_out = mutable.Queue[Complex]()
 
   val compiled = SimConfig .withWave .allOptimisation .workspacePath("tb/FFT2d_tb") .compile(FFT2IFFT_2d(fft_config))
 
@@ -128,17 +130,21 @@ object FFT2dv1Test extends App{
 
       var t1 = 0
       dut.clockDomain onSamplings {
-        if (dut.fft2_inst.first_fft.io.col_line_out.valid.toBoolean && t1 < 10) {
+        val cond1 = dut.fft2_inst.first_fft.io.col_line_out.valid.toBoolean | dut.fft2_inst.first_fft.io.row_pix_out.valid.toBoolean
+        if (cond1 && t1 < 10) {
           t1 += 1
           first_fft_col_out.enqueue(dut.fft2_inst.first_fft.io.col_line_out.payload(2).toComplex)
+          first_fft_row_out.enqueue(dut.fft2_inst.first_fft.io.row_pix_out.payload.toComplex)
         }
       }
 
       var t2 = 0
       dut.clockDomain onSamplings {
-        if (dut.fft2_inst.first_fft.io.col_line_out.valid.toBoolean && t2 < 10) {
+        val cond2 = dut.fft2_inst.int_mem.io.row_pix_out.valid.toBoolean | dut.fft2_inst.int_mem.io.col_line_out.valid.toBoolean
+        if (cond2 && t2 < 10) {
           t2 += 1
           int_mem_pix_out.enqueue(dut.fft2_inst.int_mem.io.row_pix_out.payload.toComplex)
+          int_mem_col_out.enqueue(dut.fft2_inst.int_mem.io.col_line_out.payload(2).toComplex)
         }
       }
 
@@ -179,7 +185,9 @@ object FFT2dv1Test extends App{
       fork {
         waitUntil(flag)
         println(s"first fft col out 0 to 9 is ${first_fft_col_out}")
+        println(s"first fft row out 0 to 9 is ${first_fft_row_out}")
         println(s"int mem row out 0 to 9 is ${int_mem_pix_out}")
+        println(s"int mem col out 0 to 9 is ${int_mem_col_out}")
       }
 
 //      dut.clockDomain.onSamplings {
