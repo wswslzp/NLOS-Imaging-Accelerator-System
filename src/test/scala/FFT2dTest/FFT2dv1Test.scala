@@ -81,10 +81,10 @@ object FFT2dv1Test extends App{
     fft2_inst.io.row_pix_in << io.line_in
     fft2_inst.io.mode := True
     fft2_inst.io.inverse := False
-    val fft_out = fft2_inst.io.row_pix_out
+    val fft_out = fft2_inst.io.col_line_out
 
 //    io.line_out <> fft2(fft2(io.line_in, cfg.row, cfg.point), True, cfg.row)
-    io.line_out <> fft2(fft_out, True, cfg.row, cfg.point)
+    io.line_out <> fft2(fft_out, True, cfg.row)
   }
 
   SimConfig
