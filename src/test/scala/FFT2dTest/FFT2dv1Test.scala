@@ -22,8 +22,8 @@ import scala.collection.mutable
 object FFT2dv1Test extends App{
   val fft_config = FFTConfig(
     hComplexConfig = HComplexConfig(9, 9),
-    point = 64,
-    row = 64
+    point = 4,
+    row = 4
   )
 
   def load_image(input_img: String): linalg.DenseMatrix[Double] = {
@@ -70,6 +70,7 @@ object FFT2dv1Test extends App{
     io.line_out <> fft2(io.line_in, cfg.row, cfg.point)
   }
 
+  // TODO: Test it with 4x4 image.
   case class FFT2IFFT_2d(cfg: FFTConfig) extends Component {
     import FFT2d._
     import IFFT2d._
@@ -107,8 +108,9 @@ object FFT2dv1Test extends App{
   }
 
   import linalg._
-  val fft2_in = load_image("tb/FFT2d_tb/data/t1.png")
-  write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
+//  val fft2_in = load_image("tb/FFT2d_tb/data/t1.png")
+  val fft2_in = DenseMatrix.tabulate(4, 4)(_ + _)
+//  write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
 
   val first_fft_col_out = mutable.Queue[Complex]()
   val first_fft_row_out = mutable.Queue[Complex]()
