@@ -242,16 +242,6 @@ object FFT2dv1Test extends App{
       var flag1 = false
       var pixel_addr = 0
 
-      fork {
-        waitUntil(flag)
-        println(s"first fft col out 0 to 9 is ${first_fft_col_out}\n")
-        println(s"first fft row out 0 to 9 is ${first_fft_row_out}\n")
-        println(s"int mem row out 0 to 9 is ${int_mem_pix_out}\n")
-        println(s"int mem col out 0 to 9 is ${int_mem_col_out}\n")
-        println(s"last fft col out 0 to 9 is $last_fft_col_out")
-        println(s"last fft row out 0 to 9 is $last_fft_pix_out")
-      }
-
       dut.clockDomain.onSamplings {
         if (dut.io.pixel_out.valid.toBoolean) {
           val row = pixel_addr / fft_config.point
@@ -290,12 +280,12 @@ object FFT2dv1Test extends App{
         }
       }
 
-      fork {
+//      fork {
 //        waitUntil(pixel_addr == ( fft_config.row * fft_config.point ))
-        waitUntil(flag)
-        dut.clockDomain.waitSampling(10)
-        simSuccess()
-      }
+////        waitUntil(flag)
+//        dut.clockDomain.waitSampling(10)
+////        simSuccess()
+//      }
 
       dut.clockDomain.waitSampling(100000)
     }
