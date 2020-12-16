@@ -26,7 +26,7 @@ object FFT2dCore_v1_FpgaTest extends App{
   )
 
   val withWave = true
-  val waveDepth = 3
+  val waveDepth = 1
   val compiled = if(withWave){
     SimConfig
       .allOptimisation
