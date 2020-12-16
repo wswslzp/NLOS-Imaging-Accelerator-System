@@ -103,7 +103,7 @@ object FFT2dv1Test extends App{
     io.pixel_out << ifft2_inst.io.row_pix_out
 
 //    io.line_out <> fft2(fft2(io.line_in, cfg.row, cfg.point), True, cfg.row)
-//    io.line_out <> fft2(fft_out, True, cfg.row)
+    io.line_out <> fft2(fft_out, True, cfg.row)
 //    io.line_out <> fft2(fft_out, True, cfg.row, cfg.point)
   }
 
