@@ -21,7 +21,7 @@ import scala.collection.mutable
 
 object FFT2dv1Test extends App{
   val fft_config = FFTConfig(
-    hComplexConfig = HComplexConfig(9, 9),
+    hComplexConfig = HComplexConfig(8, 0),
     point = 4,
     row = 4
   )
@@ -109,8 +109,10 @@ object FFT2dv1Test extends App{
 
   import linalg._
 //  val fft2_in = load_image("tb/FFT2d_tb/data/t1.png")
-  val fft2_in = DenseMatrix.tabulate(4, 4)(_ + _)
+  val fft2_in = DenseMatrix.tabulate(4, 4)(_ + _).map(_.toDouble)
 //  write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
+  val fft2_out = fft2d_func(fft2_in)
+  println(s"The true result is ${fft2_out}")
 
   val first_fft_col_out = mutable.Queue[Complex]()
   val first_fft_row_out = mutable.Queue[Complex]()
