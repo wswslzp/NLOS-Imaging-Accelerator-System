@@ -254,7 +254,6 @@ object FFT2dv1Test extends App{
           flag1 = true
           println("The output image from pixel out has been collected.")
           write_image(fft2_out_1, "tb/FFT2d_tb/fft_hw2.jpg")
-          dut.clockDomain.waitSampling(10)
           simSuccess()
         }
       }
