@@ -253,7 +253,7 @@ object FFT2dv1Test extends App{
         if (pixel_addr == (fft_config.row * fft_config.point) & !flag1) {
           flag1 = true
           println("The output image from pixel out has been collected.")
-          write_image(fft2_out_1, "tb/FFT2d_tb/fft_hw2.jpg")
+          write_image(fft2_out_1, s"tb/FFT2d_tb/fft_hw2_$i.jpg")
           simSuccess()
         }
       }
