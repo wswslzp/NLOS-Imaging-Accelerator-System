@@ -113,11 +113,16 @@ object FFT2dv1Test extends App{
   write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
 //  val fft2_out = fft2d_func(fft2_in)
 //  println(s"The true fft2 is ${fft2_out}")
-//  println(s"The true result is ${fft2_in}")
-//  println(s"The first col fft out is ${DenseVector.tabulate(4){i=>
-//    val tmp = fourierTr(fft2_in(i, ::)).toDenseVector
+//  val i_fft2_out_col = DenseMatrix.zeros[Complex](4, 4)
+//  for(c <- 0 until 4){
+//    i_fft2_out_col(::, c) := fourierTr(fft2_out(::, c).map(_.conjugate)).map(_ / 4)
+//  }
+//  println(s"The first fft after fft2 out is $i_fft2_out_col")
+//  println(s"The first col of fft(fft2_out(0, ::)) is ${DenseVector.tabulate(4){i=>
+//    val tmp = fourierTr(fft2_out(i, ::).t.map(_.conjugate)).toDenseVector
 //    tmp(0) / 4d
 //  }}")
+//  println(s"The true result is ${fft2_in.map(_ / 16)}")
 
   val first_fft_col_out = mutable.Queue[Complex]()
   val first_fft_row_out = mutable.Queue[Complex]()
@@ -131,7 +136,7 @@ object FFT2dv1Test extends App{
 
   val compiled = SimConfig .withWave .allOptimisation .workspacePath("tb/FFT2d_tb") .compile(FFT2IFFT_2d(fft_config))
 
-  for (i <- 0 until 5) {
+  for (i <- 0 until 1) {
     first_fft_col_out.clear()
     first_fft_row_out.clear()
     int_mem_col_out.clear()

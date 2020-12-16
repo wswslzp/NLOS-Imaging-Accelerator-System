@@ -35,7 +35,8 @@ case class IntMem(cfg: FFTConfig) extends Component {
   // write into int mem
   for(r <- 0 until cfg.row) {
     val write_data = io.mode ? io.row_pix_in.payload | io.col_line_in.payload(r)
-    val write_en = (~io.mode) | (w_row_addr.value === r)
+//    val write_en = (~io.mode) | (w_row_addr.value === r)
+    val write_en = io.mode ? (io.row_pix_in.valid & (w_row_addr.value === r)) | io.col_line_in.valid
     int_mem(r).write(
       address = w_col_addr.value.resized,
       data = write_data.asBits,
