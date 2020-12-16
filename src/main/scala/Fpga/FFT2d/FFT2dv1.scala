@@ -23,7 +23,7 @@ case class FFT2dv1(cfg: FFTConfig) extends Component {
     val row_pix_out = master(
       Flow(HComplex(cfg.hComplexConfig))
     )
-    val mode = in Bool() // 0: row pixel in/col line out; 1: col line in/row pixel out
+    val mode = in Bool() // 1: row pixel in/col line out; 0: col line in/row pixel out
     val inverse = in Bool() // 0: FFT; 1: IFFT
   }
 
