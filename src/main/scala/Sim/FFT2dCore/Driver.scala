@@ -145,16 +145,19 @@ object Driver {
           }
           dut.io.data_in.valid #= false
           dut.clockDomain.waitActiveEdgeWhere(dut.io.fft2d_out_sync.toBoolean)
-          dut.clockDomain.waitSampling(rsd_cfg.kernel_size.head - 2)
-          dut.io.push_start #= true
-          dut.clockDomain.waitSampling()
-          dut.io.push_start #= false
+          dut.clockDomain.waitSampling(rsd_cfg.kernel_size.head * 2)
+//          dut.io.push_start #= true
+//          dut.clockDomain.waitSampling()
+//          dut.io.push_start #= false
         }
       }
 
       // For d > 0, do ifft2d on data from MAC
       else {
         for(f <- rsd_cfg.freqRange){
+          dut.io.push_start #= true
+          dut.clockDomain.waitSampling()
+          dut.io.push_start #= false
           println(s"Now is ($d, $f)")
           freq = f
           dut.io.fc #= f
@@ -173,9 +176,9 @@ object Driver {
               dut.clockDomain.waitSampling()
             }
           }
-          dut.io.push_start #= true
-          dut.clockDomain.waitSampling()
-          dut.io.push_start #= false
+//          dut.io.push_start #= true
+//          dut.clockDomain.waitSampling()
+//          dut.io.push_start #= false
         }
         // wait for ifft done
         dut.clockDomain.waitActiveEdgeWhere(dut.io.ifft2d_comp_done.toBoolean)
