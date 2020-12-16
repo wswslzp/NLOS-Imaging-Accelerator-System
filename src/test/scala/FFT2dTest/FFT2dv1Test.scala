@@ -112,7 +112,8 @@ object FFT2dv1Test extends App{
   val fft2_in = DenseMatrix.tabulate(4, 4)(_ + _).map(_.toDouble)
 //  write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
   val fft2_out = fft2d_func(fft2_in)
-  println(s"The true result is ${fft2_out}")
+  println(s"The true fft2 is ${fft2_out}")
+  println(s"The true result is ${fft2_in}")
 
   val first_fft_col_out = mutable.Queue[Complex]()
   val first_fft_row_out = mutable.Queue[Complex]()
