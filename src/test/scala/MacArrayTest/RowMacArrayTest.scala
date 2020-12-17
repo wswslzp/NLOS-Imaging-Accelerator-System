@@ -105,6 +105,8 @@ object RowMacArrayTest extends App{
                   dut.clockDomain.waitSampling()
                   dut.io.push_ending #= false
                 }
+                dut.clockDomain.waitSampling(1000)
+                dut.clockDomain.waitSampling()
                 dut.clockDomain.waitActiveEdgeWhere(dut.io.clear_confirm.toBoolean)
               }
               dut.io.fc_overflow #= false
