@@ -105,8 +105,6 @@ object RowMacArrayTest extends App{
                   dut.clockDomain.waitSampling()
                   dut.io.push_ending #= false
                 }
-                dut.clockDomain.waitSampling(1000)
-                dut.clockDomain.waitSampling()
                 dut.clockDomain.waitActiveEdgeWhere(dut.io.clear_confirm.toBoolean)
               }
               dut.io.fc_overflow #= false
@@ -133,10 +131,12 @@ object RowMacArrayTest extends App{
                   dut.io.rsd_kernel.valid #= false
                   dut.clockDomain.waitSampling()
                 }
-                dut.clockDomain.waitSampling(1000)
-                dut.io.ifft2d_done #= true
-                dut.clockDomain.waitSampling()
-                dut.io.ifft2d_done #= false
+                if(d != 0){
+                  dut.clockDomain.waitSampling(1000)
+                  dut.io.ifft2d_done #= true
+                  dut.clockDomain.waitSampling()
+                  dut.io.ifft2d_done #= false
+                }
                 dut.clockDomain.waitActiveEdgeWhere(dut.io.clear_confirm.toBoolean)
               }
               dut.clockDomain.waitSampling(1000)
