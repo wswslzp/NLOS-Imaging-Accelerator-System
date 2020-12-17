@@ -74,9 +74,6 @@ object Driver {
 
     // All the data to rgca now is completed
     println(s"Now waiting for result pipe out.")
-    fork{
-      SimTimeout(1000)
-    }
     dut.io.dc #= (1 << dut.io.dc.getWidth)-1
     dut.io.fc #= (1 << dut.io.fc.getWidth)-1
     dut.clockDomain.waitActiveEdgeWhere(dut.io.done.toBoolean)

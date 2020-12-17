@@ -27,23 +27,12 @@ case class PostProcess(
   val col_num = cfg.kernel_size.last
   val io = new Bundle {
     val done = in Bool()
-//    val img_in = slave(Flow(
-//      Vec(HComplex(cfg.getResultConfig), col_num)
-//    ))
     val img_in = slave(Flow( HComplex(cfg.getResultConfig) ))
     val img_out = master(Stream(Vec.fill(pixel_parallel)(UInt(quant_bit_width bit))))
   }
 
   // ***************** abs(result) ************************************************
   val img_in_1 = io.img_in.stage()
-//  val img_in_abs = img_in_1.translateWith(Vec.tabulate(col_num){ idx=>
-//    val realp = img_in_1.payload(idx).real
-//    val imagp = img_in_1.payload(idx).imag
-//    val abs_real = (realp < 0) ? (-realp.asBits.asSInt) | realp.asBits.asSInt
-//    val abs_imag = (imagp < 0) ? (-imagp.asBits.asSInt) | imagp.asBits.asSInt
-//    ( abs_real + abs_imag ).asUInt
-//  })
-
   val img_in_abs = img_in_1.translateWith(img_in_1.payload.abs)
   img_in_abs.simPublic()
 
@@ -51,9 +40,6 @@ case class PostProcess(
   // TODO: simply catch upper bits can not work for small value.
   //  another robust quantize method should be taken
   val img_in_abs_1 = img_in_abs.stage()
-//  val img_in_q = img_in_abs_1.translateWith(Vec.tabulate(col_num){idx=>
-//    img_in_abs_1.payload(idx).asBits.resizeLeft(quant_bit_width).asUInt
-//  })
   val img_in_q = img_in_abs_1.translateWith(img_in_abs_1.payload.asBits.resizeLeft(quant_bit_width).asUInt)
   img_in_q.simPublic()
 
@@ -68,51 +54,54 @@ case class PostProcess(
   val result_mem = Mem(UInt(quant_bit_width bit), BigInt(cfg.rows * cfg.cols))
 //  val row_addr = Counter(0, cfg.rows)
   val pixel_addr = Counter(0, cfg.rows * cfg.cols)
-  val row_addr = pixel_addr / cfg.cols
-  val col_addr = pixel_addr % cfg.cols
-  val os_row_addr = ( row_addr * over_sample_factor ).resize(log2Up(os_rows))
+//  val row_addr = pixel_addr / cfg.cols
+//  val col_addr = pixel_addr % cfg.cols
+//  val os_row_addr = ( row_addr * over_sample_factor ).resize(log2Up(os_rows))
   when(img_in_q.valid){
     pixel_addr.increment()
   }
-  when(img_in_q.valid){
-    val q_pix = RegNext(img_in_q.payload)
-    val mem_prev_pix = result_mem.readSync(pixel_addr)
-//    for(c <- cfg.colRange){
-//      val os_col_addr = c * over_sample_factor
-//      val mem_lt_img_in = result_mem(os_row_addr)(os_col_addr) < img_in_q.payload(c)
-//      mem_lt_img_in.setName(s"mem_lt_img_in_$c")
-//
-//      when(mem_lt_img_in){
-//        for(delta_c <- 0 until over_sample_factor){
-//          for(delta_r <- 0 until over_sample_factor){
-//            result_mem(os_row_addr + delta_r)(os_col_addr + delta_c) := img_in_q.payload(c)
-//          }
-//        }
-//      }
-//
-//    }
-  }
-//  result_mem.foreach(_.simPublic())
+
+  val q_pix = RegNext(img_in_q.payload)
+  val mem_prev_pix = result_mem.readSync(pixel_addr)
+  val qin_larger = mem_prev_pix < q_pix
+  val store_in_en = RegNext(img_in_q.valid) init False
+  val w_pixel_addr = RegNext(pixel_addr) init 0
+  result_mem.write(
+    address = w_pixel_addr,
+    data = qin_larger ? q_pix | mem_prev_pix,
+    enable = store_in_en
+  )
 
   // ***************** signal status *******************
   //  `nlos_comp_done` signal that previous NLOS task is done
   val nlos_comp_done = Reg(Bool()).init(False).setWhen(io.done).clearWhen(io.img_in.valid.rise(False))
-  //  `result_ready` signal that all NLOS results have been stored and is ready to output
-  val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(img_in_q.valid.fall(False))
-  val result_ready = RegNext(result_ready_prev) init False
 
   // ***************** interpolate and output **********
   // Counter for image ( osf * cfg.rows * osf * cfg.cols/pixel_parallel )
+  def addressTrans(os_pix_addr: UInt): UInt = {
+    val os_row = os_pix_addr / (cfg.cols * over_sample_factor)
+    val os_col = os_pix_addr % (cfg.cols * over_sample_factor)
+    val nos_row = os_row / over_sample_factor
+    val nos_col = os_col / over_sample_factor
+    nos_row * cfg.cols + nos_col
+  }
+
   val pixel_cnt = Counter(0, cfg.kernel_size.product * over_sample_factor * over_sample_factor/pixel_parallel)
-  val pixel_cnt_row = pixel_cnt.value / (cfg.cols/pixel_parallel)
-  val pixel_cnt_col = pixel_cnt.value % (cfg.cols/pixel_parallel)
-  io.img_out.valid := result_ready
-//  for(i <- 0 until pixel_parallel){
-//    io.img_out.payload(i) := result_mem(pixel_cnt_row.resized)(( pixel_cnt_col * pixel_parallel + i ).resized)
-//  }
+  val parallel_pixel_addrs = Array.tabulate(pixel_parallel){i=>
+    pixel_cnt.value * pixel_parallel + i
+  }.map(addressTrans)
+
+  //  `result_ready` signal that all NLOS results have been stored and is ready to output
+  //  val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(img_in_q.valid.fall(False))
+  val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(store_in_en.fall(False)).clearWhen(pixel_cnt.willOverflow)
+  val result_ready = RegNext(result_ready_prev) init False
+  io.img_out.valid := RegNext(result_ready) init False
+  for(i <- 0 until pixel_parallel){
+    io.img_out.payload(i) := result_mem.readSync(parallel_pixel_addrs(i))
+  }
   when(io.img_out.fire){
     pixel_cnt.increment()
   }
-  result_ready.clearWhen(pixel_cnt.willOverflow)
+//  result_ready.clearWhen(pixel_cnt.willOverflow)
 
 }
