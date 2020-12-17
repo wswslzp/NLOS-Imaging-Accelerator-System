@@ -11,7 +11,8 @@ case class ExpFunc
 (
   cfg: HComplexConfig,
   samplePoint: Int,
-  period: Double
+  period: Double,
+  FpgaImpl: Boolean = false
 ) extends Component with Pipeline
 {
   val io = new Bundle {
@@ -19,29 +20,64 @@ case class ExpFunc
     val data_out = out(HComplex(cfg))
   }
 
-  val fx_period = SF(period, cfg.maxExp, cfg.minExp)
-  val indx = io.data_in % fx_period
+  def asicImplArea() = new Area {
 
-  val (pindx_tb, pfunc_tb) = expfunclutInPeriod(cfg, samplePoint, period)
+    val fx_period = SF(period, cfg.maxExp, cfg.minExp)
+    val indx = io.data_in % fx_period
 
-  val lut_point: Int = pfunc_tb.length
-  val idx_comp = pindx_tb.map(indx < _)
-  val idx_comp_vec: Bits = B(idx_comp.reverse)
-  val lzc_t = CountOne(~idx_comp_vec)
-  val lzc: UInt = lzc_t.resize(log2Up(lut_point))
+    val (pindx_tb, pfunc_tb) = expfunclutInPeriod(cfg, samplePoint, period)
 
-  val exp_func_value = HComplex(cfg)
-  when(lzc =/= U(0)) {
-    val position = ( lzc - 1 ).setWeakName("position")
-    val y1 = pfunc_tb(position).setWeakName("y1")
-    exp_func_value := y1
-  } elsewhen(lzc_t.msb === True) {
-    exp_func_value := pfunc_tb.last
-  } otherwise {
-    exp_func_value := pfunc_tb.head
-  }
+    val lut_point: Int = pfunc_tb.length
+    val idx_comp = pindx_tb.map(indx < _)
+    val idx_comp_vec: Bits = B(idx_comp.reverse)
+    val lzc_t = CountOne(~idx_comp_vec)
+    val lzc: UInt = lzc_t.resize(log2Up(lut_point))
 
-  io.data_out := exp_func_value
+    val exp_func_value = HComplex(cfg)
+    when(lzc =/= U(0)) {
+      val position = ( lzc - 1 ).setWeakName("position")
+      val y1 = pfunc_tb(position).setWeakName("y1")
+      exp_func_value := y1
+    } elsewhen(lzc_t.msb === True) {
+      exp_func_value := pfunc_tb.last
+    } otherwise {
+      exp_func_value := pfunc_tb.head
+    }
+
+    io.data_out := exp_func_value
+
+  }.setName("asic_impl")
+
+  def fpgaImplArea() = new Area {
+
+    val fx_period = SF(period, cfg.maxExp, cfg.minExp)
+    val indx = io.data_in % fx_period
+
+    val (pindx_tb, pfunc_tb) = expfunclutInPeriod(cfg, samplePoint, period)
+
+    val lut_point: Int = pfunc_tb.length
+    val idx_comp = pindx_tb.map(indx < _)
+    val idx_comp_vec: Bits = B(idx_comp.reverse)
+    val lzc_t = CountOne(~idx_comp_vec)
+    val lzc: UInt = lzc_t.resize(log2Up(lut_point))
+
+    val exp_func_value = HComplex(cfg)
+    when(lzc =/= U(0)) {
+      val position = ( lzc - 1 ).setWeakName("position")
+      val y1 = pfunc_tb(position).setWeakName("y1")
+      exp_func_value := y1
+    } elsewhen(lzc_t.msb === True) {
+      exp_func_value := pfunc_tb.last
+    } otherwise {
+      exp_func_value := pfunc_tb.head
+    }
+
+    io.data_out := exp_func_value
+
+  }.setName("fpga_impl")
+
+  if(FpgaImpl) fpgaImplArea()
+  else asicImplArea()
 
   val expLatency = 5
 

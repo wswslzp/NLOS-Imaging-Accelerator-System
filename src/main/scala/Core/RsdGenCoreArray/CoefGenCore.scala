@@ -21,31 +21,69 @@ case class CoefGenCore
     val coef = out (HComplex(cfg.coef_cfg))
   }
 
+  def asicImplArea() = new Area {
+
+    val wave = io.wave
+    val distance = io.distance
+
+    val wd_prod = wave * distance
+
+    val hCfg = HComplexConfig(wd_prod.maxExp+1, -wd_prod.minExp)
+    val exp_func_core = ExpFunc(
+      cfg = hCfg, samplePoint = 32, period = 1
+    )
+    exp_func_core.io.data_in <> wd_prod
+    val exp_wd_prod = exp_func_core.io.data_out
+    val expLatency = exp_func_core.expLatency
+
+    val exp_wd_prod_divw = exp_wd_prod / wave
+
+    val timeshift = io.timeshift
+    val prev_coef = exp_wd_prod_divw * timeshift
+    prev_coef.simPublic()
+
+    val output_coef_stage = prev_coef
+    // TODO: For FPGA, No pipeline retiming technology.
+    //  All pipeline should be handcrafted.
+    io.coef := stage(output_coef_stage, 0 to (7 + expLatency + hComplexMulStage.stage))
+
+    val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
+  }.setName("asic_impl")
+
+  def fpgaImplArea() = new Area {
+
+    val wave = io.wave
+    val distance = io.distance
+
+    val wd_prod = wave * distance
+
+    val hCfg = HComplexConfig(wd_prod.maxExp+1, -wd_prod.minExp)
+    val exp_func_core = ExpFunc(
+      cfg = hCfg, samplePoint = 32, period = 1
+    )
+    exp_func_core.io.data_in <> wd_prod
+    val exp_wd_prod = exp_func_core.io.data_out
+    val expLatency = exp_func_core.expLatency
+
+    val exp_wd_prod_divw = exp_wd_prod / wave
+
+    val timeshift = io.timeshift
+    val prev_coef = exp_wd_prod_divw * timeshift
+    prev_coef.simPublic()
+
+    val output_coef_stage = prev_coef
+    // TODO: For FPGA, No pipeline retiming technology.
+    //  All pipeline should be handcrafted.
+    io.coef := stage(output_coef_stage, 0 to (7 + expLatency + hComplexMulStage.stage))
+
+    val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
+
+  }.setName("fpga_impl")
+
   openAllStage()
 
-  val wave = io.wave
-  val distance = io.distance
-
-  val wd_prod = wave * distance
-
-  val hCfg = HComplexConfig(wd_prod.maxExp+1, -wd_prod.minExp)
-  val exp_func_core = ExpFunc(
-    cfg = hCfg, samplePoint = 32, period = 1
-  )
-  exp_func_core.io.data_in <> wd_prod
-  val exp_wd_prod = exp_func_core.io.data_out
-  val expLatency = exp_func_core.expLatency
-
-  val exp_wd_prod_divw = exp_wd_prod / wave
-
-  val timeshift = io.timeshift
-  val prev_coef = exp_wd_prod_divw * timeshift
-  prev_coef.simPublic()
-
-  val output_coef_stage = prev_coef
-  // TODO: For FPGA, No pipeline retiming technology.
-  //  All pipeline should be handcrafted.
-  io.coef := stage(output_coef_stage, 0 to (7 + expLatency + hComplexMulStage.stage))
+  if(cfg.fpga_impl) fpgaImplArea()
+  else asicImplArea()
 
   val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
 
