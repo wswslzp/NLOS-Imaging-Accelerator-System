@@ -19,7 +19,9 @@ case class FFT2dCore_v1(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor
   val io = new Bundle {
     val dc = in UInt(log2Up(depth_factor) bit)
     val fc = in UInt(log2Up(freq_factor) bit)
+    val done = in Bool()
     val push_start = in Bool() // TODO Check
+    val push_ending = in Bool()
     val fft2d_comp_done = out Bool()
     val ifft2d_comp_done = out Bool()
     val fft2d_out_sync = out Bool
@@ -29,8 +31,10 @@ case class FFT2dCore_v1(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor
     val data_to_final = master(Flow(HComplex(rsd_cfg.getResultConfig)))
   }
 
-  val inverse = io.dc > 0 //&& !(io.dc === 1 && io.fc === 0)
+//  val inverse = io.dc > 0 //&& !(io.dc === 1 && io.fc === 0) // todo check
+  val inverse = Reg(Bool()).setWhen(io.push_ending & (io.fc === freq_factor-1) & (io.dc === 0)).clearWhen(io.done)
   val mode = !inverse // dc = 0, row pixel pipe in to do fft; dc > 0, col line in to do iff2
+
   val unified_cfg = io.data_from_mac.payload.head.config + io.data_in.payload.config // HCC(38,26)
 
   // ********** FFT2d Core *************
@@ -78,7 +82,7 @@ case class FFT2dCore_v1(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor
 
   val fft_to_rgca_channel = fft_out_to_mac.translateWith(
     Vec(fft_out_to_mac.payload.map(_.fixTo(io.data_to_mac.payload.head.config))) // HCC(38,-6)
-  ).takeWhen(push_period) // TODO: Takewhen may be redundant
+  )//.takeWhen(push_period) // TODO: Takewhen may be redundant
   when(io.dc === 0) {
     // The fft2d output is directly sent to output and int_mem
     // Delay one cycle after push_period
@@ -95,7 +99,7 @@ case class FFT2dCore_v1(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor
   val fft_out_to_final = fft2d_inst.io.row_pix_out
   val fft_to_final_channel = fft_out_to_final.translateWith(
     fft_out_to_final.payload.fixTo(io.data_to_final.payload.config) // HCC(38,26)
-  ).takeWhen(inverse)// TODO: Takewhen may be redundant
+  )//.takeWhen(inverse)// TODO: Takewhen may be redundant
   io.data_to_final << fft_to_final_channel // o_valid = i_valid & inverse
   io.ifft2d_comp_done := fft_to_final_channel.valid.fall(False)
 

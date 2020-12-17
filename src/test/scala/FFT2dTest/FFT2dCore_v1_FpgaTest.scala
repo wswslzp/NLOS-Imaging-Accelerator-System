@@ -58,7 +58,7 @@ object FFT2dCore_v1_FpgaTest extends App{
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   )
 
-  compiled.doSim("FFT2dCore_FPGA_tb"){dut=>
+  compiled.doSim("FFT2dCore_v1_FPGA_tb"){dut=>
     dut.clockDomain.forkStimulus(2)
     dutInit(dut)
     dut.clockDomain.waitSampling()
@@ -155,23 +155,23 @@ object FFT2dCore_v1_FpgaTest extends App{
     umax
   }
   val huout_abs_max_flip = fliplr(huout_abs_max)
-  write_image(huout_abs_max_flip, "tb/FFT2dCore/nlos_test_houtf_out.jpg")
+  write_image(huout_abs_max_flip, "tb/FFT2dCore_v1/nlos_test_houtf_out.jpg")
 
   // Test `hdata_from_mac`
   csvwrite(
-    new File("tb/FFT2dCore/huout_f10.csv"),
+    new File("tb/FFT2dCore_v1/huout_f10.csv"),
     huout_f(10).map(_.real)
   )
   csvwrite(
-    new File("tb/FFT2dCore/hdata_from_mac10.csv"),
+    new File("tb/FFT2dCore_v1/hdata_from_mac10.csv"),
     hdata_from_mac(10).map(_.real)
   )
   csvwrite(
-    new File("tb/FFT2dCore/huin_fft10.csv"),
+    new File("tb/FFT2dCore_v1/huin_fft10.csv"),
     huin_fft(10).map(_.real)
   )
   csvwrite(
-    new File("tb/FFT2dCore/huin10.csv"),
+    new File("tb/FFT2dCore_v1/huin10.csv"),
     huin(10).map(_.real)
   )
 
@@ -191,11 +191,11 @@ object FFT2dCore_v1_FpgaTest extends App{
   println(s"output size: cols = ${uout_abs_max.cols}")
 
   val uout_abs_max_flip = fliplr(uout_abs_max)
-  write_image(uout_abs_max_flip, "tb/FFT2dCore/nlos_test_huoutd_out.jpg")
+  write_image(uout_abs_max_flip, "tb/FFT2dCore_v1/nlos_test_huoutd_out.jpg")
 
   if(withWave){
-    Process("vcd2vpd tb/FFT2dCore/FFT2dCore_FPGA_tb.vcd tb/FFT2dCore/FFT2dCore_FPGA_tb.vpd").!
-    Process("dve -full64 -vpd tb/FFT2dCore/FFT2dCore_FPGA_tb.vpd").!!
+    Process("vcd2vpd tb/FFT2dCore_v1/FFT2dCore_v1_FPGA_tb.vcd tb/FFT2dCore_v1/FFT2dCore_v1_FPGA_tb.vpd").!
+    Process("dve -full64 -vpd tb/FFT2dCore_v1/FFT2dCore_v1_FPGA_tb.vpd").!!
   }
 
 }
