@@ -65,7 +65,7 @@ case class PostProcess(
   val mem_prev_pix = result_mem.readSync(pixel_addr)
   val qin_larger = mem_prev_pix < q_pix
   val store_in_en = RegNext(img_in_q.valid) init False
-  val w_pixel_addr = RegNext(pixel_addr) init 0
+  val w_pixel_addr = RegNext(pixel_addr.value) init 0
   result_mem.write(
     address = w_pixel_addr,
     data = qin_larger ? q_pix | mem_prev_pix,
