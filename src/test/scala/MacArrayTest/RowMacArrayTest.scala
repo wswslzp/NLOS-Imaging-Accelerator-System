@@ -63,6 +63,8 @@ object RowMacArrayTest extends App{
       dut.clockDomain.forkStimulus(2)
       dut.io.fc_overflow #= false
       dut.io.push_ending #= false
+      dut.io.dc_eq_0 #= false
+      dut.io.ifft2d_done #= false
       dut.io.fft_out.valid #= false
       dut.io.rsd_kernel.valid #= false
       dut.clockDomain.waitSampling()
@@ -79,6 +81,7 @@ object RowMacArrayTest extends App{
             () => {
               for(d <- rsd_cfg.depthRange){
                 dut.sim.dc #= d
+                dut.io.dc_eq_0 #= d == 0
                 for(f <- rsd_cfg.freqRange){
                   dut.sim.fc #= f
                   dut.io.fc_overflow #= (f == rsd_cfg.freq_factor-1)

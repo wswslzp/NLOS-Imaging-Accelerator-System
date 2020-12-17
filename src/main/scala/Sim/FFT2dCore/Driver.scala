@@ -155,7 +155,7 @@ object Driver {
         dut.io.data_from_mac.valid #= true
         for(c <- rsd_cfg.colRange){
           for(r <- rsd_cfg.rowRange){
-            dut.io.data_from_mac.payload(r) #= huout_f(depth-1)(r, c)
+            dut.io.data_from_mac.payload(r) #= huout_f(d)(r, c)
           }
           dut.clockDomain.waitSampling()
         }
@@ -180,7 +180,7 @@ object Driver {
         dut.io.data_from_mac.valid #= true
         for(c <- rsd_cfg.colRange){
           for(r <- rsd_cfg.rowRange){
-            dut.io.data_from_mac.payload(r) #= huout_f(depth-1)(r, c)
+            dut.io.data_from_mac.payload(r) #= huout_f(d)(r, c)
           }
           dut.clockDomain.waitSampling()
         }

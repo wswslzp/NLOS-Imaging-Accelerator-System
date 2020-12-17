@@ -9,7 +9,7 @@ case class RowMacArray(cfg: RsdKernelConfig) extends Component {
   val io = new Bundle {
     val fc_overflow = in Bool()
     val push_ending = in Bool()
-    val dc_eq_0 = in Bool()
+    val dc_eq_0 = in Bool() // todo check
     val ifft2d_done = in Bool()
     val rsd_kernel = slave(Flow(Vec(HComplex(cfg.getKernelConfig), cfg.rows)))
     val fft_out = slave(Flow(Vec(HComplex(cfg.getFUinConfig), cfg.rows)))
