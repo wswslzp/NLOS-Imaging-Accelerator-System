@@ -12,8 +12,7 @@ object NlosNoDriverMain extends App{
   new File("rtl/NlosNoDriver").mkdir()
 
   SpinalConfig(
-    targetDirectory = "rtl/NlosNoDriver",
-    oneFilePerComponent = true
+    targetDirectory = "rtl/NlosNoDriver"
   ).generateVerilog(
     NlosNoDriver(rsd_cfg)
   )

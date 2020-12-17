@@ -33,7 +33,7 @@ case class NlosNoDriver(cfg: RsdKernelConfig) extends Component {
   io.fft_comp_end := nlos_core.io.fft_comp_end
 
   post_proc.io.done := nlos_core.io.done
-//  post_proc.io.img_in << nlos_core.io.result
+  post_proc.io.img_in << nlos_core.io.result
   io.result <> post_proc.io.img_out
 }
 

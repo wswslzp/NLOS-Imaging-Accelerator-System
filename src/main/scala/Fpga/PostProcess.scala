@@ -53,7 +53,7 @@ case class PostProcess(
 //  )
   val result_mem = Mem(UInt(quant_bit_width bit), BigInt(cfg.rows * cfg.cols))
 //  val row_addr = Counter(0, cfg.rows)
-  val pixel_addr = Counter(0, cfg.rows * cfg.cols)
+  val pixel_addr = Counter(0 until cfg.rows*cfg.cols)
 //  val row_addr = pixel_addr / cfg.cols
 //  val col_addr = pixel_addr % cfg.cols
 //  val os_row_addr = ( row_addr * over_sample_factor ).resize(log2Up(os_rows))
@@ -86,7 +86,7 @@ case class PostProcess(
     nos_row * cfg.cols + nos_col
   }
 
-  val pixel_cnt = Counter(0, cfg.kernel_size.product * over_sample_factor * over_sample_factor/pixel_parallel)
+  val pixel_cnt = Counter(0 until cfg.kernel_size.product * over_sample_factor * over_sample_factor/pixel_parallel)
   val parallel_pixel_addrs = Array.tabulate(pixel_parallel){i=>
     pixel_cnt.value * pixel_parallel + i
   }.map(addressTrans)
@@ -97,7 +97,7 @@ case class PostProcess(
   val result_ready = RegNext(result_ready_prev) init False
   io.img_out.valid := RegNext(result_ready) init False
   for(i <- 0 until pixel_parallel){
-    io.img_out.payload(i) := result_mem.readSync(parallel_pixel_addrs(i))
+    io.img_out.payload(i) := result_mem.readSync(parallel_pixel_addrs(i).resized)
   }
   when(io.img_out.fire){
     pixel_cnt.increment()
