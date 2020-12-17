@@ -58,9 +58,9 @@ case class ExpFunc
     val (pindx_tb, pfunc_tb) = expfunclutInPeriod(cfg, samplePoint, period)
 
     val lut_point: Int = pfunc_tb.length
-    var idx_comp = pindx_tb.map(indx < _)
-    idx_comp = stage(idx_comp, 2)
-    val idx_comp_vec: Bits = B(idx_comp.reverse)
+    val idx_comp = pindx_tb.map(indx < _)
+    var idx_comp_vec: Bits = B(idx_comp.reverse)
+    idx_comp_vec = stage(idx_comp_vec, 2)
     val lzc_t = CountOne(~idx_comp_vec)
     var lzc: UInt = lzc_t.resize(log2Up(lut_point))
     lzc = stage(lzc, 3)
