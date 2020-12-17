@@ -85,7 +85,7 @@ object NlosCoreTest extends App {
       () => {
         var hf = 0
         while (true) {
-          if (dd == 0) {
+          if (dd == 0 && hf < rsd_cfg.freq_factor) {
             val tmp = catchFUin(dut)
             h_fft_out(hf) = tmp
             println(s"Got the ${hf}th fft uin image.")

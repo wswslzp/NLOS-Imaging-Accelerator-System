@@ -62,15 +62,21 @@ case class PostProcess(
   //  memory should use BRAM/SRAM
   val os_rows = cfg.rows * over_sample_factor
   val os_cols = cfg.cols * over_sample_factor
-  val result_mem = Vec.fill(os_rows)(
-    Vec.fill(os_cols)(Reg(UInt(quant_bit_width bit)))
-  )
-  val row_addr = Counter(0, cfg.rows)
-  val os_row_addr = ( row_addr.value * over_sample_factor ).resize(log2Up(os_rows))
+//  val result_mem = Vec.fill(os_rows)(
+//    Vec.fill(os_cols)(Reg(UInt(quant_bit_width bit)))
+//  )
+  val result_mem = Mem(UInt(quant_bit_width bit), BigInt(cfg.rows * cfg.cols))
+//  val row_addr = Counter(0, cfg.rows)
+  val pixel_addr = Counter(0, cfg.rows * cfg.cols)
+  val row_addr = pixel_addr / cfg.cols
+  val col_addr = pixel_addr % cfg.cols
+  val os_row_addr = ( row_addr * over_sample_factor ).resize(log2Up(os_rows))
   when(img_in_q.valid){
-    row_addr.increment()
+    pixel_addr.increment()
   }
   when(img_in_q.valid){
+    val q_pix = RegNext(img_in_q.payload)
+    val mem_prev_pix = result_mem.readSync(pixel_addr)
 //    for(c <- cfg.colRange){
 //      val os_col_addr = c * over_sample_factor
 //      val mem_lt_img_in = result_mem(os_row_addr)(os_col_addr) < img_in_q.payload(c)
@@ -86,7 +92,7 @@ case class PostProcess(
 //
 //    }
   }
-  result_mem.foreach(_.simPublic())
+//  result_mem.foreach(_.simPublic())
 
   // ***************** signal status *******************
   //  `nlos_comp_done` signal that previous NLOS task is done
@@ -101,9 +107,9 @@ case class PostProcess(
   val pixel_cnt_row = pixel_cnt.value / (cfg.cols/pixel_parallel)
   val pixel_cnt_col = pixel_cnt.value % (cfg.cols/pixel_parallel)
   io.img_out.valid := result_ready
-  for(i <- 0 until pixel_parallel){
-    io.img_out.payload(i) := result_mem(pixel_cnt_row.resized)(( pixel_cnt_col * pixel_parallel + i ).resized)
-  }
+//  for(i <- 0 until pixel_parallel){
+//    io.img_out.payload(i) := result_mem(pixel_cnt_row.resized)(( pixel_cnt_col * pixel_parallel + i ).resized)
+//  }
   when(io.img_out.fire){
     pixel_cnt.increment()
   }
