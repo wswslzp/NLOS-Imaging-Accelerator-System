@@ -20,7 +20,7 @@ case class RsdKernelConfig
   impulse_sample_point: Int = 101,
   less_mem_size: Boolean = true,
   sub_mem_tag: Int = 0,
-  fpga_impl: Boolean = false,
+  fpga_impl: Boolean = true,
   fft_use_pipeline: Boolean = true
 ){
   require(kernel_size.length == 2)

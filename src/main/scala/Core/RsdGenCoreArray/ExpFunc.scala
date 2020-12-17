@@ -51,15 +51,19 @@ case class ExpFunc
   def fpgaImplArea() = new Area {
 
     val fx_period = SF(period, cfg.maxExp, cfg.minExp)
-    val indx = io.data_in % fx_period
+    val data_in = stage(io.data_in, 0)
+    var indx = io.data_in % fx_period
+    indx = stage(indx, 1)
 
     val (pindx_tb, pfunc_tb) = expfunclutInPeriod(cfg, samplePoint, period)
 
     val lut_point: Int = pfunc_tb.length
-    val idx_comp = pindx_tb.map(indx < _)
+    var idx_comp = pindx_tb.map(indx < _)
+    idx_comp = stage(idx_comp, 2)
     val idx_comp_vec: Bits = B(idx_comp.reverse)
     val lzc_t = CountOne(~idx_comp_vec)
-    val lzc: UInt = lzc_t.resize(log2Up(lut_point))
+    var lzc: UInt = lzc_t.resize(log2Up(lut_point))
+    lzc = stage(lzc, 3)
 
     val exp_func_value = HComplex(cfg)
     when(lzc =/= U(0)) {
@@ -72,7 +76,7 @@ case class ExpFunc
       exp_func_value := pfunc_tb.head
     }
 
-    io.data_out := exp_func_value
+    io.data_out := stage(exp_func_value, 4)
 
   }.setName("fpga_impl")
 
