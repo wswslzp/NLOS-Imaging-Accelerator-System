@@ -42,12 +42,12 @@ case class PartialFFT(cfg: FFTConfig) extends Component {
   io.col_line_out.valid := (~io.mode ) & fft_out_conj.valid
   io.col_line_out.payload := fft_out_conj.payload
 
-  // When mode = 1, fft is in row pixel out mode, col addr count up inside
-  //  fft out valid.
-  val row_pix_area = countUpInside(fft_out_conj.valid & io.mode, cfg.row * cfg.point)
-  val col_addr = row_pix_area.cnt.value % cfg.point
-  io.row_pix_out.valid := fft_out_conj.valid & io.mode
-  io.row_pix_out.payload := fft_out_conj.payload(col_addr.resized)
+  // When mode = 1, fft is in row pixel out mode, fft out conj valid assert one cycle
+  //  per column, with interval of `point` cycles. so col addr area should count up from
+  //  the valid for `point` cycles just in this mode
+  val col_addr_area = countUpFrom(fft_out_conj.valid & io.mode, 0 until cfg.point)
+  io.row_pix_out.valid := col_addr_area.cond_period & io.mode
+  io.row_pix_out.payload := fft_out_conj.payload(col_addr_area.cnt.value)
 
 }
 
