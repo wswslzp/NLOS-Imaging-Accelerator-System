@@ -32,7 +32,7 @@ case class FFT2dCore_v1(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor
   }
 
 //  val inverse = io.dc > 0 //&& !(io.dc === 1 && io.fc === 0) // todo check
-  val inverse = Reg(Bool()).setWhen(io.push_ending & (io.fc === freq_factor-1) & (io.dc === 0)).clearWhen(io.done)
+  val inverse = Reg(Bool()).setWhen(io.push_ending & (io.fc === freq_factor-1) & (io.dc === 0)).clearWhen(io.done).init(False)
   val mode = !inverse // dc = 0, row pixel pipe in to do fft; dc > 0, col line in to do iff2
 
   val unified_cfg = io.data_from_mac.payload.head.config + io.data_in.payload.config // HCC(38,26)
