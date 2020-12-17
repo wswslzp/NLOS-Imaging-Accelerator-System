@@ -27,31 +27,39 @@ case class PostProcess(
   val col_num = cfg.kernel_size.last
   val io = new Bundle {
     val done = in Bool()
-    val img_in = slave(Flow(
-      Vec(HComplex(cfg.getResultConfig), col_num)
-    ))
+//    val img_in = slave(Flow(
+//      Vec(HComplex(cfg.getResultConfig), col_num)
+//    ))
+    val img_in = slave(Flow( HComplex(cfg.getResultConfig) ))
     val img_out = master(Stream(Vec.fill(pixel_parallel)(UInt(quant_bit_width bit))))
   }
 
   // ***************** abs(result) ************************************************
   val img_in_1 = io.img_in.stage()
-  val img_in_abs = img_in_1.translateWith(Vec.tabulate(col_num){ idx=>
-    val realp = img_in_1.payload(idx).real
-    val imagp = img_in_1.payload(idx).imag
-    val abs_real = (realp < 0) ? (-realp.asBits.asSInt) | realp.asBits.asSInt
-    val abs_imag = (imagp < 0) ? (-imagp.asBits.asSInt) | imagp.asBits.asSInt
-    ( abs_real + abs_imag ).asUInt
-  })
+//  val img_in_abs = img_in_1.translateWith(Vec.tabulate(col_num){ idx=>
+//    val realp = img_in_1.payload(idx).real
+//    val imagp = img_in_1.payload(idx).imag
+//    val abs_real = (realp < 0) ? (-realp.asBits.asSInt) | realp.asBits.asSInt
+//    val abs_imag = (imagp < 0) ? (-imagp.asBits.asSInt) | imagp.asBits.asSInt
+//    ( abs_real + abs_imag ).asUInt
+//  })
+
+  val img_in_abs = img_in_1.translateWith(img_in_1.payload.abs)
   img_in_abs.simPublic()
 
   // ***************** quantize ***********************
+  // TODO: simply catch upper bits can not work for small value.
+  //  another robust quantize method should be taken
   val img_in_abs_1 = img_in_abs.stage()
-  val img_in_q = img_in_abs_1.translateWith(Vec.tabulate(col_num){idx=>
-    img_in_abs_1.payload(idx).asBits.resizeLeft(quant_bit_width).asUInt
-  })
+//  val img_in_q = img_in_abs_1.translateWith(Vec.tabulate(col_num){idx=>
+//    img_in_abs_1.payload(idx).asBits.resizeLeft(quant_bit_width).asUInt
+//  })
+  val img_in_q = img_in_abs_1.translateWith(img_in_abs_1.payload.asBits.resizeLeft(quant_bit_width).asUInt)
   img_in_q.simPublic()
 
   // ***************** store and compare **************
+  // TODO: Needs to modify the logic
+  //  memory should use BRAM/SRAM
   val os_rows = cfg.rows * over_sample_factor
   val os_cols = cfg.cols * over_sample_factor
   val result_mem = Vec.fill(os_rows)(
@@ -63,20 +71,20 @@ case class PostProcess(
     row_addr.increment()
   }
   when(img_in_q.valid){
-    for(c <- cfg.colRange){
-      val os_col_addr = c * over_sample_factor
-      val mem_lt_img_in = result_mem(os_row_addr)(os_col_addr) < img_in_q.payload(c)
-      mem_lt_img_in.setName(s"mem_lt_img_in_$c")
-
-      when(mem_lt_img_in){
-        for(delta_c <- 0 until over_sample_factor){
-          for(delta_r <- 0 until over_sample_factor){
-            result_mem(os_row_addr + delta_r)(os_col_addr + delta_c) := img_in_q.payload(c)
-          }
-        }
-      }
-
-    }
+//    for(c <- cfg.colRange){
+//      val os_col_addr = c * over_sample_factor
+//      val mem_lt_img_in = result_mem(os_row_addr)(os_col_addr) < img_in_q.payload(c)
+//      mem_lt_img_in.setName(s"mem_lt_img_in_$c")
+//
+//      when(mem_lt_img_in){
+//        for(delta_c <- 0 until over_sample_factor){
+//          for(delta_r <- 0 until over_sample_factor){
+//            result_mem(os_row_addr + delta_r)(os_col_addr + delta_c) := img_in_q.payload(c)
+//          }
+//        }
+//      }
+//
+//    }
   }
   result_mem.foreach(_.simPublic())
 

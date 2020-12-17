@@ -72,9 +72,9 @@ object PostProcTest extends App{
           dut.io.img_in.valid #= true
           for(r <- rsd_cfg.rowRange){
             for(c <- rsd_cfg.colRange){
-              dut.io.img_in.payload(c) #= uout(d)(r, c)
+              dut.io.img_in.payload #= uout(d)(r, c)
+              dut.clockDomain.waitSampling()
             }
-            dut.clockDomain.waitSampling()
           }
           dut.io.img_in.valid #= false
           if(d == rsd_cfg.depth_factor-1) {

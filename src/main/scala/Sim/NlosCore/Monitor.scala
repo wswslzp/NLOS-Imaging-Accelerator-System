@@ -17,7 +17,7 @@ object Monitor {
    * @return An output image result of a depth
    */
   def catchResult(dut: NlosCore): DenseMatrix[Complex] = {
-    catchFlowVecData(dut.clockDomain, dut.io.result)
+    catchFlowData(dut.clockDomain, dut.io.result)
   }
 
   def catchMacResult(dut: NlosCore): DenseMatrix[Complex] = {

@@ -37,6 +37,14 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
     ret
   }
 
+  def abs: UFix = {
+    val ret = UFix(config.intw exp, -config.fracw exp)
+    val abs_real = (real < 0) ? (-real.asBits.asSInt) | (real.asBits.asSInt)
+    val abs_imag = (imag < 0) ? (-imag.asBits.asSInt) | (imag.asBits.asSInt)
+    ret.assignFromBits((abs_real.asUInt + abs_imag.asUInt).asBits)
+    ret
+  }
+
   def +(that: HComplex): HComplex = {
 //    require(this.config == that.config)
     val result = HComplex(this.config + that.config)

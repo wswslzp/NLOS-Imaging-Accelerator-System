@@ -28,7 +28,8 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
     val data_in = slave(Axi4WriteOnly(axi_config))
     val img_in = slave(Flow(HComplex(cfg.getUinConfig)))
     val load_req = out Bits(4 bit)
-    val result = master(Flow(Vec(HComplex(cfg.getResultConfig), cfg.kernel_size.last)))
+//    val result = master(Flow(Vec(HComplex(cfg.getResultConfig), cfg.kernel_size.last)))
+    val result = master(Flow(HComplex(cfg.getResultConfig)))
     val fft_comp_end = out Bool()
     val done = out Bool()
   }
@@ -42,14 +43,20 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   io.cnt_incr := rgca.io.cnt_incr
 
   // ************ FFT2dCore ************
-  val fft2d_core = FFT2dCore(
+//  val fft2d_core = FFT2dCore(
+//    rsd_cfg = cfg,
+//    depth_factor = cfg.depth_factor,
+//    freq_factor = cfg.freq_factor
+//  )
+  val fft2d_core = FFT2dCore_v1(
     rsd_cfg = cfg,
     depth_factor = cfg.depth_factor,
     freq_factor = cfg.freq_factor
-  )
+  ) // todo check
   fft2d_core.io.dc := io.dc
   fft2d_core.io.fc := io.fc
-  fft2d_core.io.push_start := rgca.io.push_start
+  fft2d_core.io.push_start := rgca.io.push_start // todo
+  fft2d_core.io.push_ending := rgca.io.push_ending // todo
   rgca.io.fft2d_out_sync := fft2d_core.io.fft2d_out_sync
   fft2d_core.io.data_in << io.img_in
   io.result << fft2d_core.io.data_to_final
@@ -61,6 +68,8 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   val fc_ov = io.fc === (cfg.freq_factor-1)
   mac_array.io.fc_overflow := fc_ov
   mac_array.io.push_ending := rgca.io.push_ending
+  mac_array.io.dc_eq_0 := (io.dc === 0) // todo
+  mac_array.io.ifft2d_done := fft2d_core.io.ifft2d_comp_done // todo
   rgca.io.clear_confirm := mac_array.io.clear_confirm
   mac_array.io.fft_out << fft2d_core.io.data_to_mac
   fft2d_core.io.data_to_mac.simPublic()
@@ -70,5 +79,6 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   mac_array.io.mac_result.simPublic()
 
   io.done := (io.dc === ((1 << io.dc.getWidth)-1)) && (io.fc === ((1<<io.fc.getWidth)-1)) && io.result.valid.fall(False)
+  fft2d_core.io.done := io.done // todo
   val loadUnitAddrs = rgca.loadUnitAddrs
 }

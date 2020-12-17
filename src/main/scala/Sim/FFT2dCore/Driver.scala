@@ -151,6 +151,9 @@ object Driver {
           dut.clockDomain.waitSampling()
           dut.io.push_start #= false
           dut.clockDomain.waitSampling(rsd_cfg.kernel_size.head)
+          dut.io.push_ending #= true
+          dut.clockDomain.waitSampling()
+          dut.io.push_ending #= false
         }
         dut.io.data_from_mac.valid #= true
         for(c <- rsd_cfg.colRange){
@@ -166,13 +169,16 @@ object Driver {
       // For d > 0, do ifft2d on data from MAC
       else {
         for(f <- rsd_cfg.freqRange){
+          freq = f
+          dut.io.fc #= f
+          println(s"Now is ($d, $f)")
           dut.io.push_start #= true
           dut.clockDomain.waitSampling()
           dut.io.push_start #= false
-          println(s"Now is ($d, $f)")
-          freq = f
-          dut.io.fc #= f
+          dut.clockDomain.waitSampling(rsd_cfg.kernel_size.head)
+          dut.io.push_ending #= true
           dut.clockDomain.waitSampling()
+          dut.io.push_ending #= false
         }
         // After all freq fft out
         // wait for ifft done
