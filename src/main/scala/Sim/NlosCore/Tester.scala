@@ -35,6 +35,11 @@ object Tester {
   }
 
   def testPostProc(post_proc_result: DenseMatrix[Double]): Unit = {
+    csvwrite(
+      new File("tb/NlosNoDriver/hard_out.csv"),
+      post_proc_result
+    )
+
     write_image(post_proc_result, "tb/NlosNoDriver/nlos_hard_out.jpg")
   }
 
