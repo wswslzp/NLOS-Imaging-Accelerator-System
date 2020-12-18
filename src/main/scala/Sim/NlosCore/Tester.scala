@@ -34,6 +34,10 @@ object Tester {
     write_image(uout_abs_max_flip, "tb/NlosCore/mac_res_test.jpg")
   }
 
+  def testPostProc(post_proc_result: DenseMatrix[Double]): Unit = {
+
+  }
+
   def testFinal(finalResult: Array[DenseMatrix[Complex]]): Unit = {
     val uout_abs = finalResult.map(_.map(_.abs))
 

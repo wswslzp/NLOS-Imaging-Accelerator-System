@@ -76,11 +76,11 @@ case class PostProcess(
   //  `nlos_comp_done` signal that previous NLOS task is done
   val nlos_comp_done = Reg(Bool()).init(False).setWhen(io.done).clearWhen(io.img_in.valid.rise(False))
 
-  // ***************** interpolate and output **********
+  // ***************** interpolate, fliplr and output **********
   // Counter for image ( osf * cfg.rows * osf * cfg.cols/pixel_parallel )
   def addressTrans(os_pix_addr: UInt): UInt = {
     val os_row = os_pix_addr / (cfg.cols * over_sample_factor)
-    val os_col = os_pix_addr % (cfg.cols * over_sample_factor)
+    val os_col = (cfg.cols*over_sample_factor) - os_pix_addr % (cfg.cols * over_sample_factor)
     val nos_row = os_row / over_sample_factor
     val nos_col = os_col / over_sample_factor
     nos_row * cfg.cols + nos_col
