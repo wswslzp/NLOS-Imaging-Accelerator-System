@@ -35,7 +35,7 @@ object Monitor {
   def catchResult(dut: NlosNoDriver): DenseMatrix[Double] = {
     dut.io.result.ready #= true
     dut.clockDomain.waitActiveEdgeWhere(dut.io.result.valid.toBoolean)
-    val result = DenseMatrix.zeros[Double](dut.cfg.rows, dut.cfg.cols)
+    val result = DenseMatrix.zeros[Double](dut.cfg.rows * dut.post_proc.over_sample_factor, dut.cfg.cols * dut.post_proc.over_sample_factor)
     for(r <- 0 until dut.cfg.rows * dut.post_proc.over_sample_factor){
       for(c <- 0 until dut.cfg.cols * dut.post_proc.over_sample_factor/dut.post_proc.pixel_parallel) {
         for(p <- 0 until dut.post_proc.pixel_parallel) {

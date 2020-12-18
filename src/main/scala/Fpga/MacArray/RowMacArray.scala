@@ -9,7 +9,7 @@ case class RowMacArray(cfg: RsdKernelConfig) extends Component {
   val io = new Bundle {
     val fc_overflow = in Bool()
     val push_ending = in Bool()
-    val dc_eq_0 = in Bool() // todo check
+    val dc_eq_0 = in Bool()
     val ifft2d_done = in Bool()
     val rsd_kernel = slave(Flow(Vec(HComplex(cfg.getKernelConfig), cfg.rows)))
     val fft_out = slave(Flow(Vec(HComplex(cfg.getFUinConfig), cfg.rows)))
@@ -19,6 +19,7 @@ case class RowMacArray(cfg: RsdKernelConfig) extends Component {
   val valid = io.rsd_kernel.valid & io.fft_out.valid
 
   // Pipeline the complex multiplication for good timing. Trade off between area and timing.
+  // todo bad timing, rsd kernel should be registered.
   val rsd_fft_prod = Vec.tabulate(cfg.rows){idx=>
     val tmp = io.rsd_kernel.payload(idx) * io.fft_out.payload(idx)
     RegNext(tmp)
@@ -49,7 +50,7 @@ case class RowMacArray(cfg: RsdKernelConfig) extends Component {
   val pipe_out_start = Delay(
   that = io.dc_eq_0 ? (io.fc_overflow & io.push_ending) | io.ifft2d_done,
   cycleCount = 2, init = False
-  )// todo check
+  )
   val pipe_out_cnt_area = countUpFrom(pipe_out_start, cfg.colRange)
   val pipe_out_col_addr = RegNext(pipe_out_cnt_area.cnt.value)
   pipe_out_col_addr.setName("pipe_out_col_addr")
