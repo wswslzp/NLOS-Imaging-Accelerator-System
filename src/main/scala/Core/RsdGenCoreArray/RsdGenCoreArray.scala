@@ -114,7 +114,6 @@ case class RsdGenCoreArray(
   val wave_hit = (data_in.w.fire & (data_in.aw.payload.addr === loadUnitAddrs(2))).rise(False)
   switch(compute_stage){
     is(B"2'b00") { // d != 0 && f != 0
-//      rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
       rsd_comp_start := Delay(distance_load_unit.io.data_enable, D2CLatency, init = False) // The latency of coefGenCore is 6
     }
     is(B"2'b01") { // d != 0 && f == 0
@@ -122,7 +121,6 @@ case class RsdGenCoreArray(
       rsd_comp_start := Delay(wave_hit, wave_push_latency, init = False) // RSD kernel compute as soon as wave has loaded 3 elements
     }
     is(B"2'b10") { // d == 0 && f != 0
-//      rsd_comp_start := Delay(distance_load_unit.io.data_enable, 6, init = False) // The latency of coefGenCore is 6
       rsd_comp_start := Delay(distance_load_unit.io.data_enable, D2CLatency, init = False) // The latency of coefGenCore is 6
     }
     is(B"2'b11") { // d == 0 && d == 0
@@ -176,8 +174,6 @@ case class RsdGenCoreArray(
 
   // Push_start: A one-cycle square impulse active one cycle of actually push start
   // fft2d_out_sync is active at the first one cycle of the fft2d_valid
-//  val push_start = (dc_eq_0 || (io.dc === 1 && fc_eq_0)) ? io.fft2d_out_sync | push_ending_1
-//  val push_start = dc_eq_0 ? io.fft2d_out_sync | push_ending_1
   val cnt_incr_1 = RegNext(io.cnt_incr) init False
   val push_start = dc_eq_0 ? io.fft2d_out_sync | cnt_incr_1 // TODO:Check
 
@@ -203,11 +199,9 @@ case class RsdGenCoreArray(
   push_ending := RegNext(count_col_addr.cnt.willOverflow, init = False)
 
   io.push_ending := push_ending // Push ending is the true increment signal tb used.
-  io.push_start := push_start //TODO: Check
+  io.push_start := push_start
 
   // indicate when the controller to do counter increment.
-//  io.cnt_incr := (dc_eq_0 && io.fc === cfg.freq_factor-1) ? rsd_kernel_gen.io.kernel.valid | push_ending
-//  io.cnt_incr := push_ending // TODO: Check
   io.cnt_incr := ( io.fc === cfg.freq_factor-1 ) ? io.clear_confirm | push_ending
 
   // define new load req
