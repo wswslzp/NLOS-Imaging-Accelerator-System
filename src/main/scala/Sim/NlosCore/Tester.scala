@@ -35,7 +35,7 @@ object Tester {
   }
 
   def testPostProc(post_proc_result: DenseMatrix[Double]): Unit = {
-
+    write_image(post_proc_result, "tb/NlosNoDriver/nlos_hard_out.jpg")
   }
 
   def testFinal(finalResult: Array[DenseMatrix[Complex]]): Unit = {
