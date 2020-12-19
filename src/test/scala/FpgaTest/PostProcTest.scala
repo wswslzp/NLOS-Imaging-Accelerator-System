@@ -30,7 +30,7 @@ object PostProcTest extends App{
 
   val ov = 1
   val withWave = true
-  val waveDepth = 1
+  val waveDepth = 2
 
   val compiled = if (withWave) {
     SimConfig
