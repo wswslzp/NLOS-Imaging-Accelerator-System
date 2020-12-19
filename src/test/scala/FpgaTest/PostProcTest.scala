@@ -69,6 +69,7 @@ object PostProcTest extends App{
       // Driver
       () => {
         for(d <- rsd_cfg.depthRange){
+          println(s"Now d is $d")
           dut.io.img_in.valid #= true
           for(r <- rsd_cfg.rowRange){
             for(c <- rsd_cfg.colRange){
