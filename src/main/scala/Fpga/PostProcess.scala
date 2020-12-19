@@ -61,6 +61,7 @@ case class PostProcess(
   val os_rows = cfg.rows * over_sample_factor
   val os_cols = cfg.cols * over_sample_factor
   val result_mem = Mem(cloneOf(img_in_q.payload), BigInt(cfg.rows * cfg.cols))
+  result_mem.init(Seq.fill(cfg.rows * cfg.cols)(init_min))
   val pixel_addr = Counter(0 until cfg.rows*cfg.cols)
   when(img_in_q.valid){
     pixel_addr.increment()
