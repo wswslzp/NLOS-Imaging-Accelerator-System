@@ -43,8 +43,8 @@ case class PostProcess(
   img_in_q.simPublic()
 
   // record the upper bound and lower bound of input image pixel
-  val init_max = UF(img_in_q.payload.maxValue, img_in_q.payload.maxExp exp, img_in_q.payload.minExp exp)
-  val init_min = UF(img_in_q.payload.minValue, img_in_q.payload.maxExp exp, img_in_q.payload.minExp exp)
+  val init_max = UF(img_in_q.payload.minValue, img_in_q.payload.maxExp exp, img_in_q.payload.minExp exp)
+  val init_min = UF(img_in_q.payload.maxValue, img_in_q.payload.maxExp exp, img_in_q.payload.minExp exp)
   val img_in_abs_max = Reg(cloneOf(img_in_q.payload)) init init_max
   when(img_in_q.valid & ( img_in_q.payload > img_in_abs_max )) {
     img_in_abs_max := img_in_q.payload

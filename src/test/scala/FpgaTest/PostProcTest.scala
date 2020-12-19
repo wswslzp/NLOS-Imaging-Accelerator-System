@@ -33,8 +33,12 @@ object PostProcTest extends App{
   val hard_out_max = max(hard_out)
   println(s"max = ${hard_out_max}, min = ${hard_out_min}")
   val true_res = hard_out.map{dat=>
-    (dat - hard_out_min)*256/(hard_out_max - hard_out_min)
+    (dat - hard_out_min)*256d/(hard_out_max - hard_out_min)
   }
+  csvwrite(
+    new File("tb/PostProcess/s_img_out.csv"),
+    true_res
+  )
 
   val ov = 1
   val withWave = true
@@ -110,10 +114,6 @@ object PostProcTest extends App{
   csvwrite(
     new File("tb/PostProcess/h_img_out.csv"),
     h_img_out.map(_.toDouble)
-  )
-  csvwrite(
-    new File("tb/PostProcess/s_img_out.csv"),
-    true_res
   )
   write_image(h_img_out.map(_.toDouble), "tb/PostProcess/h_img_out.jpg")
 
