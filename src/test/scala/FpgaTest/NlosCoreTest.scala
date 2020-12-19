@@ -106,8 +106,11 @@ object NlosCoreTest extends App {
     )
   }
 
+  println("testing h_rsdk")
   testRSDK(h_rsdk)
+  println("testing h_fft_out")
   testFUin(h_fft_out)
+  println("testing h_fft_out and h_rsdk")
   testFUinAndRSDK(h_fft_out, h_rsdk)
   csvwrite(
     new File("tb/NlosCore/hrsdk_10_10.csv"),
@@ -118,6 +121,7 @@ object NlosCoreTest extends App {
     rsd_kernel(10)(10).map(_.real)
   )
 
+  println("testing mac result")
   testMacResult(h_mac_result)
   csvwrite(
     new File("tb/NlosCore/hmac_res10.csv"),
@@ -128,7 +132,20 @@ object NlosCoreTest extends App {
     h_fft_out(10).map(_.real)
   )
 
+  println("testing uout")
   testFinal(uout)
+  new File("src/test/resource/uout").mkdir()
+  for(i <- uout.indices){
+    csvwrite(
+      new File(s"src/test/resource/uout/uout_${i}_real.csv"),
+      uout(i).map(_.real)
+    )
+    csvwrite(
+      new File(s"src/test/resource/uout/uout_${i}_imag.csv"),
+      uout(i).map(_.imag)
+    )
+  }
+
 
   if (withWave) {
     val nullLogger = ProcessLogger(_ => {})
