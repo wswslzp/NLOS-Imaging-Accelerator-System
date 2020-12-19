@@ -41,6 +41,7 @@ object Monitor {
         for(p <- 0 until dut.post_proc.pixel_parallel) {
           result(r, c * dut.post_proc.pixel_parallel + p) = dut.io.result.payload(p).toInt
         }
+        dut.clockDomain.waitSampling()
       }
     }
     result
