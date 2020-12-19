@@ -11,7 +11,7 @@ case class IOPLL(ip_name: String = "iopll") extends BlackBox {
   val outclk_0 = out Bool()
 
   def setRefClock(ref_clk_domain: ClockDomain): Unit = mapClockDomain(
-    ref_clk_domain, clock = refclk, reset = rst
+    ref_clk_domain, clock = refclk
   )
 
   def setOutClock(out_clk_domain: ClockDomain): Unit = mapClockDomain(
