@@ -101,16 +101,17 @@ case class PostProcess(
   val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(store_in_en.fall(False)).clearWhen(pixel_cnt.willOverflow)
   val result_ready = RegNext(result_ready_prev) init False
   val pix_bfq_valid = RegNext(result_ready) init False
+  val quan_cfg = HComplexConfig(img_in_q.payload.maxExp, -img_in_q.payload.minExp)
+  val quantizers = Array.fill(2)(PixelQuant(quan_cfg, quant_bit_width))
   for(i <- 0 until pixel_parallel){
     val pix_bfq = result_mem.readSync(parallel_pixel_addrs(i).resized)
-    val quantizer = PixelQuant(HComplexConfig(pix_bfq.maxExp, -pix_bfq.minExp), quant_bit_width)
-    quantizer.io.upper_bound := img_in_abs_max
-    quantizer.io.lower_bound := img_in_abs_min
-    quantizer.io.pix_in.valid := pix_bfq_valid
-    quantizer.io.pix_in.payload := pix_bfq
-    io.img_out.valid := quantizer.io.pix_out.valid
-    io.img_out.payload(i) := quantizer.io.pix_out.payload
+    quantizers(i).io.upper_bound := img_in_abs_max
+    quantizers(i).io.lower_bound := img_in_abs_min
+    quantizers(i).io.pix_in.valid := pix_bfq_valid
+    quantizers(i).io.pix_in.payload := pix_bfq
+    io.img_out.payload(i) := quantizers(i).io.pix_out.payload
   }
+  io.img_out.valid := quantizers(0).io.pix_out.valid
   when(io.img_out.fire){
     pixel_cnt.increment()
   }
