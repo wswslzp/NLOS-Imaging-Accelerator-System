@@ -49,8 +49,8 @@ case class HComplexConfig
   }
 
   def <<(rank: Int): HComplexConfig = HComplexConfig(
-    intw = this.intw + 1,
-    fracw = this.fracw - 1,
+    intw = this.intw + rank,
+    fracw = this.fracw - rank,
     useGauss, real_high
   )
 

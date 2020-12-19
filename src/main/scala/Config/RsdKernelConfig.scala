@@ -35,7 +35,7 @@ case class RsdKernelConfig
 
   def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig/2 // HCC(8, 6)
 
-  def getResultConfig: HComplexConfig = getMACDatConfig <> 2
+  def getResultConfig: HComplexConfig = getMACDatConfig >> 4 // <> 2
 
   def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, cols, rows, fft_use_pipeline, fft_use_pipeline)
 
