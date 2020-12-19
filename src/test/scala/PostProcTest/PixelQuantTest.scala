@@ -13,7 +13,7 @@ import java.io.File
 object PixelQuantTest extends App{
   val k = 100
   val test_mat = DenseMatrix.tabulate(k, k){(i, j)=>
-    Math.pow((i-k/2)/10d, 2) + Math.pow((j-k/2)/5d, 2)
+    Math.pow((i-k/2)/100d, 2) + Math.pow((j-k/2)/50d, 2)
   }
   val test_mat_max = max(test_mat)
   val test_mat_min = min(test_mat)
@@ -22,7 +22,7 @@ object PixelQuantTest extends App{
     (pix - test_mat_min) * color_depth / (test_mat_max - test_mat_min)
   }
 
-  val cfg = HComplexConfig(16, 16)
+  val cfg = HComplexConfig(6, 16)
   val h_mat = DenseMatrix.zeros[Int](k, k)
 
   SimConfig
@@ -57,7 +57,6 @@ object PixelQuantTest extends App{
             for(c <- 0 until test_mat.cols){
               dut.clockDomain.waitActiveEdgeWhere(dut.io.pix_out.valid.toBoolean)
               h_mat(r, c) = dut.io.pix_out.payload.toInt
-              println(s"Got pixel ($r, $c)")
             }
           }
 

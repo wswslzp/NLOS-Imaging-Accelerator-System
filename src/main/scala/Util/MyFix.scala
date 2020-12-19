@@ -23,10 +23,12 @@ case class MyUFix(width: Int) {
     ).fixTo(uni_q)
     // append zeros to the right
     val a: UInt = bit_vec_t @@ U(bit_vec_t.getWidth bit, default -> false)
-    val quo = a / that.asBits.asUInt //>> bit_vec_t.getWidth // ret has the same q_format as a
+//    val quo = a / that.asBits.asUInt //>> bit_vec_t.getWidth // ret has the same q_format as a
+    val quo = a / b //>> bit_vec_t.getWidth // ret has the same q_format as a
     val ret = UFix(uni_q.width - uni_q.fraction exp, -uni_q.fraction exp)
     ret.assignFromBits(
-      quo.tag(UQ(2*bit_vec_t.getWidth, bit_vec_t.getWidth)).fixTo(UQ(bit_vec_t.getWidth, bit_vec_t.getWidth/2)).asBits
+//      quo.tag(UQ(2*bit_vec_t.getWidth, bit_vec_t.getWidth)).fixTo(UQ(bit_vec_t.getWidth, bit_vec_t.getWidth/2)).asBits
+        quo.tag(UQ(2*bit_vec_t.getWidth, bit_vec_t.getWidth)).fixTo(UQ(bit_vec_t.getWidth, uni_q.fraction)).asBits
     )
     ret
   }
@@ -103,7 +105,8 @@ case class MySFix(width: Int) {
       val quo = a / that.asBits.asSInt //>> bit_vec_t.getWidth // ret has the same q_format as a
       val ret = SFix(uni_q.width - 1 - uni_q.fraction exp, -uni_q.fraction exp)
       ret.assignFromBits(
-        quo.tag(SQ(2*bit_vec_t.getWidth, bit_vec_t.getWidth)).fixTo(SQ(bit_vec_t.getWidth, bit_vec_t.getWidth/2)).asBits
+//        quo.tag(SQ(2*bit_vec_t.getWidth, bit_vec_t.getWidth)).fixTo(SQ(bit_vec_t.getWidth, bit_vec_t.getWidth/2)).asBits
+        quo.tag(SQ(2*bit_vec_t.getWidth, bit_vec_t.getWidth)).fixTo(SQ(bit_vec_t.getWidth, uni_q.fraction)).asBits
       )
       ret
     }
