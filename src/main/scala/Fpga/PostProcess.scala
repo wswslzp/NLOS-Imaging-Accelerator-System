@@ -4,6 +4,7 @@ import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
 import Config._
+import Core.PostProc.PixelQuant
 import Util._
 
 /**
@@ -37,18 +38,29 @@ case class PostProcess(
   img_in_abs.simPublic()
 
   // ***************** quantize ***********************
-  // TODO: simply catch upper bits can not work for small value.
-  //  another robust quantize method should be taken
   val img_in_abs_1 = img_in_abs.stage()
-  val img_in_q = img_in_abs_1.translateWith(img_in_abs_1.payload.asBits.resizeLeft(quant_bit_width).asUInt)
+  val img_in_q = img_in_abs_1
   img_in_q.simPublic()
+
+  // record the upper bound and lower bound of input image pixel
+  val init_max = UF(img_in_q.payload.maxValue, img_in_q.payload.maxExp exp, img_in_q.payload.minExp exp)
+  val init_min = UF(img_in_q.payload.minValue, img_in_q.payload.maxExp exp, img_in_q.payload.minExp exp)
+  val img_in_abs_max = Reg(cloneOf(img_in_q.payload)) init init_max
+  when(img_in_q.valid & ( img_in_q.payload > img_in_abs_max )) {
+    img_in_abs_max := img_in_q.payload
+  }
+  val img_in_abs_min = Reg(cloneOf(img_in_q.payload)) init init_min
+  when(img_in_q.valid & ( img_in_q.payload < img_in_abs_min )) {
+    img_in_abs_min := img_in_q.payload
+  }
+
 
   // ***************** store and compare **************
   // TODO: Needs to modify the logic
   //  memory should use BRAM/SRAM
   val os_rows = cfg.rows * over_sample_factor
   val os_cols = cfg.cols * over_sample_factor
-  val result_mem = Mem(UInt(quant_bit_width bit), BigInt(cfg.rows * cfg.cols))
+  val result_mem = Mem(cloneOf(img_in_q.payload), BigInt(cfg.rows * cfg.cols))
   val pixel_addr = Counter(0 until cfg.rows*cfg.cols)
   when(img_in_q.valid){
     pixel_addr.increment()
@@ -88,13 +100,19 @@ case class PostProcess(
   //  val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(img_in_q.valid.fall(False))
   val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(store_in_en.fall(False)).clearWhen(pixel_cnt.willOverflow)
   val result_ready = RegNext(result_ready_prev) init False
-  io.img_out.valid := RegNext(result_ready) init False
+  val pix_bfq_valid = RegNext(result_ready) init False
   for(i <- 0 until pixel_parallel){
-    io.img_out.payload(i) := result_mem.readSync(parallel_pixel_addrs(i).resized)
+    val pix_bfq = result_mem.readSync(parallel_pixel_addrs(i).resized)
+    val quantizer = PixelQuant(HComplexConfig(pix_bfq.maxExp, -pix_bfq.minExp), quant_bit_width)
+    quantizer.io.upper_bound := img_in_abs_max
+    quantizer.io.lower_bound := img_in_abs_min
+    quantizer.io.pix_in.valid := pix_bfq_valid
+    quantizer.io.pix_out.payload := pix_bfq
+    io.img_out.valid := quantizer.io.pix_out.valid
+    io.img_out.payload(i) := quantizer.io.pix_out.payload
   }
   when(io.img_out.fire){
     pixel_cnt.increment()
   }
-//  result_ready.clearWhen(pixel_cnt.willOverflow)
 
 }
