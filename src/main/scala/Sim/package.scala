@@ -1,8 +1,12 @@
 import breeze.linalg
+import breeze.linalg.{DenseMatrix, csvread}
+import breeze.math.Complex
 import org.bytedeco.javacpp.indexer.UByteIndexer
 import org.bytedeco.opencv.global.opencv_core.CV_8U
 import org.bytedeco.opencv.global.opencv_imgcodecs.imwrite
 import org.bytedeco.opencv.opencv_core.Mat
+
+import java.io.File
 
 package object Sim {
   def write_image(input: linalg.DenseMatrix[Double], path: String): Unit = {
@@ -22,4 +26,15 @@ package object Sim {
     imwrite(path, outimg)
   }
 
+  def loadDoubleMatrix(filename: String): DenseMatrix[Double] = csvread(
+    new File(filename)
+  )
+  def loadComplexMatrix(real_part_filename: String, imag_part_filename: String): DenseMatrix[Complex] = {
+    val real_part_mat = csvread(new File(real_part_filename))
+    val imag_part_mat = csvread(new File(imag_part_filename))
+    val out_mat = DenseMatrix.tabulate(real_part_mat.rows, real_part_mat.cols){case(i, j) =>
+      Complex(real_part_mat(i, j), imag_part_mat(i, j))
+    }
+    out_mat
+  }
 }

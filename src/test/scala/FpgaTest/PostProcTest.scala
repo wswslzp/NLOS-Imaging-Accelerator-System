@@ -5,6 +5,7 @@ import spinal.core.sim._
 import spinal.lib._
 import Config._
 import RsdKernelConfig._
+import Sim._
 import Sim.RsdGenCoreArray._
 import Sim.SimComplex._
 import breeze.linalg._
@@ -21,19 +22,23 @@ object PostProcTest extends App{
   val uin_fft = uin.map(fourierTr(_))
   val kernel_size = (uin.head.rows, uin.head.cols)
   val uout = Array.tabulate(rsd_cfg.depth_factor) {depth =>
-    val uout_f = DenseMatrix.fill(kernel_size._1, kernel_size._2)(Complex(0, 0))
-    for(f <- rsd_cfg.freqRange) {
-      val rsd_kernel_rad = rsd(depth)(f)
-      val rsd_kernel = Computation.restoreRSD(rsd_kernel_rad, kernel_size)
-      uout_f += rsd_kernel *:* uin_fft(f)
-    }
-    if(depth == 10){
-      csvwrite(
-        new File("tmp/soft_uoutf10.csv"),
-        uout_f.map(_.real)
-      )
-    }
-    iFourierTr(uout_f)
+    loadComplexMatrix(
+      real_part_filename = s"src/test/resource/uout/uout_${depth}_real.csv",
+      imag_part_filename = s"src/test/resource/uout/uout_${depth}_imag.csv"
+    )
+//    val uout_f = DenseMatrix.fill(kernel_size._1, kernel_size._2)(Complex(0, 0))
+//    for(f <- rsd_cfg.freqRange) {
+//      val rsd_kernel_rad = rsd(depth)(f)
+//      val rsd_kernel = Computation.restoreRSD(rsd_kernel_rad, kernel_size)
+//      uout_f += rsd_kernel *:* uin_fft(f)
+//    }
+//    if(depth == 10){
+//      csvwrite(
+//        new File("tmp/soft_uoutf10.csv"),
+//        uout_f.map(_.real)
+//      )
+//    }
+//    iFourierTr(uout_f)
   }
 
   val ov = 1
