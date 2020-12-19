@@ -31,6 +31,7 @@ object PostProcTest extends App{
   val hard_out = loadDoubleMatrix("src/test/resource/hard_out.csv")
   val hard_out_min = min(hard_out)
   val hard_out_max = max(hard_out)
+  println(s"max = ${hard_out_max}, min = ${hard_out_min}")
   val true_res = hard_out.map{dat=>
     (dat - hard_out_min)*256/(hard_out_max - hard_out_min)
   }
