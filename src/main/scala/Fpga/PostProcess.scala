@@ -107,7 +107,6 @@ case class PostProcess(
     quantizer.io.upper_bound := img_in_abs_max
     quantizer.io.lower_bound := img_in_abs_min
     quantizer.io.pix_in.valid := pix_bfq_valid
-    quantizer.io.pix_out.payload := pix_bfq
     io.img_out.valid := quantizer.io.pix_out.valid
     io.img_out.payload(i) := quantizer.io.pix_out.payload
   }
