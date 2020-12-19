@@ -26,23 +26,10 @@ object PostProcTest extends App{
       real_part_filename = s"src/test/resource/uout/uout_${depth}_real.csv",
       imag_part_filename = s"src/test/resource/uout/uout_${depth}_imag.csv"
     )
-//    val uout_f = DenseMatrix.fill(kernel_size._1, kernel_size._2)(Complex(0, 0))
-//    for(f <- rsd_cfg.freqRange) {
-//      val rsd_kernel_rad = rsd(depth)(f)
-//      val rsd_kernel = Computation.restoreRSD(rsd_kernel_rad, kernel_size)
-//      uout_f += rsd_kernel *:* uin_fft(f)
-//    }
-//    if(depth == 10){
-//      csvwrite(
-//        new File("tmp/soft_uoutf10.csv"),
-//        uout_f.map(_.real)
-//      )
-//    }
-//    iFourierTr(uout_f)
   }
 
   val ov = 1
-  val withWave = false
+  val withWave = true
   val waveDepth = 1
 
   val compiled = if (withWave) {

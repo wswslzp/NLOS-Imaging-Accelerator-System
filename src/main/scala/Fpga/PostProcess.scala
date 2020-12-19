@@ -48,15 +48,8 @@ case class PostProcess(
   //  memory should use BRAM/SRAM
   val os_rows = cfg.rows * over_sample_factor
   val os_cols = cfg.cols * over_sample_factor
-//  val result_mem = Vec.fill(os_rows)(
-//    Vec.fill(os_cols)(Reg(UInt(quant_bit_width bit)))
-//  )
   val result_mem = Mem(UInt(quant_bit_width bit), BigInt(cfg.rows * cfg.cols))
-//  val row_addr = Counter(0, cfg.rows)
   val pixel_addr = Counter(0 until cfg.rows*cfg.cols)
-//  val row_addr = pixel_addr / cfg.cols
-//  val col_addr = pixel_addr % cfg.cols
-//  val os_row_addr = ( row_addr * over_sample_factor ).resize(log2Up(os_rows))
   when(img_in_q.valid){
     pixel_addr.increment()
   }
