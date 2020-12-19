@@ -107,6 +107,10 @@ object PostProcTest extends App{
     )
   }
 
+  csvwrite(
+    new File("tb/PostProcess/h_img_out.csv"),
+    h_img_out.map(_.toDouble)
+  )
   write_image(h_img_out.map(_.toDouble), "tb/PostProcess/h_img_out.jpg")
 
 }
