@@ -14,6 +14,7 @@ import breeze.math._
 import java.io._
 import Fpga._
 import SimTest.NlosSystemSimTest.write_image
+import Sim._
 
 object PostProcTest extends App{
   // Generating input data
@@ -26,6 +27,12 @@ object PostProcTest extends App{
       real_part_filename = s"src/test/resource/uout/uout_${depth}_real.csv",
       imag_part_filename = s"src/test/resource/uout/uout_${depth}_imag.csv"
     )
+  }
+  val hard_out = loadDoubleMatrix("src/test/resource/hard_out.csv")
+  val hard_out_min = min(hard_out)
+  val hard_out_max = max(hard_out)
+  val true_res = hard_out.map{dat=>
+    (dat - hard_out_min)*256/(hard_out_max - hard_out_min)
   }
 
   val ov = 1
@@ -102,6 +109,10 @@ object PostProcTest extends App{
   csvwrite(
     new File("tb/PostProcess/h_img_out.csv"),
     h_img_out.map(_.toDouble)
+  )
+  csvwrite(
+    new File("tb/PostProcess/s_img_out.csv"),
+    true_res
   )
   write_image(h_img_out.map(_.toDouble), "tb/PostProcess/h_img_out.jpg")
 
