@@ -42,10 +42,10 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
       HC(0, 0, cfg.getUinConfig),
       mappings = for (f <- 0 until cfg.freq_factor) yield {
         val ret = HComplex(cfg.getUinConfig)
-        ret := image_rom(f)(pixel_index_cnt.value)
+        ret := image_rom(f).readSync(pixel_index_cnt.value)
         f -> ret
       }
     )
-    io.original_img.valid := pixel_index_incr
+    io.original_img.valid := RegNext(pixel_index_incr) init False
   }
 }

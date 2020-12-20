@@ -7,6 +7,8 @@ import Util._
 import spinal.lib.bus.amba4.axi._
 import RsdKernelConfig._
 import breeze.math.Complex
+import Driver._
+import Fpga.Driver.ImageDriver
 
 case class NlosDriver(cfg: RsdKernelConfig) extends Component {
   val io = new Bundle {
@@ -31,6 +33,15 @@ case class NlosDriver(cfg: RsdKernelConfig) extends Component {
   }
   io.dc := depth_cnt
   io.fc := freq_cnt
+
+
+  // *************** Image driver **************
+  val img_drver = ImageDriver(cfg)
+  img_drver.io.sys_init := io.sys_init
+  img_drver.io.fft_comp_end := io.fft_comp_end
+  img_drver.io.dc := depth_cnt
+  img_drver.io.fc := freq_cnt
+  img_drver.io.original_img >> io.original_img
 
 
 }
