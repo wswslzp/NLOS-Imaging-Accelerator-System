@@ -29,7 +29,8 @@ case class NlosNoDriver(cfg: RsdKernelConfig) extends Component {
   io.data_in <> nlos_core.io.data_in
   nlos_core.io.img_in << io.img_in
   io.load_req := nlos_core.io.load_req
-  io.done := nlos_core.io.done
+//  io.done := nlos_core.io.done
+  io.done := post_proc.io.pp_done
   io.fft_comp_end := nlos_core.io.fft_comp_end
 
   post_proc.io.done := nlos_core.io.done

@@ -46,6 +46,7 @@ object Driver {
     dut.io.dc #= 0
     dut.io.fc #= 0
     dut.io.img_in.valid #= false
+    dut.io.result.ready #= true
   }
 
   /**

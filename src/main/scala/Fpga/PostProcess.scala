@@ -30,6 +30,7 @@ case class PostProcess(
     val done = in Bool()
     val img_in = slave(Flow( HComplex(cfg.getResultConfig) ))
     val img_out = master(Stream(Vec.fill(pixel_parallel)(UInt(quant_bit_width bit))))
+    val pp_done = out Bool()
   }
 
   // ***************** abs(result) ************************************************
@@ -116,5 +117,7 @@ case class PostProcess(
   when(io.img_out.fire){
     pixel_cnt.increment()
   }
+
+  io.pp_done := io.img_out.valid.fall(False)
 
 }
