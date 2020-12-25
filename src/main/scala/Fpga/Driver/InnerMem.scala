@@ -27,6 +27,7 @@ object InnerMem {
         // access axi4 address channel
         bus.aw.valid.set()
         bus.aw.addr := addr
+        bus.aw.len := 0 // length = 1
 
         when(bus.aw.fire){
           goto(one_shot)
@@ -55,6 +56,7 @@ object InnerMem {
         bus.w.last.clear()
         bus.aw.valid.set()
         bus.aw.addr := addr + 1
+        bus.aw.len := 0 // length = 1
 
         when(bus.aw.fire){
           goto(done_data_shot)
@@ -101,6 +103,7 @@ object InnerMem {
         // address channel
         bus.aw.valid.set()
         bus.aw.addr := addrs(burst_cnt.value.resized)
+        bus.aw.len := U(burst_len-1).resized
         when(bus.aw.fire){goto(one_burst_shot)}
       }
     }
@@ -137,6 +140,7 @@ object InnerMem {
         // address channel
         bus.aw.valid.set()
         bus.aw.addr := ( addrs.last + 1 ).resized
+        bus.aw.len := 0
         // data channel
         bus.w.valid.clear()
         when(bus.aw.fire){goto(done_data_shot)}
