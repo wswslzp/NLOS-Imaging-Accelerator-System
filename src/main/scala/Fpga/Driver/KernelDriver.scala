@@ -52,10 +52,10 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
   io.kernel_data_out.aw.setBurstINCR()
   io.kernel_data_out.aw.len := 0
   io.kernel_data_out.aw.size := 0
-  io.kernel_data_out.aw.valid := 0
+  io.kernel_data_out.aw.valid := False
   io.kernel_data_out.aw.addr := 0
-  io.kernel_data_out.w.valid := 0
-  io.kernel_data_out.w.last := 0
+  io.kernel_data_out.w.valid := False
+  io.kernel_data_out.w.last := False
   io.kernel_data_out.w.data := 0
 
   // The address send to axi interface
