@@ -9,7 +9,7 @@ import breeze.linalg._
 import breeze.math._
 import java.io._
 
-package object LoadData {
+object LoadData {
   def loadDoubleMatrix(filename: String): DenseMatrix[Double] = csvread(
     new File(filename)
   )

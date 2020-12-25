@@ -10,7 +10,7 @@ import breeze.linalg._
 
 import scala.collection.mutable.ArrayBuffer
 
-package object Computation {
+object Computation {
   import linalg.DenseMatrix
   import breeze.math.Complex
 

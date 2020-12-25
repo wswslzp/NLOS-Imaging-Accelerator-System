@@ -14,4 +14,10 @@ trait DataTransform {
       B(imag_p, cfg.getDataWidth bit) ## B(real_p, cfg.getDataWidth bit)
     }
   }
+
+  protected def doubleToBits(dat: Double, cfg: HComplexConfig): Bits = {
+    B(
+      ( dat * scala.math.pow(2, cfg.fracw) ).toInt, cfg.getDataWidth bit
+    )
+  }
 }

@@ -23,6 +23,8 @@ case class NlosNoDriver(cfg: RsdKernelConfig) extends Component {
   val nlos_core = NlosCore(cfg)
   val post_proc = PostProcess(cfg)
 
+  def loadUnitAddress = nlos_core.loadUnitAddrs
+
   nlos_core.io.dc := io.dc
   nlos_core.io.fc := io.fc
   io.cnt_incr := nlos_core.io.cnt_incr

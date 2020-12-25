@@ -131,13 +131,11 @@ object Driver {
           rsdDriver.driveData(1, dut.nlos_core.loadUnitAddrs(2) + dut.cfg.radius_factor)
         }
         dut.clockDomain.waitSampling()
-        if((d == 0) && (f == 0)) {
-          if((dut.io.load_req.toInt & 8) == 8) {
-            rsdDriver.driveDoubleData(impulse, dut.nlos_core.loadUnitAddrs(3), rsd_cfg.imp_cfg.fracw)
-            rsdDriver.driveData(1, dut.nlos_core.loadUnitAddrs(3) + dut.cfg.radius_factor * dut.cfg.impulse_sample_point)
-          }
-          dut.clockDomain.waitSampling()
+        if((dut.io.load_req.toInt & 8) == 8) {
+          rsdDriver.driveDoubleData(impulse, dut.nlos_core.loadUnitAddrs(3), rsd_cfg.imp_cfg.fracw)
+          rsdDriver.driveData(1, dut.nlos_core.loadUnitAddrs(3) + dut.cfg.radius_factor * dut.cfg.impulse_sample_point)
         }
+        dut.clockDomain.waitSampling()
         dut.clockDomain.waitActiveEdgeWhere(dut.io.cnt_incr.toBoolean)
       }
     }
