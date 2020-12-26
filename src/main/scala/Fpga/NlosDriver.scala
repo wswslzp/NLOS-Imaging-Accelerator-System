@@ -23,8 +23,8 @@ case class NlosDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extends 
   }
 
   // ************** Counting for depth freq **************
-  val depth_cnt = Counter(0, cfg.depth_factor)
-  val freq_cnt = Counter(0, cfg.freq_factor)
+  val depth_cnt = Counter(0 until cfg.depth_factor)
+  val freq_cnt = Counter(0 until cfg.freq_factor)
   when(io.cnt_incr){
     freq_cnt.increment()
   }
