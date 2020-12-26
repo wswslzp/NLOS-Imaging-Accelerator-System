@@ -43,8 +43,8 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
   }
 
   val imp = innerRom(cfg.radius_factor * cfg.impulse_sample_point, cfg.imp_cfg.getDataWidth){ idx=>
-    val isp = idx / cfg.impulse_sample_point
-    val radius = idx % cfg.impulse_sample_point
+    val isp = idx / cfg.radius_factor
+    val radius = idx % cfg.radius_factor
     doubleToSInt(impulse(isp, radius), cfg.imp_cfg)
   }
 
