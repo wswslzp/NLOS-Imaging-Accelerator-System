@@ -96,7 +96,7 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
         when(io.load_req(1)){
           goto(ds_drv_state)
         } otherwise {
-          goto(wv_drv_state)
+          goto(setup)
         }
       }
 
@@ -105,7 +105,7 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
         when(io.load_req(2)){
           goto(wv_drv_state)
         } otherwise {
-          goto(imp_drv_state)
+          goto(setup)
         }
       }
 
