@@ -83,8 +83,6 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
           fsm_scan_record.set()
           when(io.load_req(0)){
             goto(ts_drv_state)
-          } otherwise {
-            goto(ds_drv_state)
           }
         }
         when(io.load_req(0)){
@@ -97,8 +95,6 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
       .whenCompleted {
         when(io.load_req(1)){
           goto(ds_drv_state)
-        } otherwise {
-          goto(wv_drv_state)
         }
       }
 
@@ -106,8 +102,6 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
       .whenCompleted {
         when(io.load_req(2)){
           goto(wv_drv_state)
-        } otherwise {
-          goto(imp_drv_state)
         }
       }
 
