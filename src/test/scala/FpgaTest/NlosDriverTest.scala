@@ -93,17 +93,14 @@ object NlosDriverTest extends App{
 
         // image monitor
         () => {
-          var f = 0
           while(true){
             dut.clockDomain.waitSamplingWhere(dut.io.original_img.valid.toBoolean)
-            println(s"current f = $f")
             for(r <- rsd_cfg.rowRange){
               for(c <- rsd_cfg.colRange){
-                h_img(f)(r, c) = dut.io.original_img.payload.toComplex
+                h_img(dut.io.fc.toInt)(r, c) = dut.io.original_img.payload.toComplex
                 dut.clockDomain.waitSampling()
               }
             }
-            f += 1
           }
         }
         ,
