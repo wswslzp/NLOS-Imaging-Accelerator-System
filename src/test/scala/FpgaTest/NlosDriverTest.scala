@@ -98,6 +98,7 @@ object NlosDriverTest extends App{
             dut.clockDomain.waitSamplingWhere(dut.io.original_img.valid.toBoolean)
             for(r <- rsd_cfg.rowRange){
               for(c <- rsd_cfg.colRange){
+                println(s"current f = $f")
                 h_img(f)(r, c) = dut.io.original_img.payload.toComplex
                 dut.clockDomain.waitSampling()
               }
