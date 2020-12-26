@@ -19,7 +19,7 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
 
   // ************** Memory for image ******
   val image_rom = Array.tabulate(cfg.freq_factor) { freq =>
-    Mem(Array.tabulate(cfg.kernel_size.product) { idx =>
+    Mem(Seq.tabulate(cfg.kernel_size.product) { idx =>
       val row = idx / cfg.rows
       val col = idx % cfg.rows
       complexToBits(uin(freq)(row, col), cfg.getUinConfig)
