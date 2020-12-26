@@ -73,16 +73,20 @@ object NlosDriverTest extends App{
                 dut.io.load_req #= dut.io.load_req.toInt & 13 // load_req[1] = 0
               }
 
-              fork{
-                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(2) + rsd_cfg.radius_factor))
-                dut.clockDomain.waitSampling()
-                dut.io.load_req #= dut.io.load_req.toInt & 11 // load_req[2] = 0
+              if (f == 0){
+                fork{
+                  dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(2) + rsd_cfg.radius_factor))
+                  dut.clockDomain.waitSampling()
+                  dut.io.load_req #= dut.io.load_req.toInt & 11 // load_req[2] = 0
+                }
               }
 
-              fork{
-                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(3) + rsd_cfg.impulse_sample_point*rsd_cfg.radius_factor))
-                dut.clockDomain.waitSampling()
-                dut.io.load_req #= dut.io.load_req.toInt & 7 // load_req[3] = 0
+              if (d == 0 && f == 0){
+                fork{
+                  dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(3) + rsd_cfg.impulse_sample_point*rsd_cfg.radius_factor))
+                  dut.clockDomain.waitSampling()
+                  dut.io.load_req #= dut.io.load_req.toInt & 7 // load_req[3] = 0
+                }
               }
 
               waiting.join()
