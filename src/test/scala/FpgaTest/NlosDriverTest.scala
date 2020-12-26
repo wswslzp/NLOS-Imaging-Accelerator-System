@@ -67,6 +67,7 @@ object NlosDriverTest extends App{
 
               if(d == 0) {
                 dut.clockDomain.waitSampling(128*128+98)
+                println(s"after wait now is ($d, $f)")
                 dut.io.fft_comp_end #= true
                 dut.clockDomain.waitSampling()
                 dut.io.fft_comp_end #= false
