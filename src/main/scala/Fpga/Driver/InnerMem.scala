@@ -24,7 +24,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{
 
         // access axi4 address channel
         bus.aw.valid.set()
-        bus.aw.addr := addr
+        bus.aw.addr := addr.resized
         bus.aw.len := 0 // length = 1
 
         when(bus.aw.fire){
@@ -53,7 +53,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{
         bus.w.valid.clear()
         bus.w.last.clear()
         bus.aw.valid.set()
-        bus.aw.addr := addr + 1
+        bus.aw.addr := ( addr + 1 ).resized
         bus.aw.len := 0 // length = 1
 
         when(bus.aw.fire){
@@ -100,7 +100,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{
 
         // address channel
         bus.aw.valid.set()
-        bus.aw.addr := addrs(burst_cnt.value.resized)
+        bus.aw.addr := addrs(burst_cnt.value.resized).resized
         bus.aw.len := U(burst_len-1).resized
         when(bus.aw.fire){goto(one_burst_shot)}
       }
