@@ -40,6 +40,7 @@ object NlosDriverTest extends App{
           for(d <- rsd_cfg.depthRange){
             for(f <- rsd_cfg.freqRange){
               println(s"now is ($d, $f)")
+              dut.clockDomain.waitSampling()
               println(s"now the hardware counter is (${dut.io.dc.toInt}, ${dut.io.fc.toInt})")
               fork{
                 dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(0) + 1))
@@ -67,7 +68,6 @@ object NlosDriverTest extends App{
 
               if(d == 0) {
                 dut.clockDomain.waitSampling(128*128+98)
-                println(s"after wait now is ($d, $f)")
                 dut.io.fft_comp_end #= true
                 dut.clockDomain.waitSampling()
                 dut.io.fft_comp_end #= false
