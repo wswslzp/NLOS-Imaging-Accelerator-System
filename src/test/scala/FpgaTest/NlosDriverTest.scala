@@ -112,7 +112,7 @@ object NlosDriverTest extends App{
             for(f <- rsd_cfg.freqRange){
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(0))
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
-              h_ts(d, f) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
+              h_ts(f, d) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
             }
           }
         }
@@ -124,7 +124,7 @@ object NlosDriverTest extends App{
             for(f <- rsd_cfg.freqRange){
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(1))
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
-              h_ts(d, f) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
+              h_ts(f, d) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
             }
           }
         }
