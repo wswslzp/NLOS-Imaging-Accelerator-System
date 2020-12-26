@@ -37,6 +37,7 @@ object NlosDriverTest extends App{
       forkJoin(
         () => {
           dut.io.sys_init #= true
+          dut.clockDomain.waitSampling(10)
           for(d <- rsd_cfg.depthRange){
             for(f <- rsd_cfg.freqRange){
               println(s"now is ($d, $f)")
@@ -54,13 +55,13 @@ object NlosDriverTest extends App{
               }
 
               fork{
-                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(2) + 1))
+                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(2) + rsd_cfg.radius_factor))
                 dut.clockDomain.waitSampling()
                 dut.io.load_req #= dut.io.load_req.toInt & 11 // load_req[2] = 0
               }
 
               fork{
-                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(3) + 1))
+                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(3) + rsd_cfg.impulse_sample_point*rsd_cfg.radius_factor))
                 dut.clockDomain.waitSampling()
                 dut.io.load_req #= dut.io.load_req.toInt & 7 // load_req[3] = 0
               }

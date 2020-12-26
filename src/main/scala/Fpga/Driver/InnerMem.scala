@@ -82,6 +82,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
    * @param shot_len The length of burst transaction
    * @return return the corresponding FSM
    */
+  @deprecated
   def burstDriverFSM(addrs: Vec[UInt], bus: Axi4WriteOnly, shot_len: Int) = new StateMachine {
     //todo: Do burst transaction driver fsm
     val burst_cnt = Counter(0 until addrs.length).setCompositeName(innerMem, "burst_cnt") // counter for the index burst shot
@@ -166,7 +167,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
    * @param shot_len The length of burst transaction
    * @return return the corresponding FSM
    */
-  def burstDriverFSM(addr: Int, bus: Axi4WriteOnly, burst_len: Int, shot_len: Int) = new StateMachine {
+  def burstDriverFSM(addr: Int, done_addr: Int, bus: Axi4WriteOnly, burst_len: Int, shot_len: Int) = new StateMachine {
     val burst_cnt = Counter(0 until burst_len).setCompositeName(innerMem, "burst_cnt") // counter for the index burst shot
     val shot_cnt = Counter(0 until shot_len).setCompositeName(innerMem, "shot_cnt") // counter for current index inside a burst transaction
     val burst_prim_addr = RegInit(U(addr, bus.aw.addr.getBitsWidth bit))
@@ -225,7 +226,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
         en.clear()
         // address channel
         bus.aw.valid.set()
-        bus.aw.addr := ( burst_prim_addr + 1 ).resized
+        bus.aw.addr := U(done_addr).resized
         bus.aw.len := 0
         // data channel
         bus.w.valid.clear()
