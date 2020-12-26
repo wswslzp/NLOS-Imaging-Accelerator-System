@@ -18,7 +18,7 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
 
   def innerRom(memLen: Int, width: Int)(tab_func: Int=>Long) = new Area with InnerMem {
     override val memDepth = memLen
-    override val rom = Mem(Seq.tabulate(memLen){i=> S(tab_func(i), width bit).asBits})
+    override val rom = Mem(Seq.tabulate(memLen){i=> B(S(tab_func(i), width bit))})
   }
 
   // ************** Memory for Kernel data ******
