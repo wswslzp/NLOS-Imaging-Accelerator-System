@@ -9,15 +9,17 @@ trait DataTransform {
     val real_p = (dat.real * scala.math.pow(2, cfg.fracw)).toInt
     val imag_p = (dat.imag * scala.math.pow(2, cfg.fracw)).toInt
     if (cfg.real_high) {
-      B(real_p, cfg.getDataWidth bit) ## B(imag_p, cfg.getDataWidth bit)
+//      B(real_p, cfg.getDataWidth bit) ## B(imag_p, cfg.getDataWidth bit)
+      ( S(real_p, cfg.getDataWidth bit) ## S(imag_p, cfg.getDataWidth bit) ).asBits
     } else {
-      B(imag_p, cfg.getDataWidth bit) ## B(real_p, cfg.getDataWidth bit)
+//      B(imag_p, cfg.getDataWidth bit) ## B(real_p, cfg.getDataWidth bit)
+      ( S(imag_p, cfg.getDataWidth bit) ## S(real_p, cfg.getDataWidth bit) ).asBits
     }
   }
 
   protected def doubleToBits(dat: Double, cfg: HComplexConfig): Bits = {
-    B(
+    S(
       ( dat * scala.math.pow(2, cfg.fracw) ).toInt, cfg.getDataWidth bit
-    )
+    ).asBits
   }
 }
