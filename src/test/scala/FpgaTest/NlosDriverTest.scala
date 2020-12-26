@@ -42,6 +42,24 @@ object NlosDriverTest extends App{
               println(s"now is ($d, $f)")
               dut.clockDomain.waitSampling()
               println(s"now the hardware counter is (${dut.io.dc.toInt}, ${dut.io.fc.toInt})")
+
+              val waiting = fork{
+                if(d == 0) {
+                  dut.clockDomain.waitSampling(128*128+98)
+                  dut.io.fft_comp_end #= true
+                  dut.clockDomain.waitSampling()
+                  dut.io.fft_comp_end #= false
+                }
+                else{
+                  dut.clockDomain.waitSampling(128+100)
+                }
+
+                dut.io.load_req #= dut.io.load_req.toInt | 1 | 2
+                if(f == rsd_cfg.freq_factor-1){
+                  dut.io.load_req #= dut.io.load_req.toInt | 4
+                }
+              }
+
               fork{
                 dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(0) + 1))
                 dut.clockDomain.waitSampling()
@@ -66,21 +84,7 @@ object NlosDriverTest extends App{
                 dut.io.load_req #= dut.io.load_req.toInt & 7 // load_req[3] = 0
               }
 
-              if(d == 0) {
-                dut.clockDomain.waitSampling(128*128+98)
-                dut.io.fft_comp_end #= true
-                dut.clockDomain.waitSampling()
-                dut.io.fft_comp_end #= false
-              }
-              else{
-                dut.clockDomain.waitSampling(128+100)
-              }
-
-              dut.io.load_req #= dut.io.load_req.toInt | 1 | 2
-              if(f == rsd_cfg.freq_factor-1){
-                dut.io.load_req #= dut.io.load_req.toInt | 4
-              }
-
+              waiting.join()
               dut.io.cnt_incr #= true
               dut.clockDomain.waitSampling()
               dut.io.cnt_incr #= false
