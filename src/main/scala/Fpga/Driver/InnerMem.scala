@@ -7,9 +7,9 @@ import spinal.lib.fsm.{EntryPoint, State, StateMachine}
 trait InnerMem extends Area{
   val memDepth: Int
   val rom: Mem[Bits]
-  val romAddr = Counter(0 until memDepth)
-  val en = False
-  val data = rom.readSync(romAddr.value.resized, en)
+  lazy val romAddr = Counter(0 until memDepth)
+  lazy val en = False
+  lazy val data = rom.readSync(romAddr.value.resized, en)
 }
 
 object InnerMem {
