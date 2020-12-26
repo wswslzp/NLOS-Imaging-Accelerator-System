@@ -4,8 +4,8 @@ import spinal.lib._
 import spinal.lib.bus.amba4.axi.Axi4WriteOnly
 import spinal.lib.fsm.{EntryPoint, State, StateMachine}
 
-class InnerMem(memDepth: Int) extends Area{
-  val rom: Mem[Bits] = Mem(Bits(), memDepth)
+class InnerMem(memDepth: Int, width: Int) extends Area{
+  val rom: Mem[Bits] = Mem(Bits(width bit), memDepth)
   val romAddr = Counter(0 until memDepth)
   val en = False
   val data = rom.readSync(romAddr.value.resized, en)

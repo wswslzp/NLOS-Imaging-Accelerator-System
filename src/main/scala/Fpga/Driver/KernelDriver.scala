@@ -15,7 +15,7 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
     val load_req = in Bits (4 bit)
   }
 
-  def innerRom(memLen: Int, width: Int)(tab_func: Int=>BigInt) = new InnerMem(memLen) {
+  def innerRom(memLen: Int, width: Int)(tab_func: Int=>BigInt) = new InnerMem(memLen, width) {
     rom.init(Seq.tabulate(memLen){i=>
       B(tab_func(i), width bit)
     })
