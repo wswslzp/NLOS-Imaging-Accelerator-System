@@ -57,7 +57,7 @@ object NlosDriverTest extends App{
 
                 dut.io.load_req #= dut.io.load_req.toInt | 1 | 2
                 if(f == rsd_cfg.freq_factor-1){
-                  dut.io.load_req #= dut.io.load_req.toInt | 4
+                  dut.io.load_req #= dut.io.load_req.toInt | 1 | 2 | 4
                 }
               }
 
@@ -154,5 +154,5 @@ object NlosDriverTest extends App{
   println("Converting vcd to vpd...")
   Process("vcd2vpd tb/NlosDriver/NlosDriver_tb.vcd tb/NlosDriver/NlosDriver_tb.vpd") ! nullLogger
   println("Convert done.")
-  Process("dve -full64 -vpd tb/NlosDriver/NlosDriver_tb.vpd") !!
+  Process("dve -full64 -vpd tb/NlosDriver/NlosDriver_tb.vpd -session session.NlosDriver_tb.vpd.tcl") !!
 }
