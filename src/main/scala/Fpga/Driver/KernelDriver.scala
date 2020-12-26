@@ -62,7 +62,7 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
   val ts_lu_addr = loadUnitAddrs(0)
   val ds_lu_addr = loadUnitAddrs(1)
   val wv_lu_addr = Vec.tabulate(cfg.radius_factor / 16){i=> U(i * 16 + loadUnitAddrs(2))}
-  val imp_lu_addr = Vec.tabulate(cfg.radius_factor*cfg.impulse_sample_point){i=> U(i * 16 + loadUnitAddrs(3))}
+  val imp_lu_addr = Vec.tabulate(cfg.radius_factor*cfg.impulse_sample_point / 16){i=> U(i * 16 + loadUnitAddrs(3))}
 
   val fsm_scan_record = RegInit(False)
   val drv_fsm = new StateMachine {
