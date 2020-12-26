@@ -50,7 +50,8 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
       }
     )
     io.original_img.valid := RegNext(pixel_index_incr) init False
+  } otherwise {
+    io.original_img.valid.clear()
+    io.original_img.payload := HC(0, 0, cfg.getUinConfig)
   }
-  io.original_img.valid.clear()
-  io.original_img.payload := HC(0, 0, cfg.getUinConfig)
 }

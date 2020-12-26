@@ -47,7 +47,6 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
   }
 
   // ************** Driver logic *****************
-  // TODO: finish the kernel axi4 driver logic
   io.kernel_data_out.aw.setBurstINCR()
   io.kernel_data_out.aw.len := 0 // burst shot default is 1
   io.kernel_data_out.aw.size := U"3'h2" // 4 byte
