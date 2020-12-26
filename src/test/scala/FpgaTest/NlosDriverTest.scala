@@ -42,25 +42,25 @@ object NlosDriverTest extends App{
               println(s"now is ($d, $f)")
               println(s"now the hardware counter is (${dut.io.dc.toInt}, ${dut.io.fc.toInt})")
               fork{
-                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toInt == (loadUnitAddrs(0) + 1))
+                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(0) + 1))
                 dut.clockDomain.waitSampling()
                 dut.io.load_req #= dut.io.load_req.toInt & 14 // load_req[0] = 0
               }
 
               fork{
-                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toInt == (loadUnitAddrs(1) + 1))
+                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(1) + 1))
                 dut.clockDomain.waitSampling()
                 dut.io.load_req #= dut.io.load_req.toInt & 13 // load_req[1] = 0
               }
 
               fork{
-                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toInt == (loadUnitAddrs(2) + 1))
+                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(2) + 1))
                 dut.clockDomain.waitSampling()
                 dut.io.load_req #= dut.io.load_req.toInt & 11 // load_req[2] = 0
               }
 
               fork{
-                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toInt == (loadUnitAddrs(3) + 1))
+                dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == (loadUnitAddrs(3) + 1))
                 dut.clockDomain.waitSampling()
                 dut.io.load_req #= dut.io.load_req.toInt & 7 // load_req[3] = 0
               }
@@ -110,7 +110,7 @@ object NlosDriverTest extends App{
         () => {
           for(d <- rsd_cfg.depthRange){
             for(f <- rsd_cfg.freqRange){
-              dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toInt == loadUnitAddrs(0))
+              dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(0))
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
               h_ts(d, f) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
             }
@@ -122,7 +122,7 @@ object NlosDriverTest extends App{
         () => {
           for(d <- rsd_cfg.depthRange){
             for(f <- rsd_cfg.freqRange){
-              dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toInt == loadUnitAddrs(1))
+              dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(1))
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
               h_ts(d, f) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
             }
