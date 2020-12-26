@@ -39,7 +39,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{
 
         bus.aw.valid.clear()
         bus.w.valid.set()
-        bus.w.data := data
+        bus.w.data := data.resized
         bus.w.last.set()
         when(bus.w.fire){
           goto(done_addr_shot)
@@ -128,7 +128,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{
         bus.aw.valid.clear()
         // data channel
         bus.w.valid.set()
-        bus.w.data := data
+        bus.w.data := data.resized
         bus.w.last := shot_cnt.willOverflow
       }
 
