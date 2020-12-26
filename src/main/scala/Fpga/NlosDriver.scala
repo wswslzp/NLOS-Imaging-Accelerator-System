@@ -28,7 +28,7 @@ case class NlosDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extends 
   when(io.cnt_incr){
     freq_cnt.increment()
   }
-  when(freq_cnt.willIncrement){
+  when(freq_cnt.willOverflow){
     depth_cnt.increment()
   }
   io.dc := depth_cnt
