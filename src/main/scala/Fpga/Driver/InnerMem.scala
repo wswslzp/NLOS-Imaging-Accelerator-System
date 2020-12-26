@@ -10,6 +10,8 @@ trait InnerMem extends Area{
   lazy val romAddr = Counter(0 until memDepth)
   lazy val en = False
   lazy val data = rom.readSync(romAddr.value.resized, en)
+
+  def addrIncr(): Unit = romAddr.increment()
 }
 
 object InnerMem {
@@ -71,7 +73,7 @@ object InnerMem {
         bus.w.data := 1
 
         when(bus.w.fire){
-          innerMem.romAddr.increment()
+          innerMem.addrIncr()
           exitFsm()
         }
       }
@@ -98,7 +100,7 @@ object InnerMem {
       whenIsActive {
         // memory part
         innerMem.en.set()
-        innerMem.romAddr.increment()
+        innerMem.addrIncr()
 
         // address channel
         bus.aw.valid.set()
@@ -122,7 +124,7 @@ object InnerMem {
         } otherwise {
           when(bus.w.fire){
             shot_cnt.increment()
-            innerMem.romAddr.increment()
+            innerMem.addrIncr()
           }
         }
 
