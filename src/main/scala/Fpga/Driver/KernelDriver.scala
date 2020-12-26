@@ -30,19 +30,19 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
     complexToSInt(timeshift(freq, depth), cfg.timeshift_cfg)
   }
 
-  val ds = innerRom(cfg.depth_factor * cfg.freq_factor, cfg.distance_cfg.getComplexWidth){ idx =>
+  val ds = innerRom(cfg.depth_factor * cfg.freq_factor, cfg.distance_cfg.getDataWidth){ idx =>
     val freq = idx / cfg.depth_factor
     val depth = idx % cfg.depth_factor
     doubleToSInt(distance(freq, depth), cfg.distance_cfg)
   }
 
-  val wv = innerRom(cfg.radius_factor * cfg.depth_factor, cfg.wave_cfg.getComplexWidth){ idx =>
+  val wv = innerRom(cfg.radius_factor * cfg.depth_factor, cfg.wave_cfg.getDataWidth){ idx =>
     val radius = idx / cfg.depth_factor
     val depth = idx % cfg.depth_factor
     doubleToSInt(wave(radius, depth), cfg.wave_cfg)
   }
 
-  val imp = innerRom(cfg.radius_factor * cfg.impulse_sample_point, cfg.imp_cfg.getComplexWidth){ idx=>
+  val imp = innerRom(cfg.radius_factor * cfg.impulse_sample_point, cfg.imp_cfg.getDataWidth){ idx=>
     val isp = idx / cfg.impulse_sample_point
     val radius = idx % cfg.impulse_sample_point
     doubleToSInt(impulse(isp, radius), cfg.imp_cfg)

@@ -24,7 +24,7 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
       val col = idx % cfg.cols
       complexToSInt(uin(freq)(row, col), cfg.getUinConfig)
     }
-    Mem(rom_init_content.map(dat=> B(dat, cfg.getUinConfig.getDataWidth bit)))
+    Mem(rom_init_content.map(dat=> B(dat, cfg.getUinConfig.getComplexWidth bit)))
   }
 
   // ************** driver logic **********************
