@@ -12,8 +12,8 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
 
   def addrIncr(): Unit = romAddr.increment()
 
-  def oneShotDriverFSM(addr: UInt, bus: Axi4WriteOnly, fsm_name: String) = new StateMachine {
-    setCompositeName(innerMem, s"${fsm_name}_fsm")
+  def oneShotDriverFSM(addr: UInt, bus: Axi4WriteOnly) = new StateMachine {
+    setCompositeName(innerMem, s"_fsm")
     val one_shot = new State
     val done_addr_shot = new State
     val done_data_shot = new State
@@ -84,8 +84,8 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
    * @param shot_len The length of burst transaction
    * @return return the corresponding FSM
    */
-  def burstDriverFSM(addr: Int, done_addr: Int, bus: Axi4WriteOnly, burst_len: Int, shot_len: Int, fsm_name: String) = new StateMachine {
-    setCompositeName(innerMem, s"${fsm_name}_fsm")
+  def burstDriverFSM(addr: Int, done_addr: Int, bus: Axi4WriteOnly, burst_len: Int, shot_len: Int) = new StateMachine {
+    setCompositeName(innerMem, s"_fsm")
     val burst_cnt = Counter(0 until burst_len).setCompositeName(innerMem, "burst_cnt") // counter for the index burst shot
     val shot_cnt = Counter(0 until shot_len).setCompositeName(innerMem, "shot_cnt") // counter for current index inside a burst transaction
     val burst_prim_addr = RegInit(U(addr, bus.aw.addr.getBitsWidth bit))

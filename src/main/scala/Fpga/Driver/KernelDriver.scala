@@ -72,10 +72,10 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
 
   val fsm_scan_record = RegInit(False)
   val drv_fsm = new StateMachine {
-    val ts_drv_state = new StateFsm(fsm = ts.oneShotDriverFSM(U(ts_lu_addr), io.kernel_data_out, "ts"))
-    val ds_drv_state = new StateFsm(fsm = ds.oneShotDriverFSM(U(ds_lu_addr), io.kernel_data_out, "ds"))
-    val wv_drv_state = new StateFsm(fsm = wv.burstDriverFSM(wv_lu_addr, wv_done_addr, io.kernel_data_out, wv_burst_len, 16, "wv"))
-    val imp_drv_state = new StateFsm(fsm = imp.burstDriverFSM(imp_lu_addr, imp_done_addr, io.kernel_data_out, imp_burst_len, 16, "imp"))
+    val ts_drv_state = new StateFsm(fsm = ts.oneShotDriverFSM(U(ts_lu_addr), io.kernel_data_out))
+    val ds_drv_state = new StateFsm(fsm = ds.oneShotDriverFSM(U(ds_lu_addr), io.kernel_data_out))
+    val wv_drv_state = new StateFsm(fsm = wv.burstDriverFSM(wv_lu_addr, wv_done_addr, io.kernel_data_out, wv_burst_len, 16))
+    val imp_drv_state = new StateFsm(fsm = imp.burstDriverFSM(imp_lu_addr, imp_done_addr, io.kernel_data_out, imp_burst_len, 16))
 
     val setup = new State with EntryPoint {
       whenIsActive {
