@@ -7,16 +7,19 @@ import spinal.core._
 // Note! Mem init content only receive literal value, so
 //  the function returns Bits is not work.
 trait DataTransform {
-  protected def doubleToSInt(dat: Double, cfg: HComplexConfig): Long = {
+  protected def doubleToSInt(dat: Double, cfg: HComplexConfig): BigInt = {
     val max_v = (1L << (cfg.getDataWidth-1))-1
     val min_v = -(1L << (cfg.getDataWidth-1))
 
-    scala.math.max(scala.math.min(
+    val sint_v = scala.math.max(scala.math.min(
       scala.math.pow(2, cfg.fracw) * dat, max_v
     ), min_v).toLong
+
+    if (sint_v > 0) BigInt(sint_v)
+    else (BigInt(1) << cfg.getDataWidth) + BigInt(sint_v)
   }
 
-  protected def complexToSInt(dat: Complex, cfg: HComplexConfig): Long = {
+  protected def complexToSInt(dat: Complex, cfg: HComplexConfig): BigInt = {
     val real_p = doubleToSInt(dat.real, cfg)
     val imag_p = doubleToSInt(dat.imag, cfg)
     if (cfg.real_high){

@@ -18,13 +18,13 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
   }
 
   // ************** Memory for image ******
-  val image_rom = Array.tabulate(cfg.freq_factor) { freq =>
+  val image_part_rom = Array.tabulate(cfg.freq_factor) { freq =>
     val rom_init_content = Seq.tabulate(cfg.kernel_size.product) { idx =>
       val row = idx / cfg.cols
       val col = idx % cfg.cols
       complexToSInt(uin(freq)(row, col), cfg.getUinConfig)
     }
-    Mem(rom_init_content.map(dat=> B(S(dat, cfg.getUinConfig.getComplexWidth bit))))
+    Mem(rom_init_content.map(dat=> B(dat, cfg.getUinConfig.getDataWidth bit)))
   }
 
   // ************** driver logic **********************
@@ -43,7 +43,9 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
       HC(0, 0, cfg.getUinConfig),
       mappings = for (f <- 0 until cfg.freq_factor) yield {
         val ret = HComplex(cfg.getUinConfig)
-        ret := image_rom(f).readSync(pixel_index_cnt.value)
+        val addr = pixel_index_cnt.value
+        val dat = image_part_rom(f).readSync(addr.resized)
+        ret := dat
         f -> ret
       }
     )
