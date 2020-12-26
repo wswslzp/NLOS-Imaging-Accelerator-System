@@ -7,7 +7,6 @@ import spinal.core._
 import spinal.lib._
 import spinal.lib.bus.amba4.axi.Axi4WriteOnly
 import fsm._
-import InnerMem._
 
 // TODO: Need verification
 case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extends Component with DataTransform {
@@ -16,10 +15,9 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
     val load_req = in Bits (4 bit)
   }
 
-  def innerRom(memLen: Int, width: Int)(tab_func: Int=>BigInt) = new Area with InnerMem {
-    override val memDepth = memLen
-    override val rom = Mem(Seq.tabulate(memLen){
-      i=> B(tab_func(i), width bit)
+  def innerRom(memLen: Int, width: Int)(tab_func: Int=>BigInt) = new InnerMem(memLen) {
+    rom.init(Seq.tabulate(memLen){i=>
+      B(tab_func(i), width bit)
     })
   }
 
@@ -67,10 +65,10 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
 
   val fsm_scan_record = RegInit(False)
   val drv_fsm = new StateMachine {
-    val ts_drv_state = new StateFsm(fsm = oneShotDriverFSM(ts, U(ts_lu_addr), io.kernel_data_out))
-    val ds_drv_state = new StateFsm(fsm = oneShotDriverFSM(ds, U(ds_lu_addr), io.kernel_data_out))
-    val wv_drv_state = new StateFsm(fsm = burstDriverFSM(wv, wv_lu_addr, io.kernel_data_out, 16))
-    val imp_drv_state = new StateFsm(fsm = burstDriverFSM(imp, imp_lu_addr, io.kernel_data_out, 16))
+    val ts_drv_state = new StateFsm(fsm = ts.oneShotDriverFSM(U(ts_lu_addr), io.kernel_data_out))
+    val ds_drv_state = new StateFsm(fsm = ds.oneShotDriverFSM(U(ds_lu_addr), io.kernel_data_out))
+    val wv_drv_state = new StateFsm(fsm = wv.burstDriverFSM(wv_lu_addr, io.kernel_data_out, 16))
+    val imp_drv_state = new StateFsm(fsm = imp.burstDriverFSM(imp_lu_addr, io.kernel_data_out, 16))
 
     val setup = new State with EntryPoint {
       whenIsActive {

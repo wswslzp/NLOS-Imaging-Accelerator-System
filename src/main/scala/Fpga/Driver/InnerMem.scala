@@ -4,19 +4,15 @@ import spinal.lib._
 import spinal.lib.bus.amba4.axi.Axi4WriteOnly
 import spinal.lib.fsm.{EntryPoint, State, StateMachine}
 
-trait InnerMem extends Area{
-  val memDepth: Int
-  val rom: Mem[Bits]
-  lazy val romAddr = Counter(0 until memDepth)
-  lazy val en = False
-  lazy val data = rom.readSync(romAddr.value.resized, en)
+class InnerMem(memDepth: Int) extends Area{
+  val rom: Mem[Bits] = Mem(Bits(), memDepth)
+  val romAddr = Counter(0 until memDepth)
+  val en = False
+  val data = rom.readSync(romAddr.value.resized, en)
 
   def addrIncr(): Unit = romAddr.increment()
-}
 
-object InnerMem {
-
-  def oneShotDriverFSM(innerMem: InnerMem, addr: UInt, bus: Axi4WriteOnly) = new StateMachine {
+  def oneShotDriverFSM(addr: UInt, bus: Axi4WriteOnly) = new StateMachine {
     val one_shot = new State
     val done_addr_shot = new State
     val done_data_shot = new State
@@ -24,7 +20,7 @@ object InnerMem {
     val addr_shot = new State with EntryPoint {
       whenIsActive {
         // access ram
-        innerMem.en.set()
+        en.set()
 
         // access axi4 address channel
         bus.aw.valid.set()
@@ -39,11 +35,11 @@ object InnerMem {
 
     one_shot
       .whenIsActive {
-        innerMem.en.set()
+        en.set()
 
         bus.aw.valid.clear()
         bus.w.valid.set()
-        bus.w.data := innerMem.data
+        bus.w.data := data
         bus.w.last.set()
         when(bus.w.fire){
           goto(done_addr_shot)
@@ -73,7 +69,7 @@ object InnerMem {
         bus.w.data := 1
 
         when(bus.w.fire){
-          innerMem.addrIncr()
+          addrIncr()
           exitFsm()
         }
       }
@@ -88,7 +84,7 @@ object InnerMem {
    * @param burst_len The length of burst transaction
    * @return return the corresponding FSM
    */
-  def burstDriverFSM(innerMem: InnerMem, addrs: Vec[UInt], bus: Axi4WriteOnly, burst_len: Int) = new StateMachine {
+  def burstDriverFSM(addrs: Vec[UInt], bus: Axi4WriteOnly, burst_len: Int) = new StateMachine {
     //todo: Do burst transaction driver fsm
     val burst_cnt = Counter(0 until addrs.length) // counter for the index burst shot
     val shot_cnt = Counter(0 until burst_len) // counter for current index inside a burst transaction
@@ -99,8 +95,8 @@ object InnerMem {
     val addr_shot = new State with EntryPoint {
       whenIsActive {
         // memory part
-        innerMem.en.set()
-        innerMem.addrIncr()
+        en.set()
+        addrIncr()
 
         // address channel
         bus.aw.valid.set()
@@ -112,7 +108,7 @@ object InnerMem {
 
     one_burst_shot
       .whenIsActive {
-        innerMem.en.set()
+        en.set()
 
         when(shot_cnt.willOverflow) {
           burst_cnt.increment()
@@ -124,7 +120,7 @@ object InnerMem {
         } otherwise {
           when(bus.w.fire){
             shot_cnt.increment()
-            innerMem.addrIncr()
+            addrIncr()
           }
         }
 
@@ -132,13 +128,13 @@ object InnerMem {
         bus.aw.valid.clear()
         // data channel
         bus.w.valid.set()
-        bus.w.data := innerMem.data
+        bus.w.data := data
         bus.w.last := shot_cnt.willOverflow
       }
 
     done_addr_shot
       .whenIsActive {
-        innerMem.en.clear()
+        en.clear()
         // address channel
         bus.aw.valid.set()
         bus.aw.addr := ( addrs.last + 1 ).resized
@@ -150,7 +146,7 @@ object InnerMem {
 
     done_data_shot
       .whenIsActive {
-        innerMem.en.clear()
+        en.clear()
         // address channel
         bus.aw.valid.clear()
         // data channel
@@ -161,3 +157,4 @@ object InnerMem {
       }
   }
 }
+
