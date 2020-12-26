@@ -6,7 +6,7 @@ import spinal.lib.fsm.{EntryPoint, State, StateMachine}
 
 class InnerMem(memDepth: Int, width: Int) extends Area{
   val rom: Mem[Bits] = Mem(Bits(width bit), memDepth)
-  val romAddr = Counter(0 until memDepth).setCompositeName(this, "rom_addr")
+  val romAddr = Counter(0 until memDepth).setName("rom_addr")
   val en = False
   val data = rom.readSync(romAddr.value.resized, en)
 
@@ -86,8 +86,8 @@ class InnerMem(memDepth: Int, width: Int) extends Area{
    */
   def burstDriverFSM(addrs: Vec[UInt], bus: Axi4WriteOnly, burst_len: Int) = new StateMachine {
     //todo: Do burst transaction driver fsm
-    val burst_cnt = Counter(0 until addrs.length).setCompositeName(this, "burst_cnt") // counter for the index burst shot
-    val shot_cnt = Counter(0 until burst_len).setCompositeName(this, "shot_cnt") // counter for current index inside a burst transaction
+    val burst_cnt = Counter(0 until addrs.length).setName("burst_cnt") // counter for the index burst shot
+    val shot_cnt = Counter(0 until burst_len).setName("shot_cnt") // counter for current index inside a burst transaction
 
     val one_burst_shot = new State
     val done_addr_shot = new State
