@@ -8,6 +8,7 @@ import Config.RsdKernelConfig._
 import breeze.linalg._
 import breeze.math._
 import Sim.SimComplex._
+import scala.sys.process._
 
 object NlosDriverTest extends App{
   val loadUnitAddrs = rsd_cfg.loadUnitAddrs
@@ -147,4 +148,11 @@ object NlosDriverTest extends App{
 
 
     }
+
+
+  val nullLogger = ProcessLogger(_ => {})
+  println("Converting vcd to vpd...")
+  Process("vcd2vpd tb/NlosDriver/NlosDriver_tb.vcd tb/NlosDriver/NlosDriver_tb.vpd") ! nullLogger
+  println("Convert done.")
+  Process("dve -full64 -vpd tb/NlosDriver/NlosDriver_tb.vpd") !!
 }
