@@ -6,7 +6,7 @@ import spinal.lib.fsm.{EntryPoint, State, StateMachine}
 
 class InnerMem(memDepth: Int, width: Int) extends Area{
   val rom: Mem[Bits] = Mem(Bits(width bit), memDepth)
-  val romAddr = Counter(0 until memDepth)
+  val romAddr = Counter(0 until memDepth).setCompositeName(this, "rom_addr")
   val en = False
   val data = rom.readSync(romAddr.value.resized, en)
 
