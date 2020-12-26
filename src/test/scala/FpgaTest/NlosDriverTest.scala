@@ -37,7 +37,6 @@ object NlosDriverTest extends App{
       forkJoin(
         () => {
           dut.io.sys_init #= true
-          dut.clockDomain.waitSampling(10)
           for(d <- rsd_cfg.depthRange){
             for(f <- rsd_cfg.freqRange){
               println(s"now is ($d, $f)")
