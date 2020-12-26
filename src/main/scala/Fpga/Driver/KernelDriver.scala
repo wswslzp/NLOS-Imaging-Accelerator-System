@@ -53,9 +53,11 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
   io.kernel_data_out.aw.size := U"3'h2" // 4 byte
   io.kernel_data_out.aw.valid := False
   io.kernel_data_out.aw.addr := 0
+  io.kernel_data_out.aw.id := 0
   io.kernel_data_out.w.valid := False
   io.kernel_data_out.w.last := False
   io.kernel_data_out.w.data := 0
+  io.kernel_data_out.b.ready := True
 
   // The address send to axi interface
   val ts_lu_addr = loadUnitAddrs(0)
