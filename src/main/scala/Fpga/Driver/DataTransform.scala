@@ -15,7 +15,7 @@ trait DataTransform {
       scala.math.pow(2, cfg.fracw) * dat, max_v
     ), min_v).toLong
 
-    if (sint_v > 0) BigInt(sint_v)
+    if (sint_v >= 0) BigInt(sint_v)
     else (BigInt(1) << cfg.getDataWidth) + BigInt(sint_v)
   }
 
