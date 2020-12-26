@@ -110,6 +110,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{
       .whenIsActive {
         en.set()
 
+        // todo comb loop
         when(shot_cnt.willOverflow) {
           burst_cnt.increment()
           when(burst_cnt.willOverflowIfInc){
@@ -119,9 +120,12 @@ class InnerMem(memDepth: Int, width: Int) extends Area{
           }
         } otherwise {
           when(bus.w.fire){
-            shot_cnt.increment()
             addrIncr()
           }
+        }
+
+        when(bus.w.fire){
+          shot_cnt.increment()
         }
 
         // address channel
