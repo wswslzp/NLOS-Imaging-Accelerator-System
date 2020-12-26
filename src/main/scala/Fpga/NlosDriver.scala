@@ -8,9 +8,9 @@ import spinal.lib.bus.amba4.axi._
 import RsdKernelConfig._
 import breeze.math.Complex
 import Driver._
-import Fpga.Driver.ImageDriver
+import Fpga.Driver._
 
-case class NlosDriver(cfg: RsdKernelConfig) extends Component {
+case class NlosDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extends Component {
   val io = new Bundle {
     val original_img = master Flow HComplex(cfg.getUinConfig)
     val kernel_in = master(Axi4WriteOnly(axi_config))
@@ -43,5 +43,8 @@ case class NlosDriver(cfg: RsdKernelConfig) extends Component {
   img_drver.io.fc := freq_cnt
   img_drver.io.original_img >> io.original_img
 
+  val kernel_driver = KernelDriver(cfg, loadUnitAddrs)
+  kernel_driver.io.load_req := io.load_req
+  kernel_driver.io.kernel_data_out >> io.kernel_in
 
 }

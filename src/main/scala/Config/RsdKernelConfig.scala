@@ -24,6 +24,8 @@ case class RsdKernelConfig
   fft_use_pipeline: Boolean = true
 ){
   require(kernel_size.length == 2)
+  private val init_addr = 0
+
   def rows: Int = kernel_size.head
   def cols: Int = kernel_size.last
 
@@ -45,6 +47,9 @@ case class RsdKernelConfig
   def rLengthRange: Range = 0 until impulse_sample_point
   def rowRange: Range = 0 until rows
   def colRange: Range = 0 until cols
+  def loadUnitAddrs = Vector.tabulate(4) {i =>
+    init_addr + i * (1 << 16) // Every load unit has 65kiB address space
+  }
 
   override def toString: String = {
     s"""

@@ -9,11 +9,10 @@ import spinal.lib.bus.amba4.axi.Axi4WriteOnly
 import fsm._
 import InnerMem._
 
+// TODO: Need verification
 case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extends Component with DataTransform {
   val io = new Bundle {
     val kernel_data_out = master(Axi4WriteOnly(axi_config))
-    val dc = in UInt (log2Up(cfg.depth_factor) bit)
-    val fc = in UInt (log2Up(cfg.freq_factor) bit)
     val load_req = in Bits (4 bit)
   }
 
@@ -64,6 +63,7 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
   val wv_lu_addr = Vec.tabulate(cfg.radius_factor / 16){i=> U(i * 16 + loadUnitAddrs(2))}
   val imp_lu_addr = Vec.tabulate(cfg.radius_factor*cfg.impulse_sample_point){i=> U(i * 16 + loadUnitAddrs(3))}
 
+  val fsm_scan_record = RegInit(False)
   val drv_fsm = new StateMachine {
     val ts_drv_state = new StateFsm(fsm = oneShotDriverFSM(ts, U(ts_lu_addr), io.kernel_data_out))
     val ds_drv_state = new StateFsm(fsm = oneShotDriverFSM(ds, U(ds_lu_addr), io.kernel_data_out))
@@ -72,10 +72,16 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
 
     val setup = new State with EntryPoint {
       whenIsActive {
+        when(!fsm_scan_record) {
+          fsm_scan_record.set()
+          when(io.load_req(0)){
+            goto(ts_drv_state)
+          } otherwise {
+            goto(ds_drv_state)
+          }
+        }
         when(io.load_req(0)){
-          goto(ts_drv_state)
-        } otherwise {
-          goto(ds_drv_state)
+          fsm_scan_record.clear()
         }
       }
     }
@@ -109,9 +115,7 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
 
     imp_drv_state
       .whenCompleted {
-        when(io.load_req(3)){
-          goto(setup)
-        }
+        goto(setup)
       }
   }
 

@@ -13,7 +13,10 @@ object STMtest extends App {
       val when_is_next = out Bool
       val int_fsm1_flag = out Bool
       val int_fsm2_flag = out Bool
+        val on_entry = out Bool()
     }
+    val counter = Reg(UInt(8 bits)) init (0)
+    io.on_entry := False
 
     val fsm = new StateMachine {
       val stateA = new State with EntryPoint
@@ -58,7 +61,6 @@ object STMtest extends App {
 
       val stateD = new StateParallelFsm(int_fsm1(), int_fsm2())
 
-      val counter = Reg(UInt(8 bits)) init (0)
       // Boot state
       io.result := False
       io.when_is_next := False
@@ -69,7 +71,10 @@ object STMtest extends App {
         .whenIsActive(goto(stateB))
 
       stateB
-        .onEntry(counter := 0) // The first cycle of the stateB
+        .onEntry{
+          counter := 0
+          io.on_entry.set()
+        } // The first cycle of the stateB
         .whenIsActive { // when current_state == stateB
           counter := counter + 1
           when(counter === 4) {
