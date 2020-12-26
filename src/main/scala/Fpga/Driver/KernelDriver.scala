@@ -16,34 +16,34 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
     val load_req = in Bits (4 bit)
   }
 
-  def innerRom(memLen: Int)(tab_func: Int=>Bits) = new Area with InnerMem {
+  def innerRom(memLen: Int)(tab_func: Int=>Long) = new Area with InnerMem {
     override val memDepth = memLen
-    override val rom = Mem(Array.tabulate(memDepth)(tab_func))
+    override val rom = Mem(Seq.tabulate(memLen){i=> B(tab_func(i))})
   }
 
   // ************** Memory for Kernel data ******
   val ts = innerRom(cfg.depth_factor*cfg.freq_factor){idx=>
     val freq = idx / cfg.depth_factor
     val depth = idx % cfg.depth_factor
-    complexToBits(timeshift(freq, depth), cfg.timeshift_cfg)
+    complexToSInt(timeshift(freq, depth), cfg.timeshift_cfg)
   }
 
   val ds = innerRom(cfg.depth_factor * cfg.freq_factor){ idx =>
     val freq = idx / cfg.depth_factor
     val depth = idx % cfg.depth_factor
-    doubleToBits(distance(freq, depth), cfg.distance_cfg)
+    doubleToSInt(distance(freq, depth), cfg.distance_cfg)
   }
 
   val wv = innerRom(cfg.radius_factor * cfg.depth_factor){ idx =>
     val radius = idx / cfg.depth_factor
     val depth = idx % cfg.depth_factor
-    doubleToBits(wave(radius, depth), cfg.wave_cfg)
+    doubleToSInt(wave(radius, depth), cfg.wave_cfg)
   }
 
   val imp = innerRom(cfg.radius_factor * cfg.impulse_sample_point){ idx=>
     val isp = idx / cfg.impulse_sample_point
     val radius = idx % cfg.impulse_sample_point
-    doubleToBits(impulse(isp, radius), cfg.imp_cfg)
+    doubleToSInt(impulse(isp, radius), cfg.imp_cfg)
   }
 
   // ************** Driver logic *****************

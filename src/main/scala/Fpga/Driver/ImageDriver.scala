@@ -22,9 +22,9 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
     val rom_init_content = Seq.tabulate(cfg.kernel_size.product) { idx =>
       val row = idx / cfg.cols
       val col = idx % cfg.cols
-      complexToBits(uin(freq)(row, col), cfg.getUinConfig)
+      complexToSInt(uin(freq)(row, col), cfg.getUinConfig)
     }
-    Mem(rom_init_content).addAttribute("ramstyle", "M20K")
+    Mem(rom_init_content.map(B(_, cfg.getUinConfig.getComplexWidth bit)))
   }
 
   // ************** driver logic **********************

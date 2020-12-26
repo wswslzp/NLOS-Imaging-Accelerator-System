@@ -4,7 +4,29 @@ import Config._
 import breeze.math._
 import spinal.core._
 
+// Note! Mem init content only receive literal value, so
+//  the function returns Bits is not work.
 trait DataTransform {
+  protected def doubleToSInt(dat: Double, cfg: HComplexConfig): Long = {
+    val max_v = (1L << (cfg.getDataWidth-1))-1
+    val min_v = -(1L << (cfg.getDataWidth-1))
+
+    scala.math.max(scala.math.min(
+      scala.math.pow(2, cfg.fracw) * dat, max_v
+    ), min_v).toLong
+  }
+
+  protected def complexToSInt(dat: Complex, cfg: HComplexConfig): Long = {
+    val real_p = doubleToSInt(dat.real, cfg)
+    val imag_p = doubleToSInt(dat.imag, cfg)
+    if (cfg.real_high){
+      real_p << cfg.getDataWidth | imag_p << cfg.getDataWidth
+    }else{
+      imag_p << cfg.getDataWidth | real_p << cfg.getDataWidth
+    }
+  }
+
+  @deprecated
   protected def doubleToBits(dat: Double, cfg: HComplexConfig): Bits = {
     val max_v = ( (1L << (cfg.getDataWidth-1))-1 ) / cfg.fracw.toDouble
     val min_v = -(1L << (cfg.getDataWidth-1)) / cfg.fracw.toDouble
@@ -14,6 +36,7 @@ trait DataTransform {
     ).asBits
   }
 
+  @deprecated
   protected def complexToBits(dat: Complex, cfg: HComplexConfig): Bits = {
     val real_p = doubleToBits(dat.real, cfg)
     val imag_p = doubleToBits(dat.imag, cfg)
