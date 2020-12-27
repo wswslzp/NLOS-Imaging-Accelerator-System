@@ -14,7 +14,7 @@ object NlosFpgaSysTest extends App{
 
   SimConfig
     .allOptimisation
-    .withWave(1)
+    .withWave(2)
     .workspacePath("tb")
     .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
     .compile(NlosFpgaSys(rsd_cfg))
