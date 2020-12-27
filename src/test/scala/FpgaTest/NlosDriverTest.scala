@@ -118,6 +118,7 @@ object NlosDriverTest extends App{
         ,
 
         // image monitor
+        // TODO: Need check
         () => {
           while(true){
             dut.clockDomain.waitSamplingWhere(dut.io.original_img.valid.toBoolean)
@@ -132,6 +133,7 @@ object NlosDriverTest extends App{
         ,
 
         // ts monitor
+        // TODO: Wrong data catch here, check tb and dut
         () => {
           for(d <- rsd_cfg.depthRange){
             for(f <- rsd_cfg.freqRange){
@@ -144,11 +146,13 @@ object NlosDriverTest extends App{
         ,
 
         // ds monitor
+        // TODO: Wrong data catch here, check tb and dut
         () => {
           for(d <- rsd_cfg.depthRange){
             for(f <- rsd_cfg.freqRange){
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(1))
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
+              println(s"Got ds($f, $d)")
               h_ds(f, d) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.distance_cfg.getDataWidth, rsd_cfg.distance_cfg.fracw)
             }
           }
@@ -156,6 +160,7 @@ object NlosDriverTest extends App{
         ,
 
         // wave monitor
+        // TODO: Wrong data catch here, check tb and dut
         () => {
           while(true){
             dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(2))
