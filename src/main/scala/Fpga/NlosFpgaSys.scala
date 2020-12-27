@@ -1,6 +1,7 @@
 package Fpga
 
 import spinal.core._
+import spinal.core.sim._
 import spinal.lib._
 import Config._
 
@@ -25,4 +26,8 @@ case class NlosFpgaSys(cfg: RsdKernelConfig) extends Component {
   nlos_driver.io.done := nlos_no_driver.io.done
   io.result << nlos_no_driver.io.result
   io.done := nlos_no_driver.io.done
+
+  nlos_driver.io.cnt_incr.simPublic()
+  nlos_driver.io.dc.simPublic()
+  nlos_driver.io.fc.simPublic()
 }

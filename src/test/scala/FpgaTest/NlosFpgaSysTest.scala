@@ -14,7 +14,7 @@ object NlosFpgaSysTest extends App{
 
   SimConfig
     .allOptimisation
-    .withWave(2)
+    .withWave(3)
     .workspacePath("tb")
     .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
     .compile(NlosFpgaSys(rsd_cfg))
@@ -25,6 +25,13 @@ object NlosFpgaSysTest extends App{
 
       fork {
         SimTimeout(40000000)
+      }
+
+      fork {
+        while(true){
+          println(s"now is (${dut.nlos_driver.io.dc.toInt}, ${dut.nlos_driver.io.fc.toInt})")
+          dut.clockDomain.waitSamplingWhere(dut.nlos_driver.io.cnt_incr.toBoolean)
+        }
       }
 
       dut.io.sys_init #= true
