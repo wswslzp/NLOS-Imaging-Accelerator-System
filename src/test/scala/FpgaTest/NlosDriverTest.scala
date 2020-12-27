@@ -59,9 +59,6 @@ object NlosDriverTest extends App{
               val waiting = fork{
                 if(d == 0) {
                   dut.clockDomain.waitSampling(128*128+98)
-//                  dut.io.fft_comp_end #= true
-//                  dut.clockDomain.waitSampling()
-//                  dut.io.fft_comp_end #= false
                 }
                 else{
                   dut.clockDomain.waitSampling(128+100)
@@ -138,6 +135,7 @@ object NlosDriverTest extends App{
             for(f <- rsd_cfg.freqRange){
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(0))
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
+              println(s"Got ts($f, $d)")
               h_ts(f, d) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
             }
           }
@@ -145,13 +143,11 @@ object NlosDriverTest extends App{
         ,
 
         // ds monitor
-        // TODO: Wrong data catch here, check tb and dut
         () => {
           for(d <- rsd_cfg.depthRange){
             for(f <- rsd_cfg.freqRange){
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(1))
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
-              println(s"Got ds($f, $d)")
               h_ds(f, d) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.distance_cfg.getDataWidth, rsd_cfg.distance_cfg.fracw)
             }
           }
