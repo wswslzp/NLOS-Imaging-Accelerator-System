@@ -5,9 +5,14 @@ import spinal.core.sim._
 import spinal.lib._
 import Fpga.NlosDriver
 import Config.RsdKernelConfig._
+import Sim.RsdGenCoreArray.Computation
 import breeze.linalg._
 import breeze.math._
 import Sim.SimComplex._
+import Sim.write_image
+import breeze.signal._
+
+import java.io.File
 import scala.sys.process._
 
 object NlosDriverTest extends App{
@@ -136,23 +141,71 @@ object NlosDriverTest extends App{
             }
           }
         }
-//        ,
-//
-//        // wave monitor
-//        () => {
-//          for(d <- rsd_cfg.depthRange){
-//            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toInt == loadUnitAddrs(2))
-//            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
-//            for(r <- rsd_cfg.radiusRange){
-//              dut.clockDomain.waitSampling()
-////              h_wv()
-//            }
-//          }
-//        }
+        ,
+
+        // wave monitor
+        () => {
+          for(d <- rsd_cfg.depthRange){
+            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(2))
+            for(r <- rsd_cfg.radiusRange){
+              dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
+              h_wv(r, d) = dut.io.kernel_in.w.data.toLong / scala.math.pow(2, rsd_cfg.wave_cfg.fracw)
+            }
+          }
+        }
+        ,
+
+        // imp monitor
+        () => {
+          for(rl <- rsd_cfg.rLengthRange){
+            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(3))
+            for(r <- rsd_cfg.radiusRange){
+              dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
+              h_imp(rl, r) = dut.io.kernel_in.w.data.toLong / scala.math.pow(2, rsd_cfg.imp_cfg.fracw)
+            }
+          }
+        }
+
       )
 
 
     }
+
+  val h_coef = Computation.generateCoef(h_wv, h_ds, h_ts)
+  val h_rsd = Computation.generateRSDRadKernel(h_coef, h_imp)
+  val uin_fft = h_img.map(fourierTr(_))
+  val kernel_size = (uin.head.rows, uin.head.cols)
+  println(kernel_size)
+
+  println("Multiply RSD kernel with input image's freq...")
+  val uout = Array.tabulate(rsd_cfg.depth_factor) {depth =>
+    val uout_f = DenseMatrix.fill(kernel_size._1, kernel_size._2)(Complex(0, 0))
+    for(f <- rsd_cfg.freqRange) {
+      val rsd_kernel_rad = h_rsd(depth)(f)
+      val rsd_kernel = Computation.restoreRSD(rsd_kernel_rad, kernel_size)
+      uout_f += rsd_kernel *:* uin_fft(f)
+    }
+    iFourierTr(uout_f)
+  }
+  println("Done RSD kernel convolution!")
+
+  println("Generating output image...")
+  val uout_abs = uout.map(_.map(_.abs))
+
+  val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(kernel_size._1, kernel_size._2) { (x, y)=>
+    var umax = 0d
+    for(d <- rsd_cfg.depthRange) {
+      if (uout_abs(d)(x, y) > umax) {
+        umax = uout_abs(d)(x, y)
+      }
+    }
+    umax
+  }
+  println("Output image has been generated!")
+  println(s"output size: cols = ${uout_abs_max.cols}")
+
+  val uout_abs_max_flip = fliplr(uout_abs_max)
+  write_image(uout_abs_max_flip, "tb/NlosDriver/nlos_hard_out.jpg")
 
 
   val nullLogger = ProcessLogger(_ => {})
