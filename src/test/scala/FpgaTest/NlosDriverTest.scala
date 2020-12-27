@@ -53,7 +53,6 @@ object NlosDriverTest extends App{
           dut.io.sys_init #= true
           for(d <- rsd_cfg.depthRange){
             for(f <- rsd_cfg.freqRange){
-              println(s"now is ($d, $f)")
               dut.clockDomain.waitSampling()
               println(s"now the hardware counter is (${dut.io.dc.toInt}, ${dut.io.fc.toInt})")
 

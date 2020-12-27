@@ -22,16 +22,18 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
   }
 
   // ************** Memory for Kernel data ******
+  val ts_mat = timeshift.t.toDenseMatrix
   val ts = innerRom(cfg.depth_factor*cfg.freq_factor, cfg.timeshift_cfg.getComplexWidth){idx=>
-    val freq = idx / cfg.depth_factor
-    val depth = idx % cfg.depth_factor
-    complexToSInt(timeshift(freq, depth), cfg.timeshift_cfg)
+    val depth = idx / cfg.freq_factor
+    val freq = idx % cfg.freq_factor
+    complexToSInt(ts_mat(depth, freq), cfg.timeshift_cfg)
   }
 
+  val ds_mat = distance.t.toDenseMatrix
   val ds = innerRom(cfg.depth_factor * cfg.freq_factor, cfg.distance_cfg.getDataWidth){ idx =>
-    val freq = idx / cfg.depth_factor
-    val depth = idx % cfg.depth_factor
-    doubleToSInt(distance(freq, depth), cfg.distance_cfg)
+    val depth = idx / cfg.freq_factor
+    val freq = idx % cfg.freq_factor
+    doubleToSInt(ds_mat(depth, freq), cfg.distance_cfg)
   }
 
   val wv = innerRom(cfg.radius_factor * cfg.depth_factor, cfg.wave_cfg.getDataWidth){ idx =>
