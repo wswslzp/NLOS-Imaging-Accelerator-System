@@ -8,7 +8,7 @@ import Config._
 import SimFix._
 import breeze.math._
 
-package object SimComplex {
+object SimComplex {
   implicit class SimHComplex(x: HComplex) {
     def #=(that: Complex): Unit = {
       x.real #= that.real

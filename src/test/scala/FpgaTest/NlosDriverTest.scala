@@ -141,7 +141,7 @@ object NlosDriverTest extends App{
             for(f <- rsd_cfg.freqRange){
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(1))
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
-              h_ts(f, d) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
+              h_ds(f, d) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.distance_cfg.fracw)
             }
           }
         }
@@ -153,7 +153,7 @@ object NlosDriverTest extends App{
             dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(2))
             for(r <- rsd_cfg.radiusRange){
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
-              h_wv(r, d) = dut.io.kernel_in.w.data.toLong / scala.math.pow(2, rsd_cfg.wave_cfg.fracw)
+              h_wv(r, d) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.wave_cfg.fracw)
             }
           }
         }
@@ -165,7 +165,7 @@ object NlosDriverTest extends App{
             dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(3))
             for(r <- rsd_cfg.radiusRange){
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
-              h_imp(rl, r) = dut.io.kernel_in.w.data.toLong / scala.math.pow(2, rsd_cfg.imp_cfg.fracw)
+              h_imp(rl, r) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.imp_cfg.fracw)
             }
           }
         }

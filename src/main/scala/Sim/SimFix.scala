@@ -7,7 +7,28 @@ import Util._
 import Config._
 import spinal.core.sim._
 
-package object SimFix {
+object SimFix {
+
+  def bitsToDouble(dat: Bits, fracw: Int): Double = {
+    val low_part_mask: Long = (1L << dat.getBitsWidth) - 1
+
+    def uintToFloat(x: Long): Double = {
+      val neg_detect: Long => Boolean = xt => {
+        ( xt >> (dat.getBitsWidth - 1) ) == 1
+      }
+      if (neg_detect(x)) {
+        // x is negative
+        val xt: Long = ( -1L ^ low_part_mask ) | x // sign extension
+        -(~xt + 1).toDouble / (1L << fracw)
+      } else {
+        // x is positive
+        x.toDouble / (1L << fracw)
+      }
+    }
+
+    uintToFloat(dat.toLong)
+  }
+
   implicit class SimSFix(x: SFix) {
     val fraction_bit = -x.minExp
     val max_v: Long = (1L << ( x.bitCount - 1)) - 1
