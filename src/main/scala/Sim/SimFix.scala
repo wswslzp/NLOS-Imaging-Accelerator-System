@@ -9,12 +9,12 @@ import spinal.core.sim._
 
 object SimFix {
 
-  def bitsToDouble(dat: Bits, fracw: Int): Double = {
-    val low_part_mask: Long = (1L << dat.getBitsWidth) - 1
+  def bitsToDouble(dat: Bits, width: Int, fracw: Int): Double = {
+    val low_part_mask: Long = (1L << width) - 1
 
     def uintToFloat(x: Long): Double = {
       val neg_detect: Long => Boolean = xt => {
-        ( xt >> (dat.getBitsWidth - 1) ) == 1
+        ( xt >> (width - 1) ) == 1
       }
       if (neg_detect(x)) {
         // x is negative
