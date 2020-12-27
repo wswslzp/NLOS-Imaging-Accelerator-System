@@ -142,9 +142,10 @@ object NlosDriverTest extends App{
 //        () => {
 //          for(d <- rsd_cfg.depthRange){
 //            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toInt == loadUnitAddrs(2))
+//            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
 //            for(r <- rsd_cfg.radiusRange){
 //              dut.clockDomain.waitSampling()
-//              h_wv()
+////              h_wv()
 //            }
 //          }
 //        }

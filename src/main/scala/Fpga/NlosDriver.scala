@@ -24,7 +24,7 @@ case class NlosDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extends 
   }
 
   // ************** Counting for depth freq **************
-  val depth_cnt = Counter(0, cfg.depth_factor)
+  val depth_cnt = Counter(0 until cfg.depth_factor) // todo
   val freq_cnt = Counter(0 until cfg.freq_factor)
   when(io.cnt_incr){
     freq_cnt.increment()
@@ -32,21 +32,23 @@ case class NlosDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extends 
   when(freq_cnt.willOverflow){
     depth_cnt.increment()
   }
-  when(io.done){depth_cnt.clear()}
   io.dc := depth_cnt
   io.fc := freq_cnt
 
+  val wait_pp = RegInit(True)
+  wait_pp.clearWhen(depth_cnt.willOverflow).setWhen(io.done)
 
   // *************** Image driver **************
   val img_drver = ImageDriver(cfg)
-  img_drver.io.sys_init := io.sys_init
+  img_drver.io.img_push_start := io.sys_init & wait_pp
   img_drver.io.fft_comp_end := io.fft_comp_end
   img_drver.io.dc := depth_cnt
   img_drver.io.fc := freq_cnt
   img_drver.io.original_img >> io.original_img
 
   val kernel_driver = KernelDriver(cfg, loadUnitAddrs)
-  kernel_driver.io.load_req := io.load_req
+//  kernel_driver.io.load_req := io.load_req
+  kernel_driver.io.load_req := wait_pp ? io.load_req | B(0, io.load_req.getBitsWidth bit)
   kernel_driver.io.kernel_data_out >> io.kernel_in
 
 }

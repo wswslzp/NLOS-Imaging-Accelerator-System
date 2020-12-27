@@ -14,7 +14,7 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
     val dc = in UInt (log2Up(cfg.depth_factor) bit)
     val fc = in UInt (log2Up(cfg.freq_factor) bit)
     val fft_comp_end = in Bool()
-    val sys_init = in Bool()
+    val img_push_start = in Bool()
   }
 
   // ************** Memory for image ******
@@ -29,7 +29,7 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
 
   // ************** driver logic **********************
   val pixel_index_cnt = Counter(0 until cfg.kernel_size.product)
-  val pixel_index_incr = Reg(Bool()).init(False).setWhen(io.sys_init || io.fft_comp_end).clearWhen(pixel_index_cnt.willOverflow)
+  val pixel_index_incr = Reg(Bool()).init(False).setWhen(io.img_push_start || io.fft_comp_end).clearWhen(pixel_index_cnt.willOverflow)
   when(io.dc === 0) {
     when(pixel_index_incr) {
       pixel_index_cnt.increment()
