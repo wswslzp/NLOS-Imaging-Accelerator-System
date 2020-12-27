@@ -30,7 +30,6 @@ object NlosFpgaSysTest {
       dut.io.sys_init #= true
       uout_pp := catchResult(dut, 2, 2)
       dut.clockDomain.waitSamplingWhere(dut.io.done.toBoolean)
-      
       simSuccess()
     }
 }
