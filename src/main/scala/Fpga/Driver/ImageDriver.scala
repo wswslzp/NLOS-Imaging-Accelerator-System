@@ -29,7 +29,10 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
 
   // ************** driver logic **********************
   val pixel_index_cnt = Counter(0 until cfg.kernel_size.product)
-  val pixel_index_incr = Reg(Bool()).init(False).setWhen(io.img_push_start || io.fft_comp_end).clearWhen(pixel_index_cnt.willOverflow || (io.dc =/= 0))
+  // todo :
+  val pixel_index_incr = RegInit(False)
+  pixel_index_incr.setWhen(io.img_push_start.rise(False) || io.fft_comp_end)
+  pixel_index_incr.clearWhen(pixel_index_cnt.willOverflow || (io.dc =/= 0))
   when(io.dc === 0) {
     when(pixel_index_incr) {
       pixel_index_cnt.increment()
