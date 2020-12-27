@@ -217,5 +217,5 @@ object NlosDriverTest extends App{
   println("Converting vcd to vpd...")
   Process("vcd2vpd tb/NlosDriver/NlosDriver_tb.vcd tb/NlosDriver/NlosDriver_tb.vpd") ! nullLogger
   println("Convert done.")
-  Process("dve -full64 -vpd tb/NlosDriver/NlosDriver_tb.vpd -session session.NlosDriver_tb.vpd.tcl").run()
+  Process("dve -full64 -vpd tb/NlosDriver/NlosDriver_tb.vpd -session session.NlosDriver_tb.vpd.tcl").run(nullLogger)
 }
