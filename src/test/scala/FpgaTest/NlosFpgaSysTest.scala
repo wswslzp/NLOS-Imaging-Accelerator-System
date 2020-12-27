@@ -32,4 +32,6 @@ object NlosFpgaSysTest extends App{
       dut.clockDomain.waitSamplingWhere(dut.io.done.toBoolean)
       simSuccess()
     }
+
+  testPostProc(uout_pp)
 }
