@@ -33,5 +33,5 @@ object NlosFpgaSysTest extends App{
       simSuccess()
     }
 
-  testPostProc(uout_pp)
+  testPostProc(uout_pp, "tb/NlosFpgaSys")
 }

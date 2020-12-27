@@ -34,13 +34,13 @@ object Tester {
     write_image(uout_abs_max_flip, "tb/NlosCore/mac_res_test.jpg")
   }
 
-  def testPostProc(post_proc_result: DenseMatrix[Double]): Unit = {
+  def testPostProc(post_proc_result: DenseMatrix[Double], path: String = "tb/NlosNoDriver"): Unit = {
     csvwrite(
-      new File("tb/NlosNoDriver/hard_out.csv"),
+      new File(s"$path/hard_out.csv"),
       post_proc_result
     )
 
-    write_image(post_proc_result, "tb/NlosNoDriver/nlos_hard_out.jpg")
+    write_image(post_proc_result, s"$path/nlos_hard_out.jpg")
   }
 
   def testFinal(finalResult: Array[DenseMatrix[Complex]]): Unit = {
