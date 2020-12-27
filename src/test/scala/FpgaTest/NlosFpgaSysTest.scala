@@ -9,7 +9,7 @@ import Sim.NlosCore.Tester._
 import Fpga.NlosFpgaSys
 import breeze.linalg._
 
-object NlosFpgaSysTest {
+object NlosFpgaSysTest extends App{
   val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*2, rsd_cfg.kernel_size.last*2)
 
   SimConfig
