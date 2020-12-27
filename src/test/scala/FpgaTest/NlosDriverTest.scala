@@ -32,7 +32,6 @@ object NlosDriverTest extends App{
     .doSim("NlosDriver_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
       dut.io.sys_init #= false
-      dut.io.fft_comp_end #= false
       dut.io.cnt_incr #= false
       dut.io.kernel_in.aw.ready #= true
       dut.io.kernel_in.w.ready #= true
@@ -53,9 +52,9 @@ object NlosDriverTest extends App{
               val waiting = fork{
                 if(d == 0) {
                   dut.clockDomain.waitSampling(128*128+98)
-                  dut.io.fft_comp_end #= true
-                  dut.clockDomain.waitSampling()
-                  dut.io.fft_comp_end #= false
+//                  dut.io.fft_comp_end #= true
+//                  dut.clockDomain.waitSampling()
+//                  dut.io.fft_comp_end #= false
                 }
                 else{
                   dut.clockDomain.waitSampling(128+100)

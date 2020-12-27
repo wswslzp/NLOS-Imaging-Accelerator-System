@@ -18,7 +18,6 @@ case class NlosDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extends 
     val fc = out UInt(log2Up(cfg.freq_factor) bit)
     val load_req = in Bits(4 bit)
     val cnt_incr = in Bool()
-    val fft_comp_end = in Bool()
     val sys_init = in Bool()
     val done = in Bool()
   }
@@ -41,7 +40,7 @@ case class NlosDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extends 
   // *************** Image driver **************
   val img_drver = ImageDriver(cfg)
   img_drver.io.img_push_start := io.sys_init & wait_pp
-  img_drver.io.fft_comp_end := io.fft_comp_end
+  img_drver.io.cnt_incr := io.cnt_incr
   img_drver.io.dc := depth_cnt
   img_drver.io.fc := freq_cnt
   img_drver.io.original_img >> io.original_img

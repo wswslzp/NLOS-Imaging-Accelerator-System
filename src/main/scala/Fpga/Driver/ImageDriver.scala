@@ -13,7 +13,7 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
     val original_img = master Flow HComplex(cfg.getUinConfig)
     val dc = in UInt (log2Up(cfg.depth_factor) bit)
     val fc = in UInt (log2Up(cfg.freq_factor) bit)
-    val fft_comp_end = in Bool()
+    val cnt_incr = in Bool()
     val img_push_start = in Bool()
   }
 
@@ -31,7 +31,7 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
   val pixel_index_cnt = Counter(0 until cfg.kernel_size.product)
   // todo :
   val pixel_index_incr = RegInit(False)
-  pixel_index_incr.setWhen(io.img_push_start.rise(False) || io.fft_comp_end)
+  pixel_index_incr.setWhen(io.img_push_start.rise(False) || io.cnt_incr)
   pixel_index_incr.clearWhen(pixel_index_cnt.willOverflow || (io.dc =/= 0))
   when(io.dc === 0) {
     when(pixel_index_incr) {
