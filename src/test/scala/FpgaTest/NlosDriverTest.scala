@@ -24,6 +24,14 @@ object NlosDriverTest extends App{
   val h_wv = DenseMatrix.zeros[Double](wave.rows, wave.cols)
   val h_imp = DenseMatrix.zeros[Double](impulse.rows, impulse.cols)
 
+  val wave_init_addrs = Array.tabulate(rsd_cfg.radius_factor / 16){idx=>
+    loadUnitAddrs(2) + idx * 16
+  }
+
+  val imp_init_addrs = Array.tabulate(rsd_cfg.impulse_sample_point * rsd_cfg.radius_factor/ 16){idx=>
+    loadUnitAddrs(3) + idx * 16
+  }
+
   SimConfig
     .allOptimisation
     .workspacePath("tb")
@@ -149,11 +157,11 @@ object NlosDriverTest extends App{
 
         // wave monitor
         () => {
-          for(d <- rsd_cfg.depthRange){
+          while(true){
             dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(2))
             for(r <- rsd_cfg.radiusRange){
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
-              h_wv(r, d) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.wave_cfg.getDataWidth, rsd_cfg.wave_cfg.fracw)
+              h_wv(r, dut.io.dc.toInt) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.wave_cfg.getDataWidth, rsd_cfg.wave_cfg.fracw)
             }
           }
         }
@@ -161,12 +169,12 @@ object NlosDriverTest extends App{
 
         // imp monitor
         () => {
-          for(rl <- rsd_cfg.rLengthRange){
-            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(3))
-            for(r <- rsd_cfg.radiusRange){
-              dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
-              h_imp(rl, r) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.imp_cfg.getDataWidth, rsd_cfg.imp_cfg.fracw)
-            }
+          dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(3))
+          for(idx <- 0 until ( impulse.rows * impulse.cols )) {
+            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
+            val rl = idx / impulse.cols
+            val r = idx % impulse.cols
+            h_imp(rl, r) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.imp_cfg.getDataWidth, rsd_cfg.imp_cfg.fracw)
           }
         }
 
