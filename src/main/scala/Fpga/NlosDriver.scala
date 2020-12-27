@@ -20,17 +20,19 @@ case class NlosDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extends 
     val cnt_incr = in Bool()
     val fft_comp_end = in Bool()
     val sys_init = in Bool()
+    val done = in Bool()
   }
 
   // ************** Counting for depth freq **************
   val depth_cnt = Counter(0, cfg.depth_factor)
-  val freq_cnt = Counter(0, cfg.freq_factor)
+  val freq_cnt = Counter(0 until cfg.freq_factor)
   when(io.cnt_incr){
     freq_cnt.increment()
   }
   when(freq_cnt.willOverflow){
     depth_cnt.increment()
   }
+  when(io.done){depth_cnt.clear()}
   io.dc := depth_cnt
   io.fc := freq_cnt
 

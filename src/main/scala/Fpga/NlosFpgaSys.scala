@@ -22,6 +22,7 @@ case class NlosFpgaSys(cfg: RsdKernelConfig) extends Component {
   nlos_no_driver.io.fft_comp_end <> nlos_driver.io.fft_comp_end
   nlos_no_driver.io.cnt_incr <> nlos_driver.io.cnt_incr
   nlos_driver.io.sys_init := io.sys_init
+  nlos_driver.io.done := nlos_no_driver.io.done
   io.result << nlos_no_driver.io.result
   io.done := nlos_no_driver.io.done
 }

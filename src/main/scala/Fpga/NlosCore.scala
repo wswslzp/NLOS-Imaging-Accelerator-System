@@ -79,7 +79,7 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   mac_array.io.mac_result.simPublic()
 
 //  io.done := (io.dc === ((1 << io.dc.getWidth)-1)) && (io.fc === ((1<<io.fc.getWidth)-1)) && io.result.valid.fall(False)
-  io.done := ( io.dc === cfg.depth_factor ) && (io.fc === cfg.freq_factor) && io.result.valid.fall(False)
+  io.done := ( io.dc === cfg.depth_factor ) && io.result.valid.fall(False)
   fft2d_core.io.done := io.done // todo
   val loadUnitAddrs = rgca.loadUnitAddrs
 }
