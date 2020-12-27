@@ -37,6 +37,7 @@ object NlosDriverTest extends App{
       dut.io.kernel_in.aw.ready #= true
       dut.io.kernel_in.w.ready #= true
       dut.io.load_req #= 15
+      dut.io.done #= false
       dut.clockDomain.waitSampling()
 
 
@@ -100,6 +101,10 @@ object NlosDriverTest extends App{
               dut.io.cnt_incr #= false
             }
           }
+          dut.clockDomain.waitSampling(1280)
+          dut.io.done #= true
+          dut.clockDomain.waitSampling()
+          dut.io.done #= false
           dut.clockDomain.waitSampling(100)
           simSuccess()
         }
