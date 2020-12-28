@@ -26,7 +26,7 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
   val ts = innerRom(cfg.depth_factor*cfg.freq_factor, cfg.timeshift_cfg.getComplexWidth){idx=>
     val depth = idx / cfg.freq_factor
     val freq = idx % cfg.freq_factor
-    complexToSInt(ts_mat(depth, freq), cfg.timeshift_cfg) // TODO: Real part disappear.
+    complexToSInt(ts_mat(depth, freq), cfg.timeshift_cfg)
   }
 
   val ds_mat = distance.t.toDenseMatrix

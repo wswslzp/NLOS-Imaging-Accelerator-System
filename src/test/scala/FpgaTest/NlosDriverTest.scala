@@ -190,10 +190,9 @@ object NlosDriverTest extends App{
   csvwrite(new File("tb/NlosDriver/h_impulse.csv"), h_imp)
   csvwrite(new File("tb/NlosDriver/ts_hts_diff.csv"), (timeshift - h_ts).map(_.abs))
 
-  // TODO: Timeshift still have problems. Little change on timeshift will significantly change the result.
-  val h_coef = Computation.generateCoef(h_wv, h_ds, h_ts.map(_.conjugate))
+  val h_coef = Computation.generateCoef(h_wv, h_ds, h_ts.map(_.conjugate)) // TODO: h_ts's conj is OK. Why ?
   val h_rsd = Computation.generateRSDRadKernel(h_coef, h_imp)
-  val uin_fft = h_img.map(_.map(_.conjugate)).map(fourierTr(_))
+  val uin_fft = h_img.map(fourierTr(_))
   val kernel_size = (uin.head.rows, uin.head.cols)
   println(kernel_size)
 
