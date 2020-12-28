@@ -160,7 +160,6 @@ object NlosDriverTest extends App{
             for(r <- rsd_cfg.radiusRange){
               dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
               h_wv(r, dut.io.dc.toInt) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.wave_cfg.getDataWidth, rsd_cfg.wave_cfg.fracw)
-              println(s"Got wave($r, ${dut.io.dc.toInt})")
             }
           }
         }
