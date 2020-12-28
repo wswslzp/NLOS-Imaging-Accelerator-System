@@ -131,21 +131,25 @@ object NlosDriverTest extends App{
         // ts monitor
         // TODO: Wrong data catch here, check tb and dut
         () => {
-          val d = dut.io.dc.toInt
-          val f = dut.io.fc.toInt
-          dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(0) && dut.io.kernel_in.aw.valid.toBoolean)
-          dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
-          h_ts(f, d) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
+          while(true){
+            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(0) && dut.io.kernel_in.aw.valid.toBoolean)
+            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
+            val d = dut.io.dc.toInt
+            val f = dut.io.fc.toInt
+            h_ts(f, d) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
+          }
         }
         ,
 
         // ds monitor
         () => {
-          val d = dut.io.dc.toInt
-          val f = dut.io.fc.toInt
-          dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(1))
-          dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
-          h_ds(f, d) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.distance_cfg.getDataWidth, rsd_cfg.distance_cfg.fracw)
+          while(true){
+            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(1))
+            dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
+            val d = dut.io.dc.toInt
+            val f = dut.io.fc.toInt
+            h_ds(f, d) = bitsToDouble(dut.io.kernel_in.w.data, rsd_cfg.distance_cfg.getDataWidth, rsd_cfg.distance_cfg.fracw)
+          }
         }
         ,
 
