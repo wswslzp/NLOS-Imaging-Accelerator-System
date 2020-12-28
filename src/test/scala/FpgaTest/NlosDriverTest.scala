@@ -188,8 +188,9 @@ object NlosDriverTest extends App{
   csvwrite(new File("tb/NlosDriver/h_distance.csv"), h_ds)
   csvwrite(new File("tb/NlosDriver/h_wave.csv"), h_wv)
   csvwrite(new File("tb/NlosDriver/h_impulse.csv"), h_imp)
+  csvwrite(new File("tb/NlosDriver/ts_hts_diff.csv"), (timeshift - h_ts).map(_.abs))
 
-  // TODO: Timeshift still have problems.
+  // TODO: Timeshift still have problems. Little change on timeshift will significantly change the result.
   val h_coef = Computation.generateCoef(h_wv, h_ds, h_ts)
   val h_rsd = Computation.generateRSDRadKernel(h_coef, h_imp)
   val uin_fft = h_img.map(fourierTr(_))
