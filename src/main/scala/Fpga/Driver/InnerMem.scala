@@ -90,6 +90,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
     val shot_cnt = Counter(0 until shot_len).setCompositeName(innerMem, "shot_cnt") // counter for current index inside a burst transaction
     val burst_prim_addr = RegInit(U(addr, bus.aw.addr.getBitsWidth bit))
     val mask_start_idx = burst_len * shot_len - max_addr
+    val mask_period = ( shot_cnt.value >= mask_start_idx ) & burst_cnt.willOverflowIfInc
 
     val burst_shot = new State
     val done_addr_shot = new State
@@ -123,7 +124,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
             goto(addr_shot)
           }
         } otherwise {
-          when(bus.w.fire){
+          when(bus.w.fire & (!mask_period)){
             addrIncr()
           }
         }
@@ -136,7 +137,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
         bus.aw.valid.clear()
         // data channel
         bus.w.valid.set()
-        when(burst_cnt.willOverflowIfInc & (shot_cnt.value > mask_start_idx)){
+        when(mask_period){
           bus.w.data := B(0).resized
         } otherwise {
           bus.w.data := data.resized
