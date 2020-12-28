@@ -190,7 +190,7 @@ object NlosDriverTest extends App{
   csvwrite(new File("tb/NlosDriver/h_wave.csv"), h_wv)
   csvwrite(new File("tb/NlosDriver/h_impulse.csv"), h_imp)
 
-  val h_coef = Computation.generateCoef(h_wv, h_ds, h_ts)
+  val h_coef = Computation.generateCoef(wave, h_ds, h_ts)
   val h_rsd = Computation.generateRSDRadKernel(h_coef, h_imp)
 //  val uin_fft = h_img.map(fourierTr(_))
   val kernel_size = (uin.head.rows, uin.head.cols)
@@ -224,13 +224,13 @@ object NlosDriverTest extends App{
   println(s"output size: cols = ${uout_abs_max.cols}")
 
   val uout_abs_max_flip = fliplr(uout_abs_max)
-  csvwrite(new File("tb/NlosDriver/nlos_hard_out.csv"), uout_abs_max_flip)
+  csvwrite(new File("tb/NlosDriver/h_nlos_hard_out.csv"), uout_abs_max_flip)
   write_image(uout_abs_max_flip, "tb/NlosDriver/nlos_hard_out.jpg")
 
 
-  val nullLogger = ProcessLogger(_ => {})
-  println("Converting vcd to vpd...")
-  Process("vcd2vpd tb/NlosDriver/NlosDriver_tb.vcd tb/NlosDriver/NlosDriver_tb.vpd") ! nullLogger
-  println("Convert done.")
-  Process("dve -full64 -vpd tb/NlosDriver/NlosDriver_tb.vpd -session session.NlosDriver_tb.vpd.tcl").run(nullLogger)
+//  val nullLogger = ProcessLogger(_ => {})
+//  println("Converting vcd to vpd...")
+//  Process("vcd2vpd tb/NlosDriver/NlosDriver_tb.vcd tb/NlosDriver/NlosDriver_tb.vpd") ! nullLogger
+//  println("Convert done.")
+//  Process("dve -full64 -vpd tb/NlosDriver/NlosDriver_tb.vpd -session session.NlosDriver_tb.vpd.tcl").run(nullLogger)
 }
