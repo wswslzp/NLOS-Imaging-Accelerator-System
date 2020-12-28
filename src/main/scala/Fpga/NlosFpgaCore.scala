@@ -5,7 +5,7 @@ import spinal.core.sim._
 import spinal.lib._
 import Config._
 
-case class NlosFpgaSys(cfg: RsdKernelConfig) extends Component {
+case class NlosFpgaCore(cfg: RsdKernelConfig) extends Component {
   val io = new Bundle {
     val sys_init = in Bool()
     val result = master(Stream(Vec(UInt(8 bit), 2)))

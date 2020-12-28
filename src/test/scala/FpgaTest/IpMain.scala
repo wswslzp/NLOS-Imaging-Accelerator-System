@@ -26,8 +26,6 @@ object IpMain extends App{
     // Define a clock outside of chip, with clock name "ref_clk" and no reset.
     val ref_clk_domain = ClockDomain.external("ref", withReset = false)
     val iopll = IOPLL()
-//    iopll.refclk := ref_clk_domain.clock
-//    iopll.setRefClock(ref_clk_domain)
     iopll.mapClockDomain(ref_clk_domain, clock = iopll.refclk)
 
     val por = POR()

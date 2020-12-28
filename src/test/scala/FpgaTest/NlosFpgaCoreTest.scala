@@ -6,12 +6,12 @@ import spinal.lib._
 import Config.RsdKernelConfig._
 import Sim.NlosCore.Monitor._
 import Sim.NlosCore.Tester._
-import Fpga.NlosFpgaSys
+import Fpga.NlosFpgaCore
 import breeze.linalg._
 
 import scala.sys.process.{Process, ProcessLogger}
 
-object NlosFpgaSysTest extends App{
+object NlosFpgaCoreTest extends App{
   val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*2, rsd_cfg.kernel_size.last*2)
 
   SimConfig
@@ -19,7 +19,7 @@ object NlosFpgaSysTest extends App{
     .withWave(3)
     .workspacePath("tb")
     .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
-    .compile(NlosFpgaSys(rsd_cfg))
+    .compile(NlosFpgaCore(rsd_cfg))
     .doSim("NlosFpgaSys_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
       dut.io.sys_init #= false

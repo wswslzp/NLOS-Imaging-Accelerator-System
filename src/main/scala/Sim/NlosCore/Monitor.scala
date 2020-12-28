@@ -1,6 +1,6 @@
 package Sim.NlosCore
 
-import Fpga.{NlosCore, NlosFpgaSys, NlosNoDriver}
+import Fpga.{NlosCore, NlosFpgaCore, NlosNoDriver}
 import breeze.linalg.DenseMatrix
 import breeze.math.Complex
 import spinal.core._
@@ -47,7 +47,7 @@ object Monitor {
     result
   }
 
-  def catchResult(dut: NlosFpgaSys, over_sample_factor: Int, pixel_parallel: Int): DenseMatrix[Double] = {
+  def catchResult(dut: NlosFpgaCore, over_sample_factor: Int, pixel_parallel: Int): DenseMatrix[Double] = {
     dut.io.result.ready #= true
     dut.clockDomain.waitActiveEdgeWhere(dut.io.result.valid.toBoolean)
     val result = DenseMatrix.zeros[Double](dut.cfg.rows * over_sample_factor, dut.cfg.cols * over_sample_factor)
