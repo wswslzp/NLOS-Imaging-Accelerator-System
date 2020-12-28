@@ -26,7 +26,7 @@ object NlosDriverTest extends App{
 
   val coef = Computation.generateCoef(wave, distance, timeshift)
   val rsd = Computation.generateRSDRadKernel(coef, impulse)
-  val uin_fft = uin.map(fourierTr(_))
+//  val uin_fft = uin.map(fourierTr(_))
 
   val wave_init_addrs = Array.tabulate(rsd_cfg.radius_factor / 16){idx=>
     loadUnitAddrs(2) + idx * 16
@@ -118,7 +118,6 @@ object NlosDriverTest extends App{
         ,
 
         // image monitor
-        // TODO: Need check
         () => {
           while(true){
             dut.clockDomain.waitSamplingWhere(dut.io.original_img.valid.toBoolean)
@@ -192,7 +191,7 @@ object NlosDriverTest extends App{
 
   val h_coef = Computation.generateCoef(h_wv, h_ds, timeshift)
   val h_rsd = Computation.generateRSDRadKernel(h_coef, h_imp)
-//  val uin_fft = h_img.map(fourierTr(_))
+  val uin_fft = h_img.map(fourierTr(_))
   val kernel_size = (uin.head.rows, uin.head.cols)
   println(kernel_size)
 
