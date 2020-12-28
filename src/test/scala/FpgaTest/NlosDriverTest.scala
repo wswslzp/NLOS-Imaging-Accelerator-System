@@ -190,7 +190,7 @@ object NlosDriverTest extends App{
   csvwrite(new File("tb/NlosDriver/h_wave.csv"), h_wv)
   csvwrite(new File("tb/NlosDriver/h_impulse.csv"), h_imp)
 
-  val h_coef = Computation.generateCoef(wave, h_ds, h_ts)
+  val h_coef = Computation.generateCoef(h_wv, distance, h_ts)
   val h_rsd = Computation.generateRSDRadKernel(h_coef, h_imp)
 //  val uin_fft = h_img.map(fourierTr(_))
   val kernel_size = (uin.head.rows, uin.head.cols)
