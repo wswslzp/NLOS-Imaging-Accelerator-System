@@ -160,7 +160,10 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
         bus.w.valid.set()
         bus.w.data := 1
 
-        when(bus.w.fire){exitFsm()}
+        when(bus.w.fire){
+          burst_prim_addr.clearAll()
+          exitFsm()
+        }
       }
   }
 }
