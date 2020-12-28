@@ -138,7 +138,7 @@ object NlosDriverTest extends App{
             dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
             val d = dut.io.dc.toInt
             val f = dut.io.fc.toInt
-            h_ts(f, d) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg) // TODO: The function is the conj of true result?
+            h_ts(f, d) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
           }
         }
         ,
@@ -190,7 +190,7 @@ object NlosDriverTest extends App{
   csvwrite(new File("tb/NlosDriver/h_impulse.csv"), h_imp)
   csvwrite(new File("tb/NlosDriver/ts_hts_diff.csv"), (timeshift - h_ts).map(_.abs))
 
-  val h_coef = Computation.generateCoef(h_wv, h_ds, h_ts.map(_.conjugate)) // TODO: h_ts's conj is OK. Why ?
+  val h_coef = Computation.generateCoef(h_wv, h_ds, h_ts)
   val h_rsd = Computation.generateRSDRadKernel(h_coef, h_imp)
   val uin_fft = h_img.map(fourierTr(_))
   val kernel_size = (uin.head.rows, uin.head.cols)

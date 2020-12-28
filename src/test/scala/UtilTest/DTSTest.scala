@@ -54,7 +54,10 @@ object DTSTest extends App{
   val v1 = DenseVector.fill(10)(
     Complex(nn.sample(), nn.sample())
   )
-//  println(s"v1 is $v1")
+  println(s"v1 is $v1")
+  val v2 = DenseMatrix.fill(2, 2)(Complex(nn.sample(), nn.sample()))
+  println(s"v2 is $v2")
+  println(s"v2.t is ${v2.t.toDenseMatrix}")
 
   val cfg = HComplexConfig(8, 8)
 //  val v1r_sint = v1.map{d=> doubleToSInt(d.real, cfg)}

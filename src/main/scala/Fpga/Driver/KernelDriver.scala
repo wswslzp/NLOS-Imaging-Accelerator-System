@@ -22,7 +22,7 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
   }
 
   // ************** Memory for Kernel data ******
-  val ts_mat = timeshift.t.toDenseMatrix
+  val ts_mat = timeshift.t.map(_.conjugate).toDenseMatrix // TODO: Hermitt conj and transpose, like matlab !!!
   val ts = innerRom(cfg.depth_factor*cfg.freq_factor, cfg.timeshift_cfg.getComplexWidth){idx=>
     val depth = idx / cfg.freq_factor
     val freq = idx % cfg.freq_factor
