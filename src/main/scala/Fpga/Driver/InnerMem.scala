@@ -161,7 +161,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
         bus.w.data := 1
 
         when(bus.w.fire){
-          burst_prim_addr.clearAll()
+          burst_prim_addr := U(addr, bus.aw.addr.getBitsWidth bit)
           exitFsm()
         }
       }
