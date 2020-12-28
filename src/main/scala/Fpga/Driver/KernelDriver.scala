@@ -77,7 +77,7 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
     val ts_drv_state = new StateFsm(fsm = ts.oneShotDriverFSM(U(ts_lu_addr), io.kernel_data_out))
     val ds_drv_state = new StateFsm(fsm = ds.oneShotDriverFSM(U(ds_lu_addr), io.kernel_data_out))
     val wv_drv_state = new StateFsm(fsm = wv.burstDriverFSM(wv_lu_addr, wv_done_addr, io.kernel_data_out, wv_burst_len, 16, rsd_cfg.radius_factor))
-    val imp_drv_state = new StateFsm(fsm = imp.burstDriverFSM(imp_lu_addr, imp_done_addr, io.kernel_data_out, imp_burst_len, 16, rsd_cfg.radius_factor))
+    val imp_drv_state = new StateFsm(fsm = imp.burstDriverFSM(imp_lu_addr, imp_done_addr, io.kernel_data_out, imp_burst_len, 16, rsd_cfg.radius_factor * rsd_cfg.impulse_sample_point))
 
     val setup = new State with EntryPoint {
       whenIsActive {

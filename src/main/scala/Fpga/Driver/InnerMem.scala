@@ -82,6 +82,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
    * @param bus The master bus
    * @param burst_len The number of burst transaction
    * @param shot_len The length of burst transaction
+   * @param max_addr The maxium address that all burst transaction together covers. the data after `max_addr` should be 0
    * @return return the corresponding FSM
    */
   def burstDriverFSM(addr: Int, done_addr: Int, bus: Axi4WriteOnly, burst_len: Int, shot_len: Int, max_addr: Int) = new StateMachine {
