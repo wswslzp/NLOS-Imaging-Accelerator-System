@@ -69,7 +69,7 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
   val imp_done_addr = loadUnitAddrs(3) + cfg.impulse_sample_point*cfg.radius_factor
 
   // The burst length
-  val wv_burst_len = cfg.radius_factor/16 + 1
+  val wv_burst_len = cfg.radius_factor/16 + 1 // 69/16 + 1
   val imp_burst_len = cfg.radius_factor * cfg.impulse_sample_point / 16 + 1
 
   val fsm_scan_record = RegInit(False)

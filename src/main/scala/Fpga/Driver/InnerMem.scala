@@ -89,8 +89,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
     val burst_cnt = Counter(0 until burst_len).setCompositeName(innerMem, "burst_cnt") // counter for the index burst shot
     val shot_cnt = Counter(0 until shot_len).setCompositeName(innerMem, "shot_cnt") // counter for current index inside a burst transaction
     val burst_prim_addr = RegInit(U(addr, bus.aw.addr.getBitsWidth bit))
-    val mask_start_idx = burst_len * shot_len % max_addr
-    SpinalInfo(s"${this.getDisplayName()}'s mask_start_idx is $mask_start_idx")
+    val mask_start_idx = shot_len - ( burst_len * shot_len % max_addr )
     val mask_period = ( shot_cnt.value >= mask_start_idx ) & burst_cnt.willOverflowIfInc
 
     val burst_shot = new State
