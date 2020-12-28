@@ -1,6 +1,7 @@
 package UtilTest
 
 import Config.HComplexConfig
+import Config.RsdKernelConfig._
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
@@ -53,32 +54,40 @@ object DTSTest extends App{
   val v1 = DenseVector.fill(10)(
     Complex(nn.sample(), nn.sample())
   )
-  println(s"v1 is $v1")
+//  println(s"v1 is $v1")
 
   val cfg = HComplexConfig(8, 8)
   val v1r_sint = v1.map{d=> doubleToSInt(d.real, cfg)}
   val v1i_sint = v1.map{d=> doubleToSInt(d.imag, cfg)}
-  println(s"v1r_sint is $v1r_sint")
-  println(s"v1i_sint is $v1i_sint")
+//  println(s"v1r_sint is $v1r_sint")
+//  println(s"v1i_sint is $v1i_sint")
   val v1_sint = v1.map(d=> complexToSInt(d, cfg))
-  println(s"v1_sint is $v1_sint")
+//  println(s"v1_sint is $v1_sint")
 
-  SimConfig
-    .allOptimisation
-    .withWave
-    .workspacePath("tb")
-    .compile(DTS())
-    .doSim("DTS_tb"){dut=>
-      dut.clockDomain.forkStimulus(2)
-      dut.clockDomain.waitSampling()
+  val twv = DenseVector.tabulate(rsd_cfg.radius_factor * rsd_cfg.depth_factor){idx=>
+    val r = idx / rsd_cfg.depth_factor
+    val d = idx % rsd_cfg.depth_factor
+    wave(r, d)
+  }
+  println(s"wave is ${wave(0 to 10, 0 to 10)}")
+  println(s"twv is ${twv(0 to 10)}")
 
-      for(i <- v1.toArray.indices){
-        dut.io.din #= v1_sint(i)
-        dut.clockDomain.waitSampling(2)
-        println(s"${i}th output ${bitsToComplex(dut.io.dout.toLong, cfg)}")
-      }
-      dut.clockDomain.waitSampling(10)
-      simSuccess()
-    }
+//  SimConfig
+//    .allOptimisation
+//    .withWave
+//    .workspacePath("tb")
+//    .compile(DTS())
+//    .doSim("DTS_tb"){dut=>
+//      dut.clockDomain.forkStimulus(2)
+//      dut.clockDomain.waitSampling()
+//
+//      for(i <- v1.toArray.indices){
+//        dut.io.din #= v1_sint(i)
+//        dut.clockDomain.waitSampling(2)
+//        println(s"${i}th output ${bitsToComplex(dut.io.dout.toLong, cfg)}")
+//      }
+//      dut.clockDomain.waitSampling(10)
+//      simSuccess()
+//    }
 
 }

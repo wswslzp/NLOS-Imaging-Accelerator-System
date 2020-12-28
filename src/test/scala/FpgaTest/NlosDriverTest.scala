@@ -129,7 +129,6 @@ object NlosDriverTest extends App{
         ,
 
         // ts monitor
-        // TODO: Wrong data catch here, check tb and dut
         () => {
           while(true){
             dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(0) && dut.io.kernel_in.aw.valid.toBoolean)

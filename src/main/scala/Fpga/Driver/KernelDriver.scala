@@ -37,8 +37,8 @@ case class KernelDriver(cfg: RsdKernelConfig, loadUnitAddrs: Vector[Int]) extend
   }
 
   val wv = innerRom(cfg.radius_factor * cfg.depth_factor, cfg.wave_cfg.getDataWidth){ idx =>
-    val radius = idx / cfg.depth_factor
-    val depth = idx % cfg.depth_factor
+    val depth = idx / cfg.radius_factor
+    val radius = idx % cfg.radius_factor
     doubleToSInt(wave(radius, depth), cfg.wave_cfg)
   }
 
