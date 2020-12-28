@@ -23,9 +23,9 @@ trait DataTransform {
     val real_p = doubleToSInt(dat.real, cfg)
     val imag_p = doubleToSInt(dat.imag, cfg)
     if (cfg.real_high){
-      real_p << cfg.getDataWidth | imag_p << cfg.getDataWidth
+      ( real_p << cfg.getDataWidth ) | imag_p
     }else{
-      imag_p << cfg.getDataWidth | real_p << cfg.getDataWidth
+      ( imag_p << cfg.getDataWidth ) | real_p
     }
   }
 
