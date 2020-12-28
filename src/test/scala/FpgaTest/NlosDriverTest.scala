@@ -153,7 +153,6 @@ object NlosDriverTest extends App{
         ,
 
         // wave monitor
-        // TODO: Wrong data catch here, check tb and dut
         () => {
           while(true){
             dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.aw.addr.toLong == loadUnitAddrs(2))
