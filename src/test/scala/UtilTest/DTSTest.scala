@@ -57,8 +57,8 @@ object DTSTest extends App{
 //  println(s"v1 is $v1")
 
   val cfg = HComplexConfig(8, 8)
-  val v1r_sint = v1.map{d=> doubleToSInt(d.real, cfg)}
-  val v1i_sint = v1.map{d=> doubleToSInt(d.imag, cfg)}
+//  val v1r_sint = v1.map{d=> doubleToSInt(d.real, cfg)}
+//  val v1i_sint = v1.map{d=> doubleToSInt(d.imag, cfg)}
 //  println(s"v1r_sint is $v1r_sint")
 //  println(s"v1i_sint is $v1i_sint")
   val v1_sint = v1.map(d=> complexToSInt(d, cfg))
@@ -69,25 +69,25 @@ object DTSTest extends App{
     val d = idx % rsd_cfg.depth_factor
     wave(r, d)
   }
-  println(s"wave is ${wave(0 to 10, 0 to 10)}")
-  println(s"twv is ${twv(0 to 10)}")
+//  println(s"wave is ${wave(0 to 10, 0 to 10)}")
+//  println(s"twv is ${twv(0 to 10)}")
 
-//  SimConfig
-//    .allOptimisation
-//    .withWave
-//    .workspacePath("tb")
-//    .compile(DTS())
-//    .doSim("DTS_tb"){dut=>
-//      dut.clockDomain.forkStimulus(2)
-//      dut.clockDomain.waitSampling()
-//
-//      for(i <- v1.toArray.indices){
-//        dut.io.din #= v1_sint(i)
-//        dut.clockDomain.waitSampling(2)
-//        println(s"${i}th output ${bitsToComplex(dut.io.dout.toLong, cfg)}")
-//      }
-//      dut.clockDomain.waitSampling(10)
-//      simSuccess()
-//    }
+  SimConfig
+    .allOptimisation
+    .withWave
+    .workspacePath("tb")
+    .compile(DTS())
+    .doSim("DTS_tb"){dut=>
+      dut.clockDomain.forkStimulus(2)
+      dut.clockDomain.waitSampling()
+
+      for(i <- v1.toArray.indices){
+        dut.io.din #= v1_sint(i)
+        dut.clockDomain.waitSampling(2)
+        println(s"${i}th output ${bitsToComplex(dut.io.dout.toLong, cfg)}")
+      }
+      dut.clockDomain.waitSampling(10)
+      simSuccess()
+    }
 
 }

@@ -138,7 +138,7 @@ object NlosDriverTest extends App{
             dut.clockDomain.waitSamplingWhere(dut.io.kernel_in.w.valid.toBoolean)
             val d = dut.io.dc.toInt
             val f = dut.io.fc.toInt
-            h_ts(f, d) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg)
+            h_ts(f, d) = bitsToComplex(dut.io.kernel_in.w.data.toLong, rsd_cfg.timeshift_cfg) // TODO: The function is the conj of true result?
           }
         }
         ,
