@@ -138,7 +138,7 @@ class InnerMem(memDepth: Int, width: Int) extends Area{ innerMem=>
         bus.aw.valid.clear()
         // data channel
         bus.w.valid.set()
-        when(mask_period){
+        when(RegNext(mask_period, init = False)){
           bus.w.data := B(0).resized
         } otherwise {
           bus.w.data := data.resized
