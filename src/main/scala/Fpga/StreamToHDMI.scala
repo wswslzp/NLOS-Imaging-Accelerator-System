@@ -103,7 +103,7 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
   val video_mem = Mem(UInt(8 bit), BigInt(vid_fm.v_act * vid_fm.h_act))
 
   // write logic
-  io.dat_in.ready.set()
+//  io.dat_in.ready.set()
   val img_row_cnt = Counter(img_rows)
   val img_col_cnt = Counter(img_cols)
   when(io.dat_in.valid){
