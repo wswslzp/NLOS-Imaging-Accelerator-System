@@ -57,8 +57,6 @@ case class PostProcess(
 
 
   // ***************** store and compare **************
-  // TODO: Needs to modify the logic
-  //  memory should use BRAM/SRAM
   val os_rows = cfg.rows * over_sample_factor
   val os_cols = cfg.cols * over_sample_factor
   val result_mem = Mem(cloneOf(img_in_q.payload), BigInt(cfg.rows * cfg.cols))

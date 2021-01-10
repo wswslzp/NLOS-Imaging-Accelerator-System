@@ -1,5 +1,3 @@
-package Fpga.IP.HDMI
-
 import spinal.core._
 import spinal.lib._
 
@@ -62,8 +60,4 @@ case class hdmi_tx_core() extends BlackBox {
     val ctrl = in Bits(12 bit)
 
   }
-
-  noIoPrefix()
-  io.audio.allowPruning()
-  io.aux.allowPruning()
 }
