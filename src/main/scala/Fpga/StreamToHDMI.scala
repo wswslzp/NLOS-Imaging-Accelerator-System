@@ -130,10 +130,8 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
     hs_r := ( vid_fm.h_front <= h_cnt.value ) && (h_cnt.value < (vid_fm.h_front + vid_fm.h_sync)) // High when in sync period
     vs_r := ( vid_fm.v_front <= v_cnt.value ) && (v_cnt.value < (vid_fm.v_front + vid_fm.v_sync))
     if(vid_fm.h_pol == HIGH) {
-      SpinalInfo("Now is high")
       io.vid.hs := hs_r
     } else {
-      SpinalInfo("Now is low")
       io.vid.hs := !hs_r
     }
     if(vid_fm.v_pol == HIGH) {
