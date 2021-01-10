@@ -99,9 +99,8 @@ object PostProcTest extends App{
         while(true){
           dut.clockDomain.waitActiveEdgeWhere(dut.io.img_out.valid.toBoolean)
           for(r <- 0 until rsd_cfg.rows*ov){
-            for(c <- 0 until rsd_cfg.cols*ov/2){
-              h_img_out(r, 2*c) = dut.io.img_out.payload(0).toInt
-              h_img_out(r, 2*c+1) = dut.io.img_out.payload(1).toInt
+            for(c <- 0 until rsd_cfg.cols*ov){
+              h_img_out(r, c) = dut.io.img_out.payload.toInt
               dut.clockDomain.waitSampling()
             }
           }
