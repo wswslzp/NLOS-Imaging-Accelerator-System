@@ -20,7 +20,7 @@ object NlosFpgaCoreTest extends App{
     .workspacePath("tb")
     .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
     .compile(NlosFpgaCore(rsd_cfg))
-    .doSim("NlosFpgaSys_tb"){dut=>
+    .doSim("NlosFpgaCore_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
       dut.io.sys_init #= false
       dut.clockDomain.waitSampling()
@@ -42,11 +42,11 @@ object NlosFpgaCoreTest extends App{
       simSuccess()
     }
 
-  testPostProc(uout_pp, "tb/NlosFpgaSys")
+  testPostProc(uout_pp, "tb/NlosFpgaCore")
 
   val nullLogger = ProcessLogger(_ => {})
   println("Converting vcd to vpd...")
-  Process("vcd2vpd tb/NlosFpgaSys/NlosFpgaSys_tb.vcd tb/NlosFpgaSys/NlosFpgaSys_tb.vpd") ! nullLogger
+  Process("vcd2vpd tb/NlosFpgaCore/NlosFpgaCore_tb.vcd tb/NlosFpgaCore/NlosFpgaCore_tb.vpd") ! nullLogger
   println("Convert done.")
-  Process("dve -full64 -vpd tb/NlosFpgaSys/NlosFpgaSys_tb.vpd -session session.NlosFpgaSys_tb.vpd.tcl").run(nullLogger)
+  Process("dve -full64 -vpd tb/NlosFpgaCore/NlosFpgaCore_tb.vpd -session session.NlosFpgaCore_tb.vpd.tcl").run(nullLogger)
 }
