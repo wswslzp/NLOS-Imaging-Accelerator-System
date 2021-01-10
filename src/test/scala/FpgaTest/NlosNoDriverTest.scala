@@ -31,7 +31,7 @@ object NlosNoDriverTest extends App{
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32")
-      .compile(NlosNoDriver(rsd_cfg))
+      .compile(NlosNoDriver(rsd_cfg, pixel_parallel = 2))
   }
 
   val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*2, rsd_cfg.kernel_size.last*2)
