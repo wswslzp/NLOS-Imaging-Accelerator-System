@@ -93,11 +93,27 @@ case class HdmiVideoBus() extends Bundle with IMasterSlave {
   }
 }
 
-case class StreamToHDMI(vid_fm: VideoFormat, img_size: (Int, Int)) extends Component {
+case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) extends Component {
   val io = new Bundle {
     val dat_in = slave Stream UInt(8 bit)
     val vid = master (HdmiVideoBus())
   }
+
+  // declare a video memory
+  val video_mem = Mem(UInt(8 bit), BigInt(vid_fm.v_act * vid_fm.h_act))
+
+  // write logic
+  io.dat_in.ready.set()
+  val img_row_cnt = Counter(img_rows)
+  val img_col_cnt = Counter(img_cols)
+  when(io.dat_in.valid){
+    img_col_cnt.increment()
+  }
+  when(img_col_cnt.willOverflow){
+    img_row_cnt.increment()
+  }
+  val video_mem_waddr = RegNext( img_row_cnt.value * vid_fm.h_act + img_col_cnt.value )
+  video_mem.write(video_mem_waddr, io.dat_in.toFlow.toReg())
 
   val h_cnt = CounterFreeRun(vid_fm.getHTotal)
   val v_cnt = Counter(vid_fm.getVTotal)
@@ -128,9 +144,12 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_size: (Int, Int)) extends Compo
   de_r := de
   io.vid.de := de_r
 
-  // declare a video memory
-  val video_mem = Mem(UInt(8 bit), BigInt(vid_fm.v_act * vid_fm.h_act))
-
-
+  val cur_x = v_cnt.value - vid_fm.getVBlank
+  val cur_y = h_cnt.value - vid_fm.getHBlank
+  val video_mem_raddr = cur_x * vid_fm.h_act + cur_y
+  val video_mem_rdata = video_mem.readSync(video_mem_raddr.resized, enable = de)
+  io.vid.data.r := video_mem_rdata
+  io.vid.data.g := video_mem_rdata
+  io.vid.data.b := video_mem_rdata
 
 }
