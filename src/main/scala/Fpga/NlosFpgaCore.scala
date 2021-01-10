@@ -27,7 +27,7 @@ case class NlosFpgaCore(cfg: RsdKernelConfig, pixel_parallel: Int = 1) extends C
   nlos_driver.io.done := nlos_no_driver.io.done
   io.result << nlos_no_driver.io.result
   hdmi_if.io.dat_in << nlos_no_driver.io.result
-  io.hdmi_vid_bus << hdmi_if.io.vid
+  io.hdmi_vid_bus <> hdmi_if.io.vid
   io.done := nlos_no_driver.io.done
 
   nlos_driver.io.cnt_incr.simPublic()
