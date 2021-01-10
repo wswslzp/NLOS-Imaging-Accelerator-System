@@ -48,11 +48,14 @@ object Monitor {
   }
 
   def catchResult(dut: NlosFpgaCore, over_sample_factor: Int, pixel_parallel: Int): DenseMatrix[Double] = {
-    dut.io.result.ready #= true
+    import scala.util.Random._
     dut.clockDomain.waitActiveEdgeWhere(dut.io.result.valid.toBoolean)
     val result = DenseMatrix.zeros[Double](dut.cfg.rows * over_sample_factor, dut.cfg.cols * over_sample_factor)
     for(r <- 0 until dut.cfg.rows * over_sample_factor){
       for(c <- 0 until dut.cfg.cols * over_sample_factor/pixel_parallel) {
+        dut.io.result.ready #= false
+        dut.clockDomain.waitSampling(nextInt(50))
+        dut.io.result.ready #= true
         for(p <- 0 until pixel_parallel) {
           result(r, c * pixel_parallel + p) = dut.io.result.payload(p).toInt
         }
