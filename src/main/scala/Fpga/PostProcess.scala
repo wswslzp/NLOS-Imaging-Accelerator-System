@@ -107,7 +107,7 @@ case class PostProcess(
 //  val quantizers = Array.fill(2)(PixelQuant(quan_cfg, quant_bit_width))
   val quantizer = PixelQuant(quan_cfg, quant_bit_width)
 //  for(i <- 0 until pixel_parallel){
-    val pix_bfq = result_mem.readSync(output_pix_addr)
+    val pix_bfq = result_mem.readSync(output_pix_addr.resized)
     quantizer.io.upper_bound := img_in_abs_max
     quantizer.io.lower_bound := img_in_abs_min
     quantizer.io.pix_in.valid := pix_bfq_valid
