@@ -8,11 +8,11 @@ import Config._
 case class NlosFpgaCore(cfg: RsdKernelConfig, pixel_parallel: Int = 1) extends Component {
   val io = new Bundle {
     val sys_init = in Bool()
-    val result = master(Stream(Vec(UInt(8 bit), pixel_parallel)))
+    val result = master(Stream(UInt(8 bit)))
     val done = out Bool()
   }
 
-  val nlos_no_driver = NlosNoDriver(cfg, pixel_parallel = pixel_parallel)
+  val nlos_no_driver = NlosNoDriver(cfg)
   val nlos_driver = NlosDriver(cfg, nlos_no_driver.loadUnitAddress)
 
   nlos_no_driver.io.img_in << nlos_driver.io.original_img

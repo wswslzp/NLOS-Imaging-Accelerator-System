@@ -25,13 +25,13 @@ object NlosNoDriverTest extends App{
       .withWave(waveDepth)
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
-      .compile(NlosNoDriver(rsd_cfg, 2))
+      .compile(NlosNoDriver(rsd_cfg))
   } else {
     SimConfig
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32")
-      .compile(NlosNoDriver(rsd_cfg, pixel_parallel = 2))
+      .compile(NlosNoDriver(rsd_cfg))
   }
 
   val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*2, rsd_cfg.kernel_size.last*2)

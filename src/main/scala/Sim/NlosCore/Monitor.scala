@@ -37,9 +37,9 @@ object Monitor {
     dut.clockDomain.waitActiveEdgeWhere(dut.io.result.valid.toBoolean)
     val result = DenseMatrix.zeros[Double](dut.cfg.rows * dut.post_proc.over_sample_factor, dut.cfg.cols * dut.post_proc.over_sample_factor)
     for(r <- 0 until dut.cfg.rows * dut.post_proc.over_sample_factor){
-      for(c <- 0 until dut.cfg.cols * dut.post_proc.over_sample_factor/dut.post_proc.pixel_parallel) {
-        for(p <- 0 until dut.post_proc.pixel_parallel) {
-          result(r, c * dut.post_proc.pixel_parallel + p) = dut.io.result.payload(p).toInt
+      for(c <- 0 until dut.cfg.cols * dut.post_proc.over_sample_factor) {
+        for(p <- 0 until 1) {
+          result(r, c * 1 + p) = dut.io.result.payload.toInt
         }
         dut.clockDomain.waitSampling()
       }
@@ -47,18 +47,16 @@ object Monitor {
     result
   }
 
-  def catchResult(dut: NlosFpgaCore, over_sample_factor: Int, pixel_parallel: Int): DenseMatrix[Double] = {
+  def catchResult(dut: NlosFpgaCore, over_sample_factor: Int): DenseMatrix[Double] = {
     import scala.util.Random._
     dut.clockDomain.waitActiveEdgeWhere(dut.io.result.valid.toBoolean)
     val result = DenseMatrix.zeros[Double](dut.cfg.rows * over_sample_factor, dut.cfg.cols * over_sample_factor)
     for(r <- 0 until dut.cfg.rows * over_sample_factor){
-      for(c <- 0 until dut.cfg.cols * over_sample_factor/pixel_parallel) {
+      for(c <- 0 until dut.cfg.cols * over_sample_factor) {
         dut.io.result.ready #= false
         dut.clockDomain.waitSampling(nextInt(6))
         dut.io.result.ready #= true
-        for(p <- 0 until pixel_parallel) {
-          result(r, c * pixel_parallel + p) = dut.io.result.payload(p).toInt
-        }
+        result(r, c) = dut.io.result.payload.toInt
         dut.clockDomain.waitSampling()
       }
     }
