@@ -98,6 +98,7 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
     val dat_in = slave Stream UInt(8 bit)
     val vid = master (HdmiVideoBus())
   }
+  val video_mem_read_clk = ClockDomain.external("vid")
 
   // declare a video memory
   val video_mem = Mem(UInt(8 bit), BigInt(vid_fm.v_act * vid_fm.h_act))
@@ -115,41 +116,44 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
   val video_mem_waddr = RegNext( img_row_cnt.value * vid_fm.h_act + img_col_cnt.value )
   video_mem.write(video_mem_waddr.resized, io.dat_in.toFlow.toReg())
 
-  val h_cnt = CounterFreeRun(vid_fm.getHTotal)
-  val v_cnt = Counter(vid_fm.getVTotal)
-  when(h_cnt.willOverflow) {
-    v_cnt.increment()
-  }
+  // read logic under `video_mem_read_clk` clock domain
+  val vid_read = new ClockingArea(video_mem_read_clk){
+    val h_cnt = CounterFreeRun(vid_fm.getHTotal)
+    val v_cnt = Counter(vid_fm.getVTotal)
+    when(h_cnt.willOverflow) {
+      v_cnt.increment()
+    }
 
-  // front --- sync --- back --- act
-  val hs_r = RegInit(False)
-  val vs_r = RegInit(False)
-  hs_r := ( vid_fm.h_front <= h_cnt.value ) && (h_cnt.value < (vid_fm.h_front + vid_fm.h_sync)) // High when in sync period
-  vs_r := ( vid_fm.v_front <= v_cnt.value ) && (v_cnt.value < (vid_fm.v_front + vid_fm.v_sync))
-  if(vid_fm.h_pol == HIGH) {
-    SpinalInfo("Now is high")
-    io.vid.hs := hs_r
-  } else {
-    SpinalInfo("Now is low")
-    io.vid.hs := !hs_r
-  }
-  if(vid_fm.v_pol == HIGH) {
-    io.vid.vs := vs_r
-  } else {
-    io.vid.vs := !vs_r
-  }
+    // front --- sync --- back --- act
+    val hs_r = RegInit(False)
+    val vs_r = RegInit(False)
+    hs_r := ( vid_fm.h_front <= h_cnt.value ) && (h_cnt.value < (vid_fm.h_front + vid_fm.h_sync)) // High when in sync period
+    vs_r := ( vid_fm.v_front <= v_cnt.value ) && (v_cnt.value < (vid_fm.v_front + vid_fm.v_sync))
+    if(vid_fm.h_pol == HIGH) {
+      SpinalInfo("Now is high")
+      io.vid.hs := hs_r
+    } else {
+      SpinalInfo("Now is low")
+      io.vid.hs := !hs_r
+    }
+    if(vid_fm.v_pol == HIGH) {
+      io.vid.vs := vs_r
+    } else {
+      io.vid.vs := !vs_r
+    }
 
-  val de_r = RegInit(False)
-  val de = (vid_fm.getHBlank <= h_cnt.value) && (h_cnt.value < vid_fm.getHTotal) && (vid_fm.getVBlank <= v_cnt.value) && (v_cnt.value < vid_fm.getVTotal)
-  de_r := de
-  io.vid.de := de_r
+    val de_r = RegInit(False)
+    val de = (vid_fm.getHBlank <= h_cnt.value) && (h_cnt.value < vid_fm.getHTotal) && (vid_fm.getVBlank <= v_cnt.value) && (v_cnt.value < vid_fm.getVTotal)
+    de_r := de
+    io.vid.de := de_r
 
-  val cur_x = v_cnt.value - vid_fm.getVBlank
-  val cur_y = h_cnt.value - vid_fm.getHBlank
-  val video_mem_raddr = cur_x * vid_fm.h_act + cur_y
-  val video_mem_rdata = video_mem.readSync(video_mem_raddr.resized, enable = de)
-  io.vid.data.r := video_mem_rdata
-  io.vid.data.g := video_mem_rdata
-  io.vid.data.b := video_mem_rdata
+    val cur_x = v_cnt.value - vid_fm.getVBlank
+    val cur_y = h_cnt.value - vid_fm.getHBlank
+    val video_mem_raddr = cur_x * vid_fm.h_act + cur_y
+    val video_mem_rdata = video_mem.readSync(video_mem_raddr.resized, enable = de)
+    io.vid.data.r := video_mem_rdata
+    io.vid.data.g := video_mem_rdata
+    io.vid.data.b := video_mem_rdata
+  }
 
 }

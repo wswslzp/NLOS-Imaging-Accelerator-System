@@ -5,7 +5,7 @@ import spinal.core.sim._
 import spinal.lib._
 import Config._
 
-case class NlosFpgaCore(cfg: RsdKernelConfig, pixel_parallel: Int = 1) extends Component {
+case class NlosFpgaCore(cfg: RsdKernelConfig) extends Component {
   val io = new Bundle {
     val sys_init = in Bool()
     val result = master(Stream(UInt(8 bit)))
