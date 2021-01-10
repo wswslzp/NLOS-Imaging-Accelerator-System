@@ -54,7 +54,7 @@ object Monitor {
     for(r <- 0 until dut.cfg.rows * over_sample_factor){
       for(c <- 0 until dut.cfg.cols * over_sample_factor/pixel_parallel) {
         dut.io.result.ready #= false
-        dut.clockDomain.waitSampling(nextInt(50))
+        dut.clockDomain.waitSampling(nextInt(6))
         dut.io.result.ready #= true
         for(p <- 0 until pixel_parallel) {
           result(r, c * pixel_parallel + p) = dut.io.result.payload(p).toInt
