@@ -93,7 +93,7 @@ case class PostProcess(
   }
 
   val pixel_cnt = Counter(0 until cfg.kernel_size.product * over_sample_factor * over_sample_factor)
-  val pixel_addr = pixel_cnt.value
+  val output_pix_addr = pixel_cnt.value
 //  val parallel_pixel_addrs = Array.tabulate(pixel_parallel){i=>
 //    pixel_cnt.value * pixel_parallel + i
 //  }.map(addressTrans)
@@ -107,7 +107,7 @@ case class PostProcess(
 //  val quantizers = Array.fill(2)(PixelQuant(quan_cfg, quant_bit_width))
   val quantizer = PixelQuant(quan_cfg, quant_bit_width)
 //  for(i <- 0 until pixel_parallel){
-    val pix_bfq = result_mem.readSync(pixel_addr)
+    val pix_bfq = result_mem.readSync(output_pix_addr)
     quantizer.io.upper_bound := img_in_abs_max
     quantizer.io.lower_bound := img_in_abs_min
     quantizer.io.pix_in.valid := pix_bfq_valid
