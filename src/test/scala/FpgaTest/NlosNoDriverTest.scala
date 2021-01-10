@@ -25,7 +25,7 @@ object NlosNoDriverTest extends App{
       .withWave(waveDepth)
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
-      .compile(NlosNoDriver(rsd_cfg))
+      .compile(NlosNoDriver(rsd_cfg, 2))
   } else {
     SimConfig
       .allOptimisation

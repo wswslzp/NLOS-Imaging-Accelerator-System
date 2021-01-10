@@ -14,7 +14,7 @@ object NlosNoDriverMain extends App{
   SpinalConfig(
     targetDirectory = "rtl/NlosNoDriver"
   ).generateVerilog(
-    NlosNoDriver(rsd_cfg)
+    NlosNoDriver(rsd_cfg, 2)
   )
   Process("tar -zcvf NlosNoDriver.tar rtl/NlosNoDriver/ ").!
   Process("scp NlosNoDriver.tar Zhengpeng@10.19.129.46:/home/Workspace/Zhengpeng/transfer").!
