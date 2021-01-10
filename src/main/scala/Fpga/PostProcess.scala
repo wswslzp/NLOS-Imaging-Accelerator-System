@@ -93,7 +93,7 @@ case class PostProcess(
   }
 
   val pixel_cnt = Counter(0 until cfg.kernel_size.product * over_sample_factor * over_sample_factor)
-  val output_pix_addr = pixel_cnt.value
+  val output_pix_addr = addressTrans(pixel_cnt.value)
 //  val parallel_pixel_addrs = Array.tabulate(pixel_parallel){i=>
 //    pixel_cnt.value * pixel_parallel + i
 //  }.map(addressTrans)
