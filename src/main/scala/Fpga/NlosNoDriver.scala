@@ -7,7 +7,7 @@ import spinal.core._
 import spinal.lib._
 import spinal.lib.bus.amba4.axi.Axi4WriteOnly
 
-case class NlosNoDriver(cfg: RsdKernelConfig) extends Component {
+case class NlosNoDriver(cfg: RsdKernelConfig, pixel_parallel: Int) extends Component {
   val io = new Bundle {
     val dc = in UInt(log2Up(cfg.depth_factor) bit)
     val fc = in UInt(log2Up(cfg.freq_factor) bit)
@@ -15,13 +15,13 @@ case class NlosNoDriver(cfg: RsdKernelConfig) extends Component {
     val data_in = slave(Axi4WriteOnly(axi_config))
     val img_in = slave(Flow(HComplex(cfg.getUinConfig)))
     val load_req = out Bits(4 bit)
-    val result = master(Stream(Vec(UInt(8 bit), 2)))
+    val result = master(Stream(Vec(UInt(8 bit), pixel_parallel)))
     val fft_comp_end = out Bool()
     val done = out Bool()
   }
 
   val nlos_core = NlosCore(cfg)
-  val post_proc = PostProcess(cfg)
+  val post_proc = PostProcess(cfg, pixel_parallel = pixel_parallel)
 
   def loadUnitAddress = nlos_core.loadUnitAddrs
 

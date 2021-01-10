@@ -21,7 +21,7 @@ case class PostProcess(
                         cfg: RsdKernelConfig,
                         quant_bit_width: Int = 8,
                         over_sample_factor: Int = 2,
-                        pixel_parallel: Int = 1
+                        pixel_parallel: Int = 2
                       ) extends Component{
   require(( quant_bit_width >= 8 ) && ( over_sample_factor >= 1 ) && ( cfg.cols % pixel_parallel == 0 ))
   val row_num = cfg.kernel_size.head
