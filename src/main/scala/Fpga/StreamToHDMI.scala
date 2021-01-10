@@ -113,7 +113,7 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
     img_row_cnt.increment()
   }
   val video_mem_waddr = RegNext( img_row_cnt.value * vid_fm.h_act + img_col_cnt.value )
-  video_mem.write(video_mem_waddr, io.dat_in.toFlow.toReg())
+  video_mem.write(video_mem_waddr.resized, io.dat_in.toFlow.toReg())
 
   val h_cnt = CounterFreeRun(vid_fm.getHTotal)
   val v_cnt = Counter(vid_fm.getVTotal)
