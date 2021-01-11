@@ -93,7 +93,7 @@ object Driver {
 
     // All the data to rgca now is completed
     println(s"Now waiting for result pipe out.")
-    dut.clockDomain.waitActiveEdgeWhere(dut.io.done.toBoolean)
+//    dut.clockDomain.waitActiveEdgeWhere(dut.io.done.toBoolean)
     println(s"Done")
     dut.clockDomain.waitSampling(10)
     simSuccess()
