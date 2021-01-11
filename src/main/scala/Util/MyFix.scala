@@ -119,7 +119,8 @@ case class MySFix(width: Int) {
    */
   def %%(that: Int): SFix = {
     val ret = SFix(maxExpv, minExpv)
-    val raw = this.bit_vec(that-1 downto 0)
+    val bit_cut_pos = scala.math.min(that, this.width)
+    val raw = this.bit_vec(( bit_cut_pos-1 ) downto 0)
     ret.assignFromBits(raw.asBits.resized)
     ret
   }
