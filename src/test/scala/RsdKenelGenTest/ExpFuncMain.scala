@@ -5,6 +5,8 @@ import Core.RsdGenCoreArray.ExpFunc
 import Util._
 import spinal.core._
 
+import java.io.File
+
 object ExpFuncMain extends App{
   val cfg = HComplexConfig(
     16, 16
@@ -12,9 +14,9 @@ object ExpFuncMain extends App{
   Synthesizable(false)
   SpinalConfig(
     mode = Verilog,
-    targetDirectory = "tb/ExpFunc_tb/rtl",
+    targetDirectory = "../fpga/ExpFunc/rtl",
     headerWithDate = true
   ).generateVerilog(
-    ExpFunc(cfg, 128, 1)
+    ExpFunc(cfg, 32, 1)
   )
 }

@@ -2,30 +2,43 @@ package Util
 
 import spinal.core._
 
-case class DivUnit(width: Int) extends BlackBox {
-
-  addGenerics(
-    "a_width" -> width*2,
-    "b_width" -> width,
-    "tc_mode" -> 1,
-    "rem_mode" -> 1
-  )
+case class DivUnit(width: Int)(implicit val fpga_impl: FpgaImpl) extends BlackBox {
 
   val io = new Bundle {
     val a = in Bits(2 * width bit) // a serve as the divisor
     val b = in Bits(width bit)// b serve as the dividend
     val q = out Bits(2 * width bit) // q = a / b
     val r = out Bits(width bit) // r = a % b
-    val divide_by_0 = out Bool()
+    val divide_by_0 = if(!fpga_impl.flag) {out Bool()} else {null}
+    val clock = if (fpga_impl.flag) { in Bool() } else { null }
   }
 
   // instantiate the design ware ip
-  this.setDefinitionName("DW_div")
-  afterElaboration {
-    io.q.setName("quotient")
-    io.r.setName("remainder")
-  }
+  if(!fpga_impl.flag){
 
+    addGenerics(
+      "a_width" -> width*2,
+      "b_width" -> width,
+      "tc_mode" -> 1,
+      "rem_mode" -> 1
+    )
+    this.setDefinitionName("DW_div")
+    afterElaboration {
+      io.q.setName("quotient")
+      io.r.setName("remainder")
+    }
+  } else {
+
+    setDefinitionName(s"lpm_div_a${io.a.getBitsWidth}_b${io.b.getBitsWidth}")
+    afterElaboration {
+      io.a.setName("numer")
+      io.b.setName("denom")
+      io.q.setName("quotient")
+      io.r.setName("remain")
+    }
+    mapCurrentClockDomain(clock = io.clock)
+
+  }
   noIoPrefix()
 }
 

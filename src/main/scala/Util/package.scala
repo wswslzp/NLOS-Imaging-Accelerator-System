@@ -3,6 +3,11 @@ import spinal.core._
 import spinal.lib._
 
 package object Util {
+  case class FpgaImpl(var flag: Boolean)
+  object FpgaImpl{
+    implicit var fpga_impl = new FpgaImpl(false)
+    def apply(flag: Boolean): Unit = { fpga_impl.flag = flag }
+  }
 
   def countUpFrom(cond: Bool, range: Range, name: String = "", step: Int=1) = new Area {
     // cond is a one-cycle impulse, when the cond is active, counter inside will

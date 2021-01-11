@@ -7,7 +7,8 @@ case class HComplexConfig
   intw: Int,
   fracw: Int,
   useGauss: Boolean = true, // Use Gauss multiplication will decrease area but increase computation time.
-  real_high: Boolean = false
+  real_high: Boolean = false,
+  fpga_impl: Boolean = true
 )
 {
   def getDataWidth: Int = intw + fracw
@@ -36,7 +37,7 @@ case class HComplexConfig
     HComplexConfig(
       intw = Math.max(this.intw, that.intw),
       fracw = Math.max(this.fracw, that.fracw),
-      useGauss, real_high
+      useGauss, real_high, fpga_impl
     )
   }
 
@@ -44,33 +45,33 @@ case class HComplexConfig
     HComplexConfig(
       intw = Math.max(this.intw, that.width - that.fraction),
       fracw = Math.max(this.fracw, that.fraction),
-      useGauss, real_high
+      useGauss, real_high, fpga_impl
     )
   }
 
   def <<(rank: Int): HComplexConfig = HComplexConfig(
     intw = this.intw + rank,
     fracw = this.fracw - rank,
-    useGauss, real_high
+    useGauss, real_high, fpga_impl
   )
 
   def >>(rank: Int): HComplexConfig = this.<<(-rank)
 
   def <(rank: Int): HComplexConfig = HComplexConfig(
     intw = this.intw + rank,
-    fracw, useGauss, real_high
+    fracw, useGauss, real_high, fpga_impl
   )
 
   def >(rank: Int): HComplexConfig = HComplexConfig(
-    intw, this.fracw + rank, useGauss, real_high
+    intw, this.fracw + rank, useGauss, real_high, fpga_impl
   )
 
   def <>(rank: Int): HComplexConfig = HComplexConfig(
-    this.intw+rank, this.fracw+rank, useGauss, real_high
+    this.intw+rank, this.fracw+rank, useGauss, real_high, fpga_impl
   )
 
   def ><(rank: Int): HComplexConfig = HComplexConfig(
-    this.intw-rank, this.fracw-rank, useGauss, real_high
+    this.intw-rank, this.fracw-rank, useGauss, real_high, fpga_impl
   )
 
   def *(that: HComplexConfig): HComplexConfig = {
@@ -78,7 +79,7 @@ case class HComplexConfig
     HComplexConfig(
       intw = this.intw + that.intw,
       fracw = this.fracw + that.fracw,
-      useGauss, real_high
+      useGauss, real_high, fpga_impl
     )
   }
 
@@ -86,7 +87,7 @@ case class HComplexConfig
     HComplexConfig(
       intw = this.intw + that.width - that.fraction,
       fracw = this.fracw + that.fraction,
-      useGauss, real_high
+      useGauss, real_high, fpga_impl
     )
   }
 
@@ -94,7 +95,7 @@ case class HComplexConfig
     HComplexConfig(
       intw = this.intw/that,
       fracw = this.fracw/that,
-      useGauss, real_high
+      useGauss, real_high, fpga_impl
     )
   }
 

@@ -2,9 +2,7 @@ package Util
 
 import spinal.core._
 
-case class MulUnit(
-                  width: Int
-                  ) extends BlackBox {
+case class MulUnit( width: Int )(implicit val fpga_impl: FpgaImpl) extends BlackBox {
   val io = new Bundle {
     val a = in Bits(width bit)
     val b = in Bits(width bit)
@@ -12,18 +10,27 @@ case class MulUnit(
     val tc = in Bool()
   }
 
-  addGenerics(
-    "A_width" -> width,
-    "B_width" -> width
-  )
+  if(fpga_impl.flag){
+    setDefinitionName(s"lpm_mul_a${io.a.getBitsWidth}_b${io.b.getBitsWidth}")
+    afterElaboration {
+      //todo
+    }
+  }
 
-  setDefinitionName("DW02_mult")
+  else {
+    addGenerics(
+      "A_width" -> width,
+      "B_width" -> width
+    )
 
-  afterElaboration {
-    io.a.setName("A")
-    io.b.setName("B")
-    io.c.setName("PRODUCT")
-    io.tc.setName("TC")
+    setDefinitionName("DW02_mult")
+
+    afterElaboration {
+      io.a.setName("A")
+      io.b.setName("B")
+      io.c.setName("PRODUCT")
+      io.tc.setName("TC")
+    }
   }
 
   noIoPrefix()

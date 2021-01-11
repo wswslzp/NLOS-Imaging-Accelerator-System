@@ -67,10 +67,10 @@ case class ImpLoadUnit(
 
   // output the impulse
   val int_ram_array: Array[Mem[Bits]] = int_ram_array_map.map(_._2)
-  if(cfg.fpga_impl){
-    transfer_done_rise.addAttribute("haha", "123")
-    int_ram_array.foreach(_.addAttribute("ramstyle", "M20K"))
-  }
+//  if(cfg.fpga_impl){
+//    transfer_done_rise.addAttribute("haha", "123")
+//    int_ram_array.foreach(_.addAttribute("ramstyle", "M20K"))
+//  }
 
   // Make internal memories visible to simulation
   transfer_done_rise.simPublic()
