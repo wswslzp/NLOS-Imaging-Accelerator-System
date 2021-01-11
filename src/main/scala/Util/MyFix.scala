@@ -112,6 +112,18 @@ case class MySFix(width: Int) {
     }
   }
 
+  /**
+   * Get little end bits
+   * @param that The output will be `data[that-1:0]`
+   * @return
+   */
+  def %%(that: Int): SFix = {
+    val ret = SFix(maxExpv, minExpv)
+    val raw = this.bit_vec(that-1 downto 0)
+    ret.assignFromBits(raw.asBits)
+    ret
+  }
+
   def %(that: SFix)(implicit syn: Synthesizable): SFix = {
     if (syn.flag) {
       val a = SFix(maxExpv, minExpv)

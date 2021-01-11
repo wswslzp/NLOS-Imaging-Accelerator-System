@@ -70,7 +70,7 @@ case class CoefGenCore
     exp_wd_prod = stage(exp_wd_prod, 2 to (2+expLatency))
 
     wave = stage(wave, 1 to (2+expLatency))
-    var exp_wd_prod_divw = exp_wd_prod / wave
+    var exp_wd_prod_divw = exp_wd_prod / wave //todo divider is too long.
     exp_wd_prod_divw = stage(exp_wd_prod_divw, 3+expLatency)
 
     var timeshift = io.timeshift
@@ -79,8 +79,6 @@ case class CoefGenCore
     prev_coef.simPublic()
 
     val output_coef_stage = prev_coef
-    // TODO: For FPGA, No pipeline retiming technology.
-    //  All pipeline should be handcrafted.
     io.coef := stage(output_coef_stage, 4+expLatency)
 
     val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)

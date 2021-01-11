@@ -23,7 +23,8 @@ case class ExpFunc
   def asicImplArea() = new Area {
 
     val fx_period = SF(period, cfg.maxExp, cfg.minExp)
-    val indx = io.data_in % fx_period
+//    val indx = io.data_in % fx_period
+    val indx = io.data_in %% cfg.fracw
 
     val (pindx_tb, pfunc_tb) = expfunclutInPeriod(cfg, samplePoint, period)
 
@@ -52,7 +53,8 @@ case class ExpFunc
 
     val fx_period = SF(period, cfg.maxExp, cfg.minExp)
     val data_in = stage(io.data_in, 0)
-    var indx = io.data_in % fx_period
+//    var indx = io.data_in % fx_period // todo: mod can be replace
+    var indx = io.data_in %% cfg.fracw
     indx = stage(indx, 1)
 
     val (pindx_tb, pfunc_tb) = expfunclutInPeriod(cfg, samplePoint, period)

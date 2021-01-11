@@ -8,8 +8,8 @@ import Fpga._
 import Config.RsdKernelConfig._
 
 object NlosFpgaCoreMain extends App{
-  new File("rtl/NlosFpgaSys").mkdir()
+  new File("rtl/NlosFpgaCore").mkdir()
   SpinalConfig(
-    targetDirectory = "rtl/NlosFpgaSys"
+    targetDirectory = "rtl/NlosFpgaCore"
   ).generateVerilog(NlosFpgaCore(rsd_cfg))
 }
