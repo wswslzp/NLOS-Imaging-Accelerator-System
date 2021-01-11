@@ -29,7 +29,8 @@ case class PRsdKernelGen(cfg: RsdKernelConfig) extends Component {
   coef_gen_core.io.timeshift <> io.timeshift
   coef_gen_core.io.coef.simPublic()
 
-  val W2CLatency = LatencyAnalysis(io.wave.raw, coef_gen_core.io.coef.real.raw) + 1
+//  val W2CLatency = LatencyAnalysis(io.wave.raw, coef_gen_core.io.coef.real.raw) + 1
+  val W2CLatency = coef_gen_core.D2Clatency + 1
 
   val delta_rsd_kernel_val = Vec.tabulate(io.ring_impulse.length){idx=>
     coef_gen_core.io.coef * io.ring_impulse(idx)

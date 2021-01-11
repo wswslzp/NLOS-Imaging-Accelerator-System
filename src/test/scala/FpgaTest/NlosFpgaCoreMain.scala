@@ -6,8 +6,10 @@ import spinal.lib._
 import java.io.File
 import Fpga._
 import Config.RsdKernelConfig._
+import Util._
 
 object NlosFpgaCoreMain extends App{
+  FpgaImpl(true)
   new File("rtl/NlosFpgaCore").mkdir()
   SpinalConfig(
     targetDirectory = "rtl/NlosFpgaCore"
