@@ -26,9 +26,9 @@ case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) ex
   val rsd_fft_prod = Vec.tabulate(cfg.rows){idx=>
     var tmp: HComplex = null
     if(fpgaImpl.flag){
-      tmp = Delay(rsd_kernel(idx)*fft_out(idx), 16)
-    } else {
       tmp = rsd_kernel(idx).*(fft_out(idx))(new Synthesizable(true)) // with pipeline 16
+    } else {
+      tmp = Delay(rsd_kernel(idx)*fft_out(idx), 16)
     }
     RegNext(tmp)
   }

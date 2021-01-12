@@ -10,6 +10,7 @@ import Util._
 
 object NlosFpgaCoreMain extends App{
   FpgaImpl(true)
+  Synthesizable(false)
   new File("rtl/NlosFpgaCore").mkdir()
   SpinalConfig(
     targetDirectory = "rtl/NlosFpgaCore",
