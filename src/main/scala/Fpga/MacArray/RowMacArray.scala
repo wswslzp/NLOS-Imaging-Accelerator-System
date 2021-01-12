@@ -5,7 +5,7 @@ import spinal.lib._
 import Config.RsdKernelConfig
 import Util._
 
-case class RowMacArray(cfg: RsdKernelConfig) extends Component {
+case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) extends Component {
   val io = new Bundle {
     val fc_overflow = in Bool()
     val push_ending = in Bool()
@@ -24,11 +24,16 @@ case class RowMacArray(cfg: RsdKernelConfig) extends Component {
   // Pipeline the complex multiplication for good timing. Trade off between area and timing.
   // todo bad timing, rsd kernel should be registered.
   val rsd_fft_prod = Vec.tabulate(cfg.rows){idx=>
-//    val tmp = io.rsd_kernel.payload(idx) * io.fft_out.payload(idx)
-    val tmp = rsd_kernel(idx) * fft_out(idx)
+    var tmp: HComplex = null
+    if(fpgaImpl.flag){
+      tmp = Delay(rsd_kernel(idx)*fft_out(idx), 16)
+    } else {
+      tmp = rsd_kernel(idx).*(fft_out(idx))(new Synthesizable(true)) // with pipeline 16
+    }
     RegNext(tmp)
   }
-  val rsd_fft_prod_valid = RegNext(valid) init False
+//  val rsd_fft_prod_valid = RegNext(valid) init False
+  val rsd_fft_prod_valid = Delay(valid, cycleCount = 16, init = False)
 
   // Count up for the current column address
   val col_addr_area = countUpInside(rsd_fft_prod_valid, cfg.cols)

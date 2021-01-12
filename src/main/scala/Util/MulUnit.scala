@@ -7,14 +7,19 @@ case class MulUnit( width: Int )(implicit val fpga_impl: FpgaImpl) extends Black
     val a = in Bits(width bit)
     val b = in Bits(width bit)
     val c = out Bits(width * 2 bit)
-    val tc = in Bool()
+    val tc = if (!fpga_impl.flag) {in Bool()} else {null}
+    val clock = if (fpga_impl.flag) {in Bool()} else {null}
   }
 
   if(fpga_impl.flag){
     setDefinitionName(s"lpm_mul_a${io.a.getBitsWidth}_b${io.b.getBitsWidth}")
     afterElaboration {
       //todo
+      io.a.setName("dataa")
+      io.b.setName("datab")
+      io.c.setName("result")
     }
+    mapCurrentClockDomain(clock = io.clock)
   }
 
   else {

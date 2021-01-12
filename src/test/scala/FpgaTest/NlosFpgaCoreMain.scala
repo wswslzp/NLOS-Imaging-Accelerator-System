@@ -12,6 +12,7 @@ object NlosFpgaCoreMain extends App{
   FpgaImpl(true)
   new File("rtl/NlosFpgaCore").mkdir()
   SpinalConfig(
-    targetDirectory = "rtl/NlosFpgaCore"
+    targetDirectory = "rtl/NlosFpgaCore",
+    defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC)
   ).generateVerilog(NlosFpgaCore(rsd_cfg))
 }

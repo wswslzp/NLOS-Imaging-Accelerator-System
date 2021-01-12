@@ -104,17 +104,22 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
   val video_mem = Mem(UInt(8 bit), BigInt(vid_fm.v_act * vid_fm.h_act))
 
   // write logic
-//  io.dat_in.ready.set()
+  val dat_in = Reg(cloneOf(io.dat_in.payload))
+  // todo: valid and ready come from different clock domains.
+  //  is that will be a problem, or not?
+  when(io.dat_in.fire){
+    dat_in := io.dat_in.payload
+  }
   val img_row_cnt = Counter(img_rows)
   val img_col_cnt = Counter(img_cols)
-  when(io.dat_in.valid){
+  when(io.dat_in.fire){
     img_col_cnt.increment()
   }
   when(img_col_cnt.willOverflow){
     img_row_cnt.increment()
   }
   val video_mem_waddr = RegNext( img_row_cnt.value * vid_fm.h_act + img_col_cnt.value )
-  video_mem.write(video_mem_waddr.resized, io.dat_in.toFlow.toReg())
+  video_mem.write(video_mem_waddr.resized, dat_in)
 
   // read logic under `video_mem_read_clk` clock domain
   val vid_read = new ClockingArea(video_mem_read_clk){
@@ -144,6 +149,7 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
     val de = (vid_fm.getHBlank <= h_cnt.value) && (h_cnt.value < vid_fm.getHTotal) && (vid_fm.getVBlank <= v_cnt.value) && (v_cnt.value < vid_fm.getVTotal)
     de_r := de
     io.vid.de := de_r
+    io.dat_in.ready := de_r
 
     val cur_x = v_cnt.value - vid_fm.getVBlank
     val cur_y = h_cnt.value - vid_fm.getHBlank
