@@ -107,12 +107,12 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
   val dat_in = Reg(cloneOf(io.dat_in.payload))
   // todo: valid and ready come from different clock domains.
   //  is that will be a problem, or not?
-  when(io.dat_in.fire){
+  when(io.dat_in.valid){
     dat_in := io.dat_in.payload
   }
   val img_row_cnt = Counter(img_rows)
   val img_col_cnt = Counter(img_cols)
-  when(io.dat_in.fire){
+  when(io.dat_in.valid){
     img_col_cnt.increment()
   }
   when(img_col_cnt.willOverflow){
