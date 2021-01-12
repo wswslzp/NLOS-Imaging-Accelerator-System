@@ -149,7 +149,7 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
     val de = (vid_fm.getHBlank <= h_cnt.value) && (h_cnt.value < vid_fm.getHTotal) && (vid_fm.getVBlank <= v_cnt.value) && (v_cnt.value < vid_fm.getVTotal)
     de_r := de
     io.vid.de := de_r
-    io.dat_in.ready := de_r
+    io.dat_in.ready := True
 
     val cur_x = v_cnt.value - vid_fm.getVBlank
     val cur_y = h_cnt.value - vid_fm.getHBlank
