@@ -16,12 +16,16 @@ case class RowMacArray(cfg: RsdKernelConfig) extends Component {
     val mac_result = master(Flow(Vec(HComplex(cfg.getMACDatConfig), cfg.rows)))
     val clear_confirm = out Bool()
   }
-  val valid = io.rsd_kernel.valid & io.fft_out.valid
+  val rsd_kernel = io.rsd_kernel.toReg()
+  val fft_out = io.fft_out.toReg()
+  val valid = RegNext(io.rsd_kernel.valid & io.fft_out.valid) init False
+//  val valid = io.rsd_kernel.valid & io.fft_out.valid
 
   // Pipeline the complex multiplication for good timing. Trade off between area and timing.
   // todo bad timing, rsd kernel should be registered.
   val rsd_fft_prod = Vec.tabulate(cfg.rows){idx=>
-    val tmp = io.rsd_kernel.payload(idx) * io.fft_out.payload(idx)
+//    val tmp = io.rsd_kernel.payload(idx) * io.fft_out.payload(idx)
+    val tmp = rsd_kernel(idx) * fft_out(idx)
     RegNext(tmp)
   }
   val rsd_fft_prod_valid = RegNext(valid) init False
