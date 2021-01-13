@@ -22,6 +22,7 @@ object NlosFpgaCoreTest extends App{
     .compile(NlosFpgaCore(rsd_cfg))
     .doSim("NlosFpgaCore_tb"){dut=>
       dut.clockDomain.forkStimulus(2)
+      dut.hdmi_if.video_mem_read_clk.forkStimulus(2)
       dut.io.sys_init #= false
       dut.clockDomain.waitSampling()
 
