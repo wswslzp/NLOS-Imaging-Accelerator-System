@@ -16,7 +16,7 @@ case class NlosFpgaCore(cfg: RsdKernelConfig) extends Component {
   val nlos_no_driver = NlosNoDriver(cfg)
   val nlos_driver = NlosDriver(cfg, nlos_no_driver.loadUnitAddress)
   val hdmi_if = StreamToHDMI(vid_1280x720p60, cfg.rows, cfg.cols)
-  val stream_forker = StreamFork2(nlos_no_driver.io.result)
+//  val stream_forker = StreamFork2(nlos_no_driver.io.result)
 
   nlos_no_driver.io.img_in << nlos_driver.io.original_img
   nlos_no_driver.io.data_in << nlos_driver.io.kernel_in
@@ -26,8 +26,13 @@ case class NlosFpgaCore(cfg: RsdKernelConfig) extends Component {
   nlos_no_driver.io.cnt_incr <> nlos_driver.io.cnt_incr
   nlos_driver.io.sys_init := io.sys_init
   nlos_driver.io.done := nlos_no_driver.io.done
-  io.result << stream_forker._1
-  hdmi_if.io.dat_in << stream_forker._2
+//  io.result << stream_forker._1
+//  hdmi_if.io.dat_in << stream_forker._2
+  io.result.valid := nlos_no_driver.io.result.valid
+  io.result.payload := nlos_no_driver.io.result.payload
+  hdmi_if.io.dat_in.valid := nlos_no_driver.io.result.valid
+  hdmi_if.io.dat_in.payload := nlos_no_driver.io.result.payload
+  nlos_no_driver.io.result.ready := io.result.ready & hdmi_if.io.dat_in.ready
   io.hdmi_vid_bus <> hdmi_if.io.vid
   io.done := nlos_no_driver.io.done
 
