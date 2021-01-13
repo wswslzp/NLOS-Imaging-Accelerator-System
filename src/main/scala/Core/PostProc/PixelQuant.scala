@@ -30,7 +30,9 @@ case class PixelQuant(cfg: HComplexConfig, quant_bw: Int)(implicit val fpgaImpl:
   }
 
   var pix_in_rela_inte = io.pix_in.translateWith(io.pix_in.payload - io.lower_bound).stage()
-  pix_in_rela_inte = Delay(pix_in_rela_inte, 15)
+  for(_ <- 0 until 15){
+    pix_in_rela_inte = pix_in_rela_inte.stage()
+  }
   val out_pix = pix_in_rela_inte.payload * pixel_quant_coef
   val out_pix1 = out_pix.toUInt
   val out_pix2 = out_pix1.resize(quant_bw).asBits.asUInt
