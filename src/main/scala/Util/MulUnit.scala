@@ -11,7 +11,7 @@ case class MulUnit( width: Int )(implicit val fpga_impl: FpgaImpl) extends Black
     val clock = if (fpga_impl.flag) {in Bool()} else {null}
   }
 
-  if(fpga_impl.flag){
+  if(fpga_impl){
     setDefinitionName(s"lpm_mul_a${io.a.getBitsWidth}_b${io.b.getBitsWidth}")
     afterElaboration {
       //todo
@@ -43,17 +43,19 @@ case class MulUnit( width: Int )(implicit val fpga_impl: FpgaImpl) extends Black
 }
 
 object MulUnit {
-  def apply(a: UInt, b: UInt): UInt = {
+  def apply(a: UInt, b: UInt)(implicit fpga_impl: FpgaImpl): UInt = {
     val width = Math.max(a.getBitsWidth, b.getBitsWidth)
     val ia = a.resize(width)
     val ib = b.resize(width)
     val mul_unit = MulUnit(width)
     mul_unit.io.a <> ia.asBits
     mul_unit.io.b <> ib.asBits
-    mul_unit.io.tc := False
+    if(!fpga_impl.flag){
+      mul_unit.io.tc := False
+    }
     mul_unit.io.c.asUInt
   }
-  def apply(a: UFix, b: UFix): UFix = {
+  def apply(a: UFix, b: UFix)(implicit fpga_impl: FpgaImpl): UFix = {
     import Util.MyUFix._
     val uq_res = UQ(
       Math.max(a.getBitsWidth, b.getBitsWidth),
@@ -64,12 +66,14 @@ object MulUnit {
     val mul_unit = MulUnit(ia.bitCount)
     mul_unit.io.a := ia.asBits
     mul_unit.io.b := ib.asBits
-    mul_unit.io.tc := False
+    if(!fpga_impl.flag){
+      mul_unit.io.tc := False
+    }
     val ret = UFix(2 * ia.maxExp exp, 2 * ia.minExp exp)
     ret.assignFromBits(mul_unit.io.c)
     ret
   }
-  def apply(a: SFix, b: SFix): SFix = {
+  def apply(a: SFix, b: SFix)(implicit fpga_impl: FpgaImpl): SFix = {
     import Util.MySFix._
     val sq_res = SQ(
       Math.max(a.bitCount, b.bitCount),
@@ -80,7 +84,9 @@ object MulUnit {
     val mul_unit = MulUnit(ia.bitCount)
     mul_unit.io.a := ia.asBits
     mul_unit.io.b := ib.asBits
-    mul_unit.io.tc := True
+    if(!fpga_impl.flag){
+      mul_unit.io.tc := False
+    }
     val ret = SFix(2 * ia.maxExp-1 exp, 2 * ia.minExp exp)
     ret.assignFromBits(mul_unit.io.c)
     ret

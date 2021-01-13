@@ -14,7 +14,7 @@ case class DivUnit(width: Int)(implicit val fpga_impl: FpgaImpl) extends BlackBo
   }
 
   // instantiate the design ware ip
-  if(!fpga_impl.flag){
+  if(!fpga_impl){
 
     addGenerics(
       "a_width" -> width*2,

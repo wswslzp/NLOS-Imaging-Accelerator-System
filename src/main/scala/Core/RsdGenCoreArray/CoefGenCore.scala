@@ -91,7 +91,7 @@ case class CoefGenCore
 
   openAllStage()
 
-  if(fpgaImpl.flag) fpgaImplArea()
+  if(fpgaImpl) fpgaImplArea()
   else asicImplArea()
 
 //  val D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)

@@ -12,25 +12,30 @@ case class MyUFix(width: Int) {
   def minExp: ExpNumber = -fraction exp
 
   def /(that: UFix)(implicit syn: Synthesizable): UFix = {
-    // unify the q_format
-    val uni_q = UQ(
-      Math.max(width, that.bitCount),
-      Math.max(fraction, -that.minExp)
-    )
-    val bit_vec_t = bit_vec.tag(uq).fixTo(uni_q)
-    val b = that.asBits.asUInt.tag(
-      UQ(that.bitCount, -that.minExp)
-    ).fixTo(uni_q)
-    // append zeros to the right
-    val a: UInt = bit_vec_t @@ U(bit_vec_t.getWidth bit, default -> false)
-//    val quo = a / that.asBits.asUInt //>> bit_vec_t.getWidth // ret has the same q_format as a
-    val quo = a / b //>> bit_vec_t.getWidth // ret has the same q_format as a
-    val ret = UFix(uni_q.width - uni_q.fraction exp, -uni_q.fraction exp)
-    ret.assignFromBits(
-//      quo.tag(UQ(2*bit_vec_t.getWidth, bit_vec_t.getWidth)).fixTo(UQ(bit_vec_t.getWidth, bit_vec_t.getWidth/2)).asBits
+    if(syn.flag){
+      val a = UFix(maxExp, minExp)
+      a.assignFromBits(bit_vec.asBits)
+      DivUnit(a, that)
+    }
+    else {
+      // unify the q_format
+      val uni_q = UQ(
+        Math.max(width, that.bitCount),
+        Math.max(fraction, -that.minExp)
+      )
+      val bit_vec_t = bit_vec.tag(uq).fixTo(uni_q)
+      val b = that.asBits.asUInt.tag(
+        UQ(that.bitCount, -that.minExp)
+      ).fixTo(uni_q)
+      // append zeros to the right
+      val a: UInt = bit_vec_t @@ U(bit_vec_t.getWidth bit, default -> false)
+      val quo = a / b //>> bit_vec_t.getWidth // ret has the same q_format as a
+      val ret = UFix(uni_q.width - uni_q.fraction exp, -uni_q.fraction exp)
+      ret.assignFromBits(
         quo.tag(UQ(2*bit_vec_t.getWidth, bit_vec_t.getWidth)).fixTo(UQ(bit_vec_t.getWidth, uni_q.fraction)).asBits
-    )
-    ret
+      )
+      ret
+    }
   }
 
   def fixTo(q: QFormat, roundType: RoundType): UFix = {

@@ -11,9 +11,8 @@ case class ExpFunc
 (
   cfg: HComplexConfig,
   samplePoint: Int,
-  period: Double,
-  FpgaImpl: Boolean = false
-) extends Component with Pipeline
+  period: Double
+)(implicit val fpgaImpl: FpgaImpl) extends Component with Pipeline
 {
   val io = new Bundle {
     val data_in = in(SFix(cfg.maxExp, cfg.minExp))
@@ -82,7 +81,7 @@ case class ExpFunc
 
   }.setName("fpga_impl")
 
-  if(FpgaImpl) fpgaImplArea()
+  if(fpgaImpl) fpgaImplArea()
   else asicImplArea()
 
   val expLatency = 5
