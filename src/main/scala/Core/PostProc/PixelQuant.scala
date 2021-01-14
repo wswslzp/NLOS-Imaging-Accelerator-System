@@ -21,7 +21,7 @@ case class PixelQuant(cfg: HComplexConfig, quant_bw: Int)(implicit val fpgaImpl:
 
   val pix_inte_range = io.upper_bound - io.lower_bound //+ UF(1, pixel_maxExp, pixel_minExp)
   var pixel_quant_coef: UFix = null
-  val mulStage = 16
+  val mulStage = 8
   if(fpgaImpl){
     // pipeline with 16
     pixel_quant_coef = color_depth./(pix_inte_range)(new Synthesizable(true))
