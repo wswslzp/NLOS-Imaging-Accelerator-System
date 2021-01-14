@@ -23,17 +23,18 @@ case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) ex
 
   // Pipeline the complex multiplication for good timing. Trade off between area and timing.
   // todo bad timing, rsd kernel should be registered.
+  val mulStage = 8
   val rsd_fft_prod = Vec.tabulate(cfg.rows){idx=>
     var tmp: HComplex = null
     if(fpgaImpl){
       tmp = rsd_kernel(idx).*(fft_out(idx))(new Synthesizable(true)) // with pipeline 16
     } else {
-      tmp = Delay(rsd_kernel(idx)*fft_out(idx), 16)
+      tmp = Delay(rsd_kernel(idx)*fft_out(idx), mulStage)
     }
     RegNext(tmp)
   }
 //  val rsd_fft_prod_valid = RegNext(valid) init False
-  val rsd_fft_prod_valid = Delay(valid, cycleCount = 16, init = False)
+  val rsd_fft_prod_valid = Delay(valid, cycleCount = mulStage, init = False)
 
   // Count up for the current column address
   val col_addr_area = countUpInside(rsd_fft_prod_valid, cfg.cols)

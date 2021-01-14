@@ -45,7 +45,7 @@ case class CoefGenCore
     prev_coef.simPublic()
 
     val output_coef_stage = prev_coef
-    val divLatency = 16
+    val divLatency = 8
     io.coef := stage(output_coef_stage, 0 to (7 + divLatency + expLatency + hComplexMulStage.stage))
 
     D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
@@ -75,7 +75,7 @@ case class CoefGenCore
     wave = stage(wave, 1 to (2+expLatency))
 //    var exp_wd_prod_divw = exp_wd_prod / wave //todo divider is too long.
     var exp_wd_prod_divw = exp_wd_prod./(wave)(new Synthesizable(true))
-    val divLatency = 16
+    val divLatency = 8
     exp_wd_prod_divw = stage(exp_wd_prod_divw, 3+expLatency+divLatency)
 
     var timeshift = io.timeshift
