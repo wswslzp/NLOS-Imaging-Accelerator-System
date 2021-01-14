@@ -23,7 +23,7 @@ case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) ex
 
   // Pipeline the complex multiplication for good timing. Trade off between area and timing.
   // todo bad timing, rsd kernel should be registered.
-  val mulStage = 8
+  val mulStage = 16
   val rsd_fft_prod = Vec.tabulate(cfg.rows){idx=>
     var tmp: HComplex = null
     if(fpgaImpl){
