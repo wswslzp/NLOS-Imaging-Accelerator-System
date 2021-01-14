@@ -21,16 +21,17 @@ case class PixelQuant(cfg: HComplexConfig, quant_bw: Int)(implicit val fpgaImpl:
 
   val pix_inte_range = io.upper_bound - io.lower_bound //+ UF(1, pixel_maxExp, pixel_minExp)
   var pixel_quant_coef: UFix = null
+  val mulStage = 8
   if(fpgaImpl){
     // pipeline with 16
     pixel_quant_coef = color_depth./(pix_inte_range)(new Synthesizable(true))
   } else {
 //    pixel_quant_coef = color_depth / pix_inte_range
-    pixel_quant_coef = Delay(color_depth/pix_inte_range, 8)
+    pixel_quant_coef = Delay(color_depth/pix_inte_range, mulStage)
   }
 
   var pix_in_rela_inte = io.pix_in.translateWith(io.pix_in.payload - io.lower_bound).stage()
-  for(_ <- 0 until 15){
+  for(_ <- 0 until mulStage){
     pix_in_rela_inte = pix_in_rela_inte.stage()
   }
   val out_pix = pix_in_rela_inte.payload * pixel_quant_coef
