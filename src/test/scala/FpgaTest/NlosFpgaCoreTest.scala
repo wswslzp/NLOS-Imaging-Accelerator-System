@@ -38,7 +38,7 @@ object NlosFpgaCoreTest extends App{
       }
 
       dut.io.sys_init #= true
-      for(_ <- 0 until 3){dut.clockDomain.waitSamplingWhere(dut.io.done.toBoolean)}
+      for(_ <- 0 until 2){dut.clockDomain.waitSamplingWhere(dut.io.done.toBoolean)}
       uout_pp := catchResult(dut, 2)
       dut.clockDomain.waitSamplingWhere(dut.io.done.toBoolean)
       simSuccess()
