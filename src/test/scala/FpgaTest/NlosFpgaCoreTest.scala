@@ -26,9 +26,9 @@ object NlosFpgaCoreTest extends App{
       dut.io.sys_init #= false
       dut.clockDomain.waitSampling()
 
-      fork {
-        SimTimeout(40000000)
-      }
+//      fork {
+//        SimTimeout(40000000)
+//      }
 
       fork {
         while(true){
@@ -38,6 +38,7 @@ object NlosFpgaCoreTest extends App{
       }
 
       dut.io.sys_init #= true
+      for(_ <- 0 until 3){dut.clockDomain.waitSamplingWhere(dut.io.done.toBoolean)}
       uout_pp := catchResult(dut, 2)
       dut.clockDomain.waitSamplingWhere(dut.io.done.toBoolean)
       simSuccess()
