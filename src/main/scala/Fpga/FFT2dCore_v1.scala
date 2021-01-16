@@ -25,9 +25,9 @@ case class FFT2dCore_v1(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor
     val fft2d_comp_done = out Bool()
     val ifft2d_comp_done = out Bool()
     val fft2d_out_sync = out Bool()
-    val data_in = slave(Flow(HComplex(rsd_cfg.getUinConfig))) // HCC(19,-3)
-    val data_from_mac = slave(Flow(Vec(HComplex(rsd_cfg.getMACDatConfig), cfg.row))) // HCC(38,26)
-    val data_to_mac = master(Flow(Vec(HComplex(rsd_cfg.getFUinConfig), cfg.row))) // HCC(38,-6)
+    val data_in = slave(Flow(HComplex(rsd_cfg.getUinConfig))) // HCC(14, -6)
+    val data_from_mac = slave(Flow(Vec(HComplex(rsd_cfg.getMACDatConfig), cfg.row))) // HCC(8, 6)
+    val data_to_mac = master(Flow(Vec(HComplex(rsd_cfg.getFUinConfig), cfg.row))) // HCC(16, -4)
     val data_to_final = master(Flow(HComplex(rsd_cfg.getResultConfig)))
   }
 
@@ -35,7 +35,7 @@ case class FFT2dCore_v1(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor
   val inverse = Reg(Bool()).setWhen(io.push_ending & (io.fc === freq_factor-1) & (io.dc === 0)).clearWhen(io.done).init(False)
   val mode = !inverse // dc = 0, row pixel pipe in to do fft; dc > 0, col line in to do iff2
 
-  val unified_cfg = io.data_from_mac.payload.head.config + io.data_in.payload.config // HCC(38,26)
+  val unified_cfg = io.data_from_mac.payload.head.config + io.data_in.payload.config // HCC(14, 6)
 
   // ********** FFT2d Core *************
   val fft2d_inst = FFT2d.FFT2dv1(FFTConfig(unified_cfg, rsd_cfg.cols, rsd_cfg.rows))
