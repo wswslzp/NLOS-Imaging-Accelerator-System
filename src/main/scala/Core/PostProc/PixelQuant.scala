@@ -29,6 +29,7 @@ case class PixelQuant(cfg: HComplexConfig, quant_bw: Int)(implicit val fpgaImpl:
 //    pixel_quant_coef = color_depth / pix_inte_range
     pixel_quant_coef = Delay(color_depth/pix_inte_range, mulStage)
   }
+  pixel_quant_coef.setName("pixel_quant_coef")
 
   var pix_in_rela_inte = io.pix_in.translateWith(io.pix_in.payload - io.lower_bound).stage()
   for(_ <- 0 until mulStage){
