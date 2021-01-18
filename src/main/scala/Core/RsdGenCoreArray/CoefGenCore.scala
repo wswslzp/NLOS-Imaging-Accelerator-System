@@ -71,8 +71,10 @@ case class CoefGenCore
     val expLatency = exp_func_core.expLatency
 //    exp_wd_prod = stage(exp_wd_prod, 2 to (2+expLatency))
     exp_wd_prod = stage(exp_wd_prod, 2+expLatency)
+    exp_wd_prod.setName("exp_wd_prod")
 
     wave = stage(wave, 1 to (2+expLatency))
+    wave.setName("wave")
 //    var exp_wd_prod_divw = exp_wd_prod / wave //todo divider is too long.
     var exp_wd_prod_divw = exp_wd_prod./(wave)(new Synthesizable(true))
     val divLatency = 8
