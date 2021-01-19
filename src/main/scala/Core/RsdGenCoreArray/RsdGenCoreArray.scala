@@ -200,7 +200,8 @@ case class RsdGenCoreArray(
 
 //  io.rsd_kernel.valid := RegNext(count_col_addr.cond_period, init = False)
   io.rsd_kernel.valid := Delay(count_col_addr.cond_period, 2, init = False)
-  push_ending := RegNext(count_col_addr.cnt.willOverflow, init = False)
+//  push_ending := RegNext(count_col_addr.cnt.willOverflow, init = False)
+  push_ending := Delay(count_col_addr.cnt.willOverflow, 2, init = False)
 
   io.push_ending := push_ending // Push ending is the true increment signal tb used.
   io.push_start := push_start
