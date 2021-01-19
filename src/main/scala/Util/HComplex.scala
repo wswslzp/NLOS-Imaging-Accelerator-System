@@ -237,7 +237,6 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
       }.otherwise {
         // the quotient is a signed integer
         // discard the remainder.
-        // TODO: the remainder cannot be discarded.
         ret.real := ia_real / ib
         ret.imag := ia_imag / ib
       }

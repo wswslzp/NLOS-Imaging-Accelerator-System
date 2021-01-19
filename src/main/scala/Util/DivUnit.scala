@@ -5,9 +5,9 @@ import spinal.core._
 case class DivUnit(width: Int)(implicit val fpga_impl: FpgaImpl) extends BlackBox {
 
   val io = new Bundle {
-    val a = in Bits(width bit) // a serve as the divisor
+    val a = in Bits(2*width bit) // a serve as the divisor
     val b = in Bits(width bit)// b serve as the dividend
-    val q = out Bits(width bit) // q = a / b
+    val q = out Bits(2*width bit) // q = a / b
     val r = out Bits(width bit) // r = a % b
     val divide_by_0 = if(!fpga_impl.flag) {out Bool()} else {null}
     val clock = if (fpga_impl.flag) { in Bool() } else { null }
@@ -17,7 +17,7 @@ case class DivUnit(width: Int)(implicit val fpga_impl: FpgaImpl) extends BlackBo
   if(!fpga_impl){
 
     addGenerics(
-      "a_width" -> width,
+      "a_width" -> 2*width,
       "b_width" -> width,
       "tc_mode" -> 1,
       "rem_mode" -> 1
@@ -55,11 +55,12 @@ object DivUnit {
     val ib = b.fixTo(uq_res)
     val div_unit = DivUnit(ia.bitCount) // designate the width of the divider
     // append zeros to the right of the ia, ia.lsb
-    div_unit.io.a := ia.asBits// ## B(ia.bitCount bit, default -> false)
+    div_unit.io.a := ia.asBits ## B(ia.bitCount bit, default -> false)
     div_unit.io.b := ib.asBits
     // get the quotient
+    val quo = div_unit.io.q.asSInt.tag(SQ(2*ia.bitCount, ia.bitCount))
     val ret = UFix(ia.maxExp exp, ia.minExp exp)
-    ret.assignFromBits(div_unit.io.q)
+    ret.assignFromBits(quo.fixTo(SQ(ia.bitCount, uq_res.fraction)).asBits)
 //    ret.assignFromBits(div_unit.io.q(ia.bitCount, ia.bitCount bit))
     ret
   }
@@ -72,10 +73,13 @@ object DivUnit {
     val ia = a.fixTo(sq_res)
     val ib = b.fixTo(sq_res)
     val div_unit = DivUnit(ia.bitCount)
-    div_unit.io.a := ia.asBits //## B(ia.bitCount bit, default -> false)
+    div_unit.io.a := ia.asBits ## B(ia.bitCount bit, default -> false)
     div_unit.io.b := ib.asBits
+    val quo = div_unit.io.q.asSInt
     val ret = SFix(ia.maxExp-1 exp, ia.minExp exp)
-    ret.assignFromBits(div_unit.io.q)
+    ret.assignFromBits(
+      quo.tag(SQ(2*ia.bitCount, ia.bitCount)).fixTo(SQ(ia.bitCount, sq_res.fraction)).asBits
+    )
 //    ret.assignFromBits(div_unit.io.q(ia.bitCount, ia.bitCount bit))
     ret
   }

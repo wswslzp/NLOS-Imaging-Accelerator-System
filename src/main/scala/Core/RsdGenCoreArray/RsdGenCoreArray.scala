@@ -111,7 +111,8 @@ case class RsdGenCoreArray(
   // Control when should push the wave and start computing rsd kernel
   val compute_stage = dc_eq_0 ## fc_eq_0
   val rsd_comp_start = RegInit(False) simPublic()
-  val wave_hit = (data_in.w.fire & (data_in.aw.payload.addr === loadUnitAddrs(2))).rise(False)
+//  val wave_hit = (data_in.w.fire & (data_in.aw.payload.addr === loadUnitAddrs(2))).rise(False)
+  val wave_hit = (data_in.aw.payload.addr === loadUnitAddrs(2)).fall(False) & data_in.w.fire // todo check
   switch(compute_stage){
     is(B"2'b00") { // d != 0 && f != 0
       rsd_comp_start := Delay(distance_load_unit.io.data_enable, D2CLatency, init = False) // The latency of coefGenCore is 6
