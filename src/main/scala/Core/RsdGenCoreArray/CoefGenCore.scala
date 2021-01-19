@@ -77,7 +77,7 @@ case class CoefGenCore
     wave.setName("wave")
 //    var exp_wd_prod_divw = exp_wd_prod / wave //todo divider is too long.
     var exp_wd_prod_divw = exp_wd_prod./(wave)(new Synthesizable(true))
-    val divLatency = 8
+    val divLatency = 16
     exp_wd_prod_divw = stage(exp_wd_prod_divw, 3+expLatency+divLatency)
 
     var timeshift = io.timeshift

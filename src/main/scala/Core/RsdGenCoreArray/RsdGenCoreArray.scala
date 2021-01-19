@@ -23,9 +23,9 @@ case class RsdGenCoreArray(
     val dc = in UInt(log2Up(cfg.depth_factor) bit)
     val fc = in UInt(log2Up(cfg.freq_factor) bit)
     val fft2d_out_sync = in Bool
-    val clear_confirm = in Bool() // TODO Check
+    val clear_confirm = in Bool()
     val push_ending = out Bool()
-    val push_start = out Bool() // TODO Check
+    val push_start = out Bool()
     val cnt_incr = out Bool
     val load_req = out Bits(4 bit)
     val rsd_kernel: Flow[Vec[HComplex]] = master (
@@ -175,7 +175,7 @@ case class RsdGenCoreArray(
   // Push_start: A one-cycle square impulse active one cycle of actually push start
   // fft2d_out_sync is active at the first one cycle of the fft2d_valid
   val cnt_incr_1 = RegNext(io.cnt_incr) init False
-  val push_start = dc_eq_0 ? io.fft2d_out_sync | cnt_incr_1 // TODO:Check
+  val push_start = dc_eq_0 ? io.fft2d_out_sync | cnt_incr_1
 
   // count for row_num cycles from push_start signal active
   val count_col_addr = countUpFrom(push_start, 0 until col_num, "count_col_addr")
@@ -187,15 +187,19 @@ case class RsdGenCoreArray(
     RegNext(_, init = U(0)) simPublic()
   )
 
+  //todo: From pixel address to mac array's rsd kernel,
+  //  fanout is too high, resulting in severe congestion and bad timing
   for(id <- 0 until row_num){
     when(io.rsd_kernel.valid){
-      io.rsd_kernel.payload(id) := rsd_mem(pixel_addrs(id))
+//      io.rsd_kernel.payload(id) := rsd_mem(pixel_addrs(id))
+      io.rsd_kernel.payload(id) := RegNext(rsd_mem(pixel_addrs(id)))
     } otherwise {
       io.rsd_kernel.payload(id) := 0
     }
   }
 
-  io.rsd_kernel.valid := RegNext(count_col_addr.cond_period, init = False)
+//  io.rsd_kernel.valid := RegNext(count_col_addr.cond_period, init = False)
+  io.rsd_kernel.valid := Delay(count_col_addr.cond_period, 2, init = False)
   push_ending := RegNext(count_col_addr.cnt.willOverflow, init = False)
 
   io.push_ending := push_ending // Push ending is the true increment signal tb used.
