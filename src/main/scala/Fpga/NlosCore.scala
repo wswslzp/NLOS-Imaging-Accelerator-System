@@ -71,7 +71,8 @@ case class NlosCore(cfg: RsdKernelConfig)(implicit val axi_config: Axi4Config) e
   mac_array.io.dc_eq_0 := (io.dc === 0)
   mac_array.io.ifft2d_done := fft2d_core.io.ifft2d_comp_done
   rgca.io.clear_confirm := mac_array.io.clear_confirm
-  mac_array.io.fft_out << fft2d_core.io.data_to_mac
+//  mac_array.io.fft_out << fft2d_core.io.data_to_mac
+  mac_array.io.fft_out << RegNext(fft2d_core.io.data_to_mac)
   fft2d_core.io.data_to_mac.simPublic()
   mac_array.io.rsd_kernel << rgca.io.rsd_kernel
   rgca.io.rsd_kernel.simPublic()
