@@ -14,6 +14,7 @@ object NlosFpgaCoreMain extends App{
   new File("rtl/NlosFpgaCore").mkdir()
   SpinalConfig(
     targetDirectory = "rtl/NlosFpgaCore",
-    defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC)
+    defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
+    headerWithDate = true
   ).generateVerilog(NlosFpgaCore(rsd_cfg))
 }
