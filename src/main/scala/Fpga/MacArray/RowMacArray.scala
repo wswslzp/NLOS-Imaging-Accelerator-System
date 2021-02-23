@@ -17,7 +17,9 @@ case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) ex
     val clear_confirm = out Bool()
   }
   val rsd_kernel = io.rsd_kernel.toReg()
-  val fft_out = io.fft_out.toReg()
+//  val fft_out = io.fft_out.toReg() // todo bad timing: io_fft_out_valid has a huge fanout
+  val fft_out_1 = RegNext(io.fft_out)
+  val fft_out = fft_out_1.payload
   val valid = RegNext(io.rsd_kernel.valid & io.fft_out.valid) init False
 //  val valid = io.rsd_kernel.valid & io.fft_out.valid
 

@@ -28,7 +28,7 @@ case class PostProcess(
   val col_num = cfg.kernel_size.last
   val io = new Bundle {
     val done = in Bool()
-    val img_in = slave(Flow( HComplex(cfg.getResultConfig) ))
+    val img_in = slave(Flow( HComplex(cfg.getResultConfig) )) // HC(6,12)
 //    val img_out = master(Stream(Vec.fill(pixel_parallel)(UInt(quant_bit_width bit))))
     val img_out = master(Stream(UInt(quant_bit_width bit)))
     val pp_done = out Bool()
@@ -113,7 +113,7 @@ case class PostProcess(
 //  val quantizers = Array.fill(2)(PixelQuant(quan_cfg, quant_bit_width))
   val quantizer = PixelQuant(quan_cfg, quant_bit_width)
 //  for(i <- 0 until pixel_parallel){
-    val pix_bfq = result_mem.readSync(output_pix_addr.resized)
+    val pix_bfq = result_mem.readSync(output_pix_addr.resized) // todo result mem has problem ?
     quantizer.io.upper_bound := img_in_abs_max
     quantizer.io.lower_bound := img_in_abs_min
     quantizer.io.pix_in.valid := pix_bfq_valid
