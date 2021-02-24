@@ -117,7 +117,9 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
   when(img_col_cnt.willOverflow){
     img_row_cnt.increment()
   }
-  val video_mem_waddr = RegNext( img_row_cnt.value * vid_fm.h_act + img_col_cnt.value )
+  val img_row_val = img_row_cnt.value + (vid_fm.v_act/2 - img_rows/2)
+  val img_col_val = img_col_cnt.value + (vid_fm.h_act/2 - img_cols/2)
+  val video_mem_waddr = RegNext( img_row_val * vid_fm.h_act + img_col_val )
   video_mem.write(video_mem_waddr.resized, dat_in)
 
   // read logic under `video_mem_read_clk` clock domain
