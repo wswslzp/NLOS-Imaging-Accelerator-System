@@ -103,6 +103,9 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
 
   // declare a video memory
   val video_mem = Mem(UInt(8 bit), BigInt(vid_fm.v_act * vid_fm.h_act))
+  video_mem.init(
+    Seq.fill(vid_fm.v_act * vid_fm.h_act)(0)
+  )
 
   // write logic
   val dat_in = Reg(cloneOf(io.dat_in.payload))
@@ -117,7 +120,7 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
   when(img_col_cnt.willOverflow){
     img_row_cnt.increment()
   }
-  val img_row_val = img_row_cnt.value + (vid_fm.v_act/2 - img_rows/2)
+  val img_row_val = img_row_cnt.value.resize(10) + (vid_fm.v_act/2 - img_rows/2)
   val img_col_val = img_col_cnt.value + (vid_fm.h_act/2 - img_cols/2)
   val video_mem_waddr = RegNext( img_row_val * vid_fm.h_act + img_col_val )
   video_mem.write(video_mem_waddr.resized, dat_in)
