@@ -159,11 +159,11 @@ case class StreamToHDMI(vid_fm: VideoFormat, img_rows: Int, img_cols: Int) exten
     val cur_y = h_cnt.value - vid_fm.getHBlank
     val video_mem_raddr = cur_x * vid_fm.h_act + cur_y
     val video_mem_rdata = video_mem.readSync(video_mem_raddr.resized, enable = de)
-    val hot_map = HotMap()
-    hot_map.io.gray := video_mem_rdata
-    io.vid.data.r := hot_map.io.red
-    io.vid.data.g := hot_map.io.green
-    io.vid.data.b := hot_map.io.blue
+//    val hot_map = HotMap()
+//    hot_map.io.gray := video_mem_rdata
+    io.vid.data.r := video_mem_rdata
+    io.vid.data.g := video_mem_rdata
+    io.vid.data.b := video_mem_rdata
   }
 
 }

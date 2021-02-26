@@ -48,17 +48,17 @@ object StreamToHDMITest extends App {
   ).generateVerilog(t_s2hdmi())
 
 
-  SimConfig
-    .withWave
-    .allOptimisation
-    .workspacePath("tb")
-    .compile(t_s2hdmi())
-    .doSim("t_s2hdmi_tb"){dut=>
-      dut.clockDomain.forkStimulus(10)
-      dut.s2hdmi.video_mem_read_clk.forkStimulus(13)
-      dut.clockDomain.waitSampling()
-
-      dut.clockDomain.waitSampling(1280*720*2)
-      simSuccess()
-    }
+//  SimConfig
+//    .withWave
+//    .allOptimisation
+//    .workspacePath("tb")
+//    .compile(t_s2hdmi())
+//    .doSim("t_s2hdmi_tb"){dut=>
+//      dut.clockDomain.forkStimulus(10)
+//      dut.s2hdmi.video_mem_read_clk.forkStimulus(13)
+//      dut.clockDomain.waitSampling()
+//
+//      dut.clockDomain.waitSampling(1280*720*2)
+//      simSuccess()
+//    }
 }

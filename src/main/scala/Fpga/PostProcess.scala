@@ -73,14 +73,21 @@ case class PostProcess(
     pixel_addr.increment()
   }
 
+  val mem_raddr_sel = Bool()
+  val output_pix_addr = UInt()
+  val mem_rdata = result_mem.readSync(
+    address = ( mem_raddr_sel ? output_pix_addr | pixel_addr.value ).resized
+  )
+
   val q_pix = RegNext(img_in_q.payload)
-  val mem_prev_pix = result_mem.readSync(pixel_addr)
-  val qin_larger = mem_prev_pix < q_pix
+//  val mem_prev_pix = result_mem.readSync(pixel_addr)
+//  val qin_larger = mem_prev_pix < q_pix
+  val qin_larger = mem_rdata < q_pix
   val store_in_en = RegNext(img_in_q.valid) init False
   val w_pixel_addr = RegNext(pixel_addr.value) init 0
   result_mem.write(
     address = w_pixel_addr,
-    data = qin_larger ? q_pix | mem_prev_pix,
+    data = qin_larger ? q_pix | mem_rdata,
     enable = store_in_en
   )
 
@@ -99,27 +106,25 @@ case class PostProcess(
   }
 
   val pixel_cnt = Counter(0 until cfg.kernel_size.product * over_sample_factor * over_sample_factor)
-  val output_pix_addr = addressTrans(pixel_cnt.value)
-//  val parallel_pixel_addrs = Array.tabulate(pixel_parallel){i=>
-//    pixel_cnt.value * pixel_parallel + i
-//  }.map(addressTrans)
+//  val output_pix_addr = addressTrans(pixel_cnt.value)
+  output_pix_addr := addressTrans(pixel_cnt.value)
 
   //  `result_ready` signal that all NLOS results have been stored and is ready to output
   //  val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(img_in_q.valid.fall(False))
   val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(store_in_en.fall(False)).clearWhen(pixel_cnt.willOverflow)
+  mem_raddr_sel := result_ready
   val result_ready = RegNext(result_ready_prev) init False
   val pix_bfq_valid = RegNext(result_ready) init False
   val quan_cfg = HComplexConfig(img_in_q.payload.maxExp, -img_in_q.payload.minExp)
-//  val quantizers = Array.fill(2)(PixelQuant(quan_cfg, quant_bit_width))
   val quantizer = PixelQuant(quan_cfg, quant_bit_width)
-//  for(i <- 0 until pixel_parallel){
-    val pix_bfq = result_mem.readSync(output_pix_addr.resized) // todo result mem has problem ?
-    quantizer.io.upper_bound := img_in_abs_max
-    quantizer.io.lower_bound := img_in_abs_min
-    quantizer.io.pix_in.valid := pix_bfq_valid
-    quantizer.io.pix_in.payload := pix_bfq
-    io.img_out.payload := quantizer.io.pix_out.payload
-//  }
+//  val pix_bfq = result_mem.readSync(output_pix_addr.resized)
+//  pix_bfq.setName("pix_bfq")
+  quantizer.io.upper_bound := img_in_abs_max
+  quantizer.io.lower_bound := img_in_abs_min
+  quantizer.io.pix_in.valid := pix_bfq_valid
+//  quantizer.io.pix_in.payload := pix_bfq // todo pix_bfq has value but the io_pix_in_payload is zero constant?
+  quantizer.io.pix_in.payload := mem_rdata
+  io.img_out.payload := quantizer.io.pix_out.payload
   io.img_out.valid := quantizer.io.pix_out.valid
   when(io.img_out.fire){
     pixel_cnt.increment()
