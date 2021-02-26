@@ -107,7 +107,7 @@ case class PostProcess(
 
   val pixel_cnt = Counter(0 until cfg.kernel_size.product * over_sample_factor * over_sample_factor)
 //  val output_pix_addr = addressTrans(pixel_cnt.value)
-  output_pix_addr := addressTrans(pixel_cnt.value)
+  output_pix_addr := addressTrans(pixel_cnt.value).resized
 
   //  `result_ready` signal that all NLOS results have been stored and is ready to output
   //  val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(img_in_q.valid.fall(False))
