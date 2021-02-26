@@ -112,8 +112,8 @@ case class PostProcess(
   //  `result_ready` signal that all NLOS results have been stored and is ready to output
   //  val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(img_in_q.valid.fall(False))
   val result_ready_prev = nlos_comp_done & Reg(Bool()).init(False).setWhen(store_in_en.fall(False)).clearWhen(pixel_cnt.willOverflow)
-  mem_raddr_sel := result_ready
   val result_ready = RegNext(result_ready_prev) init False
+  mem_raddr_sel := result_ready
   val pix_bfq_valid = RegNext(result_ready) init False
   val quan_cfg = HComplexConfig(img_in_q.payload.maxExp, -img_in_q.payload.minExp)
   val quantizer = PixelQuant(quan_cfg, quant_bit_width)
