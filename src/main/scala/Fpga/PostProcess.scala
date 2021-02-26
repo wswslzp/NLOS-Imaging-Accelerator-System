@@ -74,7 +74,7 @@ case class PostProcess(
   }
 
   val mem_raddr_sel = Bool()
-  val output_pix_addr = UInt(16 bit)
+  val output_pix_addr = UInt(32 bit)
   val mem_rdata = result_mem.readSync(
     address = ( mem_raddr_sel ? output_pix_addr | pixel_addr.value ).resized
   )
