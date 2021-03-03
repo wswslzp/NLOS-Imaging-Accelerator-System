@@ -80,11 +80,11 @@ trait Axi4Slave extends Nameable {
         val addr_hit = (range.head <= current_addr) && (current_addr <= range.last)// || ((current_addr === range.head) && Bool(single_addr))
         addr_hit.setWeakName("addr_hit")
         reg match {
-          case _: Bool => {
+          case _: Bool => //{
             // default behavior: assign the last bit of data
             reg := addr_hit ? wdata_r(0) | reg.asBits(0)
-          }
-          case _: BitVector => {
+//          }
+          case _: BitVector => //{
             require(
               reg.getBitsWidth <= axi_config.dataWidth,
               s"the reg's width ${reg.getBitsWidth} is larger than data bus width ${axi_config.dataWidth}"
@@ -92,7 +92,7 @@ trait Axi4Slave extends Nameable {
             // default behavior: low range of the wdata will assign to reg
             val tmp_data = (addr_hit ? wdata_r | reg.asBits.resized).resize(reg.getBitsWidth)
             reg.assignFromBits(tmp_data)
-          }
+//          }
           case _ => SpinalError(s"reg: ${reg.getName()} has the wrong type--${reg.toString()}, other than Bool or BitVector")
         }
       }
