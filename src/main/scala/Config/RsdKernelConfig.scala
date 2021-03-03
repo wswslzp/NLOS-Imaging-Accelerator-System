@@ -90,8 +90,8 @@ object RsdKernelConfig {
   val rsd_cfg = RsdKernelConfig(
     wave_cfg = HComplexConfig(16, 16),
     distance_cfg = HComplexConfig(16, 16),
-    timeshift_cfg = HComplexConfig(16, 16),
-    coef_cfg = HComplexConfig(16, 16), // (-4 ,20) --> (-5, 21)
+    timeshift_cfg = HComplexConfig(16, 16) >> 4,
+    coef_cfg = HComplexConfig(16, 16) >> 5, // (-4 ,20) --> (-5, 21)
     imp_cfg = HComplexConfig(16, 16),
 //    wave_cfg = HComplexConfig(8, 8),
 //    distance_cfg = HComplexConfig(8, 8),
