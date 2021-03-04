@@ -15,7 +15,7 @@ case class RsdKernelConfig
   depth_factor: Int,
   radius_factor: Int,
   freq_factor: Int = 1,
-//  kernel_size: List[Int] = 64 :: 64 :: Nil,
+//  kernel_size: List[Int] = 60 :: 60 :: Nil,
   kernel_size: List[Int] = 128 :: 128 :: Nil,
   impulse_sample_point: Int = 101,
   less_mem_size: Boolean = true,
@@ -88,16 +88,16 @@ object RsdKernelConfig {
   val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")// wave(radius, depth)
   val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")// distance(freq, depth)
   val rsd_cfg = RsdKernelConfig(
-//    wave_cfg = HComplexConfig(16, 16),
-//    distance_cfg = HComplexConfig(16, 16),
-//    timeshift_cfg = HComplexConfig(16, 16) >> 4,
-//    coef_cfg = HComplexConfig(16, 16) >> 5, // (-4 ,20) --> (-5, 21)
-//    imp_cfg = HComplexConfig(16, 16),
-    wave_cfg = HComplexConfig(8, 8),
-    distance_cfg = HComplexConfig(8, 8),
-    timeshift_cfg = HComplexConfig(-4, 20),
-    coef_cfg = HComplexConfig(-5, 21), // (-4 ,20) --> (-5, 21)
-    imp_cfg = HComplexConfig(5, 11),
+    wave_cfg = HComplexConfig(15, 15),
+    distance_cfg = HComplexConfig(15, 15),
+    timeshift_cfg = HComplexConfig(15, 15) >> 5,
+    coef_cfg = HComplexConfig(15, 15) >> 6, // (-4 ,20) --> (-5, 21)
+    imp_cfg = HComplexConfig(15, 15),
+//    wave_cfg = HComplexConfig(8, 8),
+//    distance_cfg = HComplexConfig(8, 8),
+//    timeshift_cfg = HComplexConfig(-4, 20),
+//    coef_cfg = HComplexConfig(-5, 21), // (-4 ,20) --> (-5, 21)
+//    imp_cfg = HComplexConfig(5, 11),
     depth_factor = wave.cols,
     radius_factor = wave.rows,
     freq_factor = distance.rows,
@@ -120,7 +120,7 @@ object RsdKernelConfig {
   }
   implicit val axi_config: Axi4Config = Axi4Config(
 //    addressWidth = 32, dataWidth = 32,
-    addressWidth = 64, dataWidth = 64,
+    addressWidth = 60, dataWidth = 60,
     idWidth = 4, useRegion = false, useLock = false, useCache = false, useQos = false,
     useProt = false, useId = true, useBurst = true, useLen = true, useLast = true,
     useResp = true, useSize = true, useStrb = false
