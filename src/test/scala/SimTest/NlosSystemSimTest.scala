@@ -49,8 +49,8 @@ object NlosSystemSimTest extends App{
   println("Begin loading input image...")
   val uin = Array.tabulate(freq_num){idx=>
     LoadData.loadComplexMatrix(
-      real_part_filename = s"src/test/resource/data/real/uin_${idx+1}.csv",
-      imag_part_filename = s"src/test/resource/data/imag/uin_${idx+1}.csv"
+      real_part_filename = s"src/test/resource/uin/letter_4/real/uin_${idx+1}.csv",
+      imag_part_filename = s"src/test/resource/uin/letter_4/imag/uin_${idx+1}.csv"
     )
   }
   println("Loading image done!")
