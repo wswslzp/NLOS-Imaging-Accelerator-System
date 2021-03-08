@@ -162,6 +162,7 @@ object RsdGenCoreArrayTest extends App{
             dut.clockDomain.waitActiveEdgeWhere(dut.wave_load_unit.io.wave.valid.toBoolean)
             if(ff == 0){
               for(r <- 0 until rsd_cfg.radius_factor){
+                println(s"dd is ${dd}")
                 h_wave(r, dd) = dut.wave_load_unit.io.wave.payload.toDouble
                 dut.clockDomain.waitSampling()
               }
