@@ -41,12 +41,12 @@ case class CoefGenCore
     val exp_wd_prod_divw = exp_wd_prod / wave
 
     val timeshift = io.timeshift
-    val prev_coef = exp_wd_prod_divw * timeshift
+    val prev_coef = exp_wd_prod_divw * timeshift // (16, 32) * (3, 21) = (19, 53)
     prev_coef.simPublic()
 
     val output_coef_stage = prev_coef
     val divLatency = 16
-    io.coef := stage(output_coef_stage, 0 to (7 + divLatency + expLatency + hComplexMulStage.stage))
+    io.coef := stage(output_coef_stage, 0 to (7 + divLatency + expLatency + hComplexMulStage.stage)) // 7+16+5+4=32
 
     D2Clatency = LatencyAnalysis(io.distance.raw, io.coef.real.raw)
 

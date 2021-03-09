@@ -6,7 +6,7 @@ import Config._
 import Util._
 
 case class RsdKernelGen(cfg: RsdKernelConfig) extends Component {
-  val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
+  val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg // (2, 22) * (5, 19) = (7, 41)
   val Rlength = cfg.impulse_sample_point
   val io = new Bundle {
     val rsd_comp_end = in Bool()
