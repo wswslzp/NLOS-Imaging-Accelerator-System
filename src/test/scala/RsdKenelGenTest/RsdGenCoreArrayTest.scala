@@ -204,9 +204,9 @@ object RsdGenCoreArrayTest extends App{
         new File("tb/RsdGenCoreArray_rad").mkdir()
         val rsd_rad = DenseMatrix.fill(rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)(Complex(0, 0))
         while(true) {
+          dut.clockDomain.waitActiveEdgeWhere(dut.io.rsd_kernel.valid.toBoolean)
           val cur_d = dd
           val cur_f = ff
-          dut.clockDomain.waitActiveEdgeWhere(dut.io.rsd_kernel.valid.toBoolean)
 
           // get the rsd kernel rad from internal memory
           for(r <- 0 until rsd_cfg.impulse_sample_point){
@@ -220,6 +220,8 @@ object RsdGenCoreArrayTest extends App{
             }
             dut.clockDomain.waitSampling()
           }
+          // todo cur_d and cur_f is different. (x, 0) is skipped during wait for io_rsd_kernel_valid==1.
+          //  determine correct relationship between rsd kernel and the (d, f) cycle.
           println(s"Now is ($dd, $ff) and cur_d is $cur_d, cur_f is $cur_f")
           uout(cur_d) += hard_rsd_kernel *:* uin_fft(cur_f)
           if(cur_f == rsd_cfg.freq_factor-1){
