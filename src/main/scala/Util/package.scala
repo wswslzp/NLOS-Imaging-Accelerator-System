@@ -111,7 +111,7 @@ package object Util {
   def expfunclut(cfg: HComplexConfig, point: Int, data_range: (Double, Double)): (Vector[SFix], Vector[HComplex]) = {
     val func_table = Vector.fill(point)(HComplex(cfg))
     val range = (1 to point).toVector.map { p =>
-      val idx = data_range._1 + (data_range._2 - data_range._1) * (p.asInstanceOf[Double] / point)
+      val idx = data_range._1 + (data_range._2 - data_range._1) * (p.toDouble / point)
       idx
     }
     val indx_table = range.map { dat =>

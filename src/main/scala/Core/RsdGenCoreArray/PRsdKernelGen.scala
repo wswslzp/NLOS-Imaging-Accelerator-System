@@ -8,7 +8,7 @@ import spinal.lib._
 
 //TODO: impulse will be real
 case class PRsdKernelGen(cfg: RsdKernelConfig) extends Component {
-  val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg
+  val kernel_cfg = cfg.coef_cfg * cfg.imp_cfg //(7, 41)
   val Rlength = cfg.impulse_sample_point
   val io = new Bundle {
     val ring_impulse = in (
@@ -36,7 +36,7 @@ case class PRsdKernelGen(cfg: RsdKernelConfig) extends Component {
   val coef = RegNext(coef_gen_core.io.coef)
   val delta_rsd_kernel_val = Vec.tabulate(io.ring_impulse.length){idx=>
 //    coef_gen_core.io.coef * io.ring_impulse(idx)
-    coef * io.ring_impulse(idx)
+    coef * io.ring_impulse(idx) // (7, 41)
   }
   delta_rsd_kernel_val.simPublic()
   val delta_rsd_kernel_val_r = RegNext(delta_rsd_kernel_val)
