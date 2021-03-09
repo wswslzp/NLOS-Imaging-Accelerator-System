@@ -47,14 +47,14 @@ object RsdGenCoreArrayTest extends App{
     RsdGenCoreArray(rsd_cfg, init_addr)
   )
 
-  val withWave = false
+  val withWave = true
   val waveDepth = 4
   val module_compiled = if(withWave) {
     SimConfig.withWave(waveDepth).allOptimisation.workspacePath("tb").workspaceName("RsdGenCoreArray")
-      .addSimulatorFlag("-j 16 --threads 16 --trace-threads 16").compile(report)
+      .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32").compile(report)
   } else {
     SimConfig.allOptimisation.workspacePath("tb").workspaceName("RsdGenCoreArray")
-      .addSimulatorFlag("-j 16 --threads 16 ").compile(report)
+      .addSimulatorFlag("-j 32 --threads 32 ").compile(report)
   }
 
   module_compiled.doSim("RsdGenCoreArray_tb") {dut =>
