@@ -5,6 +5,7 @@ import Fpga.NlosCore
 import Sim.NlosCore.Driver._
 import Sim.NlosCore.Monitor._
 import Sim.NlosCore.Tester._
+import Sim.SimComplex._
 import breeze.linalg._
 import breeze.math._
 import spinal.core.sim._
@@ -14,7 +15,7 @@ import scala.sys.process.{Process, ProcessLogger}
 
 object NlosCoreTest extends App {
 
-  val withWave = true
+  val withWave = false
   val waveDepth = 2
 
   val compiled = if (withWave) {
@@ -43,6 +44,9 @@ object NlosCoreTest extends App {
   }
   val h_rsdk = Array.fill(rsd_cfg.depth_factor, rsd_cfg.freq_factor) {
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
+  }
+  val h_rsdk_rad = Array.fill(rsd_cfg.depth_factor, rsd_cfg.freq_factor) {
+    DenseVector.zeros[Complex](rsd_cfg.impulse_sample_point)
   }
   compiled.doSim("NlosCore_tb") { dut =>
     dut.clockDomain.forkStimulus(2)
@@ -103,6 +107,18 @@ object NlosCoreTest extends App {
           h_rsdk(dd)(ff) = catchRSDK(dut)
         }
       }
+      ,
+
+      // catch rsd kernel rad
+      () => {
+        while(true) {
+          dut.clockDomain.waitActiveEdgeWhere(dut.rgca.io.rsd_kernel.valid.toBoolean)
+          for(i <- rsd_cfg.rLengthRange) {
+            h_rsdk_rad(dd)(ff)(i) = dut.rgca.rsd_mem(i).toComplex
+          }
+          dut.clockDomain.waitActiveEdgeWhere(!dut.rgca.io.rsd_kernel.valid.toBoolean)
+        }
+      }
     )
   }
 
@@ -119,6 +135,21 @@ object NlosCoreTest extends App {
   csvwrite(
     new File("tb/NlosCore/rsdk_10_10.csv"),
     rsd_kernel(10)(10).map(_.real)
+  )
+
+  val hrsdrad_10 = DenseMatrix.zeros[Double](rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)
+  val rsdrad_10 = DenseMatrix.zeros[Double](rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)
+  for(f <- rsd_cfg.freqRange){
+    hrsdrad_10(f, ::) := h_rsdk_rad(10)(f).map(_.real).t
+    rsdrad_10(f, ::) := rsd(10)(f).map(_.real).t
+  }
+  csvwrite(
+    new File("tb/NlosCore/hrsdrad_10.csv"),
+    hrsdrad_10
+  )
+  csvwrite(
+    new File("tb/NlosCore/rsdrad_10.csv"),
+    rsdrad_10
   )
 
   println("testing mac result")

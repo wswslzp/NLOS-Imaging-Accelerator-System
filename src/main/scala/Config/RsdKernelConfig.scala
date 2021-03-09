@@ -88,11 +88,11 @@ object RsdKernelConfig {
   val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")// wave(radius, depth)
   val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")// distance(freq, depth)
   val rsd_cfg = RsdKernelConfig(
-    wave_cfg = HComplexConfig(8, 16),
-    distance_cfg = HComplexConfig(8, 16),
-    timeshift_cfg = HComplexConfig(8, 16) >> 5,
-    coef_cfg = HComplexConfig(8, 16) >> 6, // (-4 ,20) --> (-5, 21)
-    imp_cfg = HComplexConfig(8, 16) >> 3,
+    wave_cfg = HComplexConfig(8, 4),
+    distance_cfg = HComplexConfig(8, 4),
+    timeshift_cfg = HComplexConfig(8, 4) >> 5,
+    coef_cfg = HComplexConfig(8, 4) >> 6, // (-4 ,20) --> (-5, 21)
+    imp_cfg = HComplexConfig(8, 4) >> 3,
 //    wave_cfg = HComplexConfig(8, 8),
 //    distance_cfg = HComplexConfig(8, 8),
 //    timeshift_cfg = HComplexConfig(-4, 20),
