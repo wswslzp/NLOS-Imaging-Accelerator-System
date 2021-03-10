@@ -278,7 +278,7 @@ object RsdGenCoreArrayTest extends App{
     println("Converting vcd to vpd...")
     Process("vcd2vpd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vcd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vpd") ! nullLogger
     println("Convert done.")
-    Process("dve -full64 -vpd tb/RsdGenCoreArray/RsdGenCoreArray_tb.vpd") !!
+    Process("dve -full64 -session session.RsdGenCoreArray_tb.vpd.tcl") !!
   }
 
 }
