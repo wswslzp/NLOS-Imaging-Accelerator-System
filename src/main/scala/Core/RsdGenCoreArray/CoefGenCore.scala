@@ -30,7 +30,7 @@ case class CoefGenCore
 
     val wd_prod = wave * distance
 
-    val hCfg = HComplexConfig(wd_prod.maxExp+1, -wd_prod.minExp)
+    val hCfg = HComplexConfig(wd_prod.maxExp+1, -wd_prod.minExp) // (16, 32)
     val exp_func_core = ExpFunc(
       cfg = hCfg, samplePoint = 128, period = 1 // todo: check, increase sample point from 32 to 128. 2021/3/9, 22:27
     )
