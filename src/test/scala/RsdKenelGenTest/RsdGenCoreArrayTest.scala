@@ -47,7 +47,7 @@ object RsdGenCoreArrayTest extends App{
     RsdGenCoreArray(rsd_cfg, init_addr)
   )
 
-  val withWave = true
+  val withWave = false
   val waveDepth = 4
   val module_compiled = if(withWave) {
     SimConfig.withWave(waveDepth).allOptimisation.workspacePath("tb").workspaceName("RsdGenCoreArray")
