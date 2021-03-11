@@ -27,7 +27,7 @@ case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) ex
   // todo bad timing, rsd kernel should be registered.
   val mulStage = 8
   val rsd_fft_prod = Vec.tabulate(cfg.rows){idx=>
-    var tmp: HComplex = null
+    var tmp: HComplex = null // HCC(32, 32)
     if(fpgaImpl){
       tmp = rsd_kernel(idx).*(fft_out(idx))(new Synthesizable(true)) // with pipeline 16
     } else {
@@ -60,8 +60,8 @@ case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) ex
   // When d = 0, mac result pipe out as soon as push ending assert.
   //  when d != 0, mac result pipe out as soon as ifft2d done.
   val pipe_out_start = Delay(
-  that = io.dc_eq_0 ? (io.fc_overflow & io.push_ending) | io.ifft2d_done,
-  cycleCount = 2, init = False
+    that = io.dc_eq_0 ? (io.fc_overflow & io.push_ending) | io.ifft2d_done,
+    cycleCount = 2, init = False
   )
   val pipe_out_cnt_area = countUpFrom(pipe_out_start, cfg.colRange)
   val pipe_out_col_addr = RegNext(pipe_out_cnt_area.cnt.value)
