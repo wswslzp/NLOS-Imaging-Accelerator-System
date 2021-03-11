@@ -11,7 +11,7 @@ import Sim._
 import java.io.File
 
 object StreamToHDMITest extends App {
-  val img = load_image("../fpga/result_img/letter4.jpg", 256, 256)
+  val img = load_image("tmp/results/res_img/letter4.jpg", 256, 256)
 
   case class t_s2hdmi() extends Component {
     val io = new Bundle {

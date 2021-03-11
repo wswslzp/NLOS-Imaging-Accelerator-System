@@ -29,21 +29,21 @@ case class RsdKernelConfig
   def rows: Int = kernel_size.head
   def cols: Int = kernel_size.last
 
-//  def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg/2 // HCC(0, 16)
-  def getKernelConfig: HComplexConfig = HComplexConfig(16, 16)
+  def getKernelConfig: HComplexConfig = coef_cfg * imp_cfg/2 // HCC(0, 16)
+//  def getKernelConfig: HComplexConfig = HComplexConfig(16, 16)
 
-//  def getUinConfig: HComplexConfig = HComplexConfig(14, -6)
-  def getUinConfig: HComplexConfig = getKernelConfig
+  def getUinConfig: HComplexConfig = HComplexConfig(14, -6)
+//  def getUinConfig: HComplexConfig = getKernelConfig
 
-//  def getFUinConfig: HComplexConfig = getUinConfig <> 2 // HCC(16, -4)
+  def getFUinConfig: HComplexConfig = getUinConfig <> 2 // HCC(16, -4)
 //  def getFUinConfig: HComplexConfig = HComplexConfig(10, 2)
-  def getFUinConfig: HComplexConfig = getKernelConfig
+//  def getFUinConfig: HComplexConfig = getKernelConfig
 
-//  def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig/2 <> 2 // HCC(10, 8)
-  def getMACDatConfig: HComplexConfig = getKernelConfig
+  def getMACDatConfig: HComplexConfig = getKernelConfig * getFUinConfig/2 <> 2 // HCC(10, 8)
+//  def getMACDatConfig: HComplexConfig = getKernelConfig
 
-//  def getResultConfig: HComplexConfig = getMACDatConfig >> 4 // <> 2 // (6, 12)
-  def getResultConfig: HComplexConfig = getKernelConfig
+  def getResultConfig: HComplexConfig = getMACDatConfig >> 4 // <> 2 // (6, 12)
+//  def getResultConfig: HComplexConfig = getKernelConfig
 
   def getFFT2dConfig: FFTConfig = FFTConfig(getUinConfig, cols, rows, fft_use_pipeline, fft_use_pipeline)
 
@@ -88,16 +88,16 @@ object RsdKernelConfig {
   val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")// wave(radius, depth)
   val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")// distance(freq, depth)
   val rsd_cfg = RsdKernelConfig(
-    wave_cfg = HComplexConfig(8, 16),
-    distance_cfg = HComplexConfig(8, 16),
-    timeshift_cfg = HComplexConfig(8, 16) >> 5,
-    coef_cfg = HComplexConfig(8, 16) >> 6, // (-4 ,20) --> (-5, 21)
-    imp_cfg = HComplexConfig(8, 16) >> 3,
-//    wave_cfg = HComplexConfig(8, 8),
-//    distance_cfg = HComplexConfig(8, 8),
-//    timeshift_cfg = HComplexConfig(-4, 20),
-//    coef_cfg = HComplexConfig(-5, 21), // (-4 ,20) --> (-5, 21)
-//    imp_cfg = HComplexConfig(5, 11),
+//    wave_cfg = HComplexConfig(8, 16),
+//    distance_cfg = HComplexConfig(8, 16),
+//    timeshift_cfg = HComplexConfig(8, 16) >> 5,
+//    coef_cfg = HComplexConfig(8, 16) >> 6, // (-4 ,20) --> (-5, 21)
+//    imp_cfg = HComplexConfig(8, 16) >> 3,
+    wave_cfg = HComplexConfig(8, 8),
+    distance_cfg = HComplexConfig(8, 8),
+    timeshift_cfg = HComplexConfig(-4, 20),
+    coef_cfg = HComplexConfig(-5, 21), // (-4 ,20) --> (-5, 21)
+    imp_cfg = HComplexConfig(5, 11),
     depth_factor = wave.cols,
     radius_factor = wave.rows,
     freq_factor = distance.rows,
