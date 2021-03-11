@@ -1,7 +1,6 @@
 package Sim.NlosCore
 
 import java.io.File
-
 import Config.RsdKernelConfig._
 import Sim.RsdGenCoreArray.Computation
 import Sim.write_image
