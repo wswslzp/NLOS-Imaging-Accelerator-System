@@ -120,7 +120,7 @@ object RowMacArrayTest extends App{
 
   if(withWave){
     Process(s"vcd2vpd ${tb_path}/RowMacArray_tb.vcd ${tb_path}/RowMacArray_tb.vpd").!
-    Process(s"dve -full64 -vpd ${tb_path}/RowMacArray_tb.vpd").!!
+    Process(s"dve -full64 -session session.RowMacArray_tb.vpd.tcl").!!
   }
 
 }
