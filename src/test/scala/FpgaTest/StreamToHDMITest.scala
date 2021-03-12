@@ -7,7 +7,7 @@ import graphic.vga._
 import spinal.lib.graphic.RgbConfig
 import Fpga._
 import Sim._
-
+import eda.altera._
 import java.io.File
 
 object StreamToHDMITest extends App {
@@ -47,6 +47,11 @@ object StreamToHDMITest extends App {
     headerWithDate = true
   ).generateVerilog(t_s2hdmi())
 
+  val a10proj = new QuartusProject(
+    quartusPath = "C:/intelFPGA_pro/20.3/quartus/bin64",
+    workspacePath = "D:/lzp/nlos/fpga/D8M-FMC_v.1.0.1_SystemCD/Demonstrations/S10_HDMI"
+  )
+  a10proj.compile()
 
 //  SimConfig
 //    .withWave

@@ -85,8 +85,8 @@ case class RsdKernelConfig
 }
 
 object RsdKernelConfig {
-  val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")// wave(radius, depth)
-  val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")// distance(freq, depth)
+  lazy val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")// wave(radius, depth)
+  lazy val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")// distance(freq, depth)
   val rsd_cfg = RsdKernelConfig(
 //    wave_cfg = HComplexConfig(8, 16),
 //    distance_cfg = HComplexConfig(8, 16),
@@ -103,16 +103,16 @@ object RsdKernelConfig {
     freq_factor = distance.rows,
     fpga_impl = true
   )
-  val timeshift = LoadData.loadComplexMatrix(
+  lazy val timeshift = LoadData.loadComplexMatrix(
     "src/test/resource/data/timeshift_real.csv",
     "src/test/resource/data/timeshift_imag.csv"
   )// timeshift(freq, depth)
 
   //impulse: (impulse_sample_point, radius)
-  val impulse: DenseMatrix[Double] = LoadData.loadDoubleMatrix(
+  lazy val impulse: DenseMatrix[Double] = LoadData.loadDoubleMatrix(
   "src/test/resource/data/impulse_rad_real.csv"
   )
-  val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
+  lazy val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
     LoadData.loadComplexMatrix(
       real_part_filename = s"src/test/resource/uin/nlos_letters/real/uin_${idx+1}.csv",
       imag_part_filename = s"src/test/resource/uin/nlos_letters/imag/uin_${idx+1}.csv"
