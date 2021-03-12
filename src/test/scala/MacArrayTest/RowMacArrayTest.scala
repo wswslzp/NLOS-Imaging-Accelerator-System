@@ -19,7 +19,8 @@ object RowMacArrayTest extends App{
   val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)//(d, f, r)
   val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse)//(d, f, R)
   val rsd_kernel = Computation.restoreRSD(rsd, (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last))//(d, f, x, y)
-  val uin_fft = uin.map(fourierTr(_).map(_ / (128*128)))
+//  val uin_fft = uin.map(fourierTr(_).map(_ / (128*128)))
+  val uin_fft = uin.map(fourierTr(_))
 //  val totalSize = rsd_cfg.kernel_size.product
 //  val uin_fft = uin.map(fourierTr(_).map(_ / totalSize))
   val uout_f = Array.fill(rsd_cfg.depth_factor)(
