@@ -11,11 +11,11 @@ import breeze.math.Complex
 object Monitor {
 
   def catchFuin(dut: RowMacArray): DenseMatrix[Complex] = {
-    catchFlowVecData(dut.clockDomain, dut.io.rsd_kernel, row_out = false)
+    catchFlowVecData(dut.clockDomain, dut.io.fft_out, row_out = false)
   }
 
   def catchRSDKernel(dut: RowMacArray): DenseMatrix[Complex] = {
-    catchFlowVecData(dut.clockDomain, dut.io.fft_out, row_out = false)
+    catchFlowVecData(dut.clockDomain, dut.io.rsd_kernel, row_out = false)
   }
 
   def catchMacResult(dut: RowMacArray): DenseMatrix[Complex] = {
