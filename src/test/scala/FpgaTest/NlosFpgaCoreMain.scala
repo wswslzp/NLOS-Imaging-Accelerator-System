@@ -12,9 +12,10 @@ import eda.altera._
 object NlosFpgaCoreMain extends App{
   FpgaImpl(true)
   Synthesizable(false)
-  new File("rtl/NlosFpgaCore").mkdir()
+  val prj_path = "/home/Workspace/Zhengpeng/nlos/fpga/nlos_fpga_sys"
+  new File(s"${prj_path}/rtl/NlosFpgaCore").mkdir()
   SpinalConfig(
-    targetDirectory = "rtl/NlosFpgaCore",
+    targetDirectory = s"${prj_path}/rtl/NlosFpgaCore",
     defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
     headerWithDate = true
   ).generateVerilog(NlosFpgaCore(rsd_cfg))
