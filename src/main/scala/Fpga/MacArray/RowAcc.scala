@@ -24,7 +24,8 @@ case class RowAcc(cfg: HComplexConfig, cols: Int) extends Component {
   mem_out := row_mem.readSync(read_addr)
 
   val data_in = io.data_in.toReg(HC(0, 0, cfg))
-  val sum = ( mem_out + data_in ).fixTo(cfg).asBits
+  val sum = (mem_out + data_in).fixTo(cfg)
+  val sum_b = sum.asBits
   val data_in_valid_1 = Delay(io.data_in.valid, 1, init = False)
 
   // When clear assert, all the pixel in row clears
@@ -33,7 +34,7 @@ case class RowAcc(cfg: HComplexConfig, cols: Int) extends Component {
   val clear_valid = clear_addr_area.cond_period
 
   val write_addr = cloneOf(clear_addr).setAllTo(clear_valid) & clear_addr | cloneOf(acc_in_addr_1).setAllTo(data_in_valid_1) & acc_in_addr_1
-  val write_data = cloneOf(sum).setAllTo(data_in_valid_1) & sum
+  val write_data = cloneOf(sum_b).setAllTo(data_in_valid_1) & sum_b
   when(clear_valid | data_in_valid_1) {
     row_mem(write_addr) := write_data
   }

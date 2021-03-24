@@ -183,7 +183,7 @@ object NlosCoreTest extends App {
     println("Converting vcd to vpd...")
     Process("vcd2vpd tb/NlosCore/NlosCore_tb.vcd tb/NlosCore/NlosCore_tb.vpd") ! nullLogger
     println("Convert done.")
-    Process("rm NlosCore_tb.vcd").!
+    Process("rm tb/NlosCore/NlosCore_tb.vcd").!
     Process("dve -full64 -vpd tb/NlosCore/NlosCore_tb.vpd") !!
   }
 

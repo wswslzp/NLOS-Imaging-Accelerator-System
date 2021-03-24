@@ -17,17 +17,17 @@ case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) ex
     val clear_confirm = out Bool()
   }
   val rsd_kernel = io.rsd_kernel.toReg()
-//  val fft_out = io.fft_out.toReg() // todo bad timing: io_fft_out_valid has a huge fanout
+//  val fft_out = io.fft_out.toReg()
   val fft_out_1 = RegNext(io.fft_out)
   val fft_out = fft_out_1.payload
   val valid = RegNext(io.rsd_kernel.valid & io.fft_out.valid) init False
 //  val valid = io.rsd_kernel.valid & io.fft_out.valid
 
   // Pipeline the complex multiplication for good timing. Trade off between area and timing.
-  // todo bad timing, rsd kernel should be registered.
+  // todo multiplication wrong, for what???
   val mulStage = 8
   val rsd_fft_prod = Vec.tabulate(cfg.rows){idx=>
-    var tmp: HComplex = null // HCC(32, 32)
+    var tmp: HComplex = null // HCC(16, 12)
     if(fpgaImpl){
       tmp = rsd_kernel(idx).*(fft_out(idx))(new Synthesizable(true)) // with pipeline 16
     } else {
