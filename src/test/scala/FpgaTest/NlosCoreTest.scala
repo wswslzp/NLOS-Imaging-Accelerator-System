@@ -16,7 +16,7 @@ import scala.sys.process.{Process, ProcessLogger}
 object NlosCoreTest extends App {
 
   val withWave = false
-  val waveDepth = 2
+  val waveDepth = 3
 
   val compiled = if (withWave) {
     SimConfig
@@ -183,6 +183,7 @@ object NlosCoreTest extends App {
     println("Converting vcd to vpd...")
     Process("vcd2vpd tb/NlosCore/NlosCore_tb.vcd tb/NlosCore/NlosCore_tb.vpd") ! nullLogger
     println("Convert done.")
+    Process("rm NlosCore_tb.vcd").!
     Process("dve -full64 -vpd tb/NlosCore/NlosCore_tb.vpd") !!
   }
 

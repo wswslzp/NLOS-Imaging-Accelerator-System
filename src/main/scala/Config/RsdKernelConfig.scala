@@ -119,8 +119,8 @@ object RsdKernelConfig {
     )
   }
   implicit val axi_config: Axi4Config = Axi4Config(
-//    addressWidth = 32, dataWidth = 32,
-    addressWidth = 60, dataWidth = 60,
+    addressWidth = 32, dataWidth = 32,
+//    addressWidth = 60, dataWidth = 60,
     idWidth = 4, useRegion = false, useLock = false, useCache = false, useQos = false,
     useProt = false, useId = true, useBurst = true, useLen = true, useLast = true,
     useResp = true, useSize = true, useStrb = false
