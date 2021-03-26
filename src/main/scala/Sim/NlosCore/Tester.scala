@@ -12,7 +12,8 @@ object Tester {
   val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)//(d, f, r)
   val rsd: Array[Array[DenseVector[Complex]]] = Computation.generateRSDRadKernel(coef, impulse)//(d, f, R)
   val rsd_kernel = Computation.restoreRSD(rsd, (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last))//(d, f, x, y)
-  val uin_fft = uin.map(fourierTr(_))
+//  val uin_fft = uin.map(fourierTr(_))
+  val uin_fft = uin.map(fourierTr(_).map(_ / (uin.head.rows*uin.head.cols)))
 
   def testMacResult(mac_result: Array[DenseMatrix[Complex]]): Unit = {
     import breeze.signal.iFourierTr

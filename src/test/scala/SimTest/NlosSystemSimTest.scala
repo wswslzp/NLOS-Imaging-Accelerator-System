@@ -49,15 +49,15 @@ object NlosSystemSimTest extends App{
   println("Begin loading input image...")
   val uin = Array.tabulate(freq_num){idx=>
     LoadData.loadComplexMatrix(
-      real_part_filename = s"src/test/resource/uin/letter_4/real/uin_${idx+1}.csv",
-      imag_part_filename = s"src/test/resource/uin/letter_4/imag/uin_${idx+1}.csv"
+      real_part_filename = s"src/test/resource/uin/nlos_letters/real/uin_${idx+1}.csv",
+      imag_part_filename = s"src/test/resource/uin/nlos_letters/imag/uin_${idx+1}.csv"
     )
   }
   println("Loading image done!")
 //  val rsd_kernel = Computation.restoreRSD(rsd, (uin.head.rows, uin.head.cols))
 
   println("Doing input image's FFT2d...")
-  val uin_fft = uin.map(fourierTr(_))
+  val uin_fft = uin.map(fourierTr(_).map(_ / (uin.head.rows * uin.head.cols)))
 //  println(s"${uin_fft(0)(0 to 5, 0 to 5)}")
   println("Done input image FFT2d!")
 
@@ -94,7 +94,7 @@ object NlosSystemSimTest extends App{
     }
     umax
   }
-  csvwrite(new File("tmp/soft_uout_abs_max.csv"), uout_abs_max)
+  csvwrite(new File("tmp/rescsv/soft_uout_abs_max.csv"), uout_abs_max)
   println("Output image has been generated!")
   println(s"output size: cols = ${uout_abs_max.cols}")
 
