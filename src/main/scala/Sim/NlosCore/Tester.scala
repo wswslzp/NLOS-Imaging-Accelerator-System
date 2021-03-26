@@ -72,11 +72,20 @@ object Tester {
       for(f <- rsd_cfg.freqRange) {
         val rsd_kernel = rsdk(d)(f)
         uout_f += rsd_kernel *:* fuin(f)
+        if(d == 10){
+          new File("tmp/macres/d10").mkdir()
+          csvwrite(new File(s"tmp/macres/d10/k${f}_real.csv"), rsd_kernel.map(_.real))
+          csvwrite(new File(s"tmp/macres/d10/k${f}_imag.csv"), rsd_kernel.map(_.imag))
+          csvwrite(new File(s"tmp/macres/d10/f${f}_real.csv"), fuin(f).map(_.real))
+          csvwrite(new File(s"tmp/macres/d10/f${f}_imag.csv"), fuin(f).map(_.imag))
+        }
       }
-      if(d == 10) csvwrite(
-        new File("tb/NlosCore/soft_mac_res10.csv"),
-        uout_f.map(_.real)
-      )
+      if(d == 10) {
+        csvwrite(
+          new File("tb/NlosCore/soft_mac_res10.csv"),
+          uout_f.map(_.real)
+        )
+      }
       iFourierTr(uout_f)
     }
     val uout_abs = uout.map(_.map(_.abs))
