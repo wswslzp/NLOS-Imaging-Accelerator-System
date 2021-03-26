@@ -73,7 +73,7 @@ object Tester {
         val rsd_kernel = rsdk(d)(f)
         uout_f += rsd_kernel *:* fuin(f)
         if(d == 10){
-          new File("tmp/macres/d10").mkdir()
+          new File("tmp/macres/d10").mkdirs()
           csvwrite(new File(s"tmp/macres/d10/k${f}_real.csv"), rsd_kernel.map(_.real))
           csvwrite(new File(s"tmp/macres/d10/k${f}_imag.csv"), rsd_kernel.map(_.imag))
           csvwrite(new File(s"tmp/macres/d10/f${f}_real.csv"), fuin(f).map(_.real))
