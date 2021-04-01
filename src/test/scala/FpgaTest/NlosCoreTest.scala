@@ -121,6 +121,7 @@ object NlosCoreTest extends App {
             dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean)
             cur_d = dd
             cur_f = ff
+            println(s"current prod catch cycle is ($cur_d, $cur_f)")
           }
           h_rsd_fft_prod(cur_d)(cur_f) = catchRsdFuinProd(dut)
         }
@@ -151,8 +152,8 @@ object NlosCoreTest extends App {
 
   new File("tmp/macres/hard_prod").mkdir()
   for(f <- rsd_cfg.freqRange){
-    csvwrite(new File(s"tmp/macres/hard_prod/d10_f${f}_real.csv"), h_rsd_fft_prod(10)(f).map(_.real))
-    csvwrite(new File(s"tmp/macres/hard_prod/d10_f${f}_imag.csv"), h_rsd_fft_prod(10)(f).map(_.imag))
+    csvwrite(new File(s"tmp/macres/hard_prod/hard_f${f}_real.csv"), h_rsd_fft_prod(10)(f).map(_.real))
+    csvwrite(new File(s"tmp/macres/hard_prod/hard_f${f}_imag.csv"), h_rsd_fft_prod(10)(f).map(_.imag))
   }
 
   csvwrite(

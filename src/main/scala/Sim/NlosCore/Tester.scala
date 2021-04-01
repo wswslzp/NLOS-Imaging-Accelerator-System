@@ -105,8 +105,8 @@ object Tester {
         uout_f += rsd_fft_prod
         if(d == 10){
           new File("tmp/macres/soft_prod").mkdirs()
-          csvwrite(new File(s"tmp/macres/soft_prod/d10_f${f}_real.csv"), rsd_fft_prod.map(_.real))
-          csvwrite(new File(s"tmp/macres/soft_prod/d10_f${f}_imag.csv"), rsd_fft_prod.map(_.imag))
+          csvwrite(new File(s"tmp/macres/soft_prod/soft_f${f}_real.csv"), rsd_fft_prod.map(_.real))
+          csvwrite(new File(s"tmp/macres/soft_prod/soft_f${f}_imag.csv"), rsd_fft_prod.map(_.imag))
 //          csvwrite(new File(s"tmp/macres/d10/k${f}_real.csv"), rsd_kernel.map(_.real))
 //          csvwrite(new File(s"tmp/macres/d10/k${f}_imag.csv"), rsd_kernel.map(_.imag))
 //          csvwrite(new File(s"tmp/macres/d10/f${f}_real.csv"), fuin(f).map(_.real))
