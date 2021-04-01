@@ -149,6 +149,12 @@ object NlosCoreTest extends App {
   println("testing h_rsd_fft_prod")
   testRsdFuinProd(h_rsd_fft_prod)
 
+  new File("tmp/macres/hard_prod").mkdir()
+  for(f <- rsd_cfg.freqRange){
+    csvwrite(new File(s"tmp/macres/hard_prod/d10_f${f}_real.csv"), h_rsd_fft_prod(10)(f).map(_.real))
+    csvwrite(new File(s"tmp/macres/hard_prod/d10_f${f}_imag.csv"), h_rsd_fft_prod(10)(f).map(_.imag))
+  }
+
   csvwrite(
     new File("tb/NlosCore/hrsdk_10_10.csv"),
     h_rsdk(10)(10).map(_.real)
