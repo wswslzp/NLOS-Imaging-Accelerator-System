@@ -114,9 +114,9 @@ object NlosCoreTest extends App {
 
       // Catch rsd_fft_prod
       () => {
+        var cur_d = 0
+        var cur_f = 0
         while(true){
-          var cur_d = 0
-          var cur_f = 0
           fork{
             dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean)
             cur_d = dd
