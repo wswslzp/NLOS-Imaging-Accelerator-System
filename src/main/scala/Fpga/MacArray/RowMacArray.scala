@@ -26,6 +26,7 @@ case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) ex
 
   // Pipeline the complex multiplication for good timing. Trade off between area and timing.
   // todo multiplication wrong, for what???
+  //  after testing, the product of rsd kernel and fft out are the cause of inaccuracy of final result.
   val mulStage = 8
   val rsd_fft_prod = Vec.tabulate(cfg.rows){idx=>
     var tmp: HComplex = null // HCC(16, 12)
@@ -37,7 +38,7 @@ case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) ex
     RegNext(tmp)
   } simPublic()
 //  val rsd_fft_prod_valid = RegNext(valid) init False
-  val rsd_fft_prod_valid = Delay(valid, cycleCount = mulStage, init = False) simPublic()
+  val rsd_fft_prod_valid = Delay(valid, cycleCount = mulStage+1, init = False) simPublic()
 
   // Count up for the current column address
   val col_addr_area = countUpInside(rsd_fft_prod_valid, cfg.cols)
