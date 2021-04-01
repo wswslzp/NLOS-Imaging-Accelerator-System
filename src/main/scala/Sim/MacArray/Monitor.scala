@@ -18,6 +18,10 @@ object Monitor {
     catchFlowVecData(dut.clockDomain, dut.io.rsd_kernel, row_out = false)
   }
 
+  def catchRsdFuinProd(dut: RowMacArray): DenseMatrix[Complex] = {
+    catchVecData(dut.clockDomain, dut.rsd_fft_prod, dut.rsd_fft_prod_valid, row_out = false)
+  }
+
   def catchMacResult(dut: RowMacArray): DenseMatrix[Complex] = {
     catchFlowVecData(dut.clockDomain, dut.io.mac_result, row_out = false)
   }

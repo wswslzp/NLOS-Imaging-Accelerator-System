@@ -39,6 +39,9 @@ object NlosCoreTest extends App {
   val h_mac_result = Array.fill(rsd_cfg.depth_factor)(
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   )
+  val h_rsd_fft_prod = Array.fill(rsd_cfg.depth_factor, rsd_cfg.freq_factor)(
+    DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
+  )
   val h_fft_out = Array.fill(rsd_cfg.freq_factor) {
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   }
@@ -109,6 +112,17 @@ object NlosCoreTest extends App {
       }
       ,
 
+      // Catch rsd_fft_prod
+      () => {
+        while(true){
+          dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean)
+          val cur_d = dd
+          val cur_f = ff
+          h_rsd_fft_prod(cur_d)(cur_f) = catchRsdFuinProd(dut)
+        }
+      }
+      ,
+
       // catch rsd kernel rad
       () => {
         while(true) {
@@ -128,6 +142,8 @@ object NlosCoreTest extends App {
   testFUin(h_fft_out)
   println("testing h_fft_out and h_rsdk")
   testFUinAndRSDK(h_fft_out, h_rsdk)
+  println("testing h_rsd_fft_prod")
+  testRsdFuinProd(h_rsd_fft_prod)
   csvwrite(
     new File("tb/NlosCore/hrsdk_10_10.csv"),
     h_rsdk(10)(10).map(_.real)

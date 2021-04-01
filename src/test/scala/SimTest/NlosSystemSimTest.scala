@@ -57,7 +57,8 @@ object NlosSystemSimTest extends App{
 //  val rsd_kernel = Computation.restoreRSD(rsd, (uin.head.rows, uin.head.cols))
 
   println("Doing input image's FFT2d...")
-  val uin_fft = uin.map(fourierTr(_).map(_ / (uin.head.rows * uin.head.cols)))
+  val uin_fft = uin.map(fourierTr(_).map(_ / (uin.head.rows.toDouble * uin.head.cols.toDouble)))
+//  val uin_fft = uin.map(fourierTr(_))
 //  println(s"${uin_fft(0)(0 to 5, 0 to 5)}")
   println("Done input image FFT2d!")
 
@@ -71,6 +72,13 @@ object NlosSystemSimTest extends App{
       val rsd_kernel_rad = rsd(depth)(f)
       val rsd_kernel = Computation.restoreRSD(rsd_kernel_rad, kernel_size)
       uout_f += rsd_kernel *:* uin_fft(f)
+      if(depth == 10){
+        new File("tmp/macres/soft_d10").mkdirs()
+        csvwrite(new File(s"tmp/macres/soft_d10/k${f}_real.csv"), rsd_kernel.map(_.real))
+        csvwrite(new File(s"tmp/macres/soft_d10/k${f}_imag.csv"), rsd_kernel.map(_.imag))
+        csvwrite(new File(s"tmp/macres/soft_d10/f${f}_real.csv"), uin_fft(f).map(_.real))
+        csvwrite(new File(s"tmp/macres/soft_d10/f${f}_imag.csv"), uin_fft(f).map(_.imag))
+      }
     }
     if(depth == 10){
       csvwrite(

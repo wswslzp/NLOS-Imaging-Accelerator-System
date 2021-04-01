@@ -32,6 +32,10 @@ object Monitor {
     catchFlowVecData(dut.clockDomain, dut.rgca.io.rsd_kernel, row_out = false)
   }
 
+  def catchRsdFuinProd(dut: NlosCore): DenseMatrix[Complex] = {
+    catchVecData(dut.clockDomain, dut.mac_array.rsd_fft_prod, dut.mac_array.rsd_fft_prod_valid, row_out = false)
+  }
+
   def catchResult(dut: NlosNoDriver): DenseMatrix[Double] = {
     dut.io.result.ready #= true
     dut.clockDomain.waitActiveEdgeWhere(dut.io.result.valid.toBoolean)

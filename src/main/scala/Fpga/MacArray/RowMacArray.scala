@@ -4,6 +4,7 @@ import spinal.core._
 import spinal.lib._
 import Config.RsdKernelConfig
 import Util._
+import spinal.core.sim._
 
 case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) extends Component {
   val io = new Bundle {
@@ -34,9 +35,9 @@ case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) ex
       tmp = Delay(rsd_kernel(idx)*fft_out(idx), mulStage)
     }
     RegNext(tmp)
-  }
+  } simPublic()
 //  val rsd_fft_prod_valid = RegNext(valid) init False
-  val rsd_fft_prod_valid = Delay(valid, cycleCount = mulStage, init = False)
+  val rsd_fft_prod_valid = Delay(valid, cycleCount = mulStage, init = False) simPublic()
 
   // Count up for the current column address
   val col_addr_area = countUpInside(rsd_fft_prod_valid, cfg.cols)
