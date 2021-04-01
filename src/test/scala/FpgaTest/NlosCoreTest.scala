@@ -115,9 +115,13 @@ object NlosCoreTest extends App {
       // Catch rsd_fft_prod
       () => {
         while(true){
-          dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean)
-          val cur_d = dd
-          val cur_f = ff
+          var cur_d = 0
+          var cur_f = 0
+          fork{
+            dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean)
+            cur_d = dd
+            cur_f = ff
+          }
           h_rsd_fft_prod(cur_d)(cur_f) = catchRsdFuinProd(dut)
         }
       }
@@ -144,6 +148,7 @@ object NlosCoreTest extends App {
   testFUinAndRSDK(h_fft_out, h_rsdk)
   println("testing h_rsd_fft_prod")
   testRsdFuinProd(h_rsd_fft_prod)
+
   csvwrite(
     new File("tb/NlosCore/hrsdk_10_10.csv"),
     h_rsdk(10)(10).map(_.real)
