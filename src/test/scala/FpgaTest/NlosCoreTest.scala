@@ -48,6 +48,9 @@ object NlosCoreTest extends App {
   val h_rsdk = Array.fill(rsd_cfg.depth_factor, rsd_cfg.freq_factor) {
     DenseMatrix.zeros[Complex](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
   }
+  val h_rsdk_real_bin = Array.fill(rsd_cfg.freq_factor) {
+    DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
+  }
   val h_rsdk_rad = Array.fill(rsd_cfg.depth_factor, rsd_cfg.freq_factor) {
     DenseVector.zeros[Complex](rsd_cfg.impulse_sample_point)
   }
@@ -112,6 +115,20 @@ object NlosCoreTest extends App {
       }
       ,
 
+      // Monitor for rsdk binary
+      () => {
+//        while (true) {
+          dut.clockDomain.waitActiveEdgeWhere(dut.rgca.io.rsd_kernel.valid.toBoolean && (dut.io.dc.toInt == 10))
+          for(c <- rsd_cfg.colRange){
+            for(r <- rsd_cfg.rowRange){
+              h_rsdk_real_bin(ff)(r, c) = dut.rgca.io.rsd_kernel.payload(r).real.raw.toInt.toDouble
+            }
+            dut.clockDomain.waitSampling()
+          }
+//        }
+      }
+      ,
+
       // Catch rsd_fft_prod
       () => {
         var cur_d = 0
@@ -138,6 +155,12 @@ object NlosCoreTest extends App {
           dut.clockDomain.waitActiveEdgeWhere(!dut.rgca.io.rsd_kernel.valid.toBoolean)
         }
       }
+    )
+  }
+
+  for(f <- rsd_cfg.freqRange){
+    csvwrite(
+      new File(s"tmp/macres/rsdk_d10_f$f.csv"), h_rsdk_real_bin(f)
     )
   }
 
