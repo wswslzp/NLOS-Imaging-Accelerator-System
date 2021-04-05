@@ -162,6 +162,8 @@ object NlosCoreTest extends App {
     hrsdrad_10(f, ::) := h_rsdk_rad(10)(f).map(_.real).t
     rsdrad_10(f, ::) := rsd(10)(f).map(_.real).t
   }
+  csvwrite(new File("tb/NlosCore/hrsdrad10.csv"), hrsdrad_10)
+  csvwrite(new File("tb/NlosCore/rsdrad10.csv"), rsdrad_10)
   println("testing mac result")
   testMacResult(h_mac_result)
 
