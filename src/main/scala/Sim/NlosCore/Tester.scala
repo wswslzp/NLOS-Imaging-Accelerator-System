@@ -97,6 +97,8 @@ object Tester {
 
   def testFUinAndRSDK(fuin: Array[DenseMatrix[Complex]], rsdk: Array[Array[DenseMatrix[Complex]]], fname: String = "nlos_test_fuin_and_rsdk"): Unit = {
     val kernel_size = (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
+    new File("tmp/macres/soft_prod").mkdirs()
+    new File("tmp/macres/hard_d10").mkdirs()
     val uout = Array.tabulate(rsd_cfg.depth_factor) { d =>
       val uout_f = DenseMatrix.fill(kernel_size._1, kernel_size._2)(Complex(0, 0))
       for(f <- rsd_cfg.freqRange) {
@@ -104,13 +106,12 @@ object Tester {
         val rsd_fft_prod = rsd_kernel *:* fuin(f)
         uout_f += rsd_fft_prod
         if(d == 10){
-          new File("tmp/macres/soft_prod").mkdirs()
           csvwrite(new File(s"tmp/macres/soft_prod/soft_f${f}_real.csv"), rsd_fft_prod.map(_.real))
           csvwrite(new File(s"tmp/macres/soft_prod/soft_f${f}_imag.csv"), rsd_fft_prod.map(_.imag))
-//          csvwrite(new File(s"tmp/macres/d10/k${f}_real.csv"), rsd_kernel.map(_.real))
-//          csvwrite(new File(s"tmp/macres/d10/k${f}_imag.csv"), rsd_kernel.map(_.imag))
-//          csvwrite(new File(s"tmp/macres/d10/f${f}_real.csv"), fuin(f).map(_.real))
-//          csvwrite(new File(s"tmp/macres/d10/f${f}_imag.csv"), fuin(f).map(_.imag))
+          csvwrite(new File(s"tmp/macres/hard_d10/k${f}_real.csv"), rsd_kernel.map(_.real))
+          csvwrite(new File(s"tmp/macres/hard_d10/k${f}_imag.csv"), rsd_kernel.map(_.imag))
+          csvwrite(new File(s"tmp/macres/hard_d10/f${f}_real.csv"), fuin(f).map(_.real))
+          csvwrite(new File(s"tmp/macres/hard_d10/f${f}_imag.csv"), fuin(f).map(_.imag))
         }
       }
       if(d == 10) {

@@ -121,7 +121,7 @@ object NlosCoreTest extends App {
             dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean)
             cur_d = dd
             cur_f = ff
-            println(s"current prod catch cycle is ($cur_d, $cur_f)")
+//            println(s"current prod catch cycle is ($cur_d, $cur_f)")
           }
           h_rsd_fft_prod(cur_d)(cur_f) = catchRsdFuinProd(dut)
         }
@@ -156,40 +156,14 @@ object NlosCoreTest extends App {
     csvwrite(new File(s"tmp/macres/hard_prod/hard_f${f}_imag.csv"), h_rsd_fft_prod(10)(f).map(_.imag))
   }
 
-  csvwrite(
-    new File("tb/NlosCore/hrsdk_10_10.csv"),
-    h_rsdk(10)(10).map(_.real)
-  )
-  csvwrite(
-    new File("tb/NlosCore/rsdk_10_10.csv"),
-    rsd_kernel(10)(10).map(_.real)
-  )
-
   val hrsdrad_10 = DenseMatrix.zeros[Double](rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)
   val rsdrad_10 = DenseMatrix.zeros[Double](rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)
   for(f <- rsd_cfg.freqRange){
     hrsdrad_10(f, ::) := h_rsdk_rad(10)(f).map(_.real).t
     rsdrad_10(f, ::) := rsd(10)(f).map(_.real).t
   }
-  csvwrite(
-    new File("tb/NlosCore/hrsdrad_10.csv"),
-    hrsdrad_10
-  )
-  csvwrite(
-    new File("tb/NlosCore/rsdrad_10.csv"),
-    rsdrad_10
-  )
-
   println("testing mac result")
   testMacResult(h_mac_result)
-  csvwrite(
-    new File("tb/NlosCore/hmac_res10.csv"),
-    h_mac_result(10).map(_.real)
-  )
-  csvwrite(
-    new File("tb/NlosCore/hfftout10.csv"),
-    h_fft_out(10).map(_.real)
-  )
 
   println("testing uout")
   testFinal(uout)
