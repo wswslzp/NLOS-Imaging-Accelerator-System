@@ -117,7 +117,7 @@ object NlosCoreTest extends App {
 
       // Monitor for rsdk binary
       () => {
-//        while (true) {
+        while (true) {
           dut.clockDomain.waitActiveEdgeWhere(dut.rgca.io.rsd_kernel.valid.toBoolean && (dut.io.dc.toInt == 10))
           for(c <- rsd_cfg.colRange){
             for(r <- rsd_cfg.rowRange){
@@ -125,7 +125,7 @@ object NlosCoreTest extends App {
             }
             dut.clockDomain.waitSampling()
           }
-//        }
+        }
       }
       ,
 
