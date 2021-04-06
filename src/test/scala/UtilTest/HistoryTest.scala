@@ -4,6 +4,7 @@ import spinal.core._
 import spinal.lib._
 
 object HistoryTest extends App {
+  import spinal.core.GenerationFlags._
 
   case class HT() extends Component {
     val dati_valid = in Bool()
@@ -22,7 +23,7 @@ object HistoryTest extends App {
     }
     report(Seq("his", his(1), "and dati", dati))
 
-    dato := his_1.reduce(_ | _).resized
+    dato := his_1.reduceBalancedTree(_ | _).resized
   }
 
   SpinalConfig(

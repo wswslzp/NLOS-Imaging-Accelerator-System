@@ -157,7 +157,7 @@ object NlosCoreTest extends App {
           for(c <- rsd_cfg.colRange){
             for(r <- rsd_cfg.rowRange){
               h_prod_bin_10(curf)(r, c) = dut.mac_array.rsd_fft_prod(r).real.raw.toInt.toDouble
-              h_prod_fix_10(curf)(r, c) = dut.mac_array.rsd_fft_prod(r).real.toDouble
+              h_prod_fix_10(curf)(r, c) = dut.mac_array.rsd_fft_prod(r).toComplex.real
             }
             dut.clockDomain.waitSampling()
           }
@@ -165,6 +165,7 @@ object NlosCoreTest extends App {
         }
       }
       ,
+
       // catch rsd kernel rad
       () => {
         while(true) {
