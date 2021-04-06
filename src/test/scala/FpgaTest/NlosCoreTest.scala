@@ -77,7 +77,7 @@ object NlosCoreTest extends App {
         var uout_d = 0
         while (true) {
           uout(uout_d) = catchResult(dut)
-          println(s"Get the ${uout_d}th output image.")
+//          println(s"Get the ${uout_d}th output image.")
           uout_d += 1
         }
       }
@@ -88,7 +88,7 @@ object NlosCoreTest extends App {
         var uout_d = 0
         while (true) {
           h_mac_result(uout_d) = catchMacResult(dut)
-          println(s"Get the ${uout_d}th mac result.")
+//          println(s"Get the ${uout_d}th mac result.")
           uout_d += 1
         }
       }
@@ -101,7 +101,7 @@ object NlosCoreTest extends App {
           if (dd == 0 && hf < rsd_cfg.freq_factor) {
             val tmp = catchFUin(dut)
             h_fft_out(hf) = tmp
-            println(s"Got the ${hf}th fft uin image.")
+//            println(s"Got the ${hf}th fft uin image.")
             hf += 1
           } else {
             dut.clockDomain.waitSampling()
@@ -161,6 +161,7 @@ object NlosCoreTest extends App {
             }
             dut.clockDomain.waitSampling()
           }
+          println(s"comp prod catch cycle is (10, $curf)")
         }
       }
       ,
