@@ -6,6 +6,7 @@ import Sim.NlosCore.Driver._
 import Sim.NlosCore.Monitor._
 import Sim.NlosCore.Tester._
 import Sim.SimComplex._
+import Sim.SimFix._
 import breeze.linalg._
 import breeze.math._
 import spinal.core.sim._
@@ -55,6 +56,7 @@ object NlosCoreTest extends App {
     DenseVector.zeros[Complex](rsd_cfg.impulse_sample_point)
   }
   val h_prod_bin_10 = Array.fill(rsd_cfg.freq_factor)(DenseMatrix.zeros[Double](rsd_cfg.rows, rsd_cfg.cols))
+  val h_prod_fix_10 = Array.fill(rsd_cfg.freq_factor)(DenseMatrix.zeros[Double](rsd_cfg.rows, rsd_cfg.cols))
   compiled.doSim("NlosCore_tb") { dut =>
     dut.clockDomain.forkStimulus(2)
     dutInit(dut)
@@ -140,9 +142,9 @@ object NlosCoreTest extends App {
             dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean)
             cur_d = dd
             cur_f = ff
-//            println(s"current prod catch cycle is ($cur_d, $cur_f)")
           }
           h_rsd_fft_prod(cur_d)(cur_f) = catchRsdFuinProd(dut)
+          println(s"current prod catch cycle is ($cur_d, $cur_f)")
         }
       }
       ,
@@ -155,6 +157,7 @@ object NlosCoreTest extends App {
           for(c <- rsd_cfg.colRange){
             for(r <- rsd_cfg.rowRange){
               h_prod_bin_10(curf)(r, c) = dut.mac_array.rsd_fft_prod(r).real.raw.toInt.toDouble
+              h_prod_fix_10(curf)(r, c) = dut.mac_array.rsd_fft_prod(r).real.toDouble
             }
             dut.clockDomain.waitSampling()
           }
@@ -179,9 +182,15 @@ object NlosCoreTest extends App {
       new File(s"tmp/macres/rsdk_d10_f$f.csv"), h_rsdk_real_bin(f)
     )
   }
+  new File("tmp/macres/prod_bin_fix_comp").mkdir()
   for(f <- rsd_cfg.freqRange){
     csvwrite(
-      new File(s"tmp/macres/h_prod_d10_f$f.csv"), h_prod_bin_10(f)
+      new File(s"tmp/macres/prod_bin_fix_comp/d10_bin_f$f.csv"), h_prod_bin_10(f)
+    )
+  }
+  for(f <- rsd_cfg.freqRange){
+    csvwrite(
+      new File(s"tmp/macres/prod_bin_fix_comp/d10_fix_f$f.csv"), h_prod_fix_10(f)
     )
   }
 
@@ -196,8 +205,8 @@ object NlosCoreTest extends App {
 
   new File("tmp/macres/hard_prod").mkdir()
   for(f <- rsd_cfg.freqRange){
-    csvwrite(new File(s"tmp/macres/hard_prod/hard_f${f}_real.csv"), h_rsd_fft_prod(10)(f).map(_.real))
-    csvwrite(new File(s"tmp/macres/hard_prod/hard_f${f}_imag.csv"), h_rsd_fft_prod(10)(f).map(_.imag))
+    csvwrite(new File(s"tmp/macres/hard_prod/h_prod_f${f}_real.csv"), h_rsd_fft_prod(10)(f).map(_.real))
+    csvwrite(new File(s"tmp/macres/hard_prod/h_prod_f${f}_imag.csv"), h_rsd_fft_prod(10)(f).map(_.imag))
   }
 
   val hrsdrad_10 = DenseMatrix.zeros[Double](rsd_cfg.freq_factor, rsd_cfg.impulse_sample_point)
