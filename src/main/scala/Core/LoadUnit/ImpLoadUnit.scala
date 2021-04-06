@@ -88,8 +88,10 @@ case class ImpLoadUnit(
       l <- 0 until Rlength
       ram = int_ram_array(l)
     } {
-//      io.impulse_out.payload(l) := ram(virtual_imp_radix)
-      io.impulse_out.payload(l).assignFromBits(ram(virtual_imp_radix))
+//      io.impulse_out.payload(l).assignFromBits(ram(virtual_imp_radix))
+      io.impulse_out.payload(l).assignFromBits(
+        ram.readAsync(virtual_imp_radix, readUnderWrite = writeFirst)
+      )
     }
     io.impulse_out.valid := virtual_imp_radix_area.cond_period
     io.rsd_comp_end := virtual_imp_radix.willOverflow

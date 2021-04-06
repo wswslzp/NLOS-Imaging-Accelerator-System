@@ -135,17 +135,23 @@ object NlosCoreTest extends App {
       // Catch rsd_fft_prod
       // todo: the monitor maybe wrong??
       () => {
-        var cur_d = 0
-        var cur_f = 0
-        while(true){
-          fork{
-            dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean)
-            cur_d = dd
-            cur_f = ff
+        for(curd <- rsd_cfg.depthRange){
+          for(curf <- rsd_cfg.freqRange){
+            h_rsd_fft_prod(curd)(curf) = catchRsdFuinProd(dut)
           }
-          h_rsd_fft_prod(cur_d)(cur_f) = catchRsdFuinProd(dut)
-          println(s"current prod catch cycle is ($cur_d, $cur_f)")
         }
+//        var cur_d = 0
+//        var cur_f = 0
+//        while(true){
+//          fork{
+//            dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean)
+//            cur_d = dd
+//            cur_f = ff
+//          }
+//          // todo: curf falls one cycle behind actual cycle
+//          h_rsd_fft_prod(cur_d)(cur_f) = catchRsdFuinProd(dut)
+//          println(s"current prod catch cycle is ($cur_d, $cur_f)")
+//        }
       }
       ,
 

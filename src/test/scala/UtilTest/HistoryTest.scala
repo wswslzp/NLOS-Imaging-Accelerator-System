@@ -23,7 +23,7 @@ object HistoryTest extends App {
     }
     report(Seq("his", his(1), "and dati", dati))
 
-    dato := his_1.reduceBalancedTree(_ | _).resized
+    dato := int_mem.readAsync(dati.resized, readUnderWrite = writeFirst).resized
   }
 
   SpinalConfig(
