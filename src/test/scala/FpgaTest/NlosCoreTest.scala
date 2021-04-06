@@ -112,8 +112,13 @@ object NlosCoreTest extends App {
 
       // Monitor for rsdk
       () => {
-        while (true) {
-          h_rsdk(dd)(ff) = catchRSDK(dut)
+//        while (true) {
+//          h_rsdk(dd)(ff) = catchRSDK(dut)
+//        }
+        for(curd <- rsd_cfg.depthRange){
+          for(curf <- rsd_cfg.freqRange){
+            h_rsdk(curd)(curf) = catchRSDK(dut)
+          }
         }
       }
       ,
@@ -154,23 +159,23 @@ object NlosCoreTest extends App {
 //        }
       }
       ,
-
-      () => {
-        var curf = 0
-        while(true){
-          dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean && ( dut.io.dc.toInt == 10 ))
-          curf = ff
-          for(c <- rsd_cfg.colRange){
-            for(r <- rsd_cfg.rowRange){
-              h_prod_bin_10(curf)(r, c) = dut.mac_array.rsd_fft_prod(r).real.raw.toInt.toDouble
-              h_prod_fix_10(curf)(r, c) = dut.mac_array.rsd_fft_prod(r).toComplex.real
-            }
-            dut.clockDomain.waitSampling()
-          }
-          println(s"comp prod catch cycle is (10, $curf)")
-        }
-      }
-      ,
+//
+//      () => {
+//        var curf = 0
+//        while(true){
+//          dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean && ( dut.io.dc.toInt == 10 ))
+//          curf = ff
+//          for(c <- rsd_cfg.colRange){
+//            for(r <- rsd_cfg.rowRange){
+//              h_prod_bin_10(curf)(r, c) = dut.mac_array.rsd_fft_prod(r).real.raw.toInt.toDouble
+//              h_prod_fix_10(curf)(r, c) = dut.mac_array.rsd_fft_prod(r).toComplex.real
+//            }
+//            dut.clockDomain.waitSampling()
+//          }
+//          println(s"comp prod catch cycle is (10, $curf)")
+//        }
+//      }
+//      ,
 
       // catch rsd kernel rad
       () => {
@@ -190,17 +195,17 @@ object NlosCoreTest extends App {
       new File(s"tmp/macres/rsdk_d10_f$f.csv"), h_rsdk_real_bin(f)
     )
   }
-  new File("tmp/macres/prod_bin_fix_comp").mkdir()
-  for(f <- rsd_cfg.freqRange){
-    csvwrite(
-      new File(s"tmp/macres/prod_bin_fix_comp/d10_bin_f$f.csv"), h_prod_bin_10(f)
-    )
-  }
-  for(f <- rsd_cfg.freqRange){
-    csvwrite(
-      new File(s"tmp/macres/prod_bin_fix_comp/d10_fix_f$f.csv"), h_prod_fix_10(f)
-    )
-  }
+//  new File("tmp/macres/prod_bin_fix_comp").mkdir()
+//  for(f <- rsd_cfg.freqRange){
+//    csvwrite(
+//      new File(s"tmp/macres/prod_bin_fix_comp/d10_bin_f$f.csv"), h_prod_bin_10(f)
+//    )
+//  }
+//  for(f <- rsd_cfg.freqRange){
+//    csvwrite(
+//      new File(s"tmp/macres/prod_bin_fix_comp/d10_fix_f$f.csv"), h_prod_fix_10(f)
+//    )
+//  }
 
   println("testing h_rsdk")
   testRSDK(h_rsdk)
