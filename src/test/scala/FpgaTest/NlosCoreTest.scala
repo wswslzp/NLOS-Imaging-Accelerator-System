@@ -54,6 +54,7 @@ object NlosCoreTest extends App {
   val h_rsdk_rad = Array.fill(rsd_cfg.depth_factor, rsd_cfg.freq_factor) {
     DenseVector.zeros[Complex](rsd_cfg.impulse_sample_point)
   }
+  val h_prod_bin_10 = Array.fill(rsd_cfg.freq_factor)(DenseMatrix.zeros[Double](rsd_cfg.rows, rsd_cfg.cols))
   compiled.doSim("NlosCore_tb") { dut =>
     dut.clockDomain.forkStimulus(2)
     dutInit(dut)
@@ -130,6 +131,7 @@ object NlosCoreTest extends App {
       ,
 
       // Catch rsd_fft_prod
+      // todo: the monitor maybe wrong??
       () => {
         var cur_d = 0
         var cur_f = 0
@@ -145,6 +147,20 @@ object NlosCoreTest extends App {
       }
       ,
 
+      () => {
+        var curf = 0
+        while(true){
+          dut.clockDomain.waitActiveEdgeWhere(dut.mac_array.rsd_fft_prod_valid.toBoolean && ( dut.io.dc.toInt == 10 ))
+          curf = ff
+          for(c <- rsd_cfg.colRange){
+            for(r <- rsd_cfg.rowRange){
+              h_prod_bin_10(curf)(r, c) = dut.mac_array.rsd_fft_prod(r).real.raw.toInt.toDouble
+            }
+            dut.clockDomain.waitSampling()
+          }
+        }
+      }
+      ,
       // catch rsd kernel rad
       () => {
         while(true) {
@@ -161,6 +177,11 @@ object NlosCoreTest extends App {
   for(f <- rsd_cfg.freqRange){
     csvwrite(
       new File(s"tmp/macres/rsdk_d10_f$f.csv"), h_rsdk_real_bin(f)
+    )
+  }
+  for(f <- rsd_cfg.freqRange){
+    csvwrite(
+      new File(s"tmp/macres/h_prod_d10_f$f.csv"), h_prod_bin_10(f)
     )
   }
 
