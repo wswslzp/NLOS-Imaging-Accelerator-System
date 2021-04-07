@@ -73,13 +73,13 @@ object NlosSystemSimTest extends App{
       val rsd_kernel = Computation.restoreRSD(rsd_kernel_rad, kernel_size)
       uout_f += rsd_kernel *:* uin_fft(f)
       if(depth == 10){
+        print(".")
         new File("tmp/macres/soft_d10").mkdirs()
         csvwrite(new File(s"tmp/macres/soft_d10/k${f}_real.csv"), rsd_kernel.map(_.real))
         csvwrite(new File(s"tmp/macres/soft_d10/k${f}_imag.csv"), rsd_kernel.map(_.imag))
-        csvwrite(new File(s"tmp/macres/soft_d10/f${f}_real.csv"), uin_fft(f).map(_.real))
-        csvwrite(new File(s"tmp/macres/soft_d10/f${f}_imag.csv"), uin_fft(f).map(_.imag))
       }
     }
+    print("\n")
     if(depth == 10){
       csvwrite(
         new File("tmp/soft_uoutf10.csv"),

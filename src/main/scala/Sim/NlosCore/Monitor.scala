@@ -25,7 +25,8 @@ object Monitor {
   }
 
   def catchFUin(dut: NlosCore): DenseMatrix[Complex] = {
-    catchFlowVecData(dut.clockDomain, dut.fft2d_core.io.data_to_mac, row_out = false)
+//    catchFlowVecData(dut.clockDomain, dut.fft2d_core.io.data_to_mac, row_out = false)
+    catchFlowVecData(dut.clockDomain, dut.mac_array.io.fft_out, row_out = false)
   }
 
   def catchRSDK(dut: NlosCore): DenseMatrix[Complex] = {
