@@ -115,8 +115,8 @@ object RsdKernelConfig {
   )
   lazy val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
     LoadData.loadComplexMatrix(
-      real_part_filename = s"src/test/resource/uin/letter_4/real/uin_${idx+1}.csv",
-      imag_part_filename = s"src/test/resource/uin/letter_4/imag/uin_${idx+1}.csv"
+      real_part_filename = s"src/test/resource/uin/letter_44i/real/uin_${idx+1}.csv",
+      imag_part_filename = s"src/test/resource/uin/letter_44i/imag/uin_${idx+1}.csv"
     )
   }
   implicit val axi_config: Axi4Config = Axi4Config(
