@@ -5,6 +5,7 @@ import Core.FFT2d.FFT2d._
 import Util._
 import spinal.core._
 import spinal.lib._
+import sim._
 
 /** FFT2d core does following three things
 *  1. When df = (0, x), it computes the fft2d of input image, sends the result to both output `data_out` and the
@@ -68,7 +69,8 @@ case class FFT2dCore_v1(rsd_cfg: RsdKernelConfig, freq_factor: Int, depth_factor
     Mem(Bits(fft_out_to_mac.payload.head.config.getComplexWidth bit), BigInt(cfg.point*freq_factor))
   )
   int_mem.foreach(_.addAttribute("ramstyle", "M20K"))
-  val int_mem_address: UInt = io.fc * freq_factor + col_addr_cnt
+//  val int_mem_address: UInt = io.fc * freq_factor + col_addr_cnt
+  val int_mem_address: UInt = io.fc * cfg.point + col_addr_cnt
   val dc_eq_0 = io.dc === 0
   val mem_out = Vec.fill(cfg.row)(HComplex(fft_out_to_mac.payload.head.config))//HCC(38,26)
   for(i <- int_mem.indices){
