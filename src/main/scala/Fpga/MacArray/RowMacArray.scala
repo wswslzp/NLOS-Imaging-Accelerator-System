@@ -13,7 +13,7 @@ case class RowMacArray(cfg: RsdKernelConfig)(implicit val fpgaImpl: FpgaImpl) ex
     val dc_eq_0 = in Bool()
     val ifft2d_done = in Bool()
     val rsd_kernel = slave(Flow(Vec(HComplex(cfg.getKernelConfig), cfg.rows)))
-    val fft_out = slave(Flow(Vec(HComplex(cfg.getFUinConfig), cfg.rows)))
+    val fft_out = slave(Flow(Vec(HComplex(cfg.getFUinConfig), cfg.rows))) simPublic()
     val mac_result = master(Flow(Vec(HComplex(cfg.getMACDatConfig), cfg.rows)))
     val clear_confirm = out Bool()
   }
