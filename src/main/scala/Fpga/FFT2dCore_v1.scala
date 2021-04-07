@@ -5,7 +5,6 @@ import Core.FFT2d.FFT2d._
 import Util._
 import spinal.core._
 import spinal.lib._
-import sim._
 
 /** FFT2d core does following three things
 *  1. When df = (0, x), it computes the fft2d of input image, sends the result to both output `data_out` and the
