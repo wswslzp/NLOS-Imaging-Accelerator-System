@@ -39,7 +39,7 @@ object NlosFpgaCoreTest extends App{
 
       dut.io.sys_init #= true
 //      for(_ <- 0 until 1){dut.clockDomain.waitSamplingWhere(dut.io.done.toBoolean)}
-      uout_pp := catchResult(dut, 2)
+      uout_pp := catchResult(dut)
       dut.clockDomain.waitSamplingWhere(dut.io.done.toBoolean)
       simSuccess()
     }
