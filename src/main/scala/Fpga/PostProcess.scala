@@ -20,7 +20,7 @@ import Util._
 case class PostProcess(
                         cfg: RsdKernelConfig,
                         quant_bit_width: Int = 8,
-                        over_sample_factor: Int = 2//,
+                        over_sample_factor: Int = 1//,
 //                        pixel_parallel: Int = 2
                       ) extends Component{
   require(( quant_bit_width >= 8 ) && ( over_sample_factor >= 1 ) )
@@ -98,6 +98,8 @@ case class PostProcess(
 
   // ***************** interpolate, fliplr and output **********
   // Counter for image ( osf * cfg.rows * osf * cfg.cols/pixel_parallel )
+  // TODO: Here the interpolation is bad for the final representation
+  //  considering 1) use bilinear interpolation; 2) Interpolate the read out result on software not from hardware.
   def addressTrans(os_pix_addr: UInt): UInt = {
     val os_row = os_pix_addr / (cfg.cols * over_sample_factor)
     val os_col = (cfg.cols*over_sample_factor) - os_pix_addr % (cfg.cols * over_sample_factor)

@@ -13,7 +13,15 @@ object NlosCoreMain extends App{
   SpinalConfig(
     targetDirectory = "../rtl/NlosCore",
     oneFilePerComponent = true
-  ).generateVerilog(
-    NlosCore(rsd_cfg)
-  )
+  ).generateVerilog{
+    val core = NlosCore(rsd_cfg)
+    core.rework{ // Useless
+      core.io.result.allowDirectionLessIo
+      core.io.result.setAsDirectionLess()
+      val of = out Bool()
+      val result_stream = core.io.result.toStream(of)
+      master(result_stream)
+    }
+    core
+  }
 }

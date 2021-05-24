@@ -17,7 +17,7 @@ object HComplexMulStage {
   def apply(stage: Int): Unit = {hComplexMulStage.stage = stage}
 }
 
-case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/{
+case class HComplex(config:HComplexConfig) extends Bundle with Num[HComplex] {
   import MyUFix.toMyUFix
   import MySFix.toMySFix
   val dw = config.intw + config.fracw
@@ -44,7 +44,7 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
     ret
   }
 
-  def +(that: HComplex): HComplex = {
+  override def +(that: HComplex): HComplex = {
 //    require(this.config == that.config)
     val result = HComplex(this.config + that.config)
     result.real := this.real + that.real
@@ -52,7 +52,7 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
     result
   }
 
-  def -(that: HComplex): HComplex = {
+  override def -(that: HComplex): HComplex = {
 //    require(this.config == that.config)
     val result = HComplex(this.config + that.config)
     result.real := this.real - that.real
@@ -67,7 +67,7 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
     ret
   }
 
-  def >>(that: Int): HComplex = {
+  override def >>(that: Int): HComplex = {
     val ret = HComplex(this.config)
     ret.real.assignFromBits(( real.asBits.asSInt |>> that ).asBits)
     ret.imag.assignFromBits(( imag.asBits.asSInt |>> that ).asBits)
@@ -94,7 +94,7 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
   }
 
   // No pipeline for multiplication
-  def *(that: HComplex)(implicit use_synthesizable_mul: Synthesizable): HComplex = {
+  def doMulOp(that: HComplex)(implicit use_synthesizable_mul: Synthesizable): HComplex = {
     val result = HComplex(this.config * that.config)
     if (!use_synthesizable_mul.flag) {
       if(config.useGauss) {
@@ -118,94 +118,6 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
       }else{
         result.real := (MulUnit(this.real, that.real) - MulUnit(this.imag, that.imag)).fixTo(result.real.sq)
         result.imag := (MulUnit(this.real, that.imag) + MulUnit(this.imag, that.real)).fixTo(result.imag.sq)
-      }
-    }
-    result
-  }
-
-  // One stage multiplication
-  // TODO: Multi-stage multiplication
-  def *\*(that: HComplex)(implicit hComplexMulStage: HComplexMulStage): HComplex = {
-    SpinalInfo(s"Current multiplication stage is ${hComplexMulStage.stage}")
-    val result = HComplex(this.config * that.config)
-    if(config.useGauss) {
-      if(hComplexMulStage.stage == 0){
-        val k1 = (this.real + this.imag) * that.real
-        val k2 = (that.imag - that.real) * this.real
-        val k3 = (that.real + that.imag) * this.imag
-        result.real := ( k1 - k3 ).fixTo(result.real.sq)
-        result.imag := ( k1 + k2 ).fixTo(result.imag.sq)
-      } else if (hComplexMulStage.stage == 1){
-        val k1 = RegNext( (this.real + this.imag) * that.real )
-        val k2 = RegNext( (that.imag - that.real) * this.real )
-        val k3 = RegNext( (that.real + that.imag) * this.imag )
-        result.real := ( k1 - k3 ).fixTo(result.real.sq)
-        result.imag := ( k1 + k2 ).fixTo(result.imag.sq)
-      } else if (hComplexMulStage.stage == 2){
-        val k1 = RegNext(this.real + this.imag)
-        val k2 = RegNext(that.imag - that.real)
-        val k3 = RegNext(that.real + that.imag)
-        val l1 = RegNext(k1 * that.real)
-        val l2 = RegNext(k2 * this.real)
-        val l3 = RegNext(k3 * this.imag)
-        result.real := (l1 - l3).fixTo(result.real.sq)
-        result.imag := (l1 + l2).fixTo(result.imag.sq)
-      } else if (hComplexMulStage.stage == 3){
-        val k1 = RegNext(this.real + this.imag)
-        val k2 = RegNext(that.imag - that.real)
-        val k3 = RegNext(that.real + that.imag)
-        val l1 = RegNext(k1 * that.real)
-        val l2 = RegNext(k2 * this.real)
-        val l3 = RegNext(k3 * this.imag)
-        val r1 = RegNext(l1 - l3)
-        val r2 = RegNext(l1 + l2)
-        result.real := r1.fixTo(result.real.sq)
-        result.imag := r2.fixTo(result.imag.sq)
-      } else if (hComplexMulStage.stage == 4){
-        val k1 = RegNext(this.real + this.imag).setName("k1")
-        val k2 = RegNext(that.imag - that.real).setName("k2")
-        val k3 = RegNext(that.real + that.imag).setName("k3")
-        val l1 = RegNext(k1 * that.real).setName("l1")
-        val l2 = RegNext(k2 * this.real).setName("l2")
-        val l3 = RegNext(k3 * this.imag).setName("l3")
-        val r1 = RegNext(l1 - l3).setName("r1")
-        val r2 = RegNext(l1 + l2).setName("r2")
-        result.real := RegNext( r1.fixTo(result.real.sq) )
-        result.imag := RegNext( r2.fixTo(result.imag.sq) )
-      } else {
-        SpinalError(s"Invalid stage ${hComplexMulStage.stage} for Gauss multiplication")
-      }
-    }else{
-      if(hComplexMulStage.stage == 0){
-        result.real := ( this.real * that.real - this.imag * that.imag ).fixTo(result.real.sq)
-        result.imag := ( this.real * that.imag + this.imag * that.real ).fixTo(result.imag.sq)
-      } else if (hComplexMulStage.stage == 1){
-        val rr = RegNext(this.real * that.real)
-        val ri = RegNext(this.real * that.imag)
-        val ir = RegNext(this.imag * that.real)
-        val ii = RegNext(this.imag * that.imag)
-        result.real := (rr - ii).fixTo(result.real.sq)
-        result.imag := (ri + ir).fixTo(result.imag.sq)
-      } else if (hComplexMulStage.stage == 2){
-        val rr = RegNext(this.real * that.real)
-        val ri = RegNext(this.real * that.imag)
-        val ir = RegNext(this.imag * that.real)
-        val ii = RegNext(this.imag * that.imag)
-        val k1 = RegNext(rr - ii)
-        val k2 = RegNext(ri + ir)
-        result.real := k1.fixTo(result.real.sq)
-        result.imag := k2.fixTo(result.imag.sq)
-      } else if (hComplexMulStage.stage == 3){
-        val rr = RegNext(this.real * that.real)
-        val ri = RegNext(this.real * that.imag)
-        val ir = RegNext(this.imag * that.real)
-        val ii = RegNext(this.imag * that.imag)
-        val k1 = RegNext(rr - ii)
-        val k2 = RegNext(ri + ir)
-        result.real := RegNext( k1.fixTo(result.real.sq) )
-        result.imag := RegNext( k2.fixTo(result.imag.sq) )
-      } else {
-        SpinalError(s"Invalid stage ${hComplexMulStage.stage} for non-Gauss multiplication")
       }
     }
     result
@@ -269,6 +181,82 @@ case class HComplex(config:HComplexConfig) extends Bundle /*with Num[HComplex]*/
   def :=(that: Bits): Unit = {
     this := HComplex(this.config, that.resize(this.config.getComplexWidth))
   }
+
+  override def tag(q: QFormat) = {
+    this
+  }
+
+  override def +^(right: HComplex) = {
+    val ret = HComplex(this.config + right.config)
+    ret.real.raw := this.real.raw +^ right.real.raw
+    ret.imag.raw := this.imag.raw +^ right.imag.raw
+    ret
+  }
+
+  override def +|(right: HComplex) = {
+    val ret = HComplex(this.config + right.config)
+    ret.real.raw := this.real.raw +| right.real.raw
+    ret.imag.raw := this.imag.raw +| right.imag.raw
+    ret
+  }
+
+  override def -^(right: HComplex) = {
+    val ret = HComplex(this.config + right.config)
+    ret.real.raw := this.real.raw -^ right.real.raw
+    ret.imag.raw := this.imag.raw -^ right.imag.raw
+    ret
+  }
+
+  override def -|(right: HComplex) = {
+    val ret = HComplex(this.config + right.config)
+    ret.real.raw := this.real.raw -| right.real.raw
+    ret.imag.raw := this.imag.raw -| right.imag.raw
+    ret
+  }
+
+  override def *(right: HComplex) = this.doMulOp(right)
+
+  override def /(right: HComplex) = {
+    val right_square = right.real * right.real + right.imag * right.imag
+    val prod = this * right.conj
+    prod / right_square
+  }
+
+  override def %(right: HComplex) = ???
+
+  override def <(right: HComplex) = ???
+
+  override def <=(right: HComplex) = ???
+
+  override def >(right: HComplex) = ???
+
+  override def >=(right: HComplex) = ???
+
+  override def <<(shift: Int) = ???
+
+  override def sat(m: Int) = ???
+
+  override def trim(m: Int) = ???
+
+  override def floor(n: Int) = ???
+
+  override def ceil(n: Int, align: Boolean) = ???
+
+  override def floorToZero(n: Int) = ???
+
+  override def ceilToInf(n: Int, align: Boolean) = ???
+
+  override def roundUp(n: Int, align: Boolean) = ???
+
+  override def roundDown(n: Int, align: Boolean) = ???
+
+  override def roundToZero(n: Int, align: Boolean) = ???
+
+  override def roundToInf(n: Int, align: Boolean) = ???
+
+  override def round(n: Int, align: Boolean) = ???
+
+  override type RefOwnerType = this.type
 }
 
 object HComplex {

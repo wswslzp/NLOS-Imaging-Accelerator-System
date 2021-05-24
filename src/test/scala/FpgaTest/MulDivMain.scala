@@ -16,7 +16,7 @@ object MulDivMain extends App{
       val res = out(HComplex(HComplexConfig(16, 16)))
     }
 
-    val mul_res = RegNext(io.a.*(io.b)(new Synthesizable(true)))
+    val mul_res = RegNext(io.a.doMulOp(io.b)(new Synthesizable(true)))
     val div_res = RegNext(io.a./(io.b.real)(new Synthesizable(true)))
     val mul_sel = Delay(io.mul_sel, 9, init = False)
 //    io.res := mul_sel ? mul_res | div_res //todo never use ?| to mux HComplex

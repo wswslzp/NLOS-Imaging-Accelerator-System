@@ -17,13 +17,13 @@ object NlosFpgaCoreMain extends App{
   SpinalConfig(
     targetDirectory = s"${prj_path}/rtl/NlosFpgaCore",
     defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
-    headerWithDate = true
+    headerWithDate = true, verbose = true
   ).generateVerilog(NlosFpgaCore(rsd_cfg))
 
-  val nlos_fpga_proj = new QuartusProject(
-    quartusPath = "/opt/intelFPGA/20.3/quartus/bin/",
-    workspacePath = "/home/Workspace/Zhengpeng/nlos/fpga/nlos_fpga_sys"
-  )
-
-  nlos_fpga_proj.compile()
+//  val nlos_fpga_proj = new QuartusProject(
+//    quartusPath = "/opt/intelFPGA/20.3/quartus/bin/",
+//    workspacePath = "/home/Workspace/Zhengpeng/nlos/fpga/nlos_fpga_sys"
+//  )
+//
+//  nlos_fpga_proj.compile()
 }

@@ -16,6 +16,7 @@ case class HotMap() extends Component {
   io.red := io.gray.muxList(
     for(i <- 0 until 256) yield (i, U( hot_map(i, 0).toInt ))
   )
+  io.red.addAttribute(new AttributeFlag("red", COMMENT_ATTRIBUTE))
 
   io.green := io.gray.muxList(
     for(i <- 0 until 256) yield (i, U( hot_map(i, 1).toInt ))
@@ -24,4 +25,10 @@ case class HotMap() extends Component {
   io.blue := io.gray.muxList(
     for(i <- 0 until 256) yield (i, U( hot_map(i, 2).toInt ))
   )
+}
+
+object HotMap {
+  def main(args: Array[String]): Unit = {
+    SpinalConfig(targetDirectory = "rtl", verbose = true, anonymSignalUniqueness = true).generateVerilog(HotMap())
+  }
 }
