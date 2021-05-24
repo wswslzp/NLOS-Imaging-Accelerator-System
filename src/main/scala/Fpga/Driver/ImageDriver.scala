@@ -16,13 +16,14 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
     val cnt_incr = in Bool()
     val img_push_start = in Bool()
   }
+  private var embedded_uin = uin
 
   // ************** Memory for image ******
   val image_part_rom = Array.tabulate(cfg.freq_factor) { freq =>
     val rom_init_content = Seq.tabulate(cfg.kernel_size.product) { idx =>
       val row = idx / cfg.cols
       val col = idx % cfg.cols
-      complexToSInt(uin(freq)(row, col), cfg.getUinConfig)
+      complexToSInt(embedded_uin(freq)(row, col), cfg.getUinConfig)
     }
     Mem(rom_init_content.map(dat=> B(dat, cfg.getUinConfig.getComplexWidth bit)))
   }
@@ -56,5 +57,9 @@ case class ImageDriver(cfg: RsdKernelConfig) extends Component with DataTransfor
   } otherwise {
     io.original_img.valid.clear()
     io.original_img.payload := HC(0, 0, cfg.getUinConfig)
+  }
+
+  def setDataset(ds: Dataset): Unit = {
+    embedded_uin = getUin(ds)
   }
 }

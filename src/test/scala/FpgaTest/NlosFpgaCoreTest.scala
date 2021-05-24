@@ -1,14 +1,11 @@
 package FpgaTest
 
-import spinal.core._
 import spinal.core.sim._
-import spinal.lib._
 import Config.RsdKernelConfig._
 import Sim.NlosCore.Monitor._
 import Sim.NlosCore.Tester._
 import Fpga.NlosFpgaCore
 import breeze.linalg._
-
 import scala.sys.process.{Process, ProcessLogger}
 
 object NlosFpgaCoreTest extends App{
@@ -25,10 +22,6 @@ object NlosFpgaCoreTest extends App{
       dut.hdmi_if.video_mem_read_clk.forkStimulus(2)
       dut.io.sys_init #= false
       dut.clockDomain.waitSampling()
-
-//      fork {
-//        SimTimeout(40000000)
-//      }
 
       fork {
         while(true){

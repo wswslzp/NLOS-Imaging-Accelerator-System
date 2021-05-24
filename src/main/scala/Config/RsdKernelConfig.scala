@@ -85,6 +85,25 @@ case class RsdKernelConfig
   }
 }
 
+trait Dataset {
+  def pathToData: String
+}
+object NLOS_LETTER extends Dataset {
+  override def pathToData = "src/test/resource/uin/nlos_letters"
+}
+object LETTER_4 extends Dataset {
+  override def pathToData = "src/test/resource/uin/letter_4"
+}
+object LETTER_44I extends Dataset{
+  override def pathToData = "src/test/resource/uin/letter_44i"
+}
+object RESOLUTION_BAR extends Dataset{
+  override def pathToData = "src/test/resource/uin/resolutionbar"
+}
+object SHELF extends Dataset {
+  override def pathToData = "src/test/resource/uin/shelf"
+}
+
 object RsdKernelConfig {
   lazy val wave = LoadData.loadDoubleMatrix("src/test/resource/data/wave.csv")// wave(radius, depth)
   lazy val distance = LoadData.loadDoubleMatrix("src/test/resource/data/distance.csv")// distance(freq, depth)
@@ -113,6 +132,15 @@ object RsdKernelConfig {
   lazy val impulse: DenseMatrix[Double] = LoadData.loadDoubleMatrix(
   "src/test/resource/data/impulse_rad_real.csv"
   )
+  val all_data_set = List(NLOS_LETTER, LETTER_4, LETTER_44I, RESOLUTION_BAR, SHELF)
+  def getUin(ds: Dataset) = {
+    Array.tabulate(rsd_cfg.freq_factor){idx=>
+      LoadData.loadComplexMatrix(
+        real_part_filename = s"${ds.pathToData}/real/uin_${idx+1}.csv",
+        imag_part_filename = s"${ds.pathToData}/real/uin_${idx+1}.csv"
+      )
+    }
+  }
   lazy val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
     LoadData.loadComplexMatrix(
       real_part_filename = s"src/test/resource/uin/shelf/real/uin_${idx+1}.csv",
