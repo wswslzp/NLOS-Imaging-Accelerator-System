@@ -15,7 +15,11 @@ object NlosTestAll extends App {
   val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*1, rsd_cfg.kernel_size.last*1)
 
   def moduleWithDataset(ds: Dataset): SimCompiled[NlosFpgaCore] = {
-    SimConfig.allOptimisation.workspacePath("tb").compile({
+    SimConfig
+      .allOptimisation
+      .workspacePath("tb")
+      .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
+      .compile({
       val module = NlosFpgaCore(rsd_cfg)
       module.nlos_driver.img_drver.setDataset(ds)
       module
