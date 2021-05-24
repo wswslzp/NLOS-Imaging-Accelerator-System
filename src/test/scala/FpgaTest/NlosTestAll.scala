@@ -3,53 +3,51 @@ package FpgaTest
 import spinal.core.sim._
 import Config._
 import Config.RsdKernelConfig._
+import Sim.NlosCore.Driver._
 import Sim.NlosCore.Monitor._
 import Sim.NlosCore.Tester._
-import Fpga.NlosFpgaCore
+import Fpga._
 import breeze.linalg._
-
 import java.io.File
-import scala.sys.process.{Process, ProcessLogger}
 
 object NlosTestAll extends App {
-  val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*1, rsd_cfg.kernel_size.last*1)
-
-  def moduleWithDataset(ds: Dataset): SimCompiled[NlosFpgaCore] = {
-    SimConfig
+  val compiled = SimConfig
       .allOptimisation
       .workspacePath("tb")
-      .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
-      .compile({
-      val module = NlosFpgaCore(rsd_cfg)
-      module.nlos_driver.img_drver.setDataset(ds)
-      module
-    })
-  }
+      .addSimulatorFlag("-j 32 --threads 32")
+      .compile(NlosNoDriver(rsd_cfg))
 
-  def testFunc(dut: NlosFpgaCore): Unit = {
-    dut.clockDomain.forkStimulus(3)
-    dut.hdmi_if.video_mem_read_clk.forkStimulus(2)
-    dut.io.sys_init #= false
-    dut.clockDomain.waitSampling()
+  val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*2, rsd_cfg.kernel_size.last*2)
 
-    fork {
-      while(true){
-        dut.clockDomain.waitSamplingWhere(dut.nlos_driver.io.cnt_incr.toBoolean)
-        println(s"now is (${dut.nlos_driver.io.dc.toInt}, ${dut.nlos_driver.io.fc.toInt})")
+  def testOnDataset(ds: Dataset): Unit ={
+    compiled.doSim("NlosTestAll") { dut =>
+      dut.clockDomain.forkStimulus(2)
+      dutInit(dut)
+      dut.clockDomain.waitSampling()
+
+      fork {
+        SimTimeout(40000000)
       }
-    }
 
-    dut.io.sys_init #= true
-    uout_pp := catchResult(dut)
-    dut.clockDomain.waitSamplingWhere(dut.io.done.toBoolean)
-    simSuccess()
+      forkJoin(
+
+        // Drive data
+        () => driveRsdData(dut),
+        () => driveImage(dut, ds),
+
+        // Monitor result
+        () => {
+          uout_pp := catchResult(dut)
+        }
+      )
+    }
   }
 
   new File("tmp/result_imgs").mkdirs()
   all_data_set.foreach{ds=>
     val dataset_name = ds.pathToData.split("/").last
     println(s"Testing dataset: $dataset_name")
-    moduleWithDataset(ds).doSim("NlosTestAll")(testFunc)
+    testOnDataset(ds)
     testPostProc(uout_pp, ds, "tmp/result_imgs")
   }
 }

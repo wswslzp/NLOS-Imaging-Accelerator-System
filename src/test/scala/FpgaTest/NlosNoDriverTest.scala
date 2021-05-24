@@ -11,12 +11,12 @@ import spinal.core.sim._
 
 import java.io.File
 import scala.sys.process.{Process, ProcessLogger}
-
+import Config._
 
 object NlosNoDriverTest extends App{
 
 
-  val withWave = true
+  val withWave = false
   val waveDepth = 1
 
   val compiled = if (withWave) {
@@ -35,30 +35,32 @@ object NlosNoDriverTest extends App{
   }
 
   val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*2, rsd_cfg.kernel_size.last*2)
-  compiled.doSim("NlosNoDriver_tb") { dut =>
-    dut.clockDomain.forkStimulus(2)
-    dutInit(dut)
-    dut.clockDomain.waitSampling()
 
-    fork {
-      SimTimeout(40000000)
-    }
+  def testOnDataset(ds: Dataset): Unit ={
+    compiled.doSim("NlosNoDriver_tb") { dut =>
+      dut.clockDomain.forkStimulus(2)
+      dutInit(dut)
+      dut.clockDomain.waitSampling()
 
-    forkJoin(
-
-      // Drive data
-      () => driveRsdData(dut),
-      () => driveImage(dut),
-
-      // Monitor result
-      () => {
-        uout_pp := catchResult(dut)
+      fork {
+        SimTimeout(40000000)
       }
-    )
+
+      forkJoin(
+
+        // Drive data
+        () => driveRsdData(dut),
+        () => driveImage(dut),
+
+        // Monitor result
+        () => {
+          uout_pp := catchResult(dut)
+        }
+      )
+    }
+    testPostProc(uout_pp)
   }
 
-
-  testPostProc(uout_pp)
   if (withWave) {
     val nullLogger = ProcessLogger(_ => {})
     println("Converting vcd to vpd...")
