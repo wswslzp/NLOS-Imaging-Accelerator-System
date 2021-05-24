@@ -7,6 +7,8 @@ import Sim.NlosCore.Monitor._
 import Sim.NlosCore.Tester._
 import Fpga.NlosFpgaCore
 import breeze.linalg._
+
+import java.io.File
 import scala.sys.process.{Process, ProcessLogger}
 
 object NlosTestAll extends App {
@@ -39,10 +41,11 @@ object NlosTestAll extends App {
     simSuccess()
   }
 
+  new File("tmp/result_imgs").mkdirs()
   all_data_set.foreach{ds=>
     val dataset_name = ds.pathToData.split("/").last
     println(s"Testing dataset: $dataset_name")
     moduleWithDataset(ds).doSim("NlosTestAll")(testFunc)
-    testPostProc(uout_pp, "tb/NlosTestAll")
+    testPostProc(uout_pp, "tmp/result_imgs", ds)
   }
 }

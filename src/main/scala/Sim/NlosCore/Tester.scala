@@ -7,6 +7,7 @@ import Sim.write_image
 import breeze.linalg._
 import breeze.math.Complex
 import breeze.signal._
+import Config._
 
 object Tester {
   val coef: Array[DenseMatrix[Complex]] = Computation.generateCoef(wave, distance, timeshift)//(d, f, r)
@@ -41,6 +42,16 @@ object Tester {
     )
 
     write_image(post_proc_result, s"$path/nlos_hard_out.jpg")
+  }
+
+  def testPostProc(post_proc_result: DenseMatrix[Double], path: String = "tb/NlosNoDriver", ds: Dataset): Unit = {
+    val ds_name = ds.pathToData.split("/").last
+    csvwrite(
+      new File(s"$path/$ds_name.csv"),
+      post_proc_result
+    )
+
+    write_image(post_proc_result, s"$path/$ds_name.jpg")
   }
 
   def testFinal(finalResult: Array[DenseMatrix[Complex]]): Unit = {
