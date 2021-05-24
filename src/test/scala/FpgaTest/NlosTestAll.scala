@@ -12,7 +12,7 @@ import java.io.File
 import scala.sys.process.{Process, ProcessLogger}
 
 object NlosTestAll extends App {
-  val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*2, rsd_cfg.kernel_size.last*2)
+  val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*1, rsd_cfg.kernel_size.last*1)
 
   def moduleWithDataset(ds: Dataset): SimCompiled[NlosFpgaCore] = {
     SimConfig.allOptimisation.workspacePath("tb").compile({
