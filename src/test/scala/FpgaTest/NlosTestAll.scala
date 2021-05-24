@@ -46,6 +46,6 @@ object NlosTestAll extends App {
     val dataset_name = ds.pathToData.split("/").last
     println(s"Testing dataset: $dataset_name")
     moduleWithDataset(ds).doSim("NlosTestAll")(testFunc)
-    testPostProc(uout_pp, "tmp/result_imgs", ds)
+    testPostProc(uout_pp, ds, "tmp/result_imgs")
   }
 }

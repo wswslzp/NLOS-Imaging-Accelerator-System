@@ -44,7 +44,7 @@ object Tester {
     write_image(post_proc_result, s"$path/nlos_hard_out.jpg")
   }
 
-  def testPostProc(post_proc_result: DenseMatrix[Double], path: String = "tb/NlosNoDriver", ds: Dataset): Unit = {
+  def testPostProc(post_proc_result: DenseMatrix[Double], ds: Dataset, path: String = "tb/NlosNoDriver"): Unit = {
     val ds_name = ds.pathToData.split("/").last
     csvwrite(
       new File(s"$path/$ds_name.csv"),
