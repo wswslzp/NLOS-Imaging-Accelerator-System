@@ -17,7 +17,10 @@ object NlosTestAll extends App {
       .addSimulatorFlag("-j 32 --threads 32")
       .compile(NlosNoDriver(rsd_cfg))
 
-  val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*2, rsd_cfg.kernel_size.last*2)
+  val rows = compiled.dut.post_proc.over_sample_factor * rsd_cfg.rows
+  val cols = compiled.dut.post_proc.over_sample_factor * rsd_cfg.cols
+  println(s"row is $rows, col is $cols")
+  val uout_pp = DenseMatrix.zeros[Double](rows, cols)
 
   def testOnDataset(ds: Dataset): Unit ={
     compiled.doSim("NlosTestAll") { dut =>
