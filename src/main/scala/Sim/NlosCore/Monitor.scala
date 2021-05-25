@@ -40,7 +40,10 @@ object Monitor {
   def catchResult(dut: NlosNoDriver): DenseMatrix[Double] = {
     dut.io.result.ready #= true
     dut.clockDomain.waitActiveEdgeWhere(dut.io.result.valid.toBoolean)
-    val result = DenseMatrix.zeros[Double](dut.cfg.rows * dut.post_proc.over_sample_factor, dut.cfg.cols * dut.post_proc.over_sample_factor)
+    val rows = dut.cfg.rows * dut.post_proc.over_sample_factor
+    val cols = dut.cfg.cols * dut.post_proc.over_sample_factor
+    println(s"rows is $rows, cols is $cols")
+    val result = DenseMatrix.zeros[Double](rows, cols)
     for(r <- 0 until dut.cfg.rows * dut.post_proc.over_sample_factor){
       for(c <- 0 until dut.cfg.cols * dut.post_proc.over_sample_factor) {
         for(p <- 0 until 1) {
