@@ -10,48 +10,55 @@ import Fpga._
 import breeze.linalg._
 import java.io.File
 
-object NlosTestAll extends App {
-  val compiled = SimConfig
+object NlosTestAll {
+
+  def main(args: Array[String]): Unit = {
+    val compiled = SimConfig
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32")
       .compile(NlosNoDriver(rsd_cfg))
 
-  val rows = compiled.dut.post_proc.over_sample_factor * rsd_cfg.rows
-  val cols = compiled.dut.post_proc.over_sample_factor * rsd_cfg.cols
-  println(s"row is $rows, col is $cols")
-  val uout_pp = DenseMatrix.zeros[Double](rows, cols)
+    val rows = compiled.dut.post_proc.over_sample_factor * rsd_cfg.rows
+    val cols = compiled.dut.post_proc.over_sample_factor * rsd_cfg.cols
+    println(s"row is $rows, col is $cols")
+    val uout_pp = DenseMatrix.zeros[Double](rows, cols)
 
-  def testOnDataset(ds: Dataset, id: Int): Unit ={
-    compiled.doSim(s"NlosTestAll-ds_$id") { dut =>
-      dut.clockDomain.forkStimulus(2)
-      dutInit(dut)
-      dut.clockDomain.waitSampling()
+    def testOnDataset(ds: Dataset, id: Int): Unit ={
+      compiled.doSim(s"NlosTestAll-ds_$id") { dut =>
+        dut.clockDomain.forkStimulus(2)
+        dutInit(dut)
+        dut.clockDomain.waitSampling()
 
-      fork {
-        SimTimeout(40000000)
-      }
-
-      forkJoin(
-
-        // Drive data
-        () => driveRsdData(dut),
-        () => driveImage(dut, ds),
-
-        // Monitor result
-        () => {
-          uout_pp := catchResult(dut)
+        fork {
+          SimTimeout(40000000)
         }
-      )
-    }
-  }
 
-  new File("tmp/result_imgs").mkdirs()
-  all_data_set.foreach{ds=>
-    val dataset_name = ds.pathToData.split("/").last
-    println(s"Testing dataset: $dataset_name")
-    Thread.sleep(1000)
-    testOnDataset(ds, all_data_set.indexOf(ds))
+        forkJoin(
+
+          // Drive data
+          () => driveRsdData(dut),
+          () => driveImage(dut, ds),
+
+          // Monitor result
+          () => {
+            uout_pp := catchResult(dut)
+          }
+        )
+      }
+    }
+
+    new File("tmp/result_imgs").mkdirs()
+    val ds_id = args.head.toInt
+    val ds = all_data_set(ds_id)
+    println(s"Testing dataset: ${ds.pathToData.split('/').last}")
+    testOnDataset(ds, ds_id)
+//    all_data_set.foreach{ds=>
+//      val dataset_name = ds.pathToData.split("/").last
+//      println(s"Testing dataset: $dataset_name")
+//      Thread.sleep(1000)
+//      testOnDataset(ds, all_data_set.indexOf(ds))
     testPostProc(uout_pp, ds, "tmp/result_imgs")
+//    }
   }
 }
