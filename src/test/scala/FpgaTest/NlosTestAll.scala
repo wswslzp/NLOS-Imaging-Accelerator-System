@@ -22,8 +22,8 @@ object NlosTestAll extends App {
   println(s"row is $rows, col is $cols")
   val uout_pp = DenseMatrix.zeros[Double](rows, cols)
 
-  def testOnDataset(ds: Dataset): Unit ={
-    compiled.doSim("NlosTestAll") { dut =>
+  def testOnDataset(ds: Dataset, id: Int): Unit ={
+    compiled.doSim(s"NlosTestAll-ds_$id") { dut =>
       dut.clockDomain.forkStimulus(2)
       dutInit(dut)
       dut.clockDomain.waitSampling()
@@ -51,7 +51,7 @@ object NlosTestAll extends App {
     val dataset_name = ds.pathToData.split("/").last
     println(s"Testing dataset: $dataset_name")
     Thread.sleep(1000)
-    testOnDataset(ds)
+    testOnDataset(ds, all_data_set.indexOf(ds))
     testPostProc(uout_pp, ds, "tmp/result_imgs")
   }
 }
