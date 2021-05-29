@@ -50,6 +50,7 @@ object NlosTestAll extends App {
   all_data_set.foreach{ds=>
     val dataset_name = ds.pathToData.split("/").last
     println(s"Testing dataset: $dataset_name")
+    scala.sys.wait(10)
     testOnDataset(ds)
     testPostProc(uout_pp, ds, "tmp/result_imgs")
   }
