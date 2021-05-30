@@ -34,7 +34,7 @@ object NlosNoDriverTest extends App{
       .compile(NlosNoDriver(rsd_cfg))
   }
 
-  val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*2, rsd_cfg.kernel_size.last*2)
+  val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*1, rsd_cfg.kernel_size.last*1)
 
     compiled.doSim("NlosNoDriver_tb") { dut =>
       dut.clockDomain.forkStimulus(2)
