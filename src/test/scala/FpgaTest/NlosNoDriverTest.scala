@@ -36,7 +36,6 @@ object NlosNoDriverTest extends App{
 
   val uout_pp = DenseMatrix.zeros[Double](rsd_cfg.kernel_size.head*2, rsd_cfg.kernel_size.last*2)
 
-  def testOnDataset(ds: Dataset): Unit ={
     compiled.doSim("NlosNoDriver_tb") { dut =>
       dut.clockDomain.forkStimulus(2)
       dutInit(dut)
@@ -59,7 +58,6 @@ object NlosNoDriverTest extends App{
       )
     }
     testPostProc(uout_pp)
-  }
 
   if (withWave) {
     val nullLogger = ProcessLogger(_ => {})
