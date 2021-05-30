@@ -141,12 +141,7 @@ object RsdKernelConfig {
       )
     }
   }
-  lazy val uin = Array.tabulate(rsd_cfg.freq_factor){idx=>
-    LoadData.loadComplexMatrix(
-      real_part_filename = s"src/test/resource/uin/shelf/real/uin_${idx+1}.csv",
-      imag_part_filename = s"src/test/resource/uin/shelf/imag/uin_${idx+1}.csv"
-    )
-  }
+  lazy val uin = getUin(NLOS_LETTER)
   implicit val axi_config: Axi4Config = Axi4Config(
     addressWidth = 32, dataWidth = 32,
 //    addressWidth = 60, dataWidth = 60,
