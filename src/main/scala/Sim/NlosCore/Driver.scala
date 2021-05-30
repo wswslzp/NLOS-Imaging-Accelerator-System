@@ -167,6 +167,21 @@ object Driver {
     }
   }
 
+  def driveImage(dut: NlosCore, ds: Dataset): Unit = {
+    val embedded_ds = getUin(ds)
+    for(f <- rsd_cfg.freqRange){
+      dut.io.img_in.valid #= true
+      for(x <- rsd_cfg.rowRange){
+        for(y <- rsd_cfg.colRange){
+          dut.io.img_in.payload #= embedded_ds(f)(x, y)
+          dut.clockDomain.waitSampling()
+        }
+      }
+      dut.io.img_in.valid #= false
+      dut.clockDomain.waitActiveEdgeWhere(dut.io.fft_comp_end.toBoolean)
+    }
+  }
+
   /**
    * Drive the input image into the DUT that fft2d will use.
    * @param dut

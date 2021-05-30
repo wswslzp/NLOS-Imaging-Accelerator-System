@@ -76,6 +76,24 @@ object Tester {
     write_image(uout_abs_max_flip, "tb/NlosCore/nlos_hard_out.jpg")
   }
 
+  def testFinal(finalResult: Array[DenseMatrix[Complex]], ds: Dataset, path: String): Unit = {
+    val ds_name = ds.pathToData.split("/").last
+    val uout_abs = finalResult.map(_.map(_.abs))
+
+    val uout_abs_max: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last) { (x, y)=>
+      var umax = 0d
+      for(d <- 0 until rsd_cfg.depth_factor) {
+        if (uout_abs(d)(x, y) > umax) {
+          umax = uout_abs(d)(x, y)
+        }
+      }
+      umax
+    }
+
+    val uout_abs_max_flip = fliplr(uout_abs_max)
+    write_image(uout_abs_max_flip, s"$path/$ds_name.jpg")
+  }
+
   def testRsdFuinProd(prod: Array[Array[DenseMatrix[Complex]]]): Unit = {
     val kernel_size = (rsd_cfg.kernel_size.head, rsd_cfg.kernel_size.last)
     val uout = Array.tabulate(rsd_cfg.depth_factor) { d =>
