@@ -137,7 +137,7 @@ object RsdKernelConfig {
     Array.tabulate(rsd_cfg.freq_factor){idx=>
       LoadData.loadComplexMatrix(
         real_part_filename = s"${ds.pathToData}/real/uin_${idx+1}.csv",
-        imag_part_filename = s"${ds.pathToData}/real/uin_${idx+1}.csv"
+        imag_part_filename = s"${ds.pathToData}/imag/uin_${idx+1}.csv"
       )
     }
   }
