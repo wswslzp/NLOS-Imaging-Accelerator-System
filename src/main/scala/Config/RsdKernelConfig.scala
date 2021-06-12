@@ -130,9 +130,14 @@ object RsdKernelConfig {
   )// timeshift(freq, depth)
 
   //impulse: (impulse_sample_point, radius)
+  val radii_max = ( rsd_cfg.radius_factor / scala.math.sqrt(2) ).toInt
+  lazy val imp_mask: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.impulse_sample_point, rsd_cfg.radius_factor){(i, j)=>
+    if(i < radii_max) 1d
+    else 0d
+  }
   lazy val impulse: DenseMatrix[Double] = LoadData.loadDoubleMatrix(
   "src/test/resource/data/impulse_rad_real.csv"
-  )
+  ) *:* imp_mask
   val all_data_set = List(NLOS_LETTER, LETTER_4, LETTER_44I, RESOLUTION_BAR, SHELF)
   def getUin(ds: Dataset) = {
     Array.tabulate(rsd_cfg.freq_factor){idx=>
