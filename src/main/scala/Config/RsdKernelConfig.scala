@@ -119,8 +119,8 @@ object RsdKernelConfig {
     coef_cfg = HComplexConfig(-5, 21), // (-4 ,20) --> (-5, 21)
     imp_cfg = HComplexConfig(5, 11),
     depth_factor = wave.cols,
-//    radius_factor = wave.rows,
-    radius_factor = ( wave.rows / scala.math.sqrt(2) ).toInt,
+    radius_factor = wave.rows, // todo: consider how to implement the lowpass filter
+//    radius_factor = ( wave.rows / scala.math.sqrt(2) ).toInt,
     freq_factor = distance.rows,
     fpga_impl = true
   )
