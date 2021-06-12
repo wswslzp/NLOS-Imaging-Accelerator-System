@@ -3,6 +3,12 @@ import spinal.core._
 import spinal.lib._
 
 package object Util {
+//  implicit class LogStringLiteral(logMessage: StringContext){
+//    def log(args: Any*): String = {
+//
+//    }
+//  }
+
   case class FpgaImpl(var flag: Boolean)
   object FpgaImpl{
     implicit var fpga_impl = new FpgaImpl(false)

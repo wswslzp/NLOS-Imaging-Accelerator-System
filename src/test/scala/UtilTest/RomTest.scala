@@ -7,7 +7,7 @@ import spinal.lib._
 import java.io.File
 
 object RomTest extends App{
-  case class RomToy() extends Component {
+  case class RomToy1() extends Component {
     val io = new Bundle {
       val addr = in UInt(8 bit)
       val data = out UInt(8 bit)
@@ -17,16 +17,17 @@ object RomTest extends App{
       Seq.tabulate(128){i=>
 //        B(2*i, 8 bit).asUInt
 //        U(B(2*i, 8 bit))
-        B(BigInt( -2*i ), 8 bit)
+        B(BigInt( 2*i ), 8 bit)
       }
     )
 
     io.data := rom.readSync(io.addr.resized).asUInt
   }
 
+  val s = s"ssss"
   new File("rtl/RomToy").mkdir()
 
   SpinalConfig(
     targetDirectory = "rtl/RomToy"
-  ).generateVerilog(RomToy())
+  ).generateVerilog(RomToy1())
 }
