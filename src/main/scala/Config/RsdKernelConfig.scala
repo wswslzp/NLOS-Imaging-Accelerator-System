@@ -132,7 +132,7 @@ object RsdKernelConfig {
   //impulse: (impulse_sample_point, radius)
   val radii_max = ( rsd_cfg.radius_factor / scala.math.sqrt(2) ).toInt
   lazy val imp_mask: DenseMatrix[Double] = DenseMatrix.tabulate(rsd_cfg.impulse_sample_point, rsd_cfg.radius_factor){(i, j)=>
-    if(i < radii_max) 1d
+    if(j < radii_max) 1d
     else 0d
   }
   lazy val impulse: DenseMatrix[Double] = LoadData.loadDoubleMatrix(
