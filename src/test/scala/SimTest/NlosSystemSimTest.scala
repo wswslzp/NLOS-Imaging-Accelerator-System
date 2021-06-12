@@ -44,6 +44,7 @@ object NlosSystemSimTest extends App{
   println("Begin input generation...")
   val coef = Computation.generateCoef(wave, distance, timeshift)
   val rsd = Computation.generateRSDRadKernel(coef, impulse)
+  csvwrite(new File(s"./tmp/imp.csv"), impulse)
   println("Generation done!")
 
   println("Begin loading input image...")

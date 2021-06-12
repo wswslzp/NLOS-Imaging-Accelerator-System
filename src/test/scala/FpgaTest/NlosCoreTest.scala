@@ -246,7 +246,6 @@ object NlosCoreTest extends App {
       uout(i).map(_.imag)
     )
   }
-  csvwrite(new File(s"tb/NlosCore/imp.csv"), impulse)
 
 
   if (withWave) {
