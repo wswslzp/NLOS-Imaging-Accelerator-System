@@ -12,12 +12,6 @@ import breeze.math._
 import java.io.File
 
 object NlosTestAll {
-  case class Shit(){
-    val w = 1
-  }
-  case class ShitGame() extends Shit() {
-    override val w = 2
-  }
 
   def main(args: Array[String]): Unit = {
     val compiled = SimConfig
