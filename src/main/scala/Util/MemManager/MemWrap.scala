@@ -25,7 +25,7 @@ case class Ram1rw(mc: MemConfig) extends Component with MemWrap {
 
 case class Ram1r1w(mc: MemConfig) extends Component with MemWrap{
   val io = new Bundle {
-    val clka, clkb = in Bool
+    val clka, clkb = in Bool()
     val apa = in(AddrCtrlPorts(mc))
     val apb = in(AddrCtrlPorts(mc))
     val dp = master(DataPorts(mc))
@@ -44,7 +44,7 @@ case class Ram1r1w(mc: MemConfig) extends Component with MemWrap{
 
 case class Ram2rw(mc: MemConfig) extends Component with MemWrap {
   val io = new Bundle {
-    val clka, clkb = in Bool
+    val clka, clkb = in Bool()
     val apa = in(AddrCtrlPorts(mc))
     val dpa = master(DataPorts(mc))
     val bista = master(BistPorts(mc))

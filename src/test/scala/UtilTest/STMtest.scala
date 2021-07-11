@@ -9,10 +9,10 @@ object STMtest extends App {
 
   class TopLevel extends Component {
     val io = new Bundle {
-      val result = out Bool
-      val when_is_next = out Bool
-      val int_fsm1_flag = out Bool
-      val int_fsm2_flag = out Bool
+      val result = out Bool()
+      val when_is_next = out Bool()
+      val int_fsm1_flag = out Bool()
+      val int_fsm2_flag = out Bool()
         val on_entry = out Bool()
     }
     val counter = Reg(UInt(8 bits)) init (0)

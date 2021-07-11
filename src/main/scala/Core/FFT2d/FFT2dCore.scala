@@ -22,9 +22,9 @@ case class FFT2dCore(cfg: FFTConfig, freq_factor: Int, depth_factor: Int) extend
   val io = new Bundle {
     val dc = in UInt(log2Up(depth_factor) bit)
     val fc = in UInt(log2Up(freq_factor) bit)
-    val push_ending = in Bool
+    val push_ending = in Bool()
     val fft2d_comp_done = out Bool()
-    val fft2d_out_sync = out Bool
+    val fft2d_out_sync = out Bool()
     val data_in = slave(Flow(HComplex(cfg.hComplexConfig)))
     val data_from_mac = slave(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.point)))
     val data_to_mac = master(Flow(Vec(HComplex(cfg.hComplexConfig), cfg.row)))

@@ -15,7 +15,7 @@ class mbbrom(wrap: Rom) extends MemBlackBox(wrap.mc) {
     val ADR = in UInt(wrap.mc.aw bit)
     val Q = out Bits(wrap.mc.dw bit)
     val ME, LS = in Bool()
-    val TEST1, RME = in Bool
+    val TEST1, RME = in Bool()
     val RM = in Bits(4 bit)
   }
 

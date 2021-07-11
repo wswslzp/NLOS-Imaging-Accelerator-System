@@ -11,12 +11,12 @@ import Vendor._
 class mbb1rw(wrap: Ram1rw) extends Util.Vendor.MemBlackBox(wrap.mc) {
 //  this.setDefinitionName()
   val io = new Bundle {
-    val CLK = in Bool
+    val CLK = in Bool()
     val ADR = in UInt(wrap.mc.aw bit)
     val D = in Bits(wrap.mc.dw bit)
     val Q = out Bits(wrap.mc.dw bit)
     val WEM = if(wrap.mc.needBwe) in Bits(wrap.mc.dw bit) else null
-    val WE, ME, TEST1, RME, LS = in Bool
+    val WE, ME, TEST1, RME, LS = in Bool()
     val RM = in Bits(4 bit)
   }
 //  println("In Huali, mbb1rw")

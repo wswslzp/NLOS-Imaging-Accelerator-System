@@ -10,17 +10,17 @@ import spinal.core.sim._
 object FFT2dIntMemTest extends App{
   case class SramForTest() extends Component{
     val io = new Bundle {
-      val CLK = in Bool
+      val CLK = in Bool()
       val Q = out UInt(32 bit)
       val D = in UInt(32 bit)
       val ADR = in UInt(14 bit)
       val RM = in UInt(4 bit)
       val WE = in Bool()
       val ME = in Bool()
-      val RME = in Bool
-      val TEST1 = in Bool
-      val LS = in Bool
-      val rst = in Bool
+      val RME = in Bool()
+      val TEST1 = in Bool()
+      val LS = in Bool()
+      val rst = in Bool()
     }
 
     val clkdom = ClockDomain(io.CLK)

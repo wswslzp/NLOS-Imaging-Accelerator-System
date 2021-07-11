@@ -7,8 +7,8 @@ object latTest extends App {
 
   case class LatTest() extends Component {
     val io = new Bundle {
-      val ia = in Bool
-      val ib = in Bool
+      val ia = in Bool()
+      val ib = in Bool()
       val ob = out Bits (2 bit)
     }
 

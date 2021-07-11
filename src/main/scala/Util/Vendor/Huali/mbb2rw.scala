@@ -11,12 +11,12 @@ import Util.Vendor._
 class mbb2rw(wrap: Ram2rw) extends MemBlackBox(wrap.mc) {
   //  this.setDefinitionName()
   val io = new Bundle {
-    val CLKA, CLKB = in Bool
+    val CLKA, CLKB = in Bool()
     val ADRA, ADRB = in UInt(wrap.mc.aw bit)
     val DA, DB = in Bits(wrap.mc.dw bit)
     val QA, QB = out Bits(wrap.mc.dw bit)
     val WEMA, WEMB = if(wrap.mc.needBwe) in Bits(wrap.mc.dw bit) else null
-    val WEA, WEB, MEA, MEB, TEST1A, TEST1B, RMEA, RMEB, LSA, LSB = in Bool
+    val WEA, WEB, MEA, MEB, TEST1A, TEST1B, RMEA, RMEB, LSA, LSB = in Bool()
     val RMA, RMB = in Bits(4 bit)
   }
 

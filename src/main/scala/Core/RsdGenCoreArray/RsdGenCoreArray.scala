@@ -22,11 +22,11 @@ case class RsdGenCoreArray(
   val io = new Bundle {
     val dc = in UInt(log2Up(cfg.depth_factor) bit)
     val fc = in UInt(log2Up(cfg.freq_factor) bit)
-    val fft2d_out_sync = in Bool
+    val fft2d_out_sync = in Bool()
     val clear_confirm = in Bool()
     val push_ending = out Bool()
     val push_start = out Bool()
-    val cnt_incr = out Bool
+    val cnt_incr = out Bool()
     val load_req = out Bits(4 bit)
     val rsd_kernel: Flow[Vec[HComplex]] = master (
       Flow(Vec(HComplex(cfg.getKernelConfig), row_num))

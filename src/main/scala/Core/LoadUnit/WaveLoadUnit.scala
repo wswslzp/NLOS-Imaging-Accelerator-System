@@ -21,12 +21,12 @@ case class WaveLoadUnit(
 
   val io = new Bundle {
 //    val fc_eq_0 = in Bool()
-    val fc_overflow = in Bool
-    val ready_for_store = out Bool
-    val load_req = out Bool
-    val data_enable = out Bool
-    val rsd_comp_end = in Bool
-    val rsd_comp_start = in Bool
+    val fc_overflow = in Bool()
+    val ready_for_store = out Bool()
+    val load_req = out Bool()
+    val data_enable = out Bool()
+    val rsd_comp_end = in Bool()
+    val rsd_comp_start = in Bool()
     val wave = master(Flow(
       SFix(cfg.wave_cfg.intw-1 exp, -cfg.wave_cfg.fracw exp)
     ))

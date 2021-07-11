@@ -9,41 +9,41 @@ trait InternalMemTrait extends Nameable {
 
 trait InternalSPMemTrait extends InternalMemTrait {
   val io = new Bundle {
-    val CLK = in Bool
+    val CLK = in Bool()
     val Q = out UInt(data_width bit)
     val D = in UInt(data_width bit)
     val ADR = in UInt(addr_width bit)
     val RM = in UInt(4 bit)
     val WE = in Bool()
     val ME = in Bool()
-    val RME = in Bool
-    val TEST1 = in Bool
-    val LS = in Bool
+    val RME = in Bool()
+    val TEST1 = in Bool()
+    val LS = in Bool()
   }
 }
 
 trait InternalDPMemTrait extends InternalMemTrait {
   val io_a = new Bundle {
-    val CLKA = in Bool
+    val CLKA = in Bool()
     val QA = out UInt(data_width bit)
     val DA = in UInt(data_width bit)
     val ADRA = in UInt(addr_width bit)
     val RMA = in UInt(4 bit)
     val WEA = in Bool()
     val MEA = in Bool()
-    val RMEA = in Bool
-    val TEST1A = in Bool
+    val RMEA = in Bool()
+    val TEST1A = in Bool()
   }
   val io_b = new Bundle {
-    val CLKB = in Bool
+    val CLKB = in Bool()
     val QB = out UInt(data_width bit)
     val DB = in UInt(data_width bit)
     val ADRB = in UInt(addr_width bit)
     val RMB = in UInt(4 bit)
     val WEB = in Bool()
     val MEB = in Bool()
-    val RMEB = in Bool
-    val TEST1B = in Bool
+    val RMEB = in Bool()
+    val TEST1B = in Bool()
   }
   val LS = in Bool()
 }

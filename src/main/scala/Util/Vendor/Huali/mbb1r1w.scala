@@ -11,12 +11,12 @@ import MemManager._
 class mbb1r1w(wrap: Ram1r1w) extends Util.Vendor.MemBlackBox(wrap.mc) {
   //  this.setDefinitionName()
   val io = new Bundle {
-    val CLKA, CLKB = in Bool
+    val CLKA, CLKB = in Bool()
     val ADRA, ADRB = in UInt(wrap.mc.aw bit)
     val D = in Bits(wrap.mc.dw bit)
     val Q = out Bits(wrap.mc.dw bit)
     val WEMA, WEMB = if(wrap.mc.needBwe) in Bits(wrap.mc.dw bit) else null
-    val WE, MEA, MEB, TEST1A, TEST1B, RMEA, RMEB, LSA, LSB = in Bool
+    val WE, MEA, MEB, TEST1A, TEST1B, RMEA, RMEB, LSA, LSB = in Bool()
     val RMA, RMB = in Bits(4 bit)
   }
 

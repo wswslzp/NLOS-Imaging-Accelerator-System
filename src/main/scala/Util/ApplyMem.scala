@@ -161,7 +161,7 @@ object ApplyMemMain extends App {
     val vb = out ( Rgb(8, 8, 8) )
     val c = out (Bits(128 bit))
     val d = out (Vec(HComplex(8, 8), 32))
-    val e = out Bool
+    val e = out Bool()
 
     awReady(True)
     wReady(True)

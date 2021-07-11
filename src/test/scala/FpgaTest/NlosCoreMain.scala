@@ -12,7 +12,7 @@ object NlosCoreMain extends App{
   new File("../rtl/NlosCore").mkdir()
   SpinalConfig(
     targetDirectory = "../rtl/NlosCore",
-    oneFilePerComponent = true
+//    oneFilePerComponent = true
   ).generateVerilog{
     val core = NlosCore(rsd_cfg)
     core.rework{ // Useless
