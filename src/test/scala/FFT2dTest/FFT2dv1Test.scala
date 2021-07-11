@@ -22,8 +22,8 @@ import scala.collection.mutable
 object FFT2dv1Test extends App{
   val fft_config = FFTConfig(
     hComplexConfig = HComplexConfig(8, 8),
-    point = 64,
-    row = 64
+    point = 512,
+    row = 512
   )
 
   def load_image(input_img: String): linalg.DenseMatrix[Double] = {
