@@ -20,22 +20,23 @@ object NlosCoreTest extends App {
   val withWave = true
   val waveDepth = 3
 
-  val rpt = SpinalConfig(
-    rtlHeader = "/* verilator lint_off CASEOVERLAP */"
-  ).generateVerilog(NlosCore(rsd_cfg))
   val compiled = if (withWave) {
     SimConfig
       .allOptimisation
       .withWave(waveDepth)
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
-      .compile(rpt)
+      .compile(SpinalConfig(
+        rtlHeader = "/* verilator lint_off CASEOVERLAP */"
+      ).generateVerilog(NlosCore(rsd_cfg)))
   } else {
     SimConfig
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32")
-      .compile(rpt)
+      .compile(SpinalConfig(
+        rtlHeader = "/* verilator lint_off CASEOVERLAP */"
+      ).generateVerilog(NlosCore(rsd_cfg)))
   }
 
   val uout = Array.fill(rsd_cfg.depth_factor)(
