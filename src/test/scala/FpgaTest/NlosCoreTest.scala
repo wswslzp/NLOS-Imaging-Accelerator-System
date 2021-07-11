@@ -35,7 +35,8 @@ object NlosCoreTest extends App {
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32")
       .compile(SpinalConfig(
-        rtlHeader = "/* verilator lint_off CASEOVERLAP */"
+        rtlHeader = "/* verilator lint_off CASEOVERLAP */",
+        targetDirectory = "tmp"
       ).generateVerilog(NlosCore(rsd_cfg)))
   }
 
