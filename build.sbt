@@ -1,7 +1,7 @@
 name := "nlos_system"
 version := "1.0"
 scalaVersion := "2.12.10"
-val spinalVersion = "1.4.3"
+val spinalVersion = "1.6.0"
 
 libraryDependencies ++= Seq(
   "org.bytedeco" % "javacv-platform" % "1.5.3",
