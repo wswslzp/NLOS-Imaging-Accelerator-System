@@ -3,8 +3,10 @@ package Util
 import spinal.core._
 import spinal.lib._
 import fiber._
-
+import spinal.lib.bus.regif._
 import scala.collection.mutable
+
+trait PipelineGen
 
 //trait PipelineGen extends Generator {
 //  private var pipeline_switches = mutable.Map[Int, Handle[Boolean]]()

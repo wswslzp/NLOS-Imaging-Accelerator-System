@@ -10,6 +10,7 @@ import Sim.SimFix._
 import breeze.linalg._
 import breeze.math._
 import spinal.core.sim._
+import spinal.core._
 
 import java.io.File
 import scala.sys.process.{Process, ProcessLogger}
@@ -19,19 +20,22 @@ object NlosCoreTest extends App {
   val withWave = true
   val waveDepth = 3
 
+  val rpt = SpinalConfig(
+    rtlHeader = "/* verilator lint_off CASEOVERLAP */"
+  ).generateVerilog(NlosCore(rsd_cfg))
   val compiled = if (withWave) {
     SimConfig
       .allOptimisation
       .withWave(waveDepth)
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32 --trace-threads 32")
-      .compile(NlosCore(rsd_cfg))
+      .compile(rpt)
   } else {
     SimConfig
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32")
-      .compile(NlosCore(rsd_cfg))
+      .compile(rpt)
   }
 
   val uout = Array.fill(rsd_cfg.depth_factor)(
