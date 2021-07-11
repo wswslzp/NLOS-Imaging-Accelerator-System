@@ -28,6 +28,7 @@ object FFT2dv1Test extends App{
 
   def load_image(input_img: String): linalg.DenseMatrix[Double] = {
     var inimg = imread(input_img)
+    println(s"row=${inimg.rows()}; col=${inimg.cols()}")
     resize(inimg, inimg, new Size(fft_config.row, fft_config.point))
     cvtColor(inimg, inimg, CV_RGB2GRAY)
     val inimg_indexr = inimg.createIndexer().asInstanceOf[UByteIndexer]
@@ -108,9 +109,11 @@ object FFT2dv1Test extends App{
   }
 
   import linalg._
-  val fft2_in = load_image("tb/FFT2d_tb/data/t1.png")
+  import java.io._
+  new File("tmp/FFT2dv1").mkdirs()
+  val fft2_in = load_image("src/test/resource/fft_data/test.jpg")
 //  val fft2_in = DenseMatrix.tabulate(4, 4)(_ + _).map(_.toDouble)
-  write_image(fft2_in, "tb/FFT2d_tb/inimg_resize.jpg")
+  write_image(fft2_in, "tmp/FFT2dv1/inimg.jpg")
 //  val fft2_out = fft2d_func(fft2_in)
 //  println(s"The true fft2 is ${fft2_out}")
 //  val i_fft2_out_col = DenseMatrix.zeros[Complex](4, 4)
