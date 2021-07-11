@@ -7,7 +7,7 @@ import Sim.SimFix._
 import Sim.SimComplex._
 import Util._
 import breeze._
-import breeze.math.Complex
+import breeze.linalg._
 import org.bytedeco.javacpp.indexer._
 import org.bytedeco.opencv.global.opencv_core._
 import org.bytedeco.opencv.global.opencv_imgcodecs._
@@ -86,14 +86,9 @@ object FFT2dv1Test extends App{
     fft2_inst.io.col_line_in.valid := False
     fft2_inst.io.col_line_in.payload.foreach(_ := HC(0, 0, cfg.hComplexConfig))
     fft2_inst.io.row_pix_in << io.pixel_in
-//    fft2_inst.io.col_line_in << io.line_in
-//    fft2_inst.io.row_pix_in.valid := False
-//    fft2_inst.io.row_pix_in.payload := HC(0, 0, cfg.hComplexConfig)
     fft2_inst.io.mode := True // row pixel in
-//    fft2_inst.io.mode := False // col line in
     fft2_inst.io.inverse := False
     val fft_out = fft2_inst.io.col_line_out
-//    val fft_out = fft2_inst.io.row_pix_out
 
     val ifft2_inst = FFT2dv1(cfg)
     ifft2_inst.io.col_line_in << fft_out
@@ -103,29 +98,18 @@ object FFT2dv1Test extends App{
     ifft2_inst.io.row_pix_in.payload := HC(0, 0, cfg.hComplexConfig)
     io.pixel_out << ifft2_inst.io.row_pix_out
 
-//    io.line_out <> fft2(fft2(io.line_in, cfg.row, cfg.point), True, cfg.row)
     io.line_out <> fft2(fft_out, True, cfg.row)
-//    io.line_out <> fft2(fft_out, True, cfg.row, cfg.point)
   }
 
   import linalg._
   import java.io._
   new File("tmp/FFT2dv1").mkdirs()
   val fft2_in = load_image("src/test/resource/fft_data/test.jpg")
-//  val fft2_in = DenseMatrix.tabulate(4, 4)(_ + _).map(_.toDouble)
   write_image(fft2_in, "tmp/FFT2dv1/inimg.jpg")
-//  val fft2_out = fft2d_func(fft2_in)
-//  println(s"The true fft2 is ${fft2_out}")
-//  val i_fft2_out_col = DenseMatrix.zeros[Complex](4, 4)
-//  for(c <- 0 until 4){
-//    i_fft2_out_col(::, c) := fourierTr(fft2_out(::, c).map(_.conjugate)).map(_ / 4)
-//  }
-//  println(s"The first fft after fft2 out is $i_fft2_out_col")
-//  println(s"The first col of fft(fft2_out(0, ::)) is ${DenseVector.tabulate(4){i=>
-//    val tmp = fourierTr(fft2_out(i, ::).t.map(_.conjugate)).toDenseVector
-//    tmp(0) / 4d
-//  }}")
-//  println(s"The true result is ${fft2_in.map(_ / 16)}")
+  csvwrite(
+    new File("tmp/FFT2dv1/inimg.csv"),
+    fft2_in
+  )
 
   val compiled = SimConfig .withWave .allOptimisation .workspacePath("tb/FFT2d_tb") .compile(FFT2IFFT_2d(fft_config))
 
@@ -137,68 +121,6 @@ object FFT2dv1Test extends App{
       dut.clockDomain.forkStimulus(2)
       dut.clockDomain.waitSampling()
 
-//      var pix_addr_1 = 0
-//      dut.clockDomain onSamplings {
-//        if (dut.fft2_inst.int_mem.io.row_pix_out.valid.toBoolean) {
-//          val row = pix_addr_1 / fft_config.point
-//          val col = pix_addr_1 % fft_config.point
-//          last_fft_in(row, col) = dut.fft2_inst.int_mem.io.row_pix_out.payload.toComplex
-//          pix_addr_1 += 1
-//        }
-//      }
-//
-//      var pix_addr = 0
-//      dut.clockDomain onSamplings {
-//        if (dut.fft2_inst.last_fft.io.row_pix_out.valid.toBoolean) {
-//          val row = pix_addr / fft_config.point
-//          val col = pix_addr % fft_config.point
-//          last_fft_out(i)(row, col) = dut.fft2_inst.last_fft.io.row_pix_out.payload.toComplex
-//          pix_addr += 1
-//        }
-//      }
-//
-//      var t1 = 0
-//      dut.clockDomain onSamplings {
-//        val cond1 = dut.fft2_inst.first_fft.io.col_line_out.valid.toBoolean
-//        val cond2 = dut.fft2_inst.first_fft.io.row_pix_out.valid.toBoolean
-//        if (cond1 && t1 < 10) {
-//          t1 += 1
-//          first_fft_col_out.enqueue(dut.fft2_inst.first_fft.io.col_line_out.payload(2).toComplex)
-//        }
-//        if (cond2 && t1 < 10) {
-//          t1 += 1
-//          first_fft_row_out.enqueue(dut.fft2_inst.first_fft.io.row_pix_out.payload.toComplex)
-//        }
-//      }
-//
-//      var t2 = 0
-//      dut.clockDomain onSamplings {
-//        val cond1 = dut.fft2_inst.int_mem.io.row_pix_out.valid.toBoolean
-//        val cond2 = dut.fft2_inst.int_mem.io.col_line_out.valid.toBoolean
-//        if (cond1 && t2 < 10) {
-//          t2 += 1
-//          int_mem_pix_out.enqueue(dut.fft2_inst.int_mem.io.row_pix_out.payload.toComplex)
-//        }
-//        if (cond2 && t2 < 10) {
-//          t2 += 1
-//          int_mem_col_out.enqueue(dut.fft2_inst.int_mem.io.col_line_out.payload(2).toComplex)
-//        }
-//      }
-//
-//      var t3 = 0
-//      dut.clockDomain onSamplings {
-//        val cond1 = dut.fft2_inst.last_fft.io.row_pix_out.valid.toBoolean
-//        val cond2 = dut.fft2_inst.last_fft.io.col_line_out.valid.toBoolean
-//        if (cond1 && t3 < 10) {
-//          t3 += 1
-//          last_fft_pix_out.enqueue(dut.fft2_inst.last_fft.io.row_pix_out.payload.toComplex)
-//        }
-//        if (cond2 && t3 < 10) {
-//          t3 += 1
-//          last_fft_col_out.enqueue(dut.fft2_inst.last_fft.io.col_line_out.payload(2).toComplex)
-//        }
-//      }
-//
       forkJoin(
         () => {
           dut.io.pixel_in.valid #= true
@@ -245,13 +167,17 @@ object FFT2dv1Test extends App{
           flag1 = true
           println("The output image from pixel out has been collected.")
           write_image(fft2_out_1, s"tmp/FFT2dv1/fft_hw2_$i.jpg")
+          csvwrite(
+            new File(s"tmp/FFT2dv1/fft_hw2_$i.csv"),
+            fft2_out_1
+          )
           simSuccess()
         }
       }
-//
+
       dut.clockDomain onSamplings {
         if (dut.io.line_out.valid.toBoolean) {
-//          println(s"current row is $row_addr")
+
           val row = linalg.DenseVector.fill(fft_config.point)(0d)
           for (i <- 0 until fft_config.point) {
             val oreal = dut.io.line_out.payload(i).real.toDouble
@@ -270,25 +196,8 @@ object FFT2dv1Test extends App{
         }
       }
 
-//      fork {
-//        waitUntil(pixel_addr == ( fft_config.row * fft_config.point ))
-////        waitUntil(flag)
-//        dut.clockDomain.waitSampling(10)
-////        simSuccess()
-//      }
-
       dut.clockDomain.waitSampling(100000)
     }
   }
 
-//  for(r <- 0 until fft_config.row) {
-//    last_fft_in(r, ::).t := fourierTr(last_fft_in(r, ::).t).toDenseVector
-//  }
-//  write_image(iFourierTr(last_fft_in).map(_.abs), "tb/FFT2d_tb/last_fft_in_res.jpg")
-//
-//  val tmp = last_fft_out.map(iFourierTr(_).map(_.abs))
-//  tmp.zipWithIndex.foreach{ case (img, i) =>
-//    write_image(img, s"tb/FFT2d_tb/last_fft_out_res_$i.jpg")
-//  }
-//
 }
