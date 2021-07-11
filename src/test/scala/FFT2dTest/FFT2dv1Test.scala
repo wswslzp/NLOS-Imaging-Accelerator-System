@@ -244,7 +244,7 @@ object FFT2dv1Test extends App{
         if (pixel_addr == (fft_config.row * fft_config.point) & !flag1) {
           flag1 = true
           println("The output image from pixel out has been collected.")
-          write_image(fft2_out_1, s"tb/FFT2d_tb/fft_hw2_$i.jpg")
+          write_image(fft2_out_1, s"tmp/FFT2dv1/fft_hw2_$i.jpg")
           simSuccess()
         }
       }
@@ -266,7 +266,7 @@ object FFT2dv1Test extends App{
           flag = true
           println("The output image has been collected.")
           val out_img = fft2_out//.t
-          write_image(out_img, "tb/FFT2d_tb/fft_hw1.jpg")
+          write_image(out_img, "tmp/FFT2dv1/fft_hw1.jpg")
         }
       }
 
