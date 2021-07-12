@@ -21,7 +21,7 @@ import scala.collection.mutable
 
 object FFT2dv1Test extends App{
   val fft_config = FFTConfig(
-    hComplexConfig = HComplexConfig(32, 32),
+    hComplexConfig = HComplexConfig(16, 16),
     point = 128,
     row = 128
   )
