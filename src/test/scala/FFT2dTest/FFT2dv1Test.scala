@@ -23,7 +23,7 @@ object FFT2dv1Test extends App{
   import RsdKernelConfig._
 //  val fft_config = rsd_cfg.getFFT2dConfig // Here we use the config used in real implementation.
   val fft_config = FFTConfig(
-    hComplexConfig = HComplexConfig(20, 10),
+    hComplexConfig = HComplexConfig(20, 6), // TODO: Here we didn't consider the mac effect. Consider adding RSD kernel effect.
     point = 128,
     row = 128
   )
