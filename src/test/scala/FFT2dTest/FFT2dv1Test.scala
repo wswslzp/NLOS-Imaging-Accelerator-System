@@ -21,12 +21,12 @@ import scala.collection.mutable
 
 object FFT2dv1Test extends App{
   import RsdKernelConfig._
-  val fft_config = rsd_cfg.getFFT2dConfig // Here we use the config used in real implementation.
-//  val fft_config = FFTConfig(
-//    hComplexConfig = HComplexConfig(16, 16),
-//    point = 128,
-//    row = 128
-//  )
+//  val fft_config = rsd_cfg.getFFT2dConfig // Here we use the config used in real implementation.
+  val fft_config = FFTConfig(
+    hComplexConfig = HComplexConfig(16, 16),
+    point = 128,
+    row = 128
+  )
 
   def load_image(input_img: String): linalg.DenseMatrix[Double] = {
     var inimg = imread(input_img)
