@@ -20,11 +20,13 @@ import signal._
 import scala.collection.mutable
 
 object FFT2dv1Test extends App{
-  val fft_config = FFTConfig(
-    hComplexConfig = HComplexConfig(16, 16),
-    point = 128,
-    row = 128
-  )
+  import RsdKernelConfig._
+  val fft_config = rsd_cfg.getFFT2dConfig // Here we use the config used in real implementation.
+//  val fft_config = FFTConfig(
+//    hComplexConfig = HComplexConfig(16, 16),
+//    point = 128,
+//    row = 128
+//  )
 
   def load_image(input_img: String): linalg.DenseMatrix[Double] = {
     var inimg = imread(input_img)
@@ -104,11 +106,14 @@ object FFT2dv1Test extends App{
   import linalg._
   import java.io._
   new File("tmp/FFT2dv1").mkdirs()
-  val fft2_in = load_image("src/test/resource/fft_data/test.jpg")
-  write_image(fft2_in, "tmp/FFT2dv1/inimg.jpg")
+//  val fft2_in = load_image("src/test/resource/fft_data/test.jpg")
+  val fft2_in = uin(0) // Here we use the real input of NLOS to see if it can recover the input image after fft2d and ifft2d.
+//  write_image(fft2_in, "tmp/FFT2dv1/inimg.jpg")
+  write_image(fft2_in.map(_.abs), "tmp/FFT2dv1/inimg.jpg")
   csvwrite(
     new File("tmp/FFT2dv1/inimg.csv"),
-    fft2_in
+    fft2_in.map(_.abs)
+//    fft2_in
   )
 
   val compiled = SimConfig .withWave .allOptimisation .workspacePath("tb/FFT2d_tb") .compile(FFT2IFFT_2d(fft_config))
