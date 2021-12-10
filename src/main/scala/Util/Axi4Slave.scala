@@ -103,7 +103,7 @@ trait Axi4Slave extends Nameable {
         addr_hit.setWeakName("addr_hit")
         mem.write(
           address = ( current_addr - range.head ).resize(mem.addressWidth bit),
-          data = wdata_r,
+          data = wdata_r.resize(mem.width),
           enable = addr_hit
         )
       }

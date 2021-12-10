@@ -165,7 +165,7 @@ object RsdKernelGenTest1 extends App{
   write_image(uout_abs_max_flip, "tb/RsdKernelGen1_tb/nlos_out.jpg")
 
   if(withWave){
-    val nullLogger = ProcessLogger(line=>{})
+    val nullLogger = ProcessLogger(_=>{})
     println("Converting vcd to fsdb...")
     Process("vcd2fsdb tb/RsdKernelGen1_tb/RsdKernelGen1_tb.vcd -o tb/RsdKernelGen1_tb/RsdKernelGen1_tb.fsdb") ! nullLogger
     println("Convert done.")
