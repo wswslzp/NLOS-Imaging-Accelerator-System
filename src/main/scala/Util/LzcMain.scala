@@ -7,6 +7,15 @@ object LzcMain extends App{
     val a_lzc = out UInt(20 bit)
 
     a_lzc := simpleCountLeadingZeros(a).resized
+    GenerationFlags.synthesis {
+
+    }
+    GenerationFlags.simulation {
+
+    }
+    GenerationFlags.formal {
+
+    }
   }
   SpinalConfig(
     mode = Verilog,

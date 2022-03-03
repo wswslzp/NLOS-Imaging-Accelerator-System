@@ -18,8 +18,9 @@ object NlosFpgaCoreMain extends App{
   SpinalConfig(
     targetDirectory = s"${prj_path}/rtl/NlosFpgaCore",
     defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
-    headerWithDate = true, verbose = true, oneFilePerComponent = true
-  ).generateVerilog(NlosFpgaCore(rsd_cfg))
+    headerWithDate = true, verbose = true, oneFilePerComponent = true,
+
+  ).withoutEnumString().generateVerilog(NlosFpgaCore(rsd_cfg))
 
 //  val nlos_fpga_proj = new QuartusProject(
 //    quartusPath = "/opt/intelFPGA/20.3/quartus/bin/",

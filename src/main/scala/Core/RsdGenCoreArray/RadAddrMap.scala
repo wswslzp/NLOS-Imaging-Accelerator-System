@@ -19,8 +19,20 @@ case class RadAddrMap(cfg: RsdKernelConfig) extends Component{
     PixelAddrTransform(row_addr, cfg)
   }
 
+  // todo here move the square op outward, eliminate the redundant multipliers.
+  //  **high fanout leads to high latency.**
+  val g_col_addr = cloneOf(io.col_addr)
+  when(io.col_addr < col_num/2){
+    g_col_addr := io.col_addr
+  } otherwise {
+    g_col_addr := ( col_num - io.col_addr ).resized
+  }
+
+  val g_col_addr2 = g_col_addr * g_col_addr
+
   pixelAddrTransforms.zipWithIndex.foreach{ case (transform, i) =>
-    transform.io.col_addr := io.col_addr
+//    transform.io.col_addr := io.col_addr
+    transform.io.col_addr2 := g_col_addr2
     io.pixel_addrs(i) := (transform.io.rad_addr < (cfg.impulse_sample_point - 1)) ? transform.io.rad_addr | U(cfg.impulse_sample_point - 1)
   }
 }
