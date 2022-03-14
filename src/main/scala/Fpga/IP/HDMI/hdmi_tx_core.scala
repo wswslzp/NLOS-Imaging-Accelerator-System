@@ -1,3 +1,4 @@
+package Fpga.IP.HDMI
 import spinal.core._
 import spinal.lib._
 
