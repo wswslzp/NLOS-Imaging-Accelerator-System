@@ -17,6 +17,7 @@ object StreamToHDMITest extends App {
     val io = new Bundle {
       val vga = master(Vga(RgbConfig(8, 8, 8)))
     }
+//    io.vga.color.assignUnassignedByName()
 
     val s2hdmi = StreamToHDMI(vid_1280x720p60, 256, 256)
     io.vga.vSync := s2hdmi.io.vid.vs

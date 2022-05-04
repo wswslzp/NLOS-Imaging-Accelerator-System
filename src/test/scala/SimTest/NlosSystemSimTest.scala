@@ -2,10 +2,6 @@ package SimTest
 
 import java.io.File
 
-import spinal.core._
-import spinal.lib._
-import Core._
-import Util._
 import Config._
 import Sim.RsdGenCoreArray._
 import breeze._
@@ -16,9 +12,27 @@ import org.bytedeco.opencv.global.opencv_core.CV_8U
 import org.bytedeco.opencv.global.opencv_imgcodecs.imwrite
 import org.bytedeco.opencv.opencv_core.Mat
 import signal._
+import com.sksamuel.scrimage.ImmutableImage
+import com.sksamuel.scrimage.color.Grayscale
+import com.sksamuel.scrimage.nio.JpegWriter
 
 object NlosSystemSimTest extends App{
   import RsdKernelConfig._
+  implicit def dMatToImage(mat: DenseMatrix[Int]): ImmutableImage = {
+    val image = ImmutableImage.create(mat.cols, mat.rows)
+    for{
+      i <- 0 until mat.rows
+      j <- 0 until mat.cols
+    } {
+      image.setColor(i, j, new Grayscale(mat(i, j)))
+    }
+    image
+  }
+
+  def writeImage(input: linalg.DenseMatrix[Int], path: String): Unit = {
+    input.output(new JpegWriter(), path)
+
+  }
 
   def write_image(input: linalg.DenseMatrix[Double], path: String): Unit = {
     val input_max: Double = linalg.max(input)
@@ -35,6 +49,7 @@ object NlosSystemSimTest extends App{
       outimg_indexer.put(i.toLong, j.toLong, ( ( ( input(i, j) - input_min) * 255) / ( input_max - input_min) ).toByte)
     }
     imwrite(path, outimg)
+//    writeImage(input, path)
   }
 
   val freq_num = 69
