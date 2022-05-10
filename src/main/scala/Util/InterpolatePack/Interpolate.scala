@@ -115,7 +115,7 @@ object Interpolate {
     import spinal.core.sim._
     SpinalConfig(
       targetDirectory = "rtl",
-      headerWithDate = true,
+      headerWithDate = true
     ).generateVerilog(IUTestTop())
 //    SimConfig
 //      .withWave

@@ -7,7 +7,7 @@ import scala.beans.BeanProperty
 
 case class InterpolateConfig[T <: Data with Num[T]](
                                                    dataType: HardType[T],
-                                                   dim: Int,
+                                                   dim: Int
                                                    ){
   @BeanProperty
   var ports: Int = 2
