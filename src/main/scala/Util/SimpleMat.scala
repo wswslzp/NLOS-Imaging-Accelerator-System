@@ -16,6 +16,3 @@ class SimpleMat(row: Int, col: Int) {
   def apply(x: Int)(y: Int): Int = mat_data(x)(y)
 }
 
-object SimpleMat {
-  import com.sksamuel.scrimage._
-}
