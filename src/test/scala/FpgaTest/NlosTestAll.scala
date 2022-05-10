@@ -14,14 +14,14 @@ import java.io.File
 object NlosTestAll {
 
   def main(args: Array[String]): Unit = {
-//    val vcsFlags = VCSFlags(
-//      compileFlags = List("-fgp=num_threads:16"),
-//      elaborateFlags = List("-fgp=num_threads:16"),
-//      runFlags = List("-fgp=num_threads:16"),
-//    )
+    val vcsFlags = VCSFlags(
+      compileFlags = List("-fgp=num_threads:16"),
+      elaborateFlags = List("-fgp=num_threads:16"),
+      runFlags = List("-fgp=num_threads:16"),
+    )
     val compiled = SimConfig.withWave
-//      .withVCS(vcsFlags)
-//      .withFSDBWave
+      .withVCS(vcsFlags)
+      .withFSDBWave
       .allOptimisation
       .workspacePath("tb")
       .addSimulatorFlag("-j 32 --threads 32")
