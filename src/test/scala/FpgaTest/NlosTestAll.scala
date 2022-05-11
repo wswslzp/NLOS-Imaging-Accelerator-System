@@ -17,7 +17,7 @@ object NlosTestAll {
     val vcsFlags = VCSFlags(
       compileFlags = List("-fgp=num_threads:16"),
       elaborateFlags = List("-fgp=num_threads:16"),
-      runFlags = List("-fgp=num_threads:16"),
+      runFlags = List("-fgp=num_threads:16")
     )
     val compiled = SimConfig.withWave
       .withVCS(vcsFlags)

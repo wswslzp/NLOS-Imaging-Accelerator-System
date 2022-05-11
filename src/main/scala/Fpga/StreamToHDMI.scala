@@ -3,7 +3,6 @@ package Fpga
 import spinal.core._
 import spinal.lib._
 import spinal.lib.graphic._
-import Util.HotMap
 
 case class HdmiConfig(
                         pixel_per_clock: Int = 2, // now is 2
